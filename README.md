@@ -137,7 +137,7 @@ C:\Users\当前用户\.nuget\packages
 
 最后会提示成功
 
-![image-20210704172359684](G:\github\peach\readme\image-20210704172359684.png)
+![image-20210704191059162](README.assets/image-20210704191059162.png)
 
 
 
