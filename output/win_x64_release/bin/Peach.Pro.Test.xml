@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Peach.Pro.Test</name>
+    </assembly>
+    <members>
+        <member name="F:Peach.Pro.Test.Core.Agent.Http.HttpServer.RestCalls">
+            <summary>
+            Rest calls in order made.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Test.Core.Agent.Http.HttpServer.Started">
+            <summary>
+            Raised when the listener is initialized but
+            before starting to service requests.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Test.Core.Agent.Http.HttpServer.Stopped">
+            <summary>
+            Raised when the listener stops after servicing
+            the last request.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Test.Core.Agent.Http.HttpServer.Uri">
+            <summary>
+            The URI of the listener.  Is only valid after the
+            Started event is raised and before the Stopped
+            event is raised.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.Agent.Http.HttpServer.Run(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Run the REST agent server on the command line.
+            Status messages will be displayed to the console.
+            </summary>
+            <param name="args">Command line arguments</param>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.Agent.Http.HttpServer.Run(System.UInt16)">
+            <summary>
+            Run the REST agent server on the specified port.
+            No status messages are displayed and the function
+            will not complete until Stop() is called.
+            </summary>
+            <param name="port">Port to listen on</param>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.Agent.Http.HttpServer.Run(System.UInt16,System.UInt16)">
+            <summary>
+            Run the REST agent server on the first free port,
+            starting with minport and searching until maxport.
+            No status messages are displayed and the function
+            will not complete until Stop() is called.
+            </summary>
+            <param name="minport">First port to try</param>
+            <param name="maxport">Last port to try</param>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.Agent.Http.HttpServer.Stop">
+            <summary>
+            Stops the listener from accepting new requests.
+            Causes Run() to complete.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.CrackingTests.ArrayTests.CrackArrayStopAtMax">
+            <summary>
+            We should stop cracking at maxOccurs.  Question, should we throw an exception or just
+            stop?
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.ReportedTests.ObjectCopierExplode">
+            <summary>
+            From Sirus.
+            </summary>
+            <remarks>
+            input data attached.   For some reason stalls in the ObjectCopier clone method 
+            trying to deserialze a 120 megabyte (!) memory stream of a Dom.Number... Wonder 
+            what the heck the serializer is doing..
+            </remarks>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.ReportedTests.CrackExplode">
+            <summary>
+            Reported by Sirus
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.ReportedTests.CrackNoExplode">
+            <summary>
+            Proper data bytes for model of CrackExplode
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.ReportedTests.CrackExplode2">
+            <summary>
+            Reported by Sirus
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Test.Core.ReproIterationTests.RunIter(System.String,System.Boolean,System.UInt32,System.String,System.String,System.Boolean)">
+            <summary>
+            Fuzz from iteration 1 to 10
+            Fault on 'faultIter'
+            Reproduce fault on 'faultIter'
+            How often to run control iterations
+            </summary>
+            <param name="faultIter"></param>
+            <param name="repro"></param>
+            <param name="controlIter"></param>
+            <param name="waitTime"></param>
+            <param name="faultWaitTime"></param>
+            <param name="softException"></param>
+        </member>
+        <member name="T:Peach.Pro.Test.Core.ManyChildren">
+            <summary>
+            All child elements occur many times
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Test.Core.SingleChildren">
+            <summary>
+            All children occur a single time
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Test.Core.MixedChildren">
+            <summary>
+            ChildOne and ChildTwo occur many times
+            ChildThree and ChildFour occur a single time
+            </summary>
+        </member>
+    </members>
+</doc>

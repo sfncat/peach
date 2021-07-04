@@ -1,0 +1,8 @@
+<Peach>
+	<DataModel name="TheDataModel">
+		<String value="This is some fuzz data!" />
+	</DataModel>
+	
+	<StateModel name="TheStateModel" initialState="Initial">
+		<State name="Initial">
+			<Action type="call"

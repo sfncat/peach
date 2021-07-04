@@ -1,0 +1,23 @@
+<form ng-submit="vm.OnSubmit()"
+			autocomplete="off">
+	<div class="modal-header">
+		<h3 class="modal-title">
+			{{vm.Options.Title || 'Confirmation'}}
+		</h3>
+	</div>
+	<div class="modal-body">
+		{{vm.Options.Body || 'Are you sure? This action is irreversible.'}}
+	</div>
+	<div class="modal-footer">
+		<button type="reset"
+						class="btn btn-default"
+						ng-click="vm.OnCancel()">
+			{{vm.Options.CancelPrompt || 'Cancel'}}
+		</button>
+		<button type="submit"
+						class="btn btn-primary"
+						peach:auto-focus>
+			{{vm.Options.SubmitPrompt}}
+		</button>
+	</div>
+</form>

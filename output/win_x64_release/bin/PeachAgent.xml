@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PeachAgent</name>
+    </assembly>
+    <members>
+        <member name="T:PeachAgent.PeachAgentMain">
+            <summary>
+            Command line interface for Peach 3.
+            Mostly backwards compatable with Peach 2.3.
+            </summary>
+        </member>
+        <member name="P:PeachAgent.PeachAgentMain.Copyright">
+            <summary>
+            Copyright message
+            </summary>
+        </member>
+        <member name="P:PeachAgent.PeachAgentMain.ProductName">
+            <summary>
+            Product name
+            </summary>
+        </member>
+    </members>
+</doc>

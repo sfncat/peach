@@ -1,0 +1,31 @@
+= Extending Peach in Python
+
+Normally Peach extensions are written using the Microsoft .NET languages such as C# or VB.NET.
+However, it is also possible to write Peach extensions using just Python
+with the help of a special IronPython library _clrtype_.
+
+In this folder are several example extensions written in Python.
+They can be used as the basis for developing your own extensions.
+Each example extension is contained in a single python source file with an accompaning Peach Pit.
+All of the extensions require the _clrtype.py_ file.
+This file contains the special code needed to make the extensions visable to Peach.
+
+Peach Python extensions are different from Python modules that are imported on a per pit basis using <Import import="mymodule" />.
+Peach Python extensions are treated like C# extensions and MUST be placed in the Peach Plugins folder.
+Additionally, Peach Python extensions MUST NOT be imported on a per pit basis.
+
+Each of the samples in this directory can be run with the following syntax:
+
+----
+peach --plugins=. --debug -1 analyzer.xml
+peach --plugins=. --debug -1 fixup.xml
+peach --plugins=. --debug -1 logger.xml
+peach --plugins=. --debug -1 monitor.xml
+peach --plugins=. --debug -1 publisher.xml
+peach --plugins=. --debug -1 transformer.xml
+----
+
+To learn more about _clrtype_ you can read the indepth blog articles written by the author:
+----
+http://devhawk.net/tag/__clrtype__/
+----

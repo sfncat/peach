@@ -1,0 +1,34 @@
+= Peach Linux Kernel Module
+
+This folder contians an example kernel module that can be used with Peach to fuzz inside the kernel.
+This is useful for fuzzing both drivers and also devices attached to a system via a hardware interface
+such as USB, PCI, I2C, etc.
+
+== Driver Fuzzing
+
+To fuzz drivers from kernel space, add peach_main.c, peach.h, and peach_ioctl.h into your driver source.
+From your drivers init/cleanup methods call +peach_init()+ and +peach_cleanup()+. Modify the Peach 
+IOCTL implementations as needed. The +peach_data+, +peach_data_size+, and +peach_started+ variables can
+be accessed by adding "extern" declarations into your driver code.
+
+== Device Fuzzing
+
+The included code can compile into a driver using the included +Makefile+. The Peach IOCTL code can be 
+updated to perform whatever actions are needed.
+
+== Testing
+
+An included command line tool, _peach_call_, can be used to perform IOCTL calls to simulate fuzzing
+and perform testing of your modifications or includtions.
+
+== Required devices
+
+The included _peach_load_ and _peach_unload_ scripts have examples for creating the required device
+files.
+
+== Example Usage
+
+The +example+ folder contains a working example of using Peach to fuzz the Linux Device Drivers _scullv_ 
+example kernel module. The +test.sh+ script will load the module and use _peach_call_ to send some data.
+The data will be echo'd back when catting the proc entry +/proc/scullvmem+.
+

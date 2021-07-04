@@ -1,0 +1,207 @@
+﻿<ng-form name="form">
+	<uib-accordion-group is-open="isOpen">
+		<uib-accordion-heading>
+			<span>
+				<i class="fa"
+					 ng-class="{'fa-chevron-down': isOpen, 'fa-chevron-right': !isOpen}">
+				</i>
+				&nbsp;
+				{{vm.Header}}
+				<span class="btn-group btn-group-xs pull-right">
+					<button type="button"
+									class="btn btn-xs btn-info"
+									ng-click="vm.OnMoveUp($event)"
+									ng-disabled="!vm.CanMoveUp"
+									uib-tooltip="Move Route Up"
+									tooltip-append-to-body="true">
+						<i class="fa fa-chevron-up">
+						</i>
+					</button>
+					<button type="button"
+									class="btn btn-xs btn-info"
+									ng-click="vm.OnMoveDown($event)"
+									ng-disabled="!vm.CanMoveDown"
+									uib-tooltip="Move Route Down"
+									tooltip-append-to-body="true">
+						<i class="fa fa-chevron-down">
+						</i>
+					</button>
+					<button type="button"
+									class="btn btn-xs btn-danger"
+									ng-click="vm.OnRemove($event)"
+									uib-tooltip="Remove Route">
+						<i class="fa fa-remove">
+						</i>
+					</button>
+				</span>
+			</span>
+		</uib-accordion-heading>
+		<div class="form-group"
+				 ng-class="{'has-error': form.url.$invalid}">
+			<label class="col-sm-3 control-label">
+				Path Pattern
+			</label>
+			<div class="col-sm-7">
+				<input name="url"
+							 autocomplete="off"
+							 type="text"
+							 ng-model="route.url"
+							 ng-required="true"
+							 class="form-control" />
+				<span class="help-text" ng-show="storage.showHelp">
+					This pattern will match a specific route to a request.
+					Define a pattern that matches the HTTP request path 
+					(excluding the sheme, host, and query) 
+					using single character wildcard (<code>?</code>) and 
+					multiple character wildcard (<code>*</code>). 
+					Examples: <code>/storage/*</code> or <code>*/v?/*</code>.
+				</span>
+				<span class="help-block"
+							ng-messages="form.url.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.mutate.$invalid}">
+			<label class="col-sm-3 control-label">
+				Test
+			</label>
+			<div class="col-sm-7">
+				<ui-select name="mutate"
+									 ng-model="route.mutateChoice"
+									 style="position: relative">
+					<ui-select-match>{{$select.selected}}</ui-select-match>
+					<ui-select-choices repeat="item in vm.MutateChoices">
+						<div ng-bind-html="item"></div>
+					</ui-select-choices>
+				</ui-select>
+				<span class="help-text" ng-show="storage.showHelp">
+					Include or exclude route from testing.
+					This will affect all requests that match this route.
+				</span>
+				<span class="help-block"
+							ng-messages="form.mutate.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.swagger.$invalid}">
+			<label class="col-sm-3 control-label">
+				Swagger
+			</label>
+			<div class="col-sm-7">
+				<input name="swagger"
+							 autocomplete="off"
+							 ng-model="route.swagger"
+							 type="text"
+							 class="form-control" 
+							 placeholder="Optional" />
+				<span class="help-text" ng-show="storage.showHelp">
+					Optionally provide URL to Swagger API JSON.
+					Examples: 
+					<code>http://127.0.0.1:8888/swagger/docs/v1</code> or 
+					<code>file:///opt/service/swagger.js</code>
+				</span>
+				<span class="help-block"
+							ng-messages="form.swagger.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.script.$invalid}">
+			<label class="col-sm-3 control-label">
+				Script
+			</label>
+			<div class="col-sm-7">
+				<input name="script"
+							 autocomplete="off"
+							 ng-model="route.script"
+							 type="text"
+							 class="form-control" 
+							 placeholder="Optional" />
+				<span class="help-text" ng-show="storage.showHelp">
+					Optionally provide path to Python file containing decorated methods.
+					See User Guide for full explanation with examples.
+				</span>
+				<span class="help-block"
+							ng-messages="form.script.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.baseUrl.$invalid}">
+			<label class="col-sm-3 control-label">
+				Rewrite Base URL
+			</label>
+			<div class="col-sm-7">
+				<input name="baseUrl"
+							 autocomplete="off"
+							 ng-model="route.baseUrl"
+							 type="text"
+							 class="form-control" 
+							 placeholder="Optional" />
+				<span class="help-text" ng-show="storage.showHelp">
+					Optionally provide a new replacement base URL.
+					Only the scheme, host, and port are replaced.
+				</span>
+				<span class="help-block"
+							ng-messages="form.baseUrl.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.faults.$invalid}">
+			<label class="col-sm-3 control-label">
+				Failure Status Codes
+			</label>
+			<div class="col-sm-7">
+				<input name="faults"
+							 autocomplete="off"
+							 ng-model="route.faultOnStatusCodesText"
+							 type="text"
+							 class="form-control" 
+							 placeholder="Optional" />
+				<span class="help-text" ng-show="storage.showHelp">
+					Optionally provide a comma separated list of HTTP status codes that will result in a 
+					test failing.
+					When a test fails it is logged as a fault in the tool.
+					Example: <code>500,501</code>
+				</span>
+				<span class="help-block"
+							ng-messages="form.faults.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.headers.$invalid}">
+			<label class="col-sm-3 control-label">
+				Header Testing
+			</label>
+			<div class="col-sm-7">
+				<peach:headers route="route"
+											 form="form">
+				</peach:headers>
+				<span class="help-text" ng-show="storage.showHelp">
+					Include or exclude headers from testing.
+					Two wildcards can be used in the Pattern field: 
+					Single chararacter wildcard (<code>?</code>) or 
+					multiple character wildcard (<code>*</code>).
+				</span>
+			</div>
+			<div class="col-sm-2">
+				<button class="btn btn-xs btn-info"
+								ng-click="vm.OnAddHeader()">
+					<i class="fa fa-plus"></i>
+					Add Header &nbsp;
+				</button>
+			</div>
+		</div>
+
+	</uib-accordion-group>
+</ng-form>

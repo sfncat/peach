@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Peach.Pro.WebApi2</name>
+    </assembly>
+    <members>
+        <member name="T:Peach.Pro.WebApi2.Controllers.JobsController">
+            <summary>
+            Job Functionality
+            </summary>
+            <remarks>
+            Contains all functionality needed to control jobs
+            </remarks>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.JobsController.Get(System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
+            <summary>
+            Gets the list of all jobs
+            </summary>
+            <example>
+            GET /p/jobs
+            </example>
+            <remarks>
+            Returns a list of all jobs in the database
+            </remarks>
+            <param name="dryrun">Include test runs</param>
+            <param name="running">Include currently running jobs</param>
+            <returns>List of jobs</returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.JobsController.Post(Peach.Pro.Core.WebServices.Models.JobRequest)">
+            <summary>
+            Create a new job
+            </summary>
+            <example>
+            POST /p/jobs
+            </example>
+            <remarks>
+            This is how you create a job
+            </remarks>
+            <param name="request">Options for the job to create</param>
+            <returns>Newly created job</returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.LibrariesController.Get">
+            <summary>
+            Gets the list of all libraries
+            </summary>
+            <example>
+            GET /p/libraries
+            </example>
+            <remarks>
+            Returns a list of all libraries
+            </remarks>
+            <returns>List of all libraries</returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.LibrariesController.Get(System.String)">
+            <summary>
+            Gets the details for specified library
+            </summary>
+            <example>
+            GET /p/libraries/id
+            </example>
+            <remarks>
+            The library details contains the list of all pits contained in the library
+            </remarks>
+            <param name="id">Library identifier</param>
+            <returns>Library details</returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.LicenseController.Get">
+            <summary>
+            Gets information about the current peach license.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.LicenseController.Post">
+            <summary>
+            Accepts the end user licensing agreement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.PitsController.Get">
+            <summary>
+            Gets the list of all pits.
+            </summary>
+            <remarks>
+            The result does not included configuration variables and monitoring configuration.
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.PitsController.Post(Peach.Pro.Core.WebServices.Models.PitCopy)">
+            <summary>
+            Create a new pit configuration from a library pit.
+            </summary>
+            <param name="data">Source pit and destination configuration information.</param>
+            <returns>The newly created pit configuration.</returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.PitsController.Get(System.String)">
+            <summary>
+            Get the details for a specific pit configuration.
+            </summary>
+            <remarks>
+            The result does includes configuration variables and monitoring configuration.
+            </remarks>
+            <param name="id">Pit identifier.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.WebApi2.Controllers.PitsController.Post(System.String,Peach.Pro.Core.WebServices.Models.PitConfig)">
+            <summary>
+            Update the configuration for a specific pit
+            </summary>
+            <remarks>
+            This is how you save new configuration variables and monitors.
+            </remarks>
+            <param name="id">The pit to update.</param>
+            <param name="config">The variables and monitors configuration.</param>
+            <returns>The pit with its updated configuration.</returns>
+        </member>
+        <member name="T:Peach.Pro.WebApi2.WebContext">
+            <summary>
+            The context that is passed to each ApiController instance.
+            This is where state between requests is maintained.
+            </summary>
+        </member>
+    </members>
+</doc>

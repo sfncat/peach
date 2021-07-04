@@ -1,0 +1,23 @@
+﻿<div class="peach-parameter-input"
+		 ng-switch="vm.WidgetType">
+	<peach:parameter-select ng-switch-when="select"
+	                        form="form"
+	                        param="param">
+	</peach:parameter-select>
+	<peach:parameter-combo ng-switch-when="combo"
+	                       form="form"
+	                       param="param">
+	</peach:parameter-combo>
+	<div ng-switch-when="space"></div>
+	<peach:parameter-string ng-switch-default
+	                        form="form"
+	                        param="param">
+	</peach:parameter-string>
+	<span class="help-text">
+		{{param.description}}
+	</span>
+	<span class="help-block"
+				ng-messages="form.param.$error"
+				ng-messages-include="html/messages.html">
+	</span>
+</div>

@@ -1,0 +1,86 @@
+﻿<form name="form"
+			class="form-horizontal"
+			novalidate
+			autocomplete="off">
+	<div class="modal-header">
+		<h3 class="modal-title">
+			Add Variable
+		</h3>
+	</div>
+	<div class="modal-body">
+		<div class="form-group"
+				 ng-class="{'has-error': form.name.$invalid && form.name.$dirty}">
+			<label for="name" class="col-sm-2 control-label">
+				Name
+			</label>
+			<div class="col-sm-8">
+				<input name="name"
+							 autocomplete="off"
+							 ng-model="vm.Param.name"
+							 type="text"
+							 class="form-control"
+							 placeholder="Name"
+							 tabindex="1"
+							 peach:auto-focus
+							 required
+							 ng-change="vm.OnNameChanged()"
+							 ng-blur="vm.OnNameBlur()" />
+				<span class="help-block"
+							ng-messages="form.name.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.key.$invalid && form.key.$dirty}">
+			<label for="key" class="col-sm-2 control-label">
+				Key
+			</label>
+			<div class="col-sm-8">
+				<input name="key"
+							 autocomplete="off"
+							 ng-model="vm.Param.key"
+							 type="text"
+							 class="form-control"
+							 placeholder="Key"
+							 tabindex="2"
+							 required
+							 peach:unique="vm.ParamKeys"
+							 peach:unique-watch="vm.Param.name" />
+				<span class="help-block"
+							ng-messages="form.key.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.value.$invalid && form.value.$dirty}">
+			<label for="value" class="col-sm-2 control-label">
+				Value
+			</label>
+			<div class="col-sm-8">
+				<input name="value"
+							 autocomplete="off"
+							 ng-model="vm.Param.value"
+							 type="text"
+							 class="form-control"
+							 placeholder="Value"
+							 tabindex="3" />
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button"
+						class="btn btn-default"
+						ng-click="vm.Cancel()">
+			Cancel
+		</button>
+		<button type="submit"
+						class="btn btn-primary"
+						ng-click="vm.Accept()"
+						ng-disabled="form.$invalid"
+						tabindex="4">
+			OK
+		</button>
+	</div>
+</form>

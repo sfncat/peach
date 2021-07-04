@@ -1,0 +1,57 @@
+﻿<form name="form"
+		novalidate
+		autocomplete="off">
+	<div class="modal-header">
+		<h3 class="modal-title">
+			Add Monitor
+		</h3>
+	</div>
+	<div class="modal-body">
+		<div class="form-group input-group">
+			<input autocomplete="off"
+						 ng-model="search"
+						 type="text"
+						 class="form-control"
+						 placeholder="Search for monitor..."
+						 peach:auto-focus/>
+			<span class="input-group-btn">
+				<button class="btn btn-default"
+								type="submit">
+					<i class="fa fa-search"></i>
+				</button>
+			</span>
+		</div>
+
+		<div class="peach-add-monitor">
+			<uib-accordion close-others="false">
+				<uib-accordion-group is-open="true"
+														 ng-repeat="group in vm.Monitors track by $index"
+														 heading="{{group.name}}">
+					<div class="list-group">
+						<a href="" 
+								class="list-group-item"
+								ng-repeat="item in group.items | filter: { name: search }"
+								ng-click="vm.OnSelect(item)">
+							<h4 class="list-group-item-heading">{{item.name}}</h4>
+							<p class="list-group-item-text">{{item.description}}</p>
+						</a>
+					</div>
+				</uib-accordion-group>
+			</uib-accordion>
+		</div>
+
+	</div>
+	<div class="modal-footer">
+		<button type="button"
+						class="btn btn-default"
+						ng-click="vm.Cancel()">
+			Cancel
+		</button>
+		<button type="submit"
+						class="btn btn-primary"
+						ng-click="vm.Accept()"
+						ng-disabled="!vm.CanAccept">
+			OK
+		</button>
+	</div>
+</form>

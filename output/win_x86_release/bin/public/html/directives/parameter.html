@@ -1,0 +1,46 @@
+<div ng-switch="param.type">
+	<div ng-switch-when="group"
+			 class="peach-parameter-group">
+		<uib-accordion-group is-open="isOpen">
+			<uib-accordion-heading>
+				<span>
+					<i class="fa"
+						 ng-class="{'fa-chevron-down': isOpen, 'fa-chevron-right': !isOpen}">
+					</i>
+					&nbsp;
+					{{param.name}}
+				</span>
+			</uib-accordion-heading>
+			<div ng-repeat="item in param.items"
+					 ng-switch="item.type">
+				<hr ng-switch-when="space"/>
+				<div ng-switch-default
+						 ng-form="form"
+						 class="form-group"
+						 ng-class="{'has-error': form.param.$invalid}">
+					<label class="col-sm-4 control-label">
+						{{item.name | peachParameterName}}
+					</label>
+					<div class="col-sm-6">
+						<peach:parameter-input param="item"
+																	 form="form">
+						</peach:parameter-input>
+					</div>
+				</div>
+			</div>
+		</uib-accordion-group>
+	</div>
+	<div ng-switch-default
+			 ng-form="form"
+			 class="form-group"
+			 ng-class="{'has-error': form.param.$invalid}">
+		<label class="col-sm-4 control-label">
+			{{param.name | peachParameterName}}
+		</label>
+		<div class="col-sm-6">
+			<peach:parameter-input param="param"
+														 form="form">
+			</peach:parameter-input>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,80 @@
+﻿<form name="form"
+		novalidate
+		autocomplete="off">
+	<div class="modal-header">
+		<h3 class="modal-title">
+			Pit Upgrade (<code>{{vm.Pit.name}}</code>)
+		</h3>
+		<h4>
+		</h4>
+		<p>
+			Peach needs to upgrade your Pit configuration.
+			Please select the Pit (test module) that matches this configuration. 
+			Once you have selected the matching Pit file, click OK to continue.
+		</p>
+	</div>
+	<div class="modal-body">
+		<div class="form-group input-group">
+			<input autocomplete="off"
+						 ng-model="search"
+						 type="text"
+						 class="form-control"
+						 placeholder="Search for pit..."
+						 peach:auto-focus/>
+			<span class="input-group-btn">
+				<button class="btn btn-default"
+								type="submit">
+					<i class="fa fa-search"></i>
+				</button>
+			</span>
+		</div>
+
+		<div class="peach-migrate-pit">
+			<uib-accordion close-others="false">
+				<uib-accordion-group is-open="true"
+				                     ng-repeat="cat in vm.Lib.Categories | filter: vm.filterCategory(search)"
+				                     heading="{{cat.Name}}">
+					<div class="list-group">
+						<a href=""
+						   class="list-group-item"
+						   ng-repeat="entry in cat.Pits | filter: { Pit: { name: search } }"
+						   ng-click="vm.OnSelect(entry)">
+							{{entry.Pit.name | peachPitName}}
+						</a>
+					</div>
+				</uib-accordion-group>
+			</uib-accordion>
+		</div>
+		<hr/>
+		<div>
+			<h4>
+				For Custom Pits
+			</h4>
+			<p>
+				If this is a custom Pit with no matching entry in the Pit list, please click the link below.
+			</p>
+			<a href=""
+				 ng-click="vm.OnCustom()">
+				Promote to custom pit and configuration.
+			</a>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<span class="label label-danger"
+					ng-show="vm.Error"
+					style="margin-right: 20px">
+			{{vm.Error}}
+		</span>
+		<button type="button"
+						class="btn btn-default"
+						ng-click="vm.Cancel()">
+			Cancel
+		</button>
+		<button type="submit"
+						class="btn btn-primary"
+						ng-click="vm.Accept()"
+						ng-disabled="!vm.CanAccept">
+			OK
+		</button>
+	</div>
+</form>

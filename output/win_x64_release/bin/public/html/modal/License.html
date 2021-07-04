@@ -1,0 +1,20 @@
+<form ng-submit="vm.OnSubmit()"
+			autocomplete="off">
+	<div class="modal-header">
+		<h3 class="modal-title">
+			{{vm.Options.Title}}
+		</h3>
+	</div>
+	<div class="modal-body">
+		<p ng-repeat="line in vm.Options.Body">
+			{{line}}
+		</p>
+	</div>
+	<div class="modal-footer">
+		<button type="submit"
+				class="btn btn-primary"
+				peach:auto-focus>
+			Retry
+		</button>
+	</div>
+</form>

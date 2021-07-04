@@ -1,0 +1,100 @@
+﻿<div class="row">
+	<div class="col-xs-12">
+		<uib-accordion close-others="false">
+			<uib-accordion-group is-open="true" heading="Fault Details">
+				<table class="peach-fault-detail">
+					<tr>
+						<td>Test Case</td>
+						<td>{{vm.Fault.iteration}}</td>
+					</tr>
+					<tr>
+						<td>Assets Archive</td>
+						<td>
+							<a href="{{vm.Fault.archiveUrl}}">
+								Download all fault assets
+							</a>
+						</td>
+					</tr>
+					<tr ng-show="vm.Fault.iterationStart !== vm.Fault.iterationStop">
+						<td>Test Case Range</td>
+						<td>{{vm.Fault.iterationStart}} - {{vm.Fault.iterationStop}}</td>
+					</tr>
+					<tr>
+						<td>Reproducible</td>
+						<td>{{vm.Fault.reproducible ? 'Yes' : 'No'}}</td>
+					</tr>
+					<tr>
+						<td>Title</td>
+						<td>{{vm.Fault.title}}</td>
+					</tr>
+					<tr>
+						<td>When</td>
+						<td>{{vm.Fault.timeStamp | date:'M/d/yy h:mm a'}}</td>
+					</tr>
+					<tr>
+						<td>Source</td>
+						<td>{{vm.Fault.source}}</td>
+					</tr>
+					<tr>
+						<td>Risk</td>
+						<td>{{vm.Fault.exploitability}}</td>
+					</tr>
+					<tr>
+						<td>Major Bucket</td>
+						<td>{{vm.Fault.majorHash}}</td>
+					</tr>
+					<tr>
+						<td>Minor Bucket</td>
+						<td>{{vm.Fault.minorHash}}</td>
+					</tr>
+					<tr>
+						<td class="align-top">Tested Fields</td>
+						<td>
+							<table class="table table-hover table-bordered">
+								<thead>
+									<tr>
+										<th st-ratio="60" class="align-left">
+											Field
+										</th>
+										<th st-ratio="40" class="align-left">
+											Mutator
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="fm in vm.Fault.mutations">
+										<td class="align-left">
+											{{fm.element || 'Other'}}
+										</td>
+										<td class="align-left">
+											{{fm.mutator}}
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td class="align-top">Description</td>
+						<td>
+							<pre>{{vm.Fault.description}}</pre>
+						</td>
+					</tr>
+				</table>
+			</uib-accordion-group>
+
+			<uib-accordion-group is-open="true" 
+				heading="Fault Assets">
+				<peach:fault-assets assets="vm.Assets">
+				</peach:fault-assets>
+			</uib-accordion-group>
+
+			<uib-accordion-group is-open="false" 
+				heading="Original Fault Assets"
+				ng-if="vm.HasInitialAssets">
+				<peach:fault-assets assets="vm.InitialAssets">
+				</peach:fault-assets>
+			</uib-accordion-group>
+		</uib-accordion>
+	</div>
+</div>

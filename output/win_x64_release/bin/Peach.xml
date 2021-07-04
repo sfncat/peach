@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Peach</name>
+    </assembly>
+    <members>
+        <member name="T:Peach.PeachMain">
+            <summary>
+            Command line interface for Peach 3.
+            Mostly backwards compatable with Peach 2.3.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Google.CityHash</name>
+    </assembly>
+    <members>
+        <member name="T:Google.CityHash">
+            <summary>
+                Managed CityHash 1.0.3 implementation.
+            </summary>
+        </member>
+    </members>
+</doc>

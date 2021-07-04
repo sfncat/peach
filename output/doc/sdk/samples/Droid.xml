@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+
+	<DataModel name="TheDataModel">
+		<Number size='32' signed="false" value="31337" />
+	</DataModel>
+
+	<DataModel name="X">
+		<Number size="10" mutable="false" value="100" />
+	</DataModel>	
+
+	<DataModel name="Y">
+		<Number size="10" mutable="true" value="0" />
+	</DataModel>
+
+	<DataModel name="Enter">
+		<Number size="16" mutable="false" value="66" />
+	</DataModel>
+
+	<DataModel name="Url">
+		<String value="http://google.com/m?hl=en&amp;source=android-browser-type&amp;q=foo">
+			<Analyzer class="StringToken"/>
+		</String>
+	</DataModel>
+
+	<StateModel name="State" initialState="State1" >
+		<State name="State1"  >
+			<Action type="call" method="tap">
+				<Param>
+					<DataModel ref="X"/>
+				</Param>
+				<Param>
+					<DataModel ref="Y"/>
+				</Param>
+			</Action>
+		</State>
+	</StateModel>
+
+	<StateModel name="BrowserState" initialState="State1" >
+		<State name="State1"  >
+			<Action type="call" method="text">
+				<Param>
+					<DataModel ref="Url"/>
+				</Param>
+			</Action>
+
+			<Action type="call" method="keyevent">
+				<Param>
+					<DataModel name="Enter"/>
+				</Param>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="Ag">
+		<Monitor class="Android">
+			<Param name="ApplicationName" value="com.android.development" />
+			<Param name="ActivityName" value=".BadBehaviorActivity" />
+			<!--Param name="AdbPath" value="/path/to/adb"/-->
+		</Monitor>
+	</Agent>
+
+	<Agent name="Browser">
+		<Monitor class="Android">
+			<Param name="ApplicationName" value="com.android.browser" />
+			<Param name="ActivityName" value=".BrowserActivity" />
+			<!--Param name="AdbPath" value="/path/to/adb"/-->
+		</Monitor>
+	</Agent>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+		<Agent ref="Ag" />
+
+		<!--Publisher class="Null" /-->
+		<Publisher class="AndroidMonkey">
+			<!--<Param name="DeviceSerial" value="##Serial##" />-->
+		</Publisher>
+		<Logger class="File">
+			<Param name="Path" value="logs"/>
+		</Logger>
+	</Test>
+
+	<Test name="Browser">
+		<StateModel ref="BrowserState"/>
+		<Agent ref="Browser" />
+
+		<!--Publisher class="Null" /-->
+		<Publisher class="AndroidMonkey">
+			<!--Param name="DeviceSerial" value="##Serial##" /-->
+		</Publisher>
+		<Logger class="File">
+			<Param name="Path" value="logs"/>
+		</Logger>
+	</Test>
+
+</Peach>
+<!-- end -->

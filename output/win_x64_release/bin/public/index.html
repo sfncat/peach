@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html ng-app="Peach" data-framework="typescript">
+<head>
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Peach Fuzzer</title>
+
+	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" href="lib/fontawesome/css/font-awesome.css" />
+	<link rel="stylesheet" href="css/ace.css" />
+	<link rel="stylesheet" href="css/ace-skins.css" />
+	<link rel="stylesheet" href="lib/angular-chart/angular-chart.css" />
+	<link rel="stylesheet" href="lib/angular-loading-bar/loading-bar.css" />
+	<link rel="stylesheet" href="lib/angular-ui-select/select.css" />
+	<link rel="stylesheet" href="lib/vis/vis.css" />
+	<link rel="stylesheet" href="css/app.css" />
+	<link rel="stylesheet" href="css/combobox.css" />
+
+	<script src="lib/lodash/lodash.js"></script>
+	<script src="lib/jquery/jquery.js"></script>
+	<script src="lib/chartjs/Chart.js"></script>
+	<script src="lib/vis/vis.js"></script>
+	<script src="lib/moment/moment.js"></script>
+	<script src="lib/bootstrap/js/bootstrap.js"></script>
+	<script src="lib/angular/angular.js"></script>
+	<script src="lib/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+	<script src="lib/angular-breadcrumb/angular-breadcrumb.js"></script>
+	<script src="lib/angular-chart/angular-chart.js"></script>
+	<script src="lib/angular-loading-bar/loading-bar.js"></script>
+	<script src="lib/angular-messages/angular-messages.js"></script>
+	<script src="lib/angular-sanitize/angular-sanitize.js"></script>
+	<script src="lib/angular-smart-table/smart-table.js"></script>
+	<script src="lib/angular-ui-router/angular-ui-router.js"></script>
+	<script src="lib/angular-ui-select/select.js"></script>
+	<script src="lib/angular-visjs/angular-vis.js"></script>
+	<script src="lib/ngstorage/ngStorage.js"></script>
+
+	<script src="js/app/app.js"></script>
+</head>
+<body class="skin-1"
+			ng-controller="MainController">
+
+	<div class="main-container">
+
+		<div class="navbar">
+			<div class="navbar-container">
+				<div class="navbar-header">
+					<a ui-sref="main.home">
+						<img src="img/peachlogo.png" />
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<a class="menu-toggler" 
+		   href="#"
+		   ng-click="vm.OnMenuToggle()"
+		   ng-class="vm.MenuTogglerClass">
+			<span class="menu-text"></span>
+		</a>
+		
+		<div class="sidebar"
+		     ng-class="vm.SidebarClass">
+			
+			<div class="sidebar-shortcuts">
+				<div class="sidebar-shortcuts-large">
+					<button class="btn"
+									ng-class="vm.ShortcutClass('main')"
+					        ui-sref="main.home"
+									uib-tooltip="Home">
+						<i class="fa fa-home"></i>
+					</button>
+					<button class="btn"
+									ng-class="vm.ShortcutClass('pit')"
+									ui-sref="main.library"
+									uib-tooltip="Library">
+						<i class="fa fa-book"></i>
+					</button>
+					<button class="btn"
+									ng-class="vm.ShortcutClass('job')"
+									ui-sref="main.jobs"
+									uib-tooltip="Jobs">
+						<i class="fa fa-history"></i>
+					</button>
+					<button class="btn"
+					        uib-tooltip="Help"
+									ng-click="vm.OnHelp()">
+						<i class="fa fa-question"></i>
+					</button>
+				</div>
+			</div>
+
+			<ul class="nav nav-list"
+			    ng-cloak>
+				
+				<li ui-sref-active="active"
+						ng-show="vm.ShowMenu('main')">
+					<a ui-sref="main.home">
+						<i class="fa fa-home"></i>
+						<span class="menu-text">
+							Home
+						</span>
+					</a>
+				</li>
+
+				<li ui-sref-active="active"
+				    ng-show="vm.ShowMenu('main')">
+					<a ui-sref="main.library">
+						<i class="fa fa-book"></i>
+						<span class="menu-text">
+							Library
+						</span>
+					</a>
+				</li>
+
+				<li ui-sref-active="active"
+				    ng-show="vm.ShowMenu('main')">
+					<a ui-sref="main.jobs">
+						<i class="fa fa-history"></i>
+						<span class="menu-text">
+							Jobs
+						</span>
+					</a>
+				</li>
+				
+				<li ui-sref-active-eq="active"
+				    ng-show="vm.ShowMenu('job')">
+					<a ui-sref="job({job: vm.JobId})">
+						<i class="fa fa-dashboard"></i>
+						<span class="menu-text">
+							Dashboard
+						</span>
+					</a>
+				</li>
+
+				<li ui-sref-active="active"
+				    ng-show="vm.ShowMenu('job')">
+					<a ui-sref="job.faults({job: vm.JobId, bucket: 'all'})">
+						<i class="fa fa-flag"></i>
+						<span class="menu-text">
+							Faults
+							<span ng-cloak class="badge">{{vm.FaultCount}}</span>
+						</span>
+					</a>
+				</li>
+
+				<li ng-show="vm.ShowMenu('job')">
+					<a href="#"
+					   ng-click="vm.OnSubClick($event, 'job.metrics')">
+						<i class="fa fa-bar-chart"></i>
+						<span class="menu-text">
+							Metrics
+						</span>
+						<b class="arrow fa fa-angle-down"></b>
+					</a>
+
+					<ul class="submenu"
+					    uib-collapse="vm.IsCollapsed('job.metrics')">
+						<li ng-class="vm.MetricActive(item)"
+						    ng-repeat="item in vm.Metrics">
+							<a href="{{vm.MetricUrl(item)}}">
+								<span class="menu-text">
+									{{item.name}}
+								</span>
+							</a>
+						</li>
+					</ul>
+				</li>
+
+				<li ui-sref-active-eq="active"
+				    ng-show="vm.ShowMenu('pit')">
+					<a ui-sref="pit({pit: vm.PitId})">
+						<i class="fa fa-sliders"></i>
+						<span class="menu-text">
+							Pit
+						</span>
+					</a>
+				</li>
+
+				<li ng-show="vm.ShowMenu('pit')">
+					<a href="#"
+					   ng-click="vm.OnSubClick($event, 'pit.advanced')">
+						<i class="fa fa-wrench"></i>
+						<span class="menu-text">
+							Configure
+						</span>
+						<b class="arrow fa fa-angle-down"></b>
+					</a>
+
+					<ul class="submenu"
+					    uib-collapse="false">
+						<li ui-sref-active="active"
+						    ng-repeat="item in vm.ConfigSteps">
+							<a ui-sref="{{item.id}}({pit: vm.PitId})">
+								<span class="menu-text">
+									{{item.name}}
+								</span>
+							</a>
+						</li>
+					</ul>
+				</li>
+
+				<li>
+					<a href="#"
+					   ng-click="vm.OnSubClick($event, 'help')">
+						<i class="fa fa-question"></i>
+						<span class="menu-text">
+							Help
+						</span>
+						<b class="arrow fa fa-angle-down"></b>
+					</a>
+
+					<ul class="submenu"
+							uib-collapse="vm.IsCollapsed('help')">
+						<li>
+							<a href="/docs/user" target="_blank">
+								<span class="menu-text">
+									User Guide
+								</span>
+							</a>
+						</li>
+						<li>
+							<a href="/docs/dev" target="_blank">
+								<span class="menu-text">
+									Developer Guide
+								</span>
+							</a>
+						</li>
+						<li>
+							<a href="/swagger" target="_blank">
+								<span class="menu-text">
+									REST API
+								</span>
+							</a>
+						</li>
+						<li>
+							<a href="https://forums.peachfuzzer.com"
+								 target="_blank">
+								<span class="menu-text">
+									Forums
+								</span>
+							</a>
+						</li>
+					</ul>
+				</li>
+
+			</ul>
+
+			<div class="sidebar-collapse"
+			     ng-click="vm.OnToggleSidebar()">
+				<i ng-if="vm.IsMenuMinimized"
+				   class="fa fa-angle-double-right">
+				</i>
+				<i ng-if="!vm.IsMenuMinimized"
+				   class="fa fa-angle-double-left">
+				</i>
+			</div>
+		</div>
+
+		<div class="main-content">
+			<noscript>JavaScript is required.</noscript>
+			
+			<div class="page-content">
+				<div class="alert alert-warning"
+				     ng-cloak
+				     ng-show="vm.ShowLicenseWarning">
+					<strong ng-if="vm.LicenseExpirationDiff > 0">
+						Your Peach License expires {{vm.LicenseExpirationFromNow}}.
+					</strong>
+					<strong ng-if="vm.LicenseExpirationDiff <= 0">
+						Your Peach License expired {{vm.LicenseExpirationFromNow}}.
+					</strong>
+				</div>
+
+				<div ncy-breadcrumb>
+				</div>
+
+				<div class="page-header">
+					<h1>
+						<span ncy-breadcrumb-last></span>
+					</h1>
+				</div>
+			
+				<div ui-view
+					autoscroll="true">
+				</div>
+			</div>
+
+		</div>
+		<footer>
+			<span ng-cloak>
+			  <a href="http://www.peachfuzzer.com">Peach Fuzzer</a> {{vm.Version}}
+			</span>
+		</footer>
+	</div>
+
+	<script type="text/javascript">
+		Peach.Startup();
+	</script>
+</body>
+</html>

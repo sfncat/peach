@@ -1,0 +1,2549 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Peach.Pro</name>
+    </assembly>
+    <members>
+        <member name="F:Peach.Pro.Core.Agent.Channels.AgentClientRest.RestProxyPublisher.isCreated">
+            <summary>
+            Has the create publisher rest call been made?
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Agent.Channels.AgentTcpRemote">
+            <summary>
+            Implement agent service running over .NET TCP remoting
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.HttpExtensions.TryGetValue(System.Collections.Specialized.NameValueCollection,System.String,System.Int64@,System.Int64)">
+            <summary>
+            Try and get a integer value from the query string.
+            Fails if the value for the key is not a number or negative.
+            If the key is not found, the value is set to the default value.
+            The default value is allowed to be negative.
+            </summary>
+            <param name="query">Query string</param>
+            <param name="key">Key to look for</param>
+            <param name="value">Where to store the parsed value</param>
+            <param name="defaultValue">Default value if the key is not found</param>
+            <returns>True if key is not found or key is a valid positive long number.</returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Agent.Channels.Rest.RouteResponse">
+            <summary>
+            Object returned by route handlers.
+            Includes the content, content type and status code.
+            </summary>
+            <remarks>
+            Each time the response is sent to the client, the
+            content stream is repositioned to the beginning.
+            </remarks>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.RouteResponse.Success">
+            <summary>
+            The generic success response.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.RouteResponse.NotFound">
+            <summary>
+            Sent when the requested uri is not found.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.RouteResponse.BadRequest">
+            <summary>
+            Sent when the request is invalid.
+            For example, a query parameter is missing or a
+            posted json value is out of range.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.RouteResponse.NotAllowed">
+            <summary>
+            Sent when the method is not allowed.
+            For example, a GET when only POST is allowed.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.RouteResponse.AsJson(System.Object,SocketHttpListener.Net.HttpStatusCode)">
+            <summary>
+            Serialize the object as JSON and send it as the response to the client.
+            </summary>
+            <param name="obj">The object to serialize to JSON.</param>
+            <param name="code">The HTTP status code to return.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.RouteResponse.AsStream(System.IO.Stream)">
+            <summary>
+            Return a raw stream of bytes to the client.
+            </summary>
+            <param name="stream">The bytes to return.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.RouteResponse.Error(System.Exception)">
+            <summary>
+            Return an error response to the client when an exception is thrown
+            by a route handler.
+            </summary>
+            <remarks>
+            If the exception is a SoftException, HTTP status 503 is returned.
+            This implies it is a recoverable error (try again later).
+            If the exception is not a SoftException, HTTP status 500 is returned.
+            This implies it is a non-recoverable error.
+            </remarks>
+            <param name="ex">The exception to return to the client.</param>
+            <returns></returns>
+        </member>
+        <member name="F:Peach.Pro.Core.Agent.Channels.Rest.Server.Started">
+            <summary>
+            Raised when the listener is initialized but
+            before starting to service requests.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Agent.Channels.Rest.Server.Stopped">
+            <summary>
+            Raised when the listener stops after servicing
+            the last request.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Agent.Channels.Rest.Server.Uri">
+            <summary>
+            The URI of the listener.  Is only valid after the
+            Started event is raised and before the Stopped
+            event is raised.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.Server.Run(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Run the REST agent server on the command line.
+            Status messages will be displayed to the console.
+            </summary>
+            <param name="args">Command line arguments</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.Server.Run(System.UInt16)">
+            <summary>
+            Run the REST agent server on the specified port.
+            No status messages are displayed and the function
+            will not complete until Stop() is called.
+            </summary>
+            <param name="port">Port to listen on</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.Server.Run(System.UInt16,System.UInt16)">
+            <summary>
+            Run the REST agent server on the first free port,
+            starting with minport and searching until maxport.
+            No status messages are displayed and the function
+            will not complete until Stop() is called.
+            </summary>
+            <param name="minport">First port to try</param>
+            <param name="maxport">Last port to try</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Channels.Rest.Server.Stop">
+            <summary>
+            Stops the listener from accepting new requests.
+            Causes Run() to complete.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Agent.Monitors.MonoPing">
+            <summary>
+            Port of the Mono 5 Ping class to work around several bugs in the Mono 4.8.1 Ping.
+            This would also allow us to add IPv6 support if wanted.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Agent.Monitors.ProcessMonitor">
+            <summary>
+            Start a process
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Agent.Monitors.SaveFileMonitor">
+            <summary>
+            Save a file when a fault occurs.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Monitors.Utilities.Asan.CheckForAsanFault(System.String)">
+            <summary>
+            Check string for ASAN output
+            </summary>
+            <param name="stderr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Agent.Monitors.Utilities.Asan.AsanToMonitorData(System.String,System.String)">
+            <summary>
+            Convert ASAN output into Fault
+            </summary>
+            <param name="stdout"></param>
+            <param name="stderr"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Peach.Pro.Core.Analyzers.StringTokenAnalyzer.TOKENS">
+            <summary>
+            Default token set.  Order is important!
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Analyzers.TokenTree">
+            <summary>
+            Tree representing the hierarchical structure of a string with token characters.
+            
+            Designed to avoid costly intermediary string and DataElement allocations, by only 
+            allocating the ones that are strictly needed.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Analyzers.TokenTree.Eval(System.String,System.Collections.Generic.Dictionary{Peach.Core.Dom.DataElement,Peach.Core.Cracker.Position})">
+            <summary>
+            Evaluate the tree, converting it into a Peach DataElement representation.
+            
+            Tracks the bit positions of every allocated DataElement.
+            </summary>
+            <param name="name">Name of the DataElement.</param>
+            <param name="positions">Positions of the returned DataElement and the DataElements it contains.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Analyzers.TokenTree.Parse(System.String,System.Char[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Recursively build a tree by splitting on every token.
+            
+            To avoid exponentially allocating strings, new strings are only allocated for 
+            substrings with no tokens (at the leaves).
+            </summary>
+            <param name="str">String to parse into a tree.</param>
+            <param name="tokens">Array of tokens to split on</param>
+            <param name="tokenIndex">Current token index. Starts at 0 and increases.</param>
+            <param name="start">(Exclusive) start index of str include in parse.</param>
+            <param name="end">(Exclusive) end index of str to include in parse.</param>
+        </member>
+        <member name="T:Peach.Pro.Core.Analyzers.TokenLeaf">
+            <summary>
+            Node of a TokenTree representing a string with no tokens.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Analyzers.TokenBranch">
+            <summary>
+            Node of a TokenTree representing a token and the TokenTrees before and after that token.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Dom.Stream">
+            <summary>
+            Block element
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Fixups.CiscoCDPChecksum">
+            <summary>
+            Computes the checksum in Host order for an array of bytes and
+            compensates for Cisco off-by-one.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Fixups.IsoFletcher16Fixup.IsoFletcher16">
+            <summary>
+            Computes ISO fletcher 16 bit checksum
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Fixups.Libraries.CRCTool">
+            <summary>
+            Tool to calculate and add CRC codes to a string
+            
+            ***************************************************************************
+            Copyright (c) 2003 Thoraxcentrum, Erasmus MC, The Netherlands.
+            
+            Written by Marcel de Wijs with help from a lot of others, 
+            especially Stefan Nelwan
+            
+            This code is for free. I ported it from several different sources to C#.
+            
+            For comments: Marcel_de_Wijs@hotmail.com
+            ***************************************************************************
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Fixups.Libraries.CRCTool.crctablefast(System.Byte[])">
+            <summary>
+            4 ways to calculate the crc checksum. If you have to do a lot of encoding
+            you should use the table functions. Since they use precalculated values, which 
+            saves some calculating.
+            </summary>.
+        </member>
+        <member name="M:Peach.Pro.Core.Fixups.Libraries.CRCTool.crctablefast(System.Byte[],System.UInt64)">
+            <summary>
+            4 ways to calculate the crc checksum. If you have to do a lot of encoding
+            you should use the table functions. Since they use precalculated values, which 
+            saves some calculating.
+            </summary>.
+        </member>
+        <member name="M:Peach.Pro.Core.Fixups.Libraries.CRCTool.CalcCRCITT(System.Byte[])">
+            <summary>
+            CalcCRCITT is an algorithm found on the web for calculating the CRCITT checksum
+            It is included to demonstrate that although it looks different it is the same 
+            routine as the crcbitbybit* functions. But it is optimized and preconfigured for CRCITT.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Fixups.Libraries.InternetChecksum">
+            <summary>
+            Computes the checksum in Host order for an array of bytes
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Fixups.Libraries.InternetFixup">
+            <summary>
+            Base class for internet checksum fixups
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Fixups.ScriptFixup">
+            <summary>
+            Proxy class to allow writing fixups in a scripting language like python
+            or ruby.
+            </summary>
+            <remarks>
+            The constructor will be passed a reference to our instance as the only
+            argument.  A method "fixup" will be called, passing in the element and expecting
+            a byte[] array as output.
+            </remarks>
+        </member>
+        <member name="T:Peach.Pro.Core.Fixups.VolatileFixup">
+            <summary>
+            A helper class for fixups that are volatile and need to
+            be computed every time an action is run.
+            Any fixup that requires per-iteration state stored in the
+            RunContext should derive from this class and override OnActionRun.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.JsonType">
+            <summary>
+            Json encoding to use
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.JsonType.json">
+            <summary>
+            Encode as standard json
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.JsonType.bson">
+            <summary>
+            Encode as binary-json (bson)
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.JTypeTransform">
+            <summary>
+            Extend JRaw to allow binary data
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.License.ILicenseConfig.Validate">
+            <summary>
+            Throws an exception if the license config is invalid.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Loggers.JobLogger">
+            <summary>
+            Standard file system Logger.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Loggers.JobLogger.BasePath">
+            <summary>
+            The user configured base path for all the logs
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Loggers.VisualizerLogger.ActionFinished(Peach.Core.RunContext,Peach.Core.Dom.Action)">
+            <summary>
+            Collection of data models from Action_Finished event.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.dataSets">
+            <summary>
+            Collection of all dataSets across all fully qualified model names.
+            NamedCollection guarantees element order based on insertion.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.lastSwitchIteration">
+            <summary>
+            The iteration when the last data set switch occured.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.switchCount">
+            <summary>
+            How often to switch files.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.randomDataSet">
+            <summary>
+            Random number generator used for switching data sets.
+            This is independent from context.Random so that if we skip to iteration
+            505, we will use a random number generator seeded with the 'switch'
+            iteration of 401.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.stateMutators">
+            <summary>
+            Mutators that affect the state model
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.stateModelMutation">
+            <summary>
+            The currently selected state model mutator.
+            Null if no state model mutator is selected.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.currentState">
+            <summary>
+            The most recent state that has started.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.currentAction">
+            <summary>
+            The most recent action that was started.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.RandomStrategy.iteration">
+            <summary>
+            Current fuzzing iteration number
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.MutationStrategies.Sequential.MutateChangingState(Peach.Core.Dom.State)">
+            <summary>
+            Allows mutation strategy to affect state change.
+            </summary>
+            <param name="state"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy.dataMutators">
+            <summary>
+            Mutators that affect the data model
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy.mutationScopeGlobal">
+            <summary>
+            Used on control record iterations to collect
+            mutable elements across all states and actions.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy.mutationScopeState">
+            <summary>
+            Used on control record iterations to collect
+            mutable elements on a per state basis.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy.mutationScopeAction">
+            <summary>
+            Used on control record iterations to collect
+            mutable elements on a per action basis.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy.mutableItems">
+            <summary>
+            List of all mutable items at each mutation scope.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy.mutations">
+            <summary>
+            The selected mutations for a given fuzzing iteration
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy._tuneWeights">
+            <summary>
+            Controls how weights are applied to the weighted list.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy.mutationHistory">
+            <summary>
+            List of mutations that have taken place during the most recent iteration
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.MutationStrategies.WeightedMutationStrategy.MaxFieldsToMutate">
+            <summary>
+            Maximum number of fields to mutate at once.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Mutators.ActionDuplicate._n">
+            <summary>
+            Maximum number of repetitions to perform
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Mutators.ActionDuplicate._count">
+            <summary>
+            Count is actions * N
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Mutators.ActionDuplicate._actionCount">
+            <summary>
+            Total count of actions
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Mutators.ActionRemove._count">
+            <summary>
+            Count is actions * N
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Mutators.ActionRemove._actionCount">
+            <summary>
+            Total count of actions
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Mutators.ActionSwap._count">
+            <summary>
+            Count is actions * N
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Mutators.ActionSwap._actionCount">
+            <summary>
+            Total count of actions
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobChangeFromNull">
+            <summary>
+            Alter the blob by a random number of bytes between 1 and 100.
+            Pick a random start position in the blob.
+            Alter size bytes starting at position where each null byte is
+            changed to different randomly selected non-null value.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobChangeRandom">
+            <summary>
+            Alter the blob by a random number of bytes between 1 and 100.
+            Pick a random start position in the blob.
+            Alter size bytes starting at position where each byte is
+            changed to different randomly selected value.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobChangeSpecial">
+            <summary>
+            Alter the blob by a random number of bytes between 1 and 100.
+            Pick a random start position in the blob.
+            Alter size bytes starting at position where each byte is
+            changed to different randomly selected value from the
+            special set of { 0x00, 0x01, 0xFE, 0xFF }.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobChangeToNull">
+            <summary>
+            Alter the blob by a random number of bytes between 1 and 100.
+            Pick a random start position in the blob.
+            Alter size bytes starting at positionand set each byte to null.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobExpandAllRandom">
+            <summary>
+            Expand the blob by a random size between 1 and 255.
+            Pick a random start position in the blob.
+            Add size bytes starting at position where each byte is a
+            different randomly selected value.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobExpandSingleIncrementing">
+            <summary>
+            Expand the blob by a random size between 1 and 255.
+            Pick a random start position in the blob.
+            Pick a starting value between 0 and 255.
+            Add size bytes starting at position where each byte increments by one
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobExpandSingleRandom">
+            <summary>
+            Expand the blob by a random size between 1 and 255.
+            Pick a random start position in the blob.
+            Pick a random value between 0 and 255.
+            Add size bytes starting at position where each byte is the
+            single randomly selected value.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobExpandZero">
+            <summary>
+            Expand the blob by a random size between 1 and 255.
+            Pick a random start position in the blob.
+            Insert null bytes into the blob until the target size is reached.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.BlobReduce">
+            <summary>
+            Picks a random range of bytes up to 255 inside the blob and removes it.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.DataElementBitFlipper">
+            <summary>
+            Flips bits on thepre-transformed value of non-container elements
+            as well as post-transformed value on container elements.
+            The number of bits flipped is a gaussian distribution from [1,6]
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.DataElementDuplicate">
+            <summary>
+            Duplicate an element upto N times using a guassian distribution. Default N is 50..
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.DataElementRemove">
+            <summary>
+            Generates a single test cases by removing a data element.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.DataElementSwapNear">
+            <summary>
+            Swap current element with neighbor.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.DoubleVariance.GetValue(Peach.Core.Dom.DataElement)">
+            <summary>
+            Get the numbers value via InternalValue or DefaultValue
+            </summary>
+            <remarks>
+            If InternalValue returns a non-int/long/ulong then fallback to DefaultValue
+            </remarks>
+            <param name="number"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.NumberVariance.GetValue(Peach.Core.Dom.DataElement,System.Boolean)">
+            <summary>
+            Get the numbers value via InternalValue or DefaultValue
+            </summary>
+            <remarks>
+            If InternalValue returns a non-int/long/ulong then fallback to DefaultValue
+            </remarks>
+            <param name="number"></param>
+            <param name="signed"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringCaseRandom">
+            <summary>
+            Picks a gaussian random number X centered on 1, with a
+            sigma of 1/3 the string length.
+            Then, pick X random indices in the string.
+            At each selected index, toggle the case of the character.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodeFormatCharacters">
+            <summary>
+            Format characters are characters that do not have a visible appearance,
+            but may have an effect on the appearance or behavior of neighboring characters.
+            For example, U+200C ZERO WIDTH NON-JOINER and U+200D ZERO WIDTH JOINER may
+            be used to change the default shaping behavior of adjacent characters
+            (e.g. to inhibit ligatures or request ligature formation).
+            There are 152 format characters in Unicode 7.0.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodeInvalid">
+            <summary>
+            Generate string with random invalid unicode characters (0xd800 - 0xdbff).
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodeNonCharacters">
+            <summary>
+            Certain noncharacter code points are guaranteed never to be used for
+            encoding characters, although applications may make use of these
+            code points internally if they wish.
+            There are sixty-six noncharacters: U+FDD0..U+FDEF and any code point
+            ending in the value FFFE or FFFF (i.e. U+FFFE, U+FFFF, U+1FFFE,
+            U+1FFFF, ... U+10FFFE, U+10FFFF). The set of noncharacters is stable,
+            and no new noncharacters will ever be defined.[14]
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodePlane0">
+            <summary>
+            Generate string with random unicode characters in them from plane 0 (0 - 0xffff).
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodePlane1">
+            <summary>
+            Generate string with random unicode characters in them from plane 1 (0x10000 - 0x1fffd).
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodePlane14">
+            <summary>
+            Generate string with random unicode characters in them from plane 14 (0xe0000 - 0xefffd).
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodePlane15And16">
+            <summary>
+            Generate string with random unicode characters in them from plane 15 and 16 (0xf0000 - 0x10ffff).
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodePlane2">
+            <summary>
+            Generate string with random unicode characters in them from plane 2 (0x20000 - 0x2ffff).
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUnicodePrivateUseArea">
+            <summary>
+            Private Use Area: U+E000..U+F8FF (6,400 characters)
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUtf16BomLength">
+            <summary>
+            Uses StringLengthVariance and injects BOM characters randomly into the strings.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUtf16BomStatic">
+            <summary>
+            Uses StringStatic and injects UTF-8 BOM characters randomly into the strings.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUtf32BomLength">
+            <summary>
+            Uses StringLengthVariance and injects BOM characters randomly into the strings.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUtf32BomStatic">
+            <summary>
+            Uses StringStatic and injects UTF-8 BOM characters randomly into the strings.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUtf8BomLength">
+            <summary>
+            Uses StringLengthVariance and injects BOM characters randomly into the strings.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.StringUtf8BomStatic">
+            <summary>
+            Uses StringStatic and injects UTF-8 BOM characters randomly into the strings.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.BlobMutator">
+            <summary>
+            Generate integer edge cases. The numbers produced are distributed 
+            over a bell curve with the edge case as the center.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.BlobMutator.#ctor(Peach.Core.Dom.DataElement,System.Int64,System.Boolean)">
+            <summary>
+            Construct base blob mutator
+            </summary>
+            <param name="obj">Data element to attach to.</param>
+            <param name="variance">Variance for mutation length.</param>
+            <param name="clamp">Keep mutation length less than element length.</param>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.BlobMutator.Logger">
+            <summary>
+            The logger to use.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.BlobMutator.PerformMutation(Peach.Core.IO.BitStream,System.Int64,System.Int64)">
+            <summary>
+            Perform mutation of a sequence of bytes.
+            </summary>
+            <remarks>
+            The 'start' argument will always fall within the length of the bit stream.
+            The 'length' argument can potentially run past the end of the bit stream
+            if 'ClampLength' is false.  When 'ClampLength' is true, 'length' will never
+            run past the end of the bit stream.
+            </remarks>
+            <param name="data">The source data to alter.</param>
+            <param name="start">The start position to begin altering.</param>
+            <param name="length">The number of bytes to alter.</param>
+            <returns>The altered data.</returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.DoubleVarianceGenerator">
+            <summary>
+            Generates a normal distribution of double precision numbers
+            for a specified range centered around a specified value.
+            The range of the distribution will be from [min,value] and [value,max].
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator">
+            <summary>
+            Computes the edge cases of numbers inside a given space.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator.#ctor(System.Int64,System.UInt64)">
+            <summary>
+            Generates numbers around the edge cases that occur
+            between a minimum and maximum value.
+            </summary>
+            <param name="min">The minimum value of the number space.</param>
+            <param name="max">The maximum value of the number space.</param>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator.Edges">
+            <summary>
+            The list of edge cases in the number space.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator.Deviation">
+            <summary>
+            The sum of all the standard deviations at each edge case
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator.Values">
+            <summary>
+            Precomputed list of values to use.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator.Range(System.Int32)">
+            <summary>
+            Gets the range of numbers to consider for a given edge.
+            If the edge is less than ore equal to zero, it is the distance to the next edge.
+            If the edge is greater than zero, it is the distance from the previous edge.
+            </summary>
+            <remarks>
+            If the edge is short.MinValue, the next edge will be sbyte.MinValue
+            and the resultant range will be (sbyte.MinValue - short.MinValue).
+            
+            If the edge is short.MaxValue, the previous edge will be byte.MaxValue
+            and the resultant edge will be (short.MaxValue - byte.MaxValue).
+            </remarks>
+            <param name="edgeIndex">The edge index to computer the range for.</param>
+            <returns>The range to generate values in.</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator.Next(Peach.Core.Random,System.Int32)">
+            <summary>
+            Produce next edge case number around the given edge index.
+            </summary>
+            <param name="random">Random number generator to use.</param>
+            <param name="edgeIndex">The edge index to pick a random number in.</param>
+            <returns>A random number in the range for the given edge index.</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator.Next(Peach.Core.Random)">
+            <summary>
+            Produce next edge case number for a randomly selected edge index.
+            </summary>
+            <param name="random">Random number generator to use.</param>
+            <returns>A random number.</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.EdgeCaseGenerator.NextEdge(Peach.Core.Random,System.Int32@)">
+            <summary>
+            Produce next edge case number for a randomly selected edge index.
+            </summary>
+            <param name="random">Random number generator to use.</param>
+            <param name="edgeIndex">The index of the picked edge.</param>
+            <returns>A random number.</returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.IntegerEdgeCases">
+            <summary>
+            Generate integer edge cases. The numbers produced are distributed 
+            over a bell curve with the edge case as the center.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.IntegerEdgeCases.Logger">
+            <summary>
+            The logger to use.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.IntegerEdgeCases.GetLimits(Peach.Core.Dom.DataElement,System.Int64@,System.UInt64@)">
+            <summary>
+            Get the minimum and maximum values to generate edge cases for.
+            </summary>
+            <param name="obj">The element this mutator is bound to.</param>
+            <param name="min">The minimum value of the number space.</param>
+            <param name="max">The maximum value of the number space.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.IntegerEdgeCases.performMutation(Peach.Core.Dom.DataElement,System.Int64)">
+            <summary>
+            Mutate the data element.
+            </summary>
+            <param name="obj">The element to mutate.</param>
+            <param name="value">The value to use when mutating.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.IntegerEdgeCases.performMutation(Peach.Core.Dom.DataElement,System.UInt64)">
+            <summary>
+            Mutate the data element.  This is called when the value to be used
+            for mutation is larger than long.MaxValue.
+            </summary>
+            <param name="obj">The element to mutate.</param>
+            <param name="value">The value to use when mutating.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.IntegerVariance.#ctor(Peach.Core.Dom.DataElement,System.Boolean)">
+            <summary>
+            Base class for mutations that use integer variance around the default value.
+            </summary>
+            <param name="obj">Element the mutator is attached to.</param>
+            <param name="useValue">Should the default value be included in the variance.</param>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.IntegerVariance.Logger">
+            <summary>
+            The logger to use.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.IntegerVariance.GetLimits(Peach.Core.Dom.DataElement,System.Boolean@,System.Int64@,System.Int64@,System.Int64@)">
+            <summary>
+            Get the minimum and maximum values to generate edge cases for.
+            </summary>
+            <remarks>
+            If value is unsigned, just cast it to a long.
+            </remarks>
+            <param name="obj">The element this mutator is bound to.</param>
+            <param name="signed">Is the number space signed.</param>
+            <param name="value">The value to center the variance distribution around.</param>
+            <param name="min">The minimum value of the number space.</param>
+            <param name="max">The maximum value of the number space.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.IntegerVariance.performMutation(Peach.Core.Dom.DataElement,System.Int64)">
+            <summary>
+            Mutate the data element.
+            </summary>
+            <param name="obj">The element to mutate.</param>
+            <param name="value">The value to use when mutating.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.IntegerVariance.performMutation(Peach.Core.Dom.DataElement,System.UInt64)">
+            <summary>
+            Mutate the data element.  This is called when the value to be used
+            for mutation is larger than long.MaxValue.
+            </summary>
+            <param name="obj">The element to mutate.</param>
+            <param name="value">The value to use when mutating.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SizedHelpers.MaxSize(Peach.Core.Dom.DataElement)">
+            <summary>
+            Returns the maximum number of bytes the element can be
+            and still be under the limit of the MaxOutputSize attribute.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SizedHelpers.MaxDuplication(Peach.Core.Dom.DataElement)">
+            <summary>
+            Returns the maximum number of times the element can be duplicated
+            by and still be under the limit of the MaxOutputSize attribute.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.StringBomLength">
+            <summary>
+            Extension of StringLengthVariance that injects BOM characters randomly-ish into the strings.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.StringBomLength.BOM">
+            <summary>
+            Returns an array of BOM characters to inject during mutation.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.StringBomStatic">
+            <summary>
+            Extension of StringStatic that injects BOM characters randomly-ish into the strings.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.StringBomStatic.BOM">
+            <summary>
+            Returns an array of BOM characters to inject during mutation.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.StringBomStatic.InjectBom(Peach.Core.Random,Peach.Core.IO.BitwiseStream,System.Byte[][])">
+            <summary>
+            Picks a gaussian number N from centered at 1, up to 6.
+            Picks N indices in data
+            For each index, injects a randomly selected array of BOm characters.
+            </summary>
+            <param name="rng">Random number generator to use.</param>
+            <param name="data">Source data.</param>
+            <param name="bom">Array of BOM characters.</param>
+            <returns>BitwiseStream containing injected BOM characters.</returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.StringMutator">
+            <summary>
+            Generate random strings using characters randomly selected
+            from the specified range.  By default this mutator only
+            supports unicode strings.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.StringMutator.#ctor(Peach.Core.Dom.DataElement)">
+            <summary>
+            Construct base string mutator
+            </summary>
+            <param name="obj">Data element to attach to.</param>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.SuperbestRandom">
+            <summary>
+            https://bitbucket.org/Superbest/superbest-random
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SuperbestRandom.PickSix(Peach.Core.Random)">
+            <summary>
+              Return a random number between 1 and 6 inclusive.
+              The numbers are gaussian and centered around 1.
+            </summary>
+            <param name="r"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SuperbestRandom.NextGaussian(Peach.Core.Random,System.Double,System.Double)">
+            <summary>
+              Generates normally distributed numbers. Each operation makes two Gaussians for the 
+              price of one, and apparently they can be cached or something for better performance, 
+              but who cares.
+            </summary>
+            <param name="r"></param>
+            <param name = "mu">Mean of the distribution</param>
+            <param name = "sigma">Standard deviation</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SuperbestRandom.NextTriangular(Peach.Core.Random,System.Double,System.Double,System.Double)">
+            <summary>
+              Generates values from a triangular distribution.
+            </summary>
+            <remarks>
+            See http://en.wikipedia.org/wiki/Triangular_distribution for a description 
+            of the triangular probability 
+            distribution and the algorithm for generating one.
+            </remarks>
+            <param name="r"></param>
+            <param name = "a">Minimum</param>
+            <param name = "b">Maximum</param>
+            <param name = "c">Mode (most frequent value)</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SuperbestRandom.NextBoolean(Peach.Core.Random)">
+            <summary>
+              Equally likely to return true or false./>.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SuperbestRandom.Shuffle(Peach.Core.Random,System.Collections.IList)">
+            <summary>
+              Shuffles a list in O(n) time by using the Fisher-Yates/Knuth algorithm.
+            </summary>
+            <param name="r"></param>
+            <param name = "list"></param>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SuperbestRandom.Permutation(Peach.Core.Random,System.Int32,System.Int32)">
+            <summary>
+            Returns min(n,k) unique random numbers in the range [1, n], inclusive. 
+            This is equivalent to getting the first n numbers of some random permutation of 
+            the sequential numbers from 1 to max. 
+            Runs in O(k^2) time.
+            </summary>
+            <param name="rand"></param>
+            <param name="n">Maximum number possible.</param>
+            <param name="k">How many numbers to return.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SuperbestRandom.Permutation(Peach.Core.Random,System.Int64,System.Int64)">
+            <summary>
+            Returns min(n,k) unique random numbers in the range [1, n], inclusive. 
+            This is equivalent to getting the first n numbers of some random permutation of 
+            the sequential numbers from 1 to max. 
+            Runs in O(k^2) time.
+            </summary>
+            <param name="rand"></param>
+            <param name="n">Maximum number possible.</param>
+            <param name="k">How many numbers to return.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.SuperbestRandom.SortedPermutation(Peach.Core.Random,System.Int64,System.Int64)">
+            <summary>
+            Returns min(n,k) unique random numbers in the range [1, n], inclusive. 
+            This is equivalent to getting the first n numbers of some random permutation of 
+            the sequential numbers from 1 to max. 
+            Runs in O(k^2) time.
+            </summary>
+            <param name="rand"></param>
+            <param name="n">Maximum number possible.</param>
+            <param name="k">How many numbers to return.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.VarianceGenerator">
+            <summary>
+            Generates a normal distribution of numbers
+            for a specified range centered around a specified value.
+            
+            The range of the distribution will be from [min,value] and [value,max].
+            The size of each half of the distribution is capped to have a maximum
+            standard deviation of 16384.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.VarianceGenerator.Deviation">
+            <summary>
+            The sum of all the standard deviations at each edge case
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.VarianceGenerator.Values">
+            <summary>
+            The minimum number of random numbers that sohuld be generated.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.WeightedList`1">
+            <summary>
+            A collection of IWeighted items.
+            The collection tracks the sum total weights allowing for random
+            choices to honor the various weights of the elements.
+            </summary>
+            <remarks>
+            NOTE: The value of the SelectionWeight is cached at insertion time.
+            All users of this container must ensure that the SelectionWeight
+            does not change once the element is added to the container.
+            If the SelectionWeight is changed, the change will not be reflected
+            in the sum total weights.
+            </remarks>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:Peach.Pro.Core.Mutators.Utility.WeightedList`1.BoundedItem">
+            <summary>
+            Represents a bounded item.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.WeightedList`1.Max">
+            <summary>
+            The sum of all weights of contained elements.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.WeightedList`1.#ctor">
+            <summary>
+            Constructs a weighted list.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.WeightedList`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Constructs a weighted list and pouplates it with elements from a sequence.
+            </summary>
+            <param name="collection">Sequence of items to add to the weighted list.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.WeightedList`1.UpperBound(System.Int64)">
+            <summary>
+            Find the upper bound using weights.
+            Returns the first element in the list with a key greater than value.
+            </summary>
+            <param name="value">A number greater than or equal to 0 and less than Max.</param>
+            <returns>The lower bound and the upper bound and the element.</returns>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.WeightedList`1.Item(System.Int32)">
+            <summary>
+            Returns the element at the specified index
+            </summary>
+            <param name="index">Index of the element to return.</param>
+            <returns>Element at specified index.</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.WeightedList`1.AddRange(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Add a collection of IWeighted elements to the collection.
+            </summary>
+            <param name="collection"></param>
+        </member>
+        <member name="P:Peach.Pro.Core.Mutators.Utility.WeightedList`1.SelectionWeight">
+            <summary>
+            The selection weight for this collection.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Mutators.Utility.WeightedList`1.TransformWeight(System.Func{System.Int32,System.Int32})">
+            <summary>
+            Recompute the weights of the items using a transform function.
+            </summary>
+            <param name="how">Given current item weight, compute a new weight</param>
+            <returns>The updated selection weight for the container.</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.OS.IPal.GetCanary(System.Guid)">
+            <summary>
+            Returns non-null if guid is not referenced by any process.
+            Returns null if guid is referenced by any process.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.OS.Windows.Debugger.IDebuggerInstance.WaitForExit(System.Int32)">
+            <summary>
+            Waits for the specified amount of time for the process to exit.
+            If the process doesn't exit, it will be killed.
+            </summary>
+            <param name="timeout">How long to wait for the process to exit.</param>
+            <returns>True if the process exited gracefully, false if it was killed.</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.OS.Windows.Debugger.IDebuggerInstance.WaitForIdle(System.Int32,System.UInt32)">
+            <summary>
+            Waits for the specified amount of time for the process to exit or the cpu to go idle.
+            If the cpu goes idle, the process will be killed.
+            If the process doesn't exit or go idle, it will be killed.
+            </summary>
+            <param name="timeout">How long to wait for the process to exit.</param>
+            <param name="pollInterval">How often to poll the cpu usage.</param>
+            <returns>True if the process exited gracefully or was killed while idle, false if it was killed when not idle.</returns>
+        </member>
+        <member name="T:Peach.Pro.Core.OS.Windows.Debugger.SystemDebugger">
+            <summary>
+            A lightweight Windows debugger written using the 
+            system debugger APIs.
+            </summary>
+            <remarks>
+            This debugger does not support symbols or other usefull 
+            things.  When a crash is located using the system debugger
+            it should be reproduced using the Windows Debug Engine to
+            gather more information.
+            </remarks>
+        </member>
+        <member name="P:Peach.Pro.Core.OS.Windows.Debugger.SystemDebugger.HandleAccessViolation">
+            <summary>
+            Callback to handle an A/V exception
+            </summary>
+            <returns>
+            Return true to keep debugging, false to stop debugging
+            </returns>
+        </member>
+        <member name="T:Peach.Pro.Core.OS.Windows.Interop">
+            <summary>
+            Contains definitions for marshaled method calls and related
+            types.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.OS.Windows.Publishers.Com.IComContainer.CallMethod(System.String,System.Object[])">
+            <summary>
+            Call method on COM control
+            </summary>
+            <param name="method">Name of method</param>
+            <param name="args">Arguments to pass</param>
+            <returns>Returns result if any</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.OS.Windows.Publishers.Com.IComContainer.GetProperty(System.String)">
+            <summary>
+            Get Property value
+            </summary>
+            <param name="property">Name of property</param>
+            <returns>Returns property value or null.</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.OS.Windows.Publishers.Com.IComContainer.SetProperty(System.String,System.Object)">
+            <summary>
+            Set property value
+            </summary>
+            <param name="property">Name of property</param>
+            <param name="value">Value to set</param>
+        </member>
+        <member name="T:Peach.Pro.Core.PitDefines.StringDefine">
+            <summary>
+            Free form string
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.PitDefines.ParseFile(System.String)">
+            <summary>
+            Deserialize a pit defines file.
+            1. If the file does not exist, it will be treated as an empty file.
+            2. The returned object will include all the SystemDefines.
+            3. PitLibraryPath system define will be set to Peach.Cwd
+            </summary>
+            <param name="fileName">Config file to deserialize.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.PitDefines.ParseFile(System.String,System.String,System.Guid,System.Boolean)">
+            <summary>
+            Deserialize a pit defines file.
+            1. If the file does not exist, an empty defines object will be returned.
+            2. The returned object will include all the SystemDefines.
+            3. PitLibraryPath system define will be set to pitLibraryPath argument.
+            </summary>
+            <param name="fileName">Config file to deserialize.</param>
+            <param name="pitLibraryPath">Value of PitLibraryPath system define.</param>
+            <param name="jobId">Job identifer.</param>
+            <param name="includeSystemDefs">Whether to include system defines</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.PitDefines.ParseFile(System.String,System.String,System.Boolean)">
+            <summary>
+            Deserialize a pit defines file.
+            1. If the file does not exist, an empty defines object will be returned.
+            2. The returned object will include all the SystemDefines.
+            3. PitLibraryPath system define will be set to pitLibraryPath argument.
+            </summary>
+            <param name="fileName">Config file to deserialize.</param>
+            <param name="pitLibraryPath">Value of PitLibraryPath system define.</param>
+            <param name="includeSystemDefs">Whether to include system defines</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.PitDefines.ParseFile(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.Guid)">
+            <summary>
+            Deserialize a pit defines file.
+            1. If the file does not exist, it will be treated as an empty file.
+            2. The returned object will include all the SystemDefines.
+            3. PitLibraryPath system define will be set to Peach.Cwd
+            4. All K/V in overrides will be considered system defines
+            </summary>
+            <param name="fileName">Config file to deserialize.</param>
+            <param name="overrides">Command line overrides.</param>
+            <param name="jobId">Job identifer.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.PitDefines.Evaluate">
+            <summary>
+            Returns a list of key/value pairs that can be passed to the PitParser.
+            This function will:
+            1) Flatten all groups.
+            2) Substitute defines in defines.
+            3) Ensure all keys are unique.
+            4) If duplicate keys are found, the last key/value pair is returned.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Peach.Pro.Core.ProPitParser">
+            <summary>
+            Extension of PitParser to add Ocl into the mix!
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Publishers.DatagramPublisher.NoReadException">
+            <summary>
+            Do not throw exceptions when reading from socket. This includes timeout
+            exceptions.
+            </summary>
+            <remarks>
+            This property can be set through publisher parameters, or via
+            SetProperty and GetProperty.
+            </remarks>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.DatagramPublisher.GetScopeId(System.Net.IPAddress)">
+            <summary>
+            Resolves the ScopeId for a Link-Local IPv6 address
+            </summary>
+            <param name="ip"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.DatagramPublisher.GetLocalIp(System.Net.IPEndPoint)">
+            <summary>
+            Returns the local ip that should be used to talk to 'remote'
+            </summary>
+            <param name="remote"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Peach.Pro.Core.Publishers.EthernetPublisher.NoReadException">
+            <summary>
+            Do not throw exceptions when reading from socket. This includes timeout
+            exceptions.
+            </summary>
+            <remarks>
+            This property can be set through publisher parameters, or via
+            SetProperty and GetProperty.
+            </remarks>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.HttpPublisher.CleanHeaderValue(System.String)">
+            <summary>
+            Remove characters not allowed in header fields.
+            </summary>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.HttpPublisher.OnOutput(Peach.Core.IO.BitwiseStream)">
+            <summary>
+            Send data
+            </summary>
+            <param name="data">Data to send/write</param>
+        </member>
+        <member name="T:Peach.Pro.Core.Publishers.PcapListener">
+            <summary>
+            Listen and queue incoming packets for use by Publisher
+            </summary>
+            <remarks>
+            This class is intended for use by raw publishers as the receiving
+            mechanism allowing filters to limit the received packets.
+            </remarks>
+        </member>
+        <member name="F:Peach.Pro.Core.Publishers.PcapListener.PacketQueue">
+            <summary>
+            Queue of received packets. This is a thread safe queue.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.PcapListener.Start">
+            <summary>
+            Start capturing packets
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.PcapListener.Start(System.String,System.Int32)">
+            <summary>
+            Start capturing packets
+            </summary>
+            <param name="filter">Capture filter. Follows the libpcap format.</param>
+            <param name="timeout">pcap_open_live to_ms parameter.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.PcapListener.Stop">
+            <summary>
+            Stop capturing packets
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.PcapListener.Clear">
+            <summary>
+            Clear queue
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.PcapListener.SendPacket(System.Byte[])">
+            <summary>
+            Send raw packet at the lowest layer supported by interface.
+            </summary>
+            <remarks>
+            This interface works on both Windows and Linux, allowing true raw sockets
+            on Windows via the winpcap service.
+            </remarks>
+            <param name="data">Packet to send</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.PcapListener.TryAsIpv4(SharpPcap.RawCapture,System.Byte[]@)">
+            <summary>
+            Try and get an IPv4 packet from the captured data.
+            </summary>
+            <param name="capture"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.PcapListener.TryAsIpv6(SharpPcap.RawCapture,System.Byte[]@)">
+            <summary>
+            Try and get an IPv6 packet from the captured data.
+            </summary>
+            <param name="capture"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.PcapListener.TryAsTcp(SharpPcap.RawCapture,System.Byte[]@)">
+            <summary>
+            Try and get a TCP packet from the captured data.
+            </summary>
+            <param name="capture"></param>
+            <param name="data"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Publishers.RawV4Publisher">
+            <summary>
+            Allows for input/output of raw IP packets.
+            Protocol is the IP protocol number to send/receive.
+            This publisher does not expect an IP header in the output buffer.
+            The IP header is always included in the input buffer.
+            </summary>
+            <remarks>
+            Mac raw sockets don't support TCP or UDP receptions.
+            See the "b. FreeBSD" section at: http://sock-raw.org/papers/sock_raw
+            </remarks>
+        </member>
+        <member name="T:Peach.Pro.Core.Publishers.RawIPv4Publisher">
+            <summary>
+            Allows for input/output of raw IP packets.
+            Protocol is the IP protocol number to send/receive.
+            This publisher expects an IP header in the output buffer.
+            The IP header is always included in the input buffer.
+            </summary>
+            <remarks>
+            Mac raw sockets don't support TCP or UDP receptions.
+            See the "b. FreeBSD" section at: http://sock-raw.org/papers/sock_raw
+            </remarks>
+        </member>
+        <member name="T:Peach.Pro.Core.Publishers.RawV6Publisher">
+            <summary>
+            Allows for input/output of raw IP packets.
+            Protocol is the IP protocol number to send/receive.
+            This publisher does not expect an IP header in the output buffer.
+            The IP header is always included in the input buffer.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.Ssl.PeachyTlsDHKeyExchange.ProcessServerCertificate(Org.BouncyCastle.Crypto.Tls.Certificate)">
+            <summary>
+            Skip keyusage checks
+            </summary>
+            <param name="serverCertificate"></param>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.Ssl.PeachyTlsDheKeyExchange.ProcessServerCertificate(Org.BouncyCastle.Crypto.Tls.Certificate)">
+            <summary>
+            Skip keyusage checks
+            </summary>
+            <param name="serverCertificate"></param>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.Ssl.PeachyTlsECDHKeyExchange.ProcessServerCertificate(Org.BouncyCastle.Crypto.Tls.Certificate)">
+            <summary>
+            Same as base function, but skip KeyUsage checks
+            </summary>
+            <param name="serverCertificate"></param>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.Ssl.PeachyTlsECDheKeyExchange.ProcessServerCertificate(Org.BouncyCastle.Crypto.Tls.Certificate)">
+            <summary>
+            Same as base function, but skip KeyUsage checks
+            </summary>
+            <param name="serverCertificate"></param>
+        </member>
+        <member name="M:Peach.Pro.Core.Publishers.Ssl.PeachyTlsRsaKeyExchange.ProcessServerCertificate(Org.BouncyCastle.Crypto.Tls.Certificate)">
+            <summary>
+            Skip keyUsage checks
+            </summary>
+            <param name="serverCertificate"></param>
+        </member>
+        <member name="F:Peach.Pro.Core.Publishers.TcpClientRetry.Never">
+            <summary>
+            Never retry connection to remote host
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Publishers.TcpClientRetry.FirstAndAfterFault">
+            <summary>
+            Retry on first connection or after fault.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Publishers.TcpClientRetry.Always">
+            <summary>
+            Always retry connection.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.IWebStatus.Start(System.Nullable{System.Int32})">
+            <summary>
+            Starts the web server.
+            </summary>
+            <param name="port">If not specified an unused port will be picked.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.BaseProgram.Initialize">
+            <summary>
+            This is a hack so that other assemblies can ensure
+            that Peach.Pro is actually loaded before 
+            calling Initialize() on the ClassLoader
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.BaseProgram.AddCustomOptions(Peach.Core.Runtime.OptionSet)">
+            <summary>
+            Override to add custom options
+            </summary>
+            <param name="options"></param>
+        </member>
+        <member name="T:Peach.Pro.Core.Runtime.ConsoleProgram">
+            <summary>
+            Command line interface for Peach 3.  Mostly backwards compatable with
+            Peach 2.3.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Runtime.ConsoleProgram._configFiles">
+            <summary>
+            The list of .config files to be parsed for defines
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Runtime.ConsoleProgram._definedValues">
+            <summary>
+            List of key,value pairs of extra defines to use
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Runtime.ConsoleProgram._config">
+            <summary>
+            Configuration options for the engine
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Runtime.ConsoleProgram.ExitCode">
+            <summary>
+            The exit code of the process
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Runtime.ConsoleProgram.Copyright">
+            <summary>
+            Copyright message
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.Runtime.ConsoleProgram.ProductName">
+            <summary>
+            Product name
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.ConsoleProgram.RunEngine(Peach.Core.Dom.Dom,Peach.Pro.Core.WebServices.Models.PitConfig)">
+            <summary>
+            Create an engine and run the fuzzing job
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.ConsoleProgram.OnRunAnalyzer(System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Run a command line analyzer of the specified name
+            </summary>
+            <param name="analyzer"></param>
+            <param name="extra"></param>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.ConsoleProgram.OnRunAgent(System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Run a peach agent of the specified protocol
+            </summary>
+            <param name="agent"></param>
+            <param name="extra"></param>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.ConsoleProgram.OnRunJob(System.Boolean,System.Collections.Generic.List{System.String})">
+            <summary>
+            Run a fuzzing job
+            </summary>
+            <param name="test">Test only. Parses the pit and exits.</param>
+            <param name="extra">Extra command line options</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.ConsoleProgram.ParseDefines(System.String,Peach.Pro.Core.WebServices.Models.PitConfig)">
+            <summary>
+            Combines define files and define arguments into a single list
+            Command line arguments override any .config file's defines
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Runtime.ConsoleProgram.Syntax">
+            <summary>
+            Override to change syntax message.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Storage.Mutation">
+            <summary>
+            One row per data mutation.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Storage.FaultMetric">
+            <summary>
+            One row per fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Error.ErrorMessage">
+            <summary>
+            The error message.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Error.FullException">
+            <summary>
+            Full stacktrace of the error.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.Id">
+            <summary>
+            Unique ID for this fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.FaultUrl">
+            <summary>
+            The URL to the FaultDetail for this fault.
+            </summary>
+            <example>
+            "/p/faults/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.ArchiveUrl">
+            <summary>
+            The URL to download a zip archive of the entire fault data
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.Reproducible">
+            <summary>
+            Was this fault reproducible.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.Iteration">
+            <summary>
+            The iteration this fault was detected on.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.Flags">
+            <summary>
+            The type of iteration this fault was detected on.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.TimeStamp">
+            <summary>
+            The time this fault was recorded at.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.Source">
+            <summary>
+            The monitor that generated this fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.Exploitability">
+            <summary>
+            An exploitablilty rating of this fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.MajorHash">
+            <summary>
+            The major hash for this fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultSummary.MinorHash">
+            <summary>
+            The minor hash for this fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.NodeUrl">
+            <summary>
+            The URL to the node that reported this fault.
+            </summary>
+            <example>
+            "/p/nodes/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.TargetUrl">
+            <summary>
+            The URL of the target that this fault was detected against.
+            </summary>
+            <example>
+            "/p/targets/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.TargetConfigUrl">
+            <summary>
+            The URL of the target configuration that this fault was detected against.
+            </summary>
+            <example>
+            "/p/targets/{target_id}/config/{config_id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.PitUrl">
+            <summary>
+            The URL of the specific version of the pit that this fault was detected against.
+            TODO: Include version in the URL
+            </summary>
+            <example>
+            "/p/pits/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.PeachUrl">
+            <summary>
+            The URL of the specific version of peach that this fault was detected against.
+            TODO: Include version in the URL
+            </summary>
+            <example>
+            "/p/peaches/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.Title">
+            <summary>
+            The title of the fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.Description">
+            <summary>
+            The description of the fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.Seed">
+            <summary>
+            The seed used by peach when this fault was detected.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.IterationStart">
+            <summary>
+            The start iteration used for reproducing this fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.IterationStop">
+            <summary>
+            The end iteration used for reproducing this fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultDetail.Files">
+            <summary>
+            The list of files that are part of this fault.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.Id">
+            <summary>
+            Unique ID of the file.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.FaultDetailId">
+            <summary>
+            Foreign key to FaultDetail table
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.Name">
+            <summary>
+             The display name of the file.
+            </summary>
+            <example>
+            "description.txt"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.FullName">
+            <summary>
+             The actual name of the file including path from root of fault directory.
+            </summary>
+            <example>
+            "WinAgent.Monitor.WindowsDebugEngine.description.txt"
+            "Initial\\5\\WinAgent.Monitor.WindowsDebugEngine.description.txt"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.FileUrl">
+            <summary>
+            The location to download the contents of the file.
+            </summary>
+            <example>
+            "/p/files/{guid}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.Size">
+            <summary>
+            The size of the contents of the file.
+            </summary>
+            <example>
+            1024
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.Initial">
+            <summary>
+            Is the file part of the initial fault or reproduction
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.Type">
+            <summary>
+            What type of file asset is it: Monitor, OutputData, InputData?
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.AgentName">
+            <summary>
+            Name of agent that file came from.
+            </summary>
+            /<remarks>
+            If grouping information is available then AgentName/MonitorName/MonitorClass are all provided.
+            If no grouping information is available, the value is null.
+            </remarks>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.MonitorName">
+            <summary>
+            Name of monitor that file came from.
+            </summary>
+            /<remarks>
+            If grouping information is available then AgentName/MonitorName/MonitorClass are all populated.
+            If no grouping information is available, the value is null.
+            </remarks>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultFile.MonitorClass">
+            <summary>
+            Type of monitor that file came from.
+            </summary>
+            /<remarks>
+            If grouping information is available then AgentName/MonitorName/MonitorClass are all populated.
+            If no grouping information is available, the value is null.
+            </remarks>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.FaultMutation.FullElementName">
+            <summary>
+            Used by reporting.  Is the concatentation of
+            State, Action, Element with empty strings omitted
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.WebServices.Models.JobStatus">
+            <summary>
+            Server-side status
+            Client-side maintains a superset with *Pending states
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.WebServices.Models.JobStatus.Stopped">
+            <summary>
+            Client-side polling finishes once this state is entered
+            </summary>
+            <remarks>
+            To maintain backwards compatiblity, this value should always be 0.
+            </remarks>
+        </member>
+        <member name="F:Peach.Pro.Core.WebServices.Models.JobStatus.Stopping">
+            <summary>
+            Kill is only possible from this state
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobCommands.StopUrl">
+            <summary>
+            The URL used to stop this job.
+            </summary>
+            <example>
+            "/p/jobs/{id}/stop"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobCommands.ContinueUrl">
+            <summary>
+            The URL used to continue this job.
+            </summary>
+            <example>
+            "/p/jobs/{id}/continue"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobCommands.PauseUrl">
+            <summary>
+            The URL used to pause this job.
+            </summary>
+            <example>
+            "/p/jobs/{id}/pause"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobCommands.KillUrl">
+            <summary>
+            The URL used to kill this job.
+            </summary>
+            <example>
+            "/p/jobs/{id}/kill"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.BucketTimeline">
+            <summary>
+            The URL of bucket timeline metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.FaultTimeline">
+            <summary>
+            The URL of fault timeline metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.Mutators">
+            <summary>
+            The URL of mutator metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.Elements">
+            <summary>
+            The URL of fuzzed elements metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.Dataset">
+            <summary>
+            The URL of selected data sets metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.States">
+            <summary>
+            The URL of state execution metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.Buckets">
+            <summary>
+            The URL of fault bucket metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.Iterations">
+            <summary>
+            The URL of iteration metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobMetrics.Fields">
+            <summary>
+            The URL of field metrics.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobRequest.PitUrl">
+            <summary>
+            The URL of the specific version of the pit for this job
+            </summary>
+            <example>
+            "/p/pits/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobRequest.Seed">
+            <summary>
+            The random seed being used by the fuzzing job
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobRequest.RangeStart">
+            <summary>
+            Optional starting iteration number
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobRequest.RangeStop">
+            <summary>
+            Optional ending iteration number
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobRequest.Duration">
+            <summary>
+            Optional duration for how long to run the fuzzer.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.JobRequest.DryRun">
+            <summary>
+            Determines whether the job is a test run or an actual fuzzing session.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Name">
+            <summary>
+            The human readable name for the job
+            </summary>
+            <example>
+            "DHCP Server"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Speed">
+            <summary>
+            The average speed of the job in iterations per hour
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.JobUrl">
+            <summary>
+            The URL of this job
+            </summary>
+            <example>
+            "/p/jobs/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Commands">
+            <summary>
+            URLs used to control a running job.
+            </summary>
+            <remarks>
+            If this property is null than the job can
+            not be controlled by the web api.
+            </remarks>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Metrics">
+            <summary>
+            URLs to associated metrics
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.FirstNodeUrl">
+            <summary>
+            The URL for getting test results
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.FaultsUrl">
+            <summary>
+            The URL of faults from job
+            </summary>
+            <example>
+            "/p/jobs/{id}/faults"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.TargetUrl">
+            <summary>
+            The URL of the target this job is fuzzing
+            </summary>
+            <example>
+            "/p/targets/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.TargetConfigUrl">
+            <summary>
+            The URL of the target configuration for this job
+            </summary>
+            <example>
+            "/p/targets/{target_id}/config/{config_id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.NodesUrl">
+            <summary>
+            The URL that returns a list of nodes used by this job
+            </summary>
+            <example>
+            "/p/jobs/{id}/nodes"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.PeachUrl">
+            <summary>
+            The URL of the specific version of peach for this job
+            </summary>
+            <example>
+            "/p/peaches/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.ReportUrl">
+            <summary>
+            The URL of the version of final report for this job
+            </summary>
+            <example>
+            "/p/files/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.PackageFileUrl">
+            <summary>
+            The URL of the version of the package containing all job inputs
+            </summary>
+            <example>
+            "/p/files/{id}"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Status">
+            <summary>
+            The status of this job record
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Mode">
+            <summary>
+            The mode that this job is operating under
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.PitFile">
+            <summary>
+            Pit file for the job
+            </summary>
+            <remarks>
+            This is used by reporting.  The web api
+            should be using PitUrl.
+            </remarks>
+            <example>
+            "DHCP_Server.xml"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Result">
+            <summary>
+            The result of the job.
+            Only set when the Status is Stopped.
+            Otherwise is null and omitted from the JSON.
+            </summary>
+            <example>
+            "Job ran to completion."
+            "User initiated stop."
+            "Some random error occured."
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Notes">
+            <summary>
+            Fuzzing notes associated with the job
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.User">
+            <summary>
+            User that started the fuzzing job
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.IterationCount">
+            <summary>
+            How many iterations of fuzzing have been completed
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.StartDate">
+            <summary>
+            The date the job was started
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.StopDate">
+            <summary>
+            The date the job ended
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Runtime">
+            <summary>
+            The number of seconds the job has been running for
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.FaultCount">
+            <summary>
+            How many faults have been detected
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Pid">
+            <summary>
+            The pid of peach that owns the job
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.HeartBeat">
+            <summary>
+            The time when the job was last updated
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.PeachVersion">
+            <summary>
+            The version of peach that ran the job.
+            </summary>
+            <example>
+            3.6.20.0
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Tags">
+            <summary>
+            List of tags associated with this job
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.Groups">
+            <summary>
+            ACL for this job
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.HasMetrics">
+            <summary>
+            Indicates if metrics are being collected for the job
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Job.MetricKind">
+            <summary>
+            What kind of metrics are available (machine/human)
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ElementMetric.FullElementName">
+            <summary>
+            Used by reporting.  Is the concatentation of
+            State, Action, Element with empty strings omitted
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.BucketMetric.FullElementName">
+            <summary>
+            Used by reporting.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.License.ErrorText">
+            <summary>
+            Human readable error for why license is not valid.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.License.Expiration">
+            <summary>
+            When the license expires.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.License.EulaAccepted">
+            <summary>
+            Has the eula been accepted.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.License.Eula">
+            <summary>
+            Gets or sets the EULA.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.WebServices.Models.ParamDetail">
+            <summary>
+            A configuration parameter passed to a monitor.
+            Parameter is a more verbose param.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.Type">
+            <summary>
+            The type of the parameter
+            </summary>
+            <example>
+            "string"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.Items">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.Options">
+            <summary>
+            List of values for enum types
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.DefaultValue">
+            <summary>
+            Is this parameter required?
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.Min">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.Max">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.Optional">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.Collapsed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.ParamDetail.OS">
+            <summary>
+            The set of operating systems that this monitor supports.
+            </summary>
+            <remarks>
+            Only used with ParamterType.Monitor
+            </remarks>
+        </member>
+        <member name="T:Peach.Pro.Core.WebServices.Models.Param">
+            <summary>
+            The most basic key/value pair used for all parameters.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Param.Key">
+            <summary>
+            Machine name used by peach.
+            This wil not include spaces.
+            </summary>
+            <example>
+            "Peach.Cwd" or GdbPath"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Param.Name">
+            <summary>
+            The human name of this parameter.
+            </summary>
+            <example>
+            "Pcap Device" or "Peach Installation Directory"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Param.Description">
+            <summary>
+            Description of the parameter
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Param.Value">
+            <summary>
+            Parameter value.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.WebServices.Models.Monitor">
+            <summary>
+            Represents a single monitor instance.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Monitor.MonitorClass">
+            <summary>
+            The class of the monitor
+            </summary>
+            <example>
+            "Pcap"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Monitor.Name">
+            <summary>
+            User friendly name of the monitor instance
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.WebServices.Models.Agent">
+            <summary>
+            Represents an agent in a pit file.
+            Contains agent the location and list of monitors.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Agent.Name">
+            <summary>
+            Name of the agent for reference in tests
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Agent.AgentUrl">
+            <summary>
+            The agent location including the agent channel
+            </summary>
+            <example>
+            "tcp://1.1.1.1"
+            "local://localhost"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Agent.Monitors">
+            <summary>
+            The list of monitors associated with the agent
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Node.NodeUrl">
+            <summary>
+            The URL of this node
+            </summary>
+            <example>
+            "/p/nodes/{id}"
+            </example>
+        </member>
+        <member name="T:Peach.Pro.Core.WebServices.Models.Tag">
+            <summary>
+            An arbitrary tag that is included with various models.
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Tag.Name">
+            <summary>
+            The name of this tag.
+            </summary>
+            <example>
+            "Category.Network"
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.Tag.Values">
+            <summary>
+            The values of this tag.
+            </summary>
+            <example>
+            { "Category", "Network" }
+            </example>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestEvent.Id">
+            <summary>
+            Identifier of event
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestEvent.Status">
+            <summary>
+            Status of event
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestEvent.Short">
+            <summary>
+            Short description of event
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestEvent.Description">
+            <summary>
+            Long description of event
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestEvent.Resolve">
+            <summary>
+            How to resolve the event if it is an issue
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestResult.Status">
+            <summary>
+            The overall status of the test result
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestResult.Events">
+            <summary>
+            The events that make up the test reslt
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestResult.Log">
+            <summary>
+            The debug log from the test run
+            </summary>
+        </member>
+        <member name="P:Peach.Pro.Core.WebServices.Models.TestResult.LogUrl">
+            <summary>
+            URL to the debug log from the test run
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.WebServices.PitDatabase.NewConfig(System.String,System.String,System.String)">
+            <summary>
+            
+            Throws:
+              KeyNotFoundException if libraryUrl/pitUrl is not valid.
+              ArgumentException if a pit with the specified name already exists.
+            </summary>
+            <param name="pitUrl">The url of the source pit to copy.</param>
+            <param name="name">The name of the newly copied pit.</param>
+            <param name="description">The description of the newly copied pit.</param>
+            <returns>The newly copied pit.</returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.Defaults">
+            <summary>
+            Process sample files to determin data types
+            and set of default values.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Xml.Defaults.ProcessFolder(System.String)">
+            <summary>
+            Process all files in folder as sample files.  We will
+            use this information to guess data types and default
+            values.
+            </summary>
+            <param name="folder">Folder to pull sample files from.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Xml.Defaults.ProcessFile(System.String)">
+            <summary>
+            Process a single file for sample data and data types.
+            </summary>
+            <param name="file">File to use as sample.</param>
+        </member>
+        <member name="M:Peach.Pro.Core.Xml.Defaults.GuessDataType(System.String)">
+            <summary>
+            Guess actual data type based on sample values.
+            </summary>
+            <param name="value">Value to guess about</param>
+            <returns>Returns </returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.Element">
+            <summary>
+            Element Model
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Element.attributes">
+            <summary>
+            Key == Attribute.name, value == Attribute
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Element.relation">
+            <summary>
+            Rules for child elements if any.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Element.defaultValues">
+            <summary>
+            Any known default values.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.DataType">
+            <summary>
+            Possible data types for elements and attributes.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.ElementRelationType">
+            <summary>
+            Element relation type
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.ElementRelation">
+            <summary>
+            Capture an element relation from the DTD.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.Attribute">
+            <summary>
+            Attribute Model
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Attribute.name">
+            <summary>
+            Attribute name
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Attribute.type">
+            <summary>
+            Attribute type
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Attribute.dataType">
+            <summary>
+            Data type for attribute.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Attribute.value">
+            <summary>
+            Attribute value if provided by DTD.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Attribute.required">
+            <summary>
+            Is attribute required.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Attribute.implied">
+            <summary>
+            Is attribute implied (optional)
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Attribute.enumValues">
+            <summary>
+            If AttributeType is enum, here are valid values.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Attribute.defaultValues">
+            <summary>
+            Possible default values for attribute
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Xml.Entity.ResolveEntities(System.String)">
+            <summary>
+            Uses our list of defined entities to resolve any 
+            entity references inside of a string.
+            </summary>
+            <param name="data">String that may contain entities</param>
+            <returns>Returns a string with all entities resolved.</returns>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.Generator">
+            <summary>
+            Generate XML documents based on Element definitions.
+            </summary>
+        </member>
+        <member name="F:Peach.Pro.Core.Xml.Generator._GenerateXmlNode_Depth">
+            <summary>
+            Track depth to prevent infinit recurtion
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.Core.Xml.Generator.GenerateXmlDocument">
+            <summary>
+            Generate an XmlDocument based on the definition
+            of the root Element provided to the constructor
+            of this class.
+            
+            Each call to GenerateXmlDocument will return a 
+            different document.
+            </summary>
+            <returns>Returns XmlDocument generated from rootElement definition.</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Xml.Generator.GenerateXmlNode(Peach.Pro.Core.Xml.Element)">
+            <summary>
+            Generate an XmlNode based on an Element definition.
+            Will also generate all attributes and child elements.
+            </summary>
+            <param name="element">Element definition to use</param>
+            <returns>Returns XmlNode object</returns>
+        </member>
+        <member name="M:Peach.Pro.Core.Xml.Generator.GenerateXmlAttributes(Peach.Pro.Core.Xml.Element,System.Xml.XmlNode)">
+            <summary>
+            Generate the attributes for a new XmlNode based on
+            the Element definition.
+            </summary>
+            <param name="element">Element definition</param>
+            <param name="node">XmlNode to add attributes to</param>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.Parser">
+            <summary>
+            Abstract base class for all XML schema parsers (DTD, Schema, relaxedng, etc)
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.Xml.ParserDtd">
+            <summary>
+            DTD Xml Schema parser.  Converts a DTD specification into
+            an element constraint graph that can be used to generate XML.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.Core.XmlFragmentWriter">
+            <summary>
+            Filter object that doesn't pass WriteStartDocument/WriteEndDocument to the underlying XmlWriter.
+            </summary>
+        </member>
+        <member name="M:Peach.Pro.OS.Linux.Agent.Monitors.GdbDebugger.PopulateTemplateParameters(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Populate values that can be used in the mutashe gdb script template.
+            </summary>
+            <param name="locals"></param>
+        </member>
+        <member name="M:Peach.Pro.OS.Linux.Agent.Monitors.GdbServerMonitor.PopulateTemplateParameters(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Populate values that can be used in the mutashe gdb script template.
+            </summary>
+            <param name="locals"></param>
+        </member>
+        <member name="T:Peach.Pro.OS.OSX.Agent.Monitors.CrashReporter">
+            <summary>
+            Monitor will use OS X's built in CrashReporter (similar to watson)
+            to detect and report crashes.
+            </summary>
+        </member>
+        <member name="T:Peach.Pro.OS.OSX.Agent.Monitors.CrashWrangler">
+            <summary>
+            Monitor will use OS X's built in CrashReporter (similar to watson)
+            to detect and report crashes.
+            </summary>
+        </member>
+    </members>
+</doc>

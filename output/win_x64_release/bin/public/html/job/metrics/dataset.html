@@ -1,0 +1,64 @@
+﻿<p>
+	This metric display shows statistics related to the use of two or more data sets 
+	in the fuzzing session. 
+	This is useful to determine the origin of unique buckets and also faults in terms 
+	of the data sources used in mutating.
+</p>
+
+<table
+	st-table="vm.DatasetData"
+	st-safe-src="vm.AllDatasetData"
+	class="table table-striped table-bordered table-hover peach-table">
+	<thead>
+		<tr>
+			<th st-sort="dataset"
+				class="width-100">
+				Data Set
+			</th>
+			<th st-sort="iterationCount">
+				Test Cases
+			</th>
+			<th st-sort="bucketCount">
+				Buckets
+			</th>
+			<th st-sort="faultCount"
+				st-sort-default="reverse">
+				Faults
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class="text-center"
+					colspan="4"
+					ng-if="vm.AllDatasetData.length === 0">
+				No data is available
+			</td>
+		</tr>
+		<tr ng-repeat="row in vm.DatasetData">
+			<td class="max-width-500 width-100 break-word">
+				{{row.dataset}}
+			</td>
+			<td>
+				{{row.iterationCount}}
+			</td>
+			<td>
+				{{row.bucketCount}}
+			</td>
+			<td>
+				{{row.faultCount}}
+			</td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr ng-if="vm.AllDatasetData.length > 25">
+			<td colspan="4"
+					class="text-center">
+				<div st-pagination
+							st-items-by-page="25"
+							st-displayed-pages="10">
+				</div>
+			</td>
+		</tr>
+	</tfoot>
+</table>

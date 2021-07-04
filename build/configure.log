@@ -1,0 +1,117 @@
+Setting top to                           : G:\github\protocol-fuzzer-ce
+Setting out to                           : G:\github\protocol-fuzzer-ce\slag
+Loading 'doc' config                     : G:\github\protocol-fuzzer-ce\build\config\doc.pyc
+Checking for program 'ruby'              : C:\Ruby27-x64\bin\ruby.exe
+Checking for program 'bundle'            : C:\Ruby27-x64\bin\bundle.cmd
+17:27:31 runner ['C:\\Ruby27-x64\\bin\\bundle.cmd', '--gemfile=G:\\github\\protocol-fuzzer-ce\\slag\\gems.win32\\Gemfile', '--path=G:\\github\\protocol-fuzzer-ce\\slag\\gems.win32', '--binstubs=G:\\github\\protocol-fuzzer-ce\\slag\\gems.win32\\bin']
+Checking for program 'asciidoctor'       : G:\github\protocol-fuzzer-ce\slag\gems.win32\bin\asciidoctor
+Checking for program 'asciidoctor-pdf'   : G:\github\protocol-fuzzer-ce\slag\gems.win32\bin\asciidoctor-pdf
+Checking for program 'doxygen'           : not found
+Feature 'doxygen' is not available: Could not find the program ['doxygen']
+(complete log in G:\github\protocol-fuzzer-ce\slag\config.win32.log)
+Checking for program 'java'              : C:\Program Files (x86)\Common Files\Oracle\Java\javapath\java.exe
+Checking for program 'xmllint'           : C:\ProgramData\chocolatey\bin\xmllint.exe
+Checking for program 'xsltproc'          : C:\ProgramData\chocolatey\bin\xsltproc.exe
+Loading 'linux' config                   : G:\github\protocol-fuzzer-ce\build\config\linux.pyc
+linux_x86 is not available: Unsupported build host
+linux_x86_64 is not available: Unsupported build host
+Loading 'osx' config                     : G:\github\protocol-fuzzer-ce\build\config\osx.pyc
+osx is not available: Unsupported build host
+Loading 'pits' config                    : G:\github\protocol-fuzzer-ce\build\config\pits.pyc
+Skipping 'pits' for this build configuration.
+Loading 'web' config                     : G:\github\protocol-fuzzer-ce\build\config\web.pyc
+Skipping 'web' for this build configuration.
+Loading 'win' config                     : G:\github\protocol-fuzzer-ce\build\config\win.pyc
+17:27:33 runner ['C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe', '-products', '*', '-legacy', '-format', 'json']
+Traceback (most recent call last):
+  File "C:\Python27\lib\logging\__init__.py", line 874, in emit
+    stream.write(fs % msg.encode("UTF-8"))
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc9 in position 652: ordinal not in range(128)
+Logged from file Context.py, line 503
+17:27:33 runner ['cmd.exe', '/E:on', '/V:on', '/C', 'G:\\github\\protocol-fuzzer-ce\\slag\\waf-print-msvc-1.bat']
+Checking for program 'CL'                : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\CL.exe
+17:27:34 runner ['C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX86\\x86\\CL.exe', '/help']
+Traceback (most recent call last):
+  File "C:\Python27\lib\logging\__init__.py", line 874, in emit
+    stream.write(fs % msg.encode("UTF-8"))
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xa8 in position 5547: ordinal not in range(128)
+Logged from file Context.py, line 503
+Checking for program 'CL'                : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\CL.exe
+17:27:35 runner ['C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX86\\x86\\CL.exe', '/nologo', '/help']
+Traceback (most recent call last):
+  File "C:\Python27\lib\logging\__init__.py", line 874, in emit
+    stream.write(fs % msg.encode("UTF-8"))
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xa8 in position 5547: ordinal not in range(128)
+Logged from file Context.py, line 503
+Checking for program 'LINK'              : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\LINK.exe
+Checking for program 'LIB'               : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x86\LIB.exe
+Checking for program 'MT'                : C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\MT.exe
+Checking for program 'RC'                : C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\RC.exe
+Checking for program 'csc, mcs, gmcs'    : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\bin\Roslyn\csc.exe
+Checking for program 'resgen'            : C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\resgen.exe
+Checking for program 'midl'              : C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x86\midl.exe
+Checking for file Ole32.lib              : C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Ole32.lib
+Checking for file OleAut32.lib           : C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\OleAut32.lib
+Checking for file Advapi32.lib           : C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\Advapi32.lib
+Checking for file winsock2.h             : C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um\winsock2.h
+Checking for file ws2_32.lib             : C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x86\ws2_32.lib
+Checking for file pin.lib                : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\ia32\lib\pin.lib
+Checking for file xed.lib                : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\extras\xed-ia32\lib\xed.lib
+Checking for file pinvm.lib              : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\ia32\lib\pinvm.lib
+Checking for file stlport-static.lib     : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\ia32\runtime\pincrt\stlport-static.lib
+Checking for file m-static.lib           : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\ia32\runtime\pincrt\m-static.lib
+Checking for file c-static.lib           : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\ia32\runtime\pincrt\c-static.lib
+Checking for file os-apis.lib            : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\ia32\runtime\pincrt\os-apis.lib
+Checking for file ntdll-32.lib           : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\ia32\lib-ext\ntdll-32.lib
+Checking for program 'tsc'               : C:\Users\sfnca\AppData\Roaming\npm\tsc.cmd
+17:27:35 runner ['C:\\Users\\sfnca\\AppData\\Roaming\\npm\\tsc.cmd', '--version']
+17:27:35 runner ['G:\\github\\protocol-fuzzer-ce\\paket\\.paket\\paket.bootstrapper.exe']
+17:27:38 runner ['G:\\github\\protocol-fuzzer-ce\\paket\\.paket\\paket.exe', 'restore']
+Checking for program 'msbuild'           : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\\MSBuild\15.0\bin\msbuild.exe
+17:27:38 runner ['C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe', '-products', '*', '-legacy', '-format', 'json']
+Traceback (most recent call last):
+  File "C:\Python27\lib\logging\__init__.py", line 874, in emit
+    stream.write(fs % msg.encode("UTF-8"))
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc9 in position 652: ordinal not in range(128)
+Logged from file Context.py, line 503
+17:27:38 runner ['cmd.exe', '/E:on', '/V:on', '/C', 'G:\\github\\protocol-fuzzer-ce\\slag\\waf-print-msvc-2.bat']
+Checking for program 'CL'                : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX64\x64\CL.exe
+17:27:40 runner ['C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX64\\x64\\CL.exe', '/help']
+Traceback (most recent call last):
+  File "C:\Python27\lib\logging\__init__.py", line 874, in emit
+    stream.write(fs % msg.encode("UTF-8"))
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xa8 in position 5142: ordinal not in range(128)
+Logged from file Context.py, line 503
+Checking for program 'CL'                : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX64\x64\CL.exe
+17:27:40 runner ['C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Tools\\MSVC\\14.16.27023\\bin\\HostX64\\x64\\CL.exe', '/nologo', '/help']
+Traceback (most recent call last):
+  File "C:\Python27\lib\logging\__init__.py", line 874, in emit
+    stream.write(fs % msg.encode("UTF-8"))
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xa8 in position 5142: ordinal not in range(128)
+Logged from file Context.py, line 503
+Checking for program 'LINK'              : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX64\x64\LINK.exe
+Checking for program 'LIB'               : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX64\x64\LIB.exe
+Checking for program 'MT'                : C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64\MT.exe
+Checking for program 'RC'                : C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64\RC.exe
+Checking for program 'csc.exe'           : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\bin\Roslyn\csc.exe
+Checking for program 'resgen.exe'        : C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\resgen.exe
+Checking for program 'midl'              : C:\Program Files (x86)\Windows Kits\10\bin\10.0.17763.0\x64\midl.exe
+Checking for file Ole32.lib              : C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x64\Ole32.lib
+Checking for file OleAut32.lib           : C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x64\OleAut32.lib
+Checking for file Advapi32.lib           : C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x64\Advapi32.lib
+Checking for file winsock2.h             : C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um\winsock2.h
+Checking for file ws2_32.lib             : C:\Program Files (x86)\Windows Kits\10\lib\10.0.17763.0\um\x64\ws2_32.lib
+Checking for file pin.lib                : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\intel64\lib\pin.lib
+Checking for file xed.lib                : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\extras\xed-intel64\lib\xed.lib
+Checking for file pinvm.lib              : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\intel64\lib\pinvm.lib
+Checking for file stlport-static.lib     : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\intel64\runtime\pincrt\stlport-static.lib
+Checking for file m-static.lib           : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\intel64\runtime\pincrt\m-static.lib
+Checking for file c-static.lib           : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\intel64\runtime\pincrt\c-static.lib
+Checking for file os-apis.lib            : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\intel64\runtime\pincrt\os-apis.lib
+Checking for file ntdll-64.lib           : G:\github\protocol-fuzzer-ce\3rdParty\pin\pin-3.2-81205-msvc-windows\intel64\lib-ext\ntdll-64.lib
+Checking for program 'tsc'               : C:\Users\sfnca\AppData\Roaming\npm\tsc.cmd
+17:27:40 runner ['C:\\Users\\sfnca\\AppData\\Roaming\\npm\\tsc.cmd', '--version']
+17:27:40 runner ['G:\\github\\protocol-fuzzer-ce\\paket\\.paket\\paket.bootstrapper.exe']
+17:27:43 runner ['G:\\github\\protocol-fuzzer-ce\\paket\\.paket\\paket.exe', 'restore']
+Checking for program 'msbuild'           : C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\\MSBuild\15.0\bin\msbuild.exe
+'configure' finished successfully (11.510s)

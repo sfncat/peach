@@ -1,0 +1,245 @@
+<div class="alert alert-danger"
+		 ng-show="vm.ShowNotConfigured">
+	<strong>Warning!</strong>
+	The currently selected Pit has required configuration variables that must be set.
+	<a ui-sref="pit.advanced.variables">Configure Variables</a>
+</div>
+
+<div class="alert alert-warning"
+		ng-show="vm.ShowNoMonitors">
+	<strong>Warning!</strong>
+	The currently selected Pit should be configured for monitoring the environment.
+	<a ui-sref="pit.advanced.monitoring">Configure Monitoring</a>
+</div>
+
+<div class="alert alert-success"
+		 ng-show="vm.ShowReady">
+	The Pit is configured and ready for use.
+	Click the START button below to begin fuzzing.
+</div>
+
+<p>
+	This configuration uses the <code>{{vm.Pit.name}}</code> pit and includes configuration data for your test setup.
+</p>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<span class="panel-title">
+			Configuration Options
+		</span>
+			<span class="pull-right">
+				<button type="button"
+								class="btn btn-xs btn-default"
+								ng-class="vm.CfgHelpClass"
+								ng-click="vm.OnCfgHelp()">
+					<i class="fa fa-question-circle"></i>
+					{{vm.CfgHelpPrompt}}
+				</button>
+			</span>
+	</div>
+	<div class="panel-body">
+		<div ng-show="vm.storage.showCfgHelp">
+			<p>
+				Set or change the test configuration using the following buttons:
+				<dl class="dl-horizontal">
+					<dt ng-show="vm.ShowWebProxy">
+						Configure Web Proxy
+					</dt>
+					<dd ng-show="vm.ShowWebProxy">
+						A list of Web API route patterns used by the configuration.
+					</dd>
+					<dt>
+						Configure Variables
+					</dt>
+					<dd>
+						A list of items needed by the configuration, 
+						including global pit variables and pit-specific information, such as target IP addresses.
+					</dd>
+					<dt>
+						Configure Monitoring
+					</dt>
+					<dd>
+						A list of the agents and monitors defined for the test configuration. 
+						Click this button to select and update the agents, 
+						monitors and associated monitor settings for the test configuration. 
+						<br/>
+						This choice provides the most flexibility in implementing 
+						fault detection, data collection, and automation.
+					</dd>
+				</dl>
+			</p>
+		</div>
+		<div class="center">
+			<a role="button"
+				class="btn btn-primary"
+				ng-show="vm.ShowWebProxy"
+				ui-sref="pit.advanced.webproxy">
+				<i class="fa fa-wrench"></i>
+				Configure Web Proxy
+			</a>
+
+			<a role="button"
+				class="btn btn-primary"
+				ui-sref="pit.advanced.variables">
+				<i class="fa fa-wrench"></i>
+				Configure Variables
+			</a>
+
+			<a role="button"
+				class="btn btn-primary"
+				ui-sref="pit.advanced.monitoring">
+				<i class="fa fa-wrench"></i>
+				Configure Monitoring
+			</a>
+		</div>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<span>
+			<span class="panel-title">
+				Start Options
+			</span>
+			<span class="pull-right">
+				<button type="button"
+								class="btn btn-xs btn-default"
+								ng-class="vm.StartHelpClass"
+								ng-click="vm.OnStartHelp()">
+					<i class="fa fa-question-circle"></i>
+					{{vm.StartHelpPrompt}}
+				</button>
+			</span>
+		</span>
+	</div>
+	<div class="panel-body">
+		<form name="form"
+					class="form-horizontal"
+					novalidate
+					autocomplete="off">
+			<div ng-show="vm.storage.showStartHelp">
+				<p>
+					The Start Options specify the test cases that start and end a fuzzing job, 
+					and identify a seed for generating mutated data. 
+					For a new fuzzing job, the default values are usually appropriate to use, 
+					although you can select other values to use.
+				</p>
+	
+				<p>
+					If you want to replay a fuzzing run, you need to use the same Start Options
+					as in the original fuzzing job. 
+					You can obtain these values by 
+					1) selecting the fuzzing run you want to replay, 
+					and 2) click the Replay button on that job page.
+				</p>
+	
+				<p>
+					For replay, changing the Start Options has the following effects:
+					<ul>
+						<li>
+							Change the Seed. 
+							This changes the mutated data values used in all test cases. 
+							The result is definitely a new job.
+						</li>
+						<li>
+							Change the Start or Stop Test Case. 
+							This changes the test cases (first and/or last) to execute in the job, 
+							thereby lengthening or shortening the total number of test cases executed in the job.
+							Note that changing the test cases (first and last) for the job can help validate an issue
+							or the fix for an issue. 
+							However, the result might not produce the intended results.
+						</li>
+					</ul>
+				</p>
+				
+				<p>
+					Click "Start” to begin the fuzzing job.
+				</p>
+	
+				<br/>
+			</div>
+			<div class="form-group"
+					 ng-class="{'has-error': form.seed.$invalid && form.seed.$dirty}">
+				<label class="col-sm-4 control-label">
+					Seed
+				</label>
+				<div class="col-sm-6">
+					<input name="seed"
+								 autocomplete="off"
+								 ng-model="vm.Job.seed"
+								 type="number"
+								 step="1"
+								 class="form-control"
+								 placeholder="Random Seed"
+								 tabindex="1"
+								 peach:range
+								 peach:range-min="0"
+								 peach:range-max="4294967295"
+								 peach:auto-focus />
+					<span class="help-block"
+								ng-messages="form.seed.$error"
+								ng-messages-include="html/messages.html">
+					</span>
+				</div>
+			</div>
+
+			<div class="form-group"
+					 ng-class="{'has-error': form.start.$invalid && form.start.$dirty}">
+				<label class="col-sm-4 control-label">
+					Start Test Case
+				</label>
+				<div class="col-sm-6">
+					<input name="start"
+								 autocomplete="off"
+								 ng-model="vm.Job.rangeStart"
+								 type="number"
+								 step="1"
+								 class="form-control"
+								 placeholder="1"
+								 tabindex="2"
+								 peach:range
+								 peach:range-min="1"
+								 peach:range-max="4294967295" />
+					<span class="help-block"
+								ng-messages="form.start.$error"
+								ng-messages-include="html/messages.html">
+					</span>
+				</div>
+			</div>
+
+			<div class="form-group"
+					 ng-class="{'has-error': form.stop.$invalid && form.stop.$dirty}">
+				<label class="col-sm-4 control-label">
+					Stop Test Case
+				</label>
+				<div class="col-sm-6">
+					<input name="stop"
+								 autocomplete="off"
+								 ng-model="vm.Job.rangeStop"
+								 type="number"
+								 step="1"
+								 class="form-control"
+								 placeholder="Default"
+								 tabindex="3"
+								 peach:range
+								 peach:range-min="1"
+								 peach:range-max="4294967295" />
+					<span class="help-block"
+								ng-messages="form.stop.$error"
+								ng-messages-include="html/messages.html">
+					</span>
+				</div>
+			</div>
+
+			<div class="center">
+				<button type="button"
+								class="btn btn-primary"
+								ng-click="vm.Start()"
+								ng-disabled="!vm.CanStart">
+					<i class="fa fa-play"></i>
+					Start
+				</button>
+			</div>
+		</form>
+	</div>
+</div>

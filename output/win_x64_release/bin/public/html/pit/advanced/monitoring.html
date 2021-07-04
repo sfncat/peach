@@ -1,0 +1,64 @@
+<form name="form"
+			class="form-horizontal"
+			novalidate
+			peach:unsaved
+			autocomplete="off">
+	<p>
+		The Monitoring data entry screen defines one or more Agents and one or more Monitors for the Pit.
+	</p>
+	<p>
+		Agents are host processes for monitors and publishers.
+		Local agents can reside on the same machine as Peach,
+		and can control the test environment through monitors and publishers.
+		Remote agents reside on the test target, and can provide remote monitors and publishers.
+	</p>
+
+	<div class="alert alert-warning"
+			 ng-show="vm.ShowMissingAgents">
+		<strong>Warning!</strong>
+		No agents have been configured.
+	</div>
+
+	<div class="row"
+			 style="margin-bottom: 10px">
+		<div class="col-xs-6">
+			<span ng-show="vm.ShowSaved"
+						class="green">
+				Saved successfully.
+			</span>
+			<span ng-show="vm.ShowError"
+						class="red">
+				Save is disabled until validation issues are fixed.
+			</span>
+		</div>
+		<div class="col-xs-6 text-right">
+			<button class="btn btn-xs btn-danger"
+							ng-click="vm.Save()"
+							ng-disabled="!vm.CanSave">
+				<i class="fa fa-save"></i>
+				Save
+			</button>
+			<button class="btn btn-xs btn-info"
+							ng-click="vm.AddAgent()">
+				<i class="fa fa-plus"></i>
+				Add Agent &nbsp;
+			</button>
+		</div>
+	</div>
+
+	<div class="alert alert-info"
+			 ng-show="vm.ShowLoading">
+		Loading configuration...
+	</div>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<uib-accordion ng-repeat="agent in vm.Agents track by $index">
+				<peach:agent agents="vm.Agents"
+										 agent="agent"
+										 agent-index="$index">
+				</peach:agent>
+			</uib-accordion>
+		</div>
+	</div>
+</form>

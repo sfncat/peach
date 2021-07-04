@@ -1,0 +1,41 @@
+<table class="peach-fault-detail">
+	<tr ng-if="assets.TestData">
+		<td class="align-top">Test Case I/O</td>
+		<td>
+			<peach:fault-files files="assets.TestData">
+			</peach:fault-files>
+		</td>
+	</tr>
+	<tr ng-if="assets.MonitorAssets">
+		<td class="align-top">
+			<div style="padding-bottom:20px">Monitoring Assets</div>
+		</td>
+		<td>
+			<uib-tabset active="active">
+				<uib-tab ng-repeat="agent in assets.MonitorAssets">
+					<uib-tab-heading>
+						{{agent.agentName}}
+					</uib-tab-heading>
+
+					<div class="fault-monitor-tab-content">
+						<uib-accordion close-others="false">
+							<uib-accordion-group is-open="true"
+								heading="{{mon.monitorClass}} ({{mon.monitorName}})"
+								ng-repeat="mon in agent.children">
+								<peach:fault-files files="mon.children">
+								</peach:fault-files>
+							</uib-accordion-group>
+						</uib-accordion>
+					</div>
+				</uib-tab>
+			</uib-tabset>
+		</td>
+	</tr>
+	<tr ng-if="assets.Other">
+		<td class="align-top">Other Assets</td>
+		<td>
+			<peach:fault-files files="assets.Other">
+			</peach:fault-files>
+		</td>
+	</tr>
+</table>

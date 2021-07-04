@@ -1,0 +1,555 @@
+#!/usr/bin/env python
+
+"""
+Peach Multi-Node CLI
+Copyright (c) Peach Fuzzer, LLC
+
+This tool is used to control multiple Peach instances at once.
+The tool can be used via the command line or as an interactive
+tool.
+
+Installation:
+
+  Installation of this tool has two steps.
+  
+  1. Install Python 2.7
+  2. Install dependencies
+
+    pip install -r requirements.txt
+  
+  3. Populate instances.py
+  
+    The instances.py file contains a list of all Peach instances
+    that will be controlled from this tool.  Instances can be
+    placed into groups. An instance can be part of more than one
+    group.
+    
+    A master instance is configured to pull configurations from.
+    Typically the master instance is running locally, but it can
+    also be one of the fuzzing instances.
+    
+    WARNING: Only one master instance can be configured!
+    
+  4. Start using the tool.
+
+Syntax:
+
+  peachcli
+  
+  peachcli "jobs all" quit
+
+"""
+
+try:
+    import cmd2
+    import requests
+except:
+    print "Error, missing dependencies."
+    print "Use 'pip install -r requirements.txt'"
+    exit(-1)
+
+import cmd2
+import json
+import os
+import shlex
+import zipfile
+from datetime import datetime
+from urlparse import urlparse
+
+from instances import INSTANCES
+
+class App(cmd2.Cmd):
+    
+    def preloop(self):
+        self.prompt = "\n>> "
+    
+    def debug(self, msg):
+        #print msg
+        pass
+    
+    def splitargs(self, arg):
+        return shlex.split(arg)
+    
+    def findPitFromConfig(self, masterUrl, nodeUrl, config):
+        """Return pitUrl for original pit based on config"""
+        
+        self.debug(">>findPitFromConfig")
+        
+        files = []
+        configFiles = config["versions"][0]["files"]
+        for f in configFiles:
+            files.append(os.path.basename(f["name"]))
+        
+        files = sorted(files)
+        
+        response = requests.get(nodeUrl + "/p/libraries")
+        pitsLibrary = response.json()[0]
+        pitsInLibrary = pitsLibrary["versions"][0]["pits"]
+        
+        for p in pitsInLibrary:
+            response = requests.get(nodeUrl + p["pitUrl"])
+            config = response.json()
+            pFiles = []
+            for f in config["versions"][0]["files"]:
+                pFiles.append(os.path.basename(f["name"]))
+            pFiles = sorted(pFiles)
+            
+            if pFiles == files:
+                self.debug("<<findPitFromConfig: "+p["pitUrl"])
+                return p["pitUrl"]
+            else:
+                self.debug("%s != %s" % (files, pFiles))
+        
+        self.debug(">>findPitFromConfig: None")
+        return None
+    
+    def getLibrary(self, url, library):
+        
+        response = requests.get(url + "/p/libraries")
+        libraries = response.json()
+        
+        for l in libraries:
+            if l["name"] == library:
+                return l
+        
+        return None
+    
+    def getLibraryUrl(self, url, library):
+        
+        response = requests.get(url + "/p/libraries")
+        libraries = response.json()
+        
+        for l in libraries:
+            if l["name"] == library:
+                return l["libraryUrl"]
+        
+        return None
+    
+    def getPitUrl(self, url, library, name):
+        
+        library = self.getLibrary(url, library)
+        for p in library["versions"][0]["pits"]:
+            if p["name"] == name:
+                return p["pitUrl"]
+        
+        return None
+    
+    def do_push(self, args):
+        """push <pit-config> <group>\nPush pit config from master to a specific group or all."""
+        
+        (pit, group) = self.splitargs(args)
+        
+        master = INSTANCES["master"][0]    
+        urls = INSTANCES[group]
+        masterPitUrl = None
+        masterPitSourceUrl = None
+        masterPitName = pit
+        
+        if pit.index("-") == -1:
+            print "Error, pit configuration not in correct format (%s)." % masterPitName
+            print "  Name must be PIT-ConfigName."
+            return
+        
+        pitSource = pit[:pit.rfind("-")]
+        masterPitSourceUrl = self.getPitUrl(master, "Pits", pitSource)
+        masterPitUrl = self.getPitUrl(master, "Configurations", masterPitName)
+        
+        if masterPitUrl == None:
+            print "Error, pit configuration not found on master. (%s)" % masterPitName
+            
+        if masterPitSourceUrl == None:
+            print "Error, pit file not found on master. (%s)" % pitSource
+            print "  Name must be PIT-ConfigName."
+            return
+        
+        print "Copying %s to %s" % (masterPitName, group)
+        
+        # Get master pit config
+        
+        response = requests.get(master + masterPitUrl)
+        response.raise_for_status()
+        
+        masterPitConfig = response.json()
+        
+        response = requests.get(master + masterPitSourceUrl)
+        response.raise_for_status()
+        
+        masterPitSourceConfig = response.json()
+        
+        # Copy pit to each peach instance
+        
+        for url in urls:
+            
+            print "  Copying to %s..." % url
+            
+            # Find matching pit in library
+            
+            pitUrl = self.getPitUrl(url, "Pits", pitSource)
+            if pitUrl == None:
+                print "Error, unable to find pit on '%s'" % url
+                return
+            
+            # Create configuration
+            
+            response = requests.post(url + "/p/pits", json={
+                "libraryUrl" : self.getLibraryUrl(url, "Configurations"),
+                "pitUrl": pitUrl,
+                "name" : masterPitName,
+                "description": "Peach CLI"
+                })
+            
+            pitUrl = self.getPitUrl(url, "Configurations", masterPitName)
+            if pitUrl == None:
+                print "Error during copy. Unable to create pit config on %s" % url
+                return
+            
+            response = requests.get(url + pitUrl)
+            newPit = response.json()
+            response.raise_for_status()
+            
+            pitId = newPit["id"]
+            
+            # Set configuration
+            
+            response = requests.get(url + pitUrl)
+            config = response.json()
+            config["config"] = masterPitConfig["config"]
+            config["agents"] = masterPitConfig["agents"]
+            
+            response = requests.post(url + pitUrl, json=config)
+            response.raise_for_status()
+    
+    def do_jobs(self, group):
+        """jobs [group]\nList running jobs."""
+        
+        if group == "":
+            group = "all"
+        
+        urls = INSTANCES[group]
+        
+        for url in urls:
+            print "\n-- %s --" % url
+            
+            response = requests.get(url + '/p/jobs?dryrun=false')
+            jobs = response.json()
+            
+            fmt = "%-20s %-10s %-20s %-20s %-10s %-6s"
+            
+            print fmt % ("Name", "Status", "Start", "Stop", "Count", "Faults")
+            print "-------------------------------------------------------------------------------------------"
+            
+            for job in jobs:
+                if not 'iterationCount' in job:
+                    job['iterationCount'] = "-"
+                if not 'faultCount' in job:
+                    job['faultCount'] = "-"
+                if not 'stopDate' in job:
+                    job['stopDate'] = "-"
+                    
+                print fmt % (
+                    job['name'],
+                    job['status'],
+                    job['startDate'],
+                    job['stopDate'],
+                    job['iterationCount'],
+                    job['faultCount'],
+                    )
+    
+    def do_status(self, args, opts=None):
+        """status <pit> <group>\nStatus of a job."""
+        
+        (pit, group) = self.splitargs(args)
+        
+        urls = INSTANCES[group]
+        
+        name = pit
+        startDate = None
+        stopDate = None
+        nodes = 0
+        running = 0
+        stopped = 0
+        paused = 0
+        iterationCount = 0
+        faultCount = 0
+        
+        print "Status of %s for group %s:\n" % (pit, group)
+        
+        for url in urls:
+            
+            nodeCounted = False
+            
+            response = requests.get(url + '/p/jobs?dryrun=false')
+            jobs = response.json()
+            
+            pitUrl = self.getPitUrl(url, "Configurations", pit)
+            
+            for job in jobs:
+                
+                if job['pitUrl'] != pitUrl:
+                    print "No match %s" % job['name']
+                    continue
+                
+                if not 'iterationCount' in job:
+                    job['iterationCount'] = "0"
+                if not 'faultCount' in job:
+                    job['faultCount'] = "0"
+                if not 'stopDate' in job:
+                    job['stopDate'] = None
+                
+                if not nodeCounted:
+                    nodes += 1
+                    nodeCounted = True
+                
+                name = job['name']
+                status = job['status']
+                jobStartDate = job['startDate']
+                jobStopDate = job['stopDate']
+                iterationCount += int(job['iterationCount'])
+                faultCount += int(job['faultCount'])
+                
+                if status == "stopped":
+                    stopped += 1
+                elif status == "running":
+                    running += 1
+                elif status == "paused":
+                    paused += 1
+                
+                jobStartDate = datetime.strptime(jobStartDate, "%Y-%m-%dT%H:%M:%SZ")
+                if jobStopDate:
+                    jobStopDate = datetime.strptime(jobStopDate, "%Y-%m-%dT%H:%M:%SZ")
+                
+                if not startDate or startDate > jobStartDate:
+                    startDate = jobStartDate
+                if jobStopDate and (not stopDate or stopDate < jobStopDate):
+                    stopDate = jobStopDate
+        
+        fmt = " %-8s %-8s %-8s %-8s %-8s %-6s"
+        
+        print fmt % ("Nodes", "Running", "Stopped", "Paused", "Count", "Faults")
+        print "-----------------------------------------------------"
+        print fmt % (nodes, running, stopped, paused, iterationCount, faultCount)
+    
+    #@cmd2.options([
+    #    cmd2.make_option('-a', '--all',  action="store_true", help="From all jobs on each node"),
+    #    cmd2.make_option('-l', '--last', action="store_true", help="From last job on each node"),
+    #    ])
+    def do_pull(self, args, opts=None):
+        """pull faults [-a|-l] <pit> <group>\nPull faults from distributed job."""
+        
+        (what, pit, group) = self.splitargs(args)
+        
+        if what != "faults":
+            print "Error, incorrect arguments."
+            return
+        
+        urls = INSTANCES[group]
+        
+        print "Pulling %s of %s for group %s:\n" % (what, pit, group)
+        
+        for url in urls:
+            
+            response = requests.get(url + '/p/jobs?dryrun=false')
+            jobs = response.json()
+            
+            pitUrl = self.getPitUrl(url, "Configurations", pit)
+            
+            for job in jobs:
+                
+                if job['pitUrl'] != pitUrl:
+                    print "No match %s" % job['name']
+                    continue
+                
+                if not 'iterationCount' in job:
+                    job['iterationCount'] = "0"
+                if not 'faultCount' in job:
+                    job['faultCount'] = "0"
+                if not 'stopDate' in job:
+                    job['stopDate'] = None
+                
+                name = job['name']
+                status = job['status']
+                faultCount = int(job['faultCount'])
+                faultsUrl = job['faultsUrl']
+                
+                if faultCount == 0:
+                    continue
+                
+                print "  Pulling %d faults from %s..." % (faultCount, url)
+                
+                response = requests.get(url + faultsUrl)
+                faults = response.json()
+                
+                for fault in faults:
+                    archiveUrl = fault['archiveUrl']
+                    
+                    faultPath = "faults/%s/%s/%s/%s/%s_%s" % (
+                        pit,
+                        fault['exploitability'],
+                        fault['majorHash'],
+                        fault['minorHash'],
+                        urlparse(url).hostname,
+                        fault['iteration']
+                    )
+                    
+                    try:
+                        os.makedirs(faultPath)
+                    except:
+                        pass
+                    
+                    response = requests.get(url + archiveUrl)
+                    response.raise_for_status()
+                    
+                    try:
+                        os.unlink("archive.zip")
+                    except:
+                        pass
+                    
+                    with open("archive.zip", 'wb') as fd:
+                        for chunk in response.iter_content(2048):
+                            fd.write(chunk)
+                    
+                    with zipfile.ZipFile("archive.zip") as archiveZip:
+                        archiveZip.extractall(faultPath)
+                    
+                    os.unlink("archive.zip")
+    
+    def do_purge(self, group):
+        """purge <group>\nPurge job history"""
+        
+        if len(group) == 0:
+            print "Error, must specify group to purge"
+            return
+        
+        urls = INSTANCES[group]
+        
+        print "Purging job history for group '%s'..." % group
+        
+        for url in urls:
+            print "  Purging: %s" % url
+            response = requests.get(url + '/p/jobs?dryrun=false')
+            jobs = response.json()
+            
+            for job in jobs:
+                if job['status'] == 'stopped':
+                    response = requests.delete(url + job['jobUrl'])
+                    response.raise_for_status()
+    
+    def do_start(self, args):
+        """start <pit-config> <group>\nStart configured pit."""
+        
+        (pit, group) = self.splitargs(args)
+        
+        if pit == "":
+            print "Error, must specify pit config to start"
+            return
+        
+        if group == "":
+            print "Error, must specify group to start pit on"
+            return
+        
+        urls = INSTANCES[group]
+        
+        print "Starting job with config '%s' on group '%s'..." % (pit, group)
+        
+        for url in urls:
+            pitUrl = self.getPitUrl(url, "Configurations", pit)
+            if pitUrl == None:
+                print "Error, unable to find pit on %s" % url
+                return
+            
+            response = requests.post(url + "/p/jobs", json={"pitUrl" : pitUrl})
+            response.raise_for_status()
+        
+    
+    def do_stop(self, args):
+        """stop <pit-config> <group>\nStop running job."""
+        
+        (pit, group) = self.splitargs(args)
+        
+        if pit == "":
+            print "Error, must specify pit config to stop"
+            return
+        
+        if group == "":
+            print "Error, must specify group to stop pit on"
+            return
+        
+        urls = INSTANCES[group]
+        
+        print "Stopping job with config '%s' on group '%s'..." % (pit, group)
+        
+        for url in urls:
+            
+            pitUrl = self.getPitUrl(url, "Configurations", pit)
+            if pitUrl == None:
+                print "Error, unable to find pit on %s" % url
+                return
+            
+            response = requests.get(url + '/p/jobs?dryrun=false')
+            response.raise_for_status()
+            jobs = response.json()
+            
+            for job in jobs:
+                if job['pitUrl'] == pitUrl and job['status'] == 'running':
+                    print "  Stopping on %s" % url
+                    
+                    stopUrl = job['commands']['stopUrl']
+                    
+                    response = requests.get(url + stopUrl)
+                    response.raise_for_status()
+
+    
+    def do_pause(self, args):
+        """pause <pit-config> <group>\nPause running job."""
+        
+        (pit, group) = self.splitargs(args)
+        
+        if pit == "":
+            print "Error, must specify pit config to pause"
+            return
+        
+        if group == "":
+            print "Error, must specify group to pause pit on"
+            return
+        
+        urls = INSTANCES[group]
+        
+        print "Pausing job with config '%s' on group '%s'..." % (pit, group)
+        
+        for url in urls:
+            
+            pitUrl = self.getPitUrl(url, "Configurations", pit)
+            if pitUrl == None:
+                print "Error, unable to find pit on %s" % url
+                return
+            
+            response = requests.get(url + '/p/jobs?dryrun=false')
+            response.raise_for_status()
+            jobs = response.json()
+            
+            for job in jobs:
+                if job['pitUrl'] == pitUrl and job['status'] == 'running':
+                    print "  Pausing on %s" % url
+                    
+                    stopUrl = job['commands']['pauseUrl']
+                    
+                    response = requests.get(url + stopUrl)
+                    response.raise_for_status()
+    
+    def do_groups(self, args):
+        """groups\nDisplay list of known groups"""
+        
+        for key in sorted(INSTANCES.keys()):
+            print key
+
+def main():        
+    print ""
+    print "| Peach CLI v0.1"
+    print "| Copyright (c) Peach Fuzzer, LLC"
+    print ""
+
+    app = App()
+    app.cmdloop()
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,34 @@
+= Peach to Bugzilla
+
+Core features:
+
+* Single ticket per bucket
+** Add comment when reproduced
+** Re-open resolved issues when re-found
+* Optional custom field needed for best operation
+
+== Configuration
+
+. Install Python v2.7
+. Install requests module (http://docs.python-requests.org/en/master/user/install/)
+. Configure Bugzilla
+. Update peach2bugilla with correct config values (see top of file)
+. Test integration with existing job
+. Trigger script via RunCommand monitor
+.. When: OnStop
+.. Command: peach2bugzilla -u http://localhost:8888
+
+=== Bugzilla Configuration
+
+. Create a user with access to project and REST API.
+. Create an API key for the user and update peach2bugzilla script to reflect
+
+==== Add custom bucket field (optional)
+
+To enable single issue per-bucket a custom issue field is required.
+
+. Add custom field (Admin -> Custom Fields -> Add a new custom field)
+.. Name: cf_peach
+.. Description: Peach
+.. Type: Free Text
+

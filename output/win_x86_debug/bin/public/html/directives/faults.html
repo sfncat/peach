@@ -1,0 +1,78 @@
+﻿<table st-table="vm.Faults"
+			 st-safe-src="vm.AllFaults"
+			 class="table table-striped table-bordered table-hover peach-table">
+	<thead>
+		<tr>
+			<th st-sort="iteration"
+				st-sort-default="{{vm.DefaultSort}}">
+				#
+			</th>
+			<th st-sort="timeStamp">
+				When
+			</th>
+			<th st-sort="source">
+				Monitor
+			</th>
+			<th st-sort="exploitability">
+				Risk
+			</th>
+			<th st-sort="majorHash">
+				Major Bucket
+			</th>
+			<th st-sort="minorHash">
+				Minor Bucket
+			</th>
+			<th>
+				Download
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class="text-center"
+					colspan="7"
+					ng-if="vm.AllFaults.length === 0">
+				No data is available
+			</td>
+		</tr>
+		<tr ng-repeat="row in vm.Faults"
+				ng-click="vm.OnFaultSelected(row)"
+				class="pointer">
+			<td>
+				{{row.iteration}}
+			</td>
+			<td class="nowrap">
+				{{row.timeStamp | date:'M/d/yy h:mm a'}}
+			</td>
+			<td>
+				{{row.source}}
+			</td>
+			<td class="nowrap">
+				{{row.exploitability}}
+			</td>
+			<td>
+				{{row.majorHash}}
+			</td>
+			<td>
+				{{row.minorHash}}
+			</td>
+			<td>
+				<a ng-click='$event.stopPropagation()'
+					 href='{{row.archiveUrl}}'>
+					Download
+				</a>
+			</td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr ng-if="vm.AllFaults.length > 25">
+			<td colspan="7"
+					class="text-center">
+				<div st-pagination
+						 st-items-by-page="25"
+						 st-displayed-pages="10">
+				</div>
+			</td>
+		</tr>
+	</tfoot>
+</table>

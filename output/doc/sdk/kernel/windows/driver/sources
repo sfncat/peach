@@ -1,0 +1,9 @@
+TARGETNAME=peach
+TARGETTYPE=DRIVER
+
+
+MSC_WARNING_LEVEL=/W4 /WX
+
+
+SOURCES=peach.c peach.rc
+

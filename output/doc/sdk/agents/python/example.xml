@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			
+			<Action type="output">
+				<DataModel name="TheDataModel">
+					<String value="Output data" />
+				</DataModel>
+			</Action>
+
+			<Action type="input">
+				<DataModel name="TheDataModel">
+					<String />
+				</DataModel>
+			</Action>
+
+			<Action type="call" method="ScoobySnacks">
+				<Param name="P1">
+					<DataModel name="Foo">
+						<String value="Parameter 1" />
+					</DataModel>
+				</Param>
+				<Param name="P2">
+					<DataModel name="Foo">
+						<String value="Parameter 2" />
+					</DataModel>
+				</Param>
+				<Result>
+					<DataModel name="Result">
+						<String name="Value" />
+					</DataModel>
+				</Result>
+			</Action>
+		</State>
+
+	</StateModel>
+
+	<Agent name="TheAgent" location="http://127.0.0.1:8080">
+		<!-- Remote agent defined in Test -->
+ 	</Agent>
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+		<StateModel ref="TheState"/>
+		 <Publisher class="Remote">
+                <Param name="Agent" value="TheAgent" />
+                <Param name="Class" value="PublisherInAgent"/>
+
+                <!-- Parameters -->
+                <Param name="Host" value="127.0.0.2" />
+                <Param name="Port" value="8888" />
+        </Publisher>
+	</Test>
+
+</Peach>
+<!-- end -->

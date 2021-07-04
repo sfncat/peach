@@ -1,0 +1,44 @@
+﻿<p>
+	This section validates the configuration by executing one test case
+	and exposes issues that would hinder a fuzzing session. The output will
+	display any warnings and errors that surface in the control test case.
+	Detailed log messages are provided to help diagnose issues with the
+	configuration.
+</p>
+<p>
+	Click the Begin Test button to validate the configuration.
+</p>
+
+<div class="alert alert-danger"
+		 ng-show="vm.ShowNotConfigured">
+	<strong>Warning!</strong>
+	The current Pit has required configuration variables that must be set.
+</div>
+
+<div class="alert alert-warning alert-dismissable"
+		 ng-show="vm.ShowNoMonitors">
+	<button type="button"
+					class="close"
+					data-dismiss="alert">
+		<i class="fa fa-remove"></i>
+	</button>
+	<strong>Warning!</strong>
+	The current Pit is not configured to monitor the environment.
+</div>
+
+<div class="wizard-actions">
+	<button class="btn btn-success btn-sm"
+					ng-click="vm.OnNextTrack()"
+					ng-disabled="!vm.CanContinue">
+		<i class="fa fa-arrow-right"></i>
+		Continue &nbsp;
+	</button>
+	<button class="btn btn-warning btn-sm"
+					ng-click="vm.OnBeginTest()"
+					ng-disabled="!vm.CanBeginTest">
+		<i class="fa fa-bolt"></i>
+		Begin Test
+	</button>
+</div>
+<peach:test>
+</peach:test>

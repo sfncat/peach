@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="TheDataModel">
+	    <String name="Value" value="Hello World"/>
+	</DataModel>
+	
+	<StateModel name="State" initialState="State1" >
+		<State name="State1"  >
+			<Action type="call" method="ScoobySnacks" publisher="Peach.Agent" />
+
+			<Action type="output" >
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="LocalAgent">
+		<!-- Use our Monitor like normal -->
+		<Monitor class="PythonMonitor">
+			<Param name="Param1" value="Test" />
+		</Monitor>
+	</Agent>
+	
+	<Test name="Default">
+		<StateModel ref="State"/>
+		<Agent ref="LocalAgent" />
+		<Publisher class="Console" />
+	</Test>
+
+</Peach>
+<!-- end -->

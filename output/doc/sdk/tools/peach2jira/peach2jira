@@ -1,0 +1,330 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2016 Peach Fuzzer, LLC
+
+#
+# Configuration settings
+#
+
+JIRA_URL = "https://xxxxx.atlassian.net"
+JIRA_PROJECT = "TESTSCRUM"
+JIRA_ISSUE_TYPE = "Bug"
+JIRA_PEACH_BUCKET_FIELD = "Peach Bucket"
+JIRA_LABELS = ["Fuzzing"]
+JIRA_BUCKET_MINOR = True
+JIRA_USER = "test"
+JIRA_USER_PASS = "xxxxx!"
+DEBUG = False
+
+#
+#
+#
+
+try:
+    import requests
+except:
+    print "Error, the 'requests' module is missing."
+    print "  http://docs.python-requests.org/en/master/user/install"
+    exit(1)
+
+import argparse
+import os, sys, time
+import json, os
+
+requests.packages.urllib3.disable_warnings()
+
+class Peach2Jira:
+    
+    def __init__(self, args):
+        self.args = args
+        self.PeachUrl = args.url[0]
+        self.Quiet = args.quiet
+    
+    def _print(self, msg):
+        if self.Quiet:
+            return
+        
+        print msg
+    
+    def _debug(self, msg):
+        
+        if not DEBUG:
+            return
+        
+        print msg
+    
+    def _getLatestJob(self):
+        response = requests.get(self.PeachUrl + "/p/jobs?dryrun=false")
+        response.raise_for_status()
+        jobs = response.json()
+        
+        return jobs[-1]
+    
+    def _getFaults(self, faultsUrl):
+        response = requests.get(self.PeachUrl + faultsUrl)
+        response.raise_for_status()
+        faults = response.json()
+        
+        return faults
+    
+    def _getFault(self, faultUrl):
+        response = requests.get(self.PeachUrl + faultUrl)
+        response.raise_for_status()
+        fault = response.json()
+        
+        return fault
+    
+    def _getFaultAsset(self, faultAssetUrl):
+        response = requests.get(self.PeachUrl + faultAssetUrl)
+        response.raise_for_status()
+        return response.content
+    
+    def _getPit(self, pitUrl):
+        response = requests.get(self.PeachUrl + pitUrl)
+        response.raise_for_status()
+        return response.json()
+    
+    def _jiraJsonRequestGet(self, url):
+        self._debug(">> _jiraJsonRequestGet: %s" % url)
+        
+        response = requests.get(JIRA_URL + url,
+            headers={'Content-Type':'application/json'},
+            auth=(JIRA_USER, JIRA_USER_PASS))
+        
+        try:
+            faults = response.json()
+            response.raise_for_status()
+            
+            return faults
+        except:
+            self._debug("_jiraJsonRequestGet: %s" % response)
+        
+        response.raise_for_status()
+        return None
+    
+    def _jiraBucketCheck(self, bucket):
+        self._debug(">> _jiraBucketCheck(%s)" % bucket)
+        
+        if not JIRA_PEACH_BUCKET_FIELD:
+            self._debug("<< _jiraBucketCheck: not JIRA_PEACH_BUCKET_FIELD")
+            return False
+        
+        jql = 'jql=project=%s+AND+status!=done+AND+"%s"+~+%s' % (JIRA_PROJECT, JIRA_PEACH_BUCKET_FIELD, bucket)
+        
+        search = self._jiraJsonRequestGet("/rest/api/2/search?"+jql)
+        
+        self._debug("<< _jiraBucketCheck: total: %d" % search["total"])
+        if search["total"] > 0:
+            return search["issues"][0]
+        
+        return None
+    
+    def _jiraCreateIssue(self, issue):
+        response = requests.post(JIRA_URL + "/rest/api/2/issue",
+            json=issue,
+            headers={'Content-Type':'application/json'},
+            auth=(JIRA_USER, JIRA_USER_PASS))
+        
+        response.raise_for_status()
+        
+        try:
+            result = response.json()
+            return result["self"]
+        except:
+            self._debug("_jiraCreateIssue: %s" % response)
+        
+        return None
+    
+    def _jiraGetCustomFieldId(self, fieldName):
+        response = requests.get(JIRA_URL + "/rest/api/2/field",
+            headers={'Content-Type':'application/json'},
+            auth=(JIRA_USER, JIRA_USER_PASS))
+        
+        response.raise_for_status()
+        
+        try:
+            fields = response.json()
+            
+            for field in fields:
+                if field["name"] == fieldName:
+                    return field["id"]
+                
+            return None
+        except:
+            self._debug("_jiraJsonRequestGet: %s" % response)
+            return None
+    
+    def _jiraAttachFileToIssue(self, issue, name, data):
+        
+        payload = {"file":(name, data)}
+        
+        response = requests.post(issue + "/attachments",
+            files=payload,
+            headers={'X-Atlassian-Token': 'no-check'},
+            auth=(JIRA_USER, JIRA_USER_PASS))
+        
+        response.raise_for_status()
+        
+        try:
+            result = response.json()
+            return result
+        except:
+            self._debug("_jiraAttachFileToIssue: %s" % response)
+        
+        return None
+    
+    def _jiraAddComment(self, issue, comment):
+        response = requests.post(issue["self"]+"/comment",
+            json={"body":comment},
+            headers={'Content-Type':'application/json'},
+            auth=(JIRA_USER, JIRA_USER_PASS))
+        
+        response.raise_for_status()
+        
+        return None
+    
+    def _exportFault(self, fault, pitName):
+        
+        bucket = fault["majorHash"]
+        if JIRA_BUCKET_MINOR:
+            bucket = fault["minorHash"]
+        
+        if bucket in self.SeenBuckets:
+            return
+        
+        issue = self._jiraBucketCheck(bucket)
+        if issue:
+            self._print("    Adding reproduction comment")
+            
+            comment = """
+Issue reproduced by Peach Fuzzer
+
+|Pit:|{0}|
+|Test Case:|{1}-{2}|
+|Seed:|{3}|
+|Reproducible:|{4}|
+|Source:|{5}|
+|Risk:|{6}|
+|Major Bucket:|{7}|
+|Minor Bucket:|{8}|
+""".format(
+    pitName,
+    fault["iterationStart"],
+    fault["iterationStop"],
+    fault["seed"],
+    fault["reproducible"],
+    fault["source"],
+    fault["exploitability"],
+    fault["majorHash"],
+    fault["minorHash"])
+
+            self._jiraAddComment(issue, comment)
+            return
+            # todo add comment
+        
+        self._print("    Creating new JIRA issue")
+
+                
+        desc = """
+Issue identified by Peach Fuzzer
+
+|Pit:|{0}|
+|Test Case:|{1}-{2}|
+|Seed:|{3}|
+|Reproducible:|{4}|
+|Source:|{5}|
+|Risk:|{6}|
+|Major Bucket:|{7}|
+|Minor Bucket:|{8}|
+
+{{noformat}}
+{9}
+{{noformat}}
+""".format(
+    pitName,
+    fault["iterationStart"],
+    fault["iterationStop"],
+    fault["seed"],
+    fault["reproducible"],
+    fault["source"],
+    fault["exploitability"],
+    fault["majorHash"],
+    fault["minorHash"],
+    
+    fault["description"][0:2048])
+        
+        issue = { "fields": {
+            "project": { "key" : JIRA_PROJECT },
+            "summary": "%s: %s" % (bucket, fault["title"]),
+            "description" : desc,
+            "issuetype": { "name":JIRA_ISSUE_TYPE},
+            "labels": JIRA_LABELS,
+        }}
+        
+        if JIRA_PEACH_BUCKET_FIELD:
+            issue["fields"][self.PeachBucketFieldId] = bucket
+        
+        issueUrl = self._jiraCreateIssue(issue)
+        
+        # 3. Attach files
+        
+        for asset in fault["files"]:
+            
+            if asset["fullName"].startswith("Initial\\") or asset["fullName"].startswith("Initial/"):
+                continue
+            
+            self._print("    - Adding file %s" % asset["name"])
+            
+            data = self._getFaultAsset(asset["fileUrl"])
+            self._jiraAttachFileToIssue(issueUrl, asset["name"], data)
+        
+    def peach2jira(self):
+        
+        if JIRA_PEACH_BUCKET_FIELD:
+            self.PeachBucketFieldId = self._jiraGetCustomFieldId(JIRA_PEACH_BUCKET_FIELD)
+        
+        job = self._getLatestJob()
+        faultsUrl = job["faultsUrl"]
+        faultCount = int(job["faultCount"])
+        pitName = job["name"]
+
+        if faultCount == 0:
+            self._print(" - No faults found, exiting")
+            return 0
+        
+        self._print(" - %d faults found for processing" % faultCount)
+        
+        faults = self._getFaults(faultsUrl)
+        
+        self.SeenBuckets = []
+        for fault in faults:
+            faultDetails = self._getFault(fault["faultUrl"])
+            
+            self._print("  - Fault: %d" % faultDetails["iteration"])
+            
+            self._exportFault(faultDetails, pitName)
+            #return 0
+
+if __name__ == '__main__':
+    
+    print ""
+    print "| Peach to JIRA v0.1"
+    print "| Copyright (c) Peach Fuzzer, LLC"
+    print ""
+    
+    parser = argparse.ArgumentParser(
+        prog='peach2jira',
+        description='Export faults from Peach to JIRA.')
+    
+    parser.add_argument('-q', '--quiet', metavar='QUIET', type=bool,
+                        help="Don't display console messages")
+    
+    parser.add_argument('-u', '--url', metavar='PEACH_URL',
+                        type=str, nargs='+', required=True,
+                        help='URL for accessing Peach REST API')
+    
+    args = parser.parse_args()
+    app = Peach2Jira(args)
+    exit(app.peach2jira())
+
+# end

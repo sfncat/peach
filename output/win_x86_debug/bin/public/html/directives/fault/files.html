@@ -1,0 +1,25 @@
+<table class="table table-hover table-bordered">
+	<thead>
+		<tr>
+			<th st-ratio="85">
+				Name
+			</th>
+			<th st-ratio="15"
+				class="align-right">
+				Size
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="file in files">
+			<td>
+				<a href="{{file.fileUrl}}">
+					{{vm.Name($index, file)}}
+				</a>
+			</td>
+			<td class="align-right">
+				{{file.size | filesize:2}}
+			</td>
+		</tr>
+	</tbody>
+</table>

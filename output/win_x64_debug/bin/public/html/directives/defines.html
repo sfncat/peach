@@ -1,0 +1,46 @@
+<uib-accordion-group is-open="isOpen"
+										 ng-show="vm.ShowGroup">
+	<uib-accordion-heading>
+		<span>
+			<i class="fa"
+				 ng-class="{'fa-chevron-down': isOpen, 'fa-chevron-right': !isOpen}">
+			</i>
+			&nbsp;
+			{{group.name}}
+		</span>
+	</uib-accordion-heading>
+	<table class="table table-striped table-hover table-bordered">
+		<thead>
+			<tr>
+				<th class="nowrap">Name</th>
+				<th class="nowrap">Key</th>
+				<th class="width-100">Value</th>
+				<th class="center nowrap" ng-show="vm.CanRemove">Remove</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="param in group.items"
+					ng-form="form">
+				<td class="nowrap align-middle">
+					{{param.name}}
+				</td>
+				<td class="nowrap align-middle">
+					{{param.key}}
+				</td>
+				<td class="width-100"
+						ng-class="{'has-error': form.param.$invalid}">
+					<peach:parameter-input param="param"
+																 form="form">
+					</peach:parameter-input>
+				</td>
+				<td class="center nowrap align-middle"
+						ng-show="vm.CanRemove">
+					<button class="btn btn-xs btn-danger"
+									ng-click="vm.OnRemove($index)">
+						<i class="fa fa-remove"></i>
+					</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</uib-accordion-group>

@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Peach.Core.Test</name>
+    </assembly>
+    <members>
+        <member name="M:Peach.Core.Test.Bits.Fmt(System.String,System.Object[])">
+            <summary>
+            Formats a BitStream according to the format string. Supported
+            arguments are byte[], numbers and strings.
+            
+            Valid formatting options are:
+            
+            byte[] - none
+            string - ascii,utf16,utf16be,utf8,utf7,utf32 (defaults is ascii)
+            numers - [L,B][bitlen]
+            
+            If no formatting options are given, defaults to little endian
+            and the size of the argument.
+            </summary>
+            <param name="fmt">Format string</param>
+            <param name="args">Objects to format</param>
+            <returns></returns>
+        </member>
+        <member name="M:Peach.Core.Test.Helpers.GetPrimaryIface(System.Net.Sockets.AddressFamily)">
+            <summary>
+            Get the name and IP address of the primary interface for the
+            specified address family.
+            If no interface can be found to satisfy the address family
+            then null is returned.
+            </summary>
+            <param name="af"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.StartMonitor">
+            <summary>
+            Controls the StartMonitor behaviour for each monitor.
+            The default is (m, args) => m.StartMonitor(args)
+            </summary>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.SessionStarting">
+            <summary>
+            Controls the SessionStarting behaviour for each monitor.
+            The default is m => m.SessionStarting()
+            </summary>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.IterationStarting">
+            <summary>
+            Controls the IterationStarting behaviour for each monitor.
+            The default is (m, args) => m.IterationFinished(repro, args)
+            </summary>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.Message">
+            <summary>
+            Controls the Message behaviour for each monitor.
+            The default is m => {}
+            To test sending messages to monitors, tests can have
+            implementations that do m => m.Message("Action.Call", new Variant("ScoobySnacks")
+            </summary>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.IterationFinished">
+            <summary>
+            Controls the IterationFinished behaviour for each monitor.
+            The default is m => m.IterationFinished()
+            </summary>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.DetectedFault">
+            <summary>
+            Controls the DetectedFault behaviour for each monitor.
+            The default is m => m.DetectedFault()
+            </summary>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.GetMonitorData">
+            <summary>
+            Controls the GetMonitorData behaviour for each monitor.
+            The default is m => m.GetMonitorData()
+            </summary>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.SessionFinished">
+            <summary>
+            Controls the SessionFinished behaviour for each monitor.
+            The default is m => m.IterationFinished()
+            </summary>
+        </member>
+        <member name="P:Peach.Core.Test.MonitorRunner.StopMonitor">
+            <summary>
+            Controls the StopMonitor behaviour for each monitor.
+            The default is m => m.StopMonitor()
+            </summary>
+        </member>
+    </members>
+</doc>

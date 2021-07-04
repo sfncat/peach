@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="21">
+  <rect fill="goldenrod" x="0" y="0" width="80" height="21" rx="3" ry="3"></rect>
+  <text x="40" y="16" style="font-family: 'Arial'; font-size: 14px;" fill="white" text-anchor="middle">Changed</text>
+</svg>

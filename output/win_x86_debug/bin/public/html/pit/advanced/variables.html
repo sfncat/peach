@@ -1,0 +1,59 @@
+﻿<form name="form"
+			peach:unsaved
+			autocomplete="off">
+	<p>
+		This page lists the information needed by the selected pit.
+		Some of the information applies to the Peach environment;
+		two examples are the Peach Installation Directory and the Pit Library Path.
+		Other information is pit specific,
+		such as port addresses for a network protocol or source files for a file format.
+	</p>
+	<div class="row"
+			 style="margin-bottom: 10px">
+		<div class="col-xs-6">
+			<span ng-show="vm.ShowSaved"
+						class="green">
+				Saved successfully.
+			</span>
+			<span ng-show="vm.ShowRequired"
+						class="red">
+				There are required variables that must be configured.
+			</span>
+			<span ng-show="vm.ShowValidation"
+						class="red">
+				Save is disabled until validation issues are fixed.
+			</span>
+		</div>
+		<div class="col-xs-6 text-right">
+			<button class="btn btn-xs btn-danger"
+							ng-disabled="!vm.CanSave"
+							ng-click="vm.OnSave()">
+				<i class="fa fa-save"></i>
+				Save
+			</button>
+			<button class="btn btn-xs btn-info"
+							ng-click="vm.OnAdd()">
+				<i class="fa fa-plus"></i>
+				Add Variable &nbsp;
+			</button>
+		</div>
+	</div>
+	<div class="alert alert-info"
+			 ng-show="vm.ShowLoading">
+		Loading configuration...
+	</div>
+
+	<div class="row"
+			 ng-hide="vm.ShowLoading">
+		<uib-accordion close-others="false"
+									 class="col-xs-12">
+			<peach:defines ng-repeat="group in vm.View track by $index"
+										 group="group"
+										 form="form">
+			</peach:defines>
+		</uib-accordion>
+
+		<div class="col-xs-12">
+		</div>
+	</div>
+</form>

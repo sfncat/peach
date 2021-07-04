@@ -1,0 +1,16 @@
+<form ng-submit="vm.OnSubmit()"
+			autocomplete="off">
+	<div class="modal-header">
+		<h3 class="modal-title">
+			{{vm.Options.Title || 'Alert'}}
+		</h3>
+	</div>
+	<div class="modal-body peach-error-text">{{vm.Options.Body || 'I live in a giant bucket!'}}</div>
+	<div class="modal-footer">
+		<button type="submit"
+						class="btn btn-primary"
+						peach:auto-focus>
+			{{vm.Options.ButtonText || 'OK'}}
+		</button>
+	</div>
+</form>

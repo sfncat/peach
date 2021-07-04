@@ -1,0 +1,69 @@
+﻿<div class="row"
+		 ng-if="vm.IsAvailable">
+
+	<hr />
+
+	<div class="col-md-12">
+		<div class="alert alert-info"
+				 ng-show="vm.ShowTestPending">
+			Testing is in progress.
+		</div>
+
+		<div class="alert alert-success"
+				 ng-show="vm.ShowTestPass">
+			Testing passed, click Continue.
+		</div>
+
+		<div class="alert alert-danger"
+				 ng-show="vm.ShowTestFail">
+			Testing failed, please correct the errors described and return to this page to test again.
+		</div>
+
+		<h3>
+			Test Output
+			<span ng-switch="vm.TestTime.length">
+				<span ng-switch-when="0" />
+				<span ng-switch-default>({{vm.TestTime}})</span>
+			</span>
+		</h3>
+		<uib-tabset>
+			<uib-tab heading="Summary">
+				<table class="table table-striped table-hover table-bordered">
+					<thead>
+						<tr>
+							<th><i ng-class="vm.StatusClass(null)"></i></th>
+							<th class="width-100">Message</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class="text-center"
+									colspan="2"
+									ng-if="vm.TestEvents.length === 0">
+								Waiting for test events...
+							</td>
+						</tr>
+						<tr ng-repeat="row in vm.TestEvents">
+							<td>
+								<i ng-class="vm.StatusClass(row)"></i>
+							</td>
+							<td class="width-100">
+								<span>
+									{{row.description}}
+								</span>
+								<span class="red"
+											ng-show="row.resolve">
+									<br />
+									{{row.resolve}}
+								</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</uib-tab>
+			<uib-tab heading="Log">
+				<pre class="peach-test-log">{{vm.TestLog}}</pre>
+			</uib-tab>
+		</uib-tabset>
+	</div>
+</div>
