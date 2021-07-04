@@ -42,11 +42,11 @@ https://doxygen.nl/files/doxygen-1.9.1-setup.exe
 https://my.visualstudio.com/Downloads?q=visual%20studio%202017&wt.mc_id=o~msft~vscom~older-downloads 
 选择"使用C++的桌面开发"，"使用C++的Linux开发","Framework 3.5/4.5/4.5.1/4.6.1/4.6.1SDK"
 
-![image-20210703111228141](G:\github\peach\readme\image-20210703111228141.png)
+![image-20210703111228141](README.assets/image-20210703111228141.png)
 
-![image-20210703111557242](G:\github\peach\readme\image-20210703111557242.png)
+![image-20210703111557242](README.assets/image-20210703111557242.png)
 
-![image-20210703111724703](G:\github\peach\readme\image-20210703111724703.png)
+![image-20210703111724703](README.assets/image-20210703111724703.png)
 
 ### 7.Intel Pin
 
@@ -62,7 +62,7 @@ http://software.intel.com/sites/landingpage/pintool/downloads/pin-3.2-81205-gcc-
 
 下载后解压放到3rdParty/pin/pin-3.2-81205-msvc-windows下
 
-![image-20210704124543906](G:\github\peach\readme\image-20210704124543906.png)
+![image-20210704124543906](README.assets/image-20210704124543906.png)
 
 
 
@@ -80,7 +80,7 @@ https://www.microsoft.com/en-us/download/confirmation.aspx?id=30679&6B49FDFB-8E5
 
 https://go.microsoft.com/fwlink/p/?linkid=2120735
 
-![img](G:\github\peach\readme\debugger-download-sdk.png)
+![img](README.assets/debugger-download-sdk.png)
 
 
 
@@ -113,11 +113,11 @@ new-itemproperty -path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NETFramework\v4.0.
 G:\github\protocol-fuzzer-ce\py -2.7 waf configure -v
 ```
 
-![image-20210704171922979](G:\github\peach\readme\image-20210704171922979.png)
+![image-20210704171922979](README.assets/image-20210704171922979.png)
 
 如果有utf-8的报错，可以不用管。
 
-![image-20210704171820022](G:\github\peach\readme\image-20210704171820022.png)
+![image-20210704171820022](README.assets/image-20210704171820022.png)
 
 waf configure其实也在下载依赖组件，通过paket调用nuget下载组件（paket.dependencies）,会先下载到C:\Users\当前用户\\.nuget\packages再将其中一部分复制到paket\packages下。
 
@@ -127,13 +127,13 @@ waf configure其实也在下载依赖组件，通过paket调用nuget下载组件
 G:\github\protocol-fuzzer-ce\paket\.paket> .\paket.exe restore --verbose
 ```
 
-这里提供了下载好的zip包，可以在执行configure之前解压放到
+这里提供了下载好的zip包(https://github.com/sfncat/peach/blob/main/packages.zip)，可以在执行configure之前解压放到
 
 ```
 C:\Users\当前用户\.nuget\packages
 ```
 
-![image-20210704172309833](G:\github\peach\readme\image-20210704172309833.png)
+![image-20210704172309833](README.assets/image-20210704172309833.png)
 
 最后会提示成功
 
@@ -151,72 +151,25 @@ py -2.7 waf build
 
 
 
-![image-20210704173206262](G:\github\peach\readme\image-20210704173206262.png)
+![image-20210704173206262](README.assets/image-20210704173206262.png)
 
 ### waf install
 
-![image-20210704173528674](G:\github\peach\readme\image-20210704173528674.png)
+![image-20210704173528674](README.assets/image-20210704173528674.png)
 
 可执行文件在G:\github\protocol-fuzzer-ce\output下
 
 ## 样例测试套
 
+这里根据这位大佬给的样例改造了一个正常一点样例测试套，主要用来测试一下peach是否可以正常运行。熟悉的peach界面出现了：）
+
+![image-20210704184739047](README.assets/image-20210704184739047.png)
+
+测试套https://github.com/sfncat/peach/tree/main/pits/http放到pits/http目录下
 
 
 
 
-## choco
-
-
-
-https://chocolatey.org/install
-
-
-
-```
-管理员powershell
-Set-ExecutionPolicy AllSigned 选A
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-```
-
-
-
-```
-choco install jdk8
-choco install xsltproc
-choco install git
-```
-## doxygen
-https://www.doxygen.nl/download.html
- edit the PATH environment variable to include C:\Program Files\doxygen\bin.
-
-
-
-
-
-## TypeScript Compiler
-
-
-
-https://nodejs.org/dist/v14.17.1/node-v14.17.1-x64.msi
-```
-npm install typescript --global
-```
-## Intel Pin
-http://software.intel.com/sites/landingpage/pintool/downloads/pin-3.2-81205-msvc-windows.zip
-http://software.intel.com/sites/landingpage/pintool/downloads/pin-3.2-81205-gcc-linux.tar.gz
-
-
-
-## .NET Framework 4.5.1
-## WinDBG
-https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/debugger-download-tools
-https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk/
-
-## WireShark
-## Visual C++ Redistributable for Visual Studio 2012 Update 4
-https://www.microsoft.com/en-us/download/details.aspx?id=30679
-https://www.microsoft.com/en-us/download/confirmation.aspx?id=30679&6B49FDFB-8E5B-4B07-BC31-15695C5A2143=1
 
 # docker linux
 https://github.com/vanhauser-thc/peachpro
