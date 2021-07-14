@@ -27,7 +27,7 @@ sudo apt-get install -y \
 	ruby doxygen libxml2-utils less openjdk-8-jre xsltproc asciidoctor \
     nodejs node-typescript wget \
     apt-transport-https dirmngr gnupg ca-certificates apt-utils \
-	cmake
+	cmake dos2unix
 ```
 
 ### ubuntu16.04
@@ -192,7 +192,7 @@ Copyright (C) 2002-2014 Novell, Inc, Xamarin Inc and Contributors. www.mono-proj
 
 ```
 
-## 安装Peach
+## 5.安装Peach
 
 ```
 cd protocol-fuzzer-ce
@@ -201,7 +201,7 @@ python2 waf install
 'install' finished successfully (9.800s)
 ```
 
-## 运行peach
+## 6.运行peach
 
 ```
 mkdir ~/peach_linux
@@ -215,8 +215,27 @@ cp ~/peach/protocol-fuzzer-ce/output/linux_x86_64_debug/bin/* -R .
 
 [*] Web site running at: http://10.0.2.15:8888/
 [*] Press Ctrl-C to exit.
+```
 
+## 7.FAQ
 
+### 7.1下载地址
+
+#### debian 9镜像
+
+```
+9.13
+https://cdimage.debian.org/cdimage/archive/9.13.0/amd64/iso-dvd/debian-9.13.0-amd64-DVD-1.iso
+9.9
+https://repo.huaweicloud.com/debian-cd/9.9.0/amd64/iso-dvd/debian-9.9.0-amd64-DVD-1.iso
+```
+
+#### 7.2文件格式转换
+
+如果文件是从windows里拷过来，最好做一下文件格式转换，在peach代码根目录执行
+
+```
+for x in $(find . -type f);do dos2unix $x $x;done
 ```
 
 
