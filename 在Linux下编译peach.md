@@ -16,35 +16,25 @@ https://github.com/vanhauser-thc/peachpro
 
 ```
 sudo apt-get update
-sudo apt-get install -y \
-    coreutils apt-utils wget curl openssl ca-certificates bash-completion \
-    joe vim nano \
-    unzip p7zip \
-    fping hping3 httping thc-ipv6 gdb \
-    tcpdump wireshark-common \
-    locales-all \
-    git build-essential joe vim strace tcpdump \
-	ruby doxygen libxml2-utils less openjdk-8-jre xsltproc asciidoctor \
-    nodejs node-typescript wget \
-    apt-transport-https dirmngr gnupg ca-certificates apt-utils \
-	cmake dos2unix
 ```
 
 ### ubuntu16.04
 
 ```
-sudo apt-get install -y python-is-python2 libglib2.0-dev libcairo2-dev
+sudo apt-get install -y ruby doxygen gcc g++ wget nodejs node-typescript python-is-python2 libglib2.0-dev libcairo2-dev
 ```
 
 ### debian9
 
 ```
-sudo apt-get install -y python
+sudo apt-get install -y ruby doxygen gcc g++ wget nodejs node-typescript
 ```
 
 ## 2.mono
 
 ### mono下载源配置
+
+不配置mono官方源的话，debain9默认安装的是mono4.6。
 
 https://www.mono-project.com/download/stable/#download-lin-ubuntu
 
@@ -74,7 +64,7 @@ sudo apt update
 
 ### 安装mono最新版本
 
-当前是6.12.0.122,装这个是因为在做waf configure的时候，packet需要mono高版本支持
+当前是6.12.0.122,装这个是因为在做waf configure的时候，packet需要mono高版本支持。
 
 ```
 sudo apt install mono-devel -y
