@@ -33,23 +33,22 @@
 ```
 -pfce
   --install:安装需要本地文件目录
+    ---docker:
+      ----peach_cb
+        -----Dockerfile:配置编译Dockerfile文件
+      ----peach_ir
+        -----Dockerfile:安装运行Dockerfile文件
     ---mono-4.8.1.0.tar.bz2
     ---mono-6.12.0.122.tar.xz
-    ---conf.sh
-    ---build.sh
-    ---install.sh
     ---pin-3.2-81205-gcc-linux.tar.gz
     ---packages.tar.bz2
-    ---sources.list
-    ---mono-official.list
-  --docker:
-    ---peach_cb
-      ----Dockerfile:配置编译Dockerfile文件
-    ---peach_ir
-      ----Dockerfile:安装运行Dockerfile文件
+    ---sources.list:apt阿里镜像源
+    ---mono-official.list:mono 4.8.1源
   --protocol-fuzzer-ce：peach源文件目录，需要已经将packet和pin下载并完成初始化
   --peach:安装运行目录
+  --build_cb.sh:编译peach:cr镜像
   --run_cb.sh:运行peach_cb
+  --build_ir.sh:编译peach:ir镜像
   --run_ir.sh:运行peach_ir
   
 ```
@@ -105,7 +104,7 @@ sudo apt -qqy -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-c
 ```bash
 cd $INT_PATH
 sudo su
-docker build -t peach:cb -f ./docker/cb/Dockerfile .
+docker build -t peach:cb -f ./install/docker/cb/Dockerfile .
 ```
 
 ## 配置编译Peach
@@ -127,7 +126,7 @@ python waf build
 ```
 cd $INT_PATH
 sudo su
-docker build -t peach:ir -f ./docker/ir/Dockerfile .
+docker build -t peach:ir -f ./install/docker/ir/Dockerfile .
 ```
 
 ## 安装Peach
@@ -163,29 +162,31 @@ docker exec -it peach_ir /peach/peach /peach/pits/http/http.xml -1
 
 最后的两行是用来编译doc的，如果这里加上了，运行docker也要加。因此建议不加，不影响正常使用。
 
-在线安装mono和nuget的库可能需要网络条件。这里给出了nuget的离线安装库。mono可以离线编译并安装。
+在线安装mono和nuget的库可能需要网络条件。可以用nuget的离线安装库。mono可以离线编译并安装。
 
 ```dockerfile
 FROM debian:stretch AS peachcb
 MAINTAINER stackofg@gmail.com
 #install mono for configure and build
-#online install
+#online install mono
+#use mirrors of aliyun
 WORKDIR /etc/apt/
 COPY ./install/sources.list .
-RUN apt-get update
-RUN apt-get install -y apt-utils apt-transport-https ca-certificates \
+#install software
+RUN apt-get update && apt-get install -y apt-utils apt-transport-https ca-certificates \
     ruby doxygen wget nodejs node-typescript dirmngr gnupg python \
     gcc g++ bash-completion
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 RUN echo "deb https://download.mono-project.com/repo/debian stable-stretch main" | tee /etc/apt/sources.list.d/mono-official-stable.list
-RUN apt-get update
-RUN apt-get install -y mono-devel --fix-missing
+RUN apt-get update && apt-get install -y mono-devel
+#if nuget can download the component directly,can not use the local package.
 WORKDIR /root/.nuget
 COPY ./install/packages.tar.bz2 .
-RUN tar -xf packages.tar.bz2
-#complie doc
+RUN tar -xf packages.tar.bz2 && rm -rf packages.tar.bz2
+#for compile doc,suggest not install
 #RUN gem install bundler
 #RUN apt-get install -y libxml2-utils openjdk-8-jre xsltproc
+WORKDIR /protocol-fuzzer-ce
 ```
 
 ### Dockerfile.ir
@@ -193,38 +194,25 @@ RUN tar -xf packages.tar.bz2
 安装运行需要mono 4。这里通过指定源的方式在线安装，也可以离线编译安装。
 
 ```
-FROM debian:stretch AS peach
+FROM debian:stretch AS peachir
 MAINTAINER stackofg@gmail.com
 
+#use mirrors of aliyun
 WORKDIR /etc/apt/
 COPY ./install/sources.list .
-RUN apt-get update
-RUN apt-get install -y apt-utils vim bash-completion wget python gcc g++ apt-transport-https dirmngr gnupg ca-certificates
+#install software
+RUN apt-get update && apt-get install -y apt-utils vim bash-completion wget python \
+    gcc g++ apt-transport-https dirmngr gnupg ca-certificates libpcap-dev
+
+#install mono for install and run
+#online install mono
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 RUN echo "deb http://download.mono-project.com/repo/ubuntu wheezy/snapshots/4.8.1.0 main" | tee /etc/apt/sources.list.d/mono-official.list
-
-#    ruby doxygen wget nodejs node-typescript dirmngr gnupg python \
-#    gcc g++ bash-completion
-#apt-transport-https ca-certificates \
-#install mono for install
-#online install
-RUN apt-get update
-RUN apt-get install -y mono-complete=4.8.1.0-0xamarin1
+RUN apt-get update && apt-get install -y mono-complete=4.8.1.0-0xamarin1
+WORKDIR /peach
 ```
 
 
-
-
-
-
-
-
-
-### run_cb.sh
-
-```shell
-docker run -it --name peach_cb -v $INT_PATH/protocol-fuzzer-ce/:/protocol-fuzzer-ce peach:cb /bin/bash
-```
 
 ## 参考
 
@@ -240,7 +228,6 @@ sudo apt-get install -y net-tools git ssh vim
 docker stop $(docker ps -aq)
 docker rm $(docker ps -aq)
 docker rmi $(docker images -q)
-
 ```
 
 ### 修改镜像
