@@ -10,7 +10,7 @@ https://gitlab.com/gitlab-org/security-products/protocol-fuzzer-ce
 
 当前主要分享如何编译
 
-[Windows 下编译]('https://github.com/sfncat/peach/blob/main/doc/%E7%BC%96%E8%AF%91PeachPro%204.0(protocol-fuzzer-ce)%20for%20windows.md')
+[Windows 下编译](https://github.com/sfncat/peach/blob/main/doc/%E7%BC%96%E8%AF%91PeachPro%204.0\(protocol-fuzzer-ce\)%20for%20windows.md)
 
 [Linux下编译](https://github.com/sfncat/peach/blob/main/doc/%E5%9C%A8Linux%E4%B8%8B%E7%BC%96%E8%AF%91peach.md)
 
