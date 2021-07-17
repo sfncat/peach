@@ -1,6 +1,0 @@
-Peach will load custom extensions from this folder.
-
-Peach will automatically load all C# assemblies and .py files.
-
-For more information on writing custom extensions, see the Peach SDK.
-

@@ -1,1 +1,0 @@
-@python peach2bugzilla %*

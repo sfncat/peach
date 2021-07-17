@@ -1,0 +1,36 @@
+FROM debian:stretch AS peachcb
+MAINTAINER stackofg@gmail.com
+#install mono for configure and build
+#online install mono
+#use mirrors of aliyun
+WORKDIR /etc/apt/
+COPY ./install/sources.list .
+#install software
+RUN apt-get update && apt-get install -y apt-utils apt-transport-https ca-certificates \
+    ruby doxygen wget nodejs node-typescript dirmngr gnupg python \
+    gcc g++ bash-completion
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+RUN echo "deb https://download.mono-project.com/repo/debian stable-stretch main" | tee /etc/apt/sources.list.d/mono-official-stable.list
+RUN apt-get update && apt-get install -y mono-devel
+#if nuget can download the component directly,can not use the local package.
+WORKDIR /root/.nuget
+COPY ./install/packages.tar.bz2 .
+RUN tar -xf packages.tar.bz2 && rm -rf packages.tar.bz2
+#for compile doc,suggest not install
+#RUN gem install bundler
+#RUN apt-get install -y libxml2-utils openjdk-8-jre xsltproc
+
+#offline install mono
+#RUN install -y cmake xz-utils python3
+#WORKDIR /mono
+#download src code
+#RUN wget https://download.mono-project.com/sources/mono/mono-6.12.0.122.tar.xz
+#use local src code
+#COPY ./install/mono-6.12.0.122.tar.xz .
+#RUN tar -xf mono-6.12.0.122.tar.xz && rm -rf mono-6.12.0.122.tar.xz
+#WORKDIR /mono/mono-6.12.0.122
+#RUN ./configure --prefix=/usr
+#RUN make
+#RUN make install
+#RUN apt-get clean
+WORKDIR /protocol-fuzzer-ce
