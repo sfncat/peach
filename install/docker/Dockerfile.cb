@@ -34,3 +34,5 @@ RUN tar -xf packages.tar.bz2 && rm -rf packages.tar.bz2
 #RUN make install
 #RUN apt-get clean
 WORKDIR /protocol-fuzzer-ce
+COPY ./install/docker/*.sh .
+RUN chmod +x *.sh

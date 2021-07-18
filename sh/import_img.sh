@@ -1,0 +1,1 @@
+docker import - $1 <$2

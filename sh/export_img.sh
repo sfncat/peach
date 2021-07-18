@@ -1,0 +1,1 @@
+docker export $(docker ps -aqf"name=$1") > $2

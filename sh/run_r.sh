@@ -1,0 +1,1 @@
+docker run -itd --name peach_ir -v $INT_PATH/peach:/peach  peach:ir /bin/bash

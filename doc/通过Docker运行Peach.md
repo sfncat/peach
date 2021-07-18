@@ -2,13 +2,16 @@
 
 ## 说明
 
+从其它电脑导出运行镜像导入后运行peach。
+
 这里以在ubuntu 20.04运行为例。
 
 ## 运行目录树
 
 ```
 -pfce
-  --run_ir.sh
+  --run_r.sh
+  --import_img.sh
   --peach:安装目录
     ---pits:测试套目录
       ----XX:XX测试套
@@ -24,7 +27,7 @@
         -----XX2_State1.xml:XX2状态模型文件
 ```
 
-## 部署Docker环境
+## 部署Docker环境install_docker.sh
 
 ```bash
 # Install dependencies to install Docker
@@ -39,37 +42,40 @@ sudo apt -qqy update
 sudo apt -qqy -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' install docker-ce docker-ce-cli containerd.io
 ```
 
-## 运行本地目录树初始化
-
-```
-mkdir -p pfce/peach
-echo "export INT_PATH=`pwd`/pfce" >>/etc/profile
-echo "export PEACH_PATH=$INT_PATH/peach">>/etc/profile
-echo "export PATH=$INT_PATH:$PATH" >>/etc/profile
-export PEACH_PATH=`pwd`/pfce/peach
-$export PATH=$PEACH_PATH:$PATH
-$cd pfce/install
-$wget https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz
-
-```
-
-## 创建并运行镜像
+## 运行本地目录树初始化init_r_env.sh
 
 ```bash
-cd $INT_PATH
-sudo su
-docker build -t peach:ir -f ./docker/ir/Dockerfile .
-chmod +x ./run_cb.sh
-./run_cb.sh
-
+mkdir -p pfce/peach
+echo "export INT_PATH=`pwd`/pfce" >> ~/.bashrc
+echo "export PATH=$INT_PATH:$PATH" >>~/.bashrc
+echo "alias runpit='docker exec -it peach_ir /peach/peach'" >> ~/.bashrc
+source ~/.bashrc
 ```
 
-## 
+## 当前用户增加docker权限
 
-
+增加权限后，用户需要退出重登录
 
 ```
-
-docker run --name peach -v $INT_PATH/protocol-fuzzer-ce/:/protocol-fuzzer-ce -v $INT_PATH/peach:/peach peach:ir
+sudo gpasswd -a ${USER} docker
 ```
+
+## 导入镜像import_img.sh
+
+```
+docker import - peach:ir <peach_ir.tar
+```
+
+## 运行镜像run_r.sh
+
+```bash
+docker run -itd --name peach_ir -v $INT_PATH/peach:/peach  peach:ir /bin/bash
+```
+
+## 运行测试套
+
+```
+runpit pits/http/http.xml -1
+```
+
 
