@@ -19,6 +19,7 @@ subdirs = [
 	'Test/Apps/CrashTest',
 	'Test/Apps/CrashTestDummy',
 	'Test/Apps/SimpleHttpServer',
+	'Test/Bluetooth',
 	'Test/Core',
 	'Test/OS/Linux',
 	'Test/OS/OSX',

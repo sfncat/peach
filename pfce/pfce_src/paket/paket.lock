@@ -56,6 +56,7 @@ NUGET
     Mono.Posix-4.5 (4.5)
     Moq (4.5.9)
       Castle.Core (>= 3.3.3)
+    NDesk.DBus (0.15)
     NETStandard.Library (2.0)
       Microsoft.NETCore.Platforms (>= 1.1)
       System.Runtime.InteropServices.RuntimeInformation (>= 4.3)

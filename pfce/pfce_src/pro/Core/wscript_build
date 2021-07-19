@@ -32,6 +32,7 @@ deps = [
 
 pkgs = [
 	'Dapper',
+		'NDesk.DBus',
 	'DotNetZip',
 	'Microsoft.AspNet.WebApi.Client',
 	'Microsoft.Diagnostics.Runtime',
