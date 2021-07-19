@@ -382,6 +382,7 @@ namespace Peach.Core
 				case "utf_7":
 					return UTF7;
 
+				case "":
 				case "utf8":
 				case "utf_8":
 					return UTF8;
