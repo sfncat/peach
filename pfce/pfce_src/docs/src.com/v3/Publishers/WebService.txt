@@ -1,0 +1,54 @@
+:toc!:
+== WebService Publisher
+
+The _WebService_ publisher is able to call SOAP and WCF based web services.  By default the publisher will attempt to locate a service definition, or one can be provided.
+
+=== Parameters
+
+ * _Url_ -- WebService URL
+ * _Service_ -- Service Name
+ * _Wsdl_ -- Path or URL to WSDL for web service (optional)
+ * _ErrorOnStatusCode_ -- Error when status code isn't 200 (optional, default true)
+ * _Timeout_ -- How long to wait in milliseconds for data/connection (optional, default 3,000)
+ * _Throttle_ -- Time in milliseconds to wait between connections (optional, default 0)
+
+=== Actions
+
+ * link:../Action.html#\_call[_call_] -- Method attribute is method on web service to call.
+ 
+=== Examples
+
+.Example calling web service
+[source,xml]
+----
+<DataModel name="TheDataModel">
+   <String name="value" />
+</DataModel>
+
+<StateModel name="TheState">
+	<State name="initial">
+		<Action type="call" method="Login">
+			<Param name="user">
+				<DataModel ref="TheDataModel"/>
+				<Data>
+					<Field name="value" value="mike" />
+				</Data>
+			</Param>
+			<Param name="pass">
+				<DataModel ref="TheDataModel"/>
+				<Data>
+					<Field name="value" value="Password!" />
+				</Data>
+			</Param>
+		</Action>
+	</State>
+</StateModel>
+
+<Test name="Default">
+    <!-- ... -->
+	<Publisher class="WebService">
+		<Param name="Url" value="http://localhost:5903/TestService.svc" />
+		<Param name="Service" value="TestService" />
+	</Publisher>
+</Test>
+----

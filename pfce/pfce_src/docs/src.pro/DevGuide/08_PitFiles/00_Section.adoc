@@ -1,0 +1,16 @@
+[[PeachPit]]
+== Pit Files
+
+Peach Pit files are XML files that contain all of the information needed for Peach to perform a fuzzing run. When starting a fuzzing session, Peach uses a Peach Pit file and, sometimes, an associated configuration file.
+
+Peach provides several Pit files that, with some configuration settings, run out-of-the-box. If your needs extend beyond the Pit library, you can create a new Pit file from scratch or by modifying an existing Pit file.
+
+Peach Pit files contain the following elements:
+
+* xref:GeneralConfiguration[General Configuration elements]
+* xref:DataModel[Data Modeling elements]
+* xref:StateModel[State Modeling elements]
+* xref:AgentsMonitors[Agents and Monitors]
+* xref:TestConfig[Test Configuration elements]
+
+// end

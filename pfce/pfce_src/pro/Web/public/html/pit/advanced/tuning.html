@@ -1,0 +1,212 @@
+<table>
+	<tbody>
+	<tr>
+		<td width="200">
+			<div class="tuning-legend-text">
+				<span ng-class="vm.LegendText(0)">Exclude</span>
+			</div>
+			<div class="tuning-legend-text">
+				<span class="line first" />
+				<span ng-class="vm.LegendText(1)">Lowest</span>
+			</div>
+			<div class="tuning-legend-text">
+				<span class="line first" />
+				<span class="line" />
+				<span ng-class="vm.LegendText(2)">Low</span>
+			</div>
+			<div class="tuning-legend-text">
+				<span class="line first" />
+				<span class="line" />
+				<span class="line" />
+				<span ng-class="vm.LegendText(3)">Normal</span>
+			</div>
+			<div class="tuning-legend-text">
+				<span class="line first" />
+				<span class="line" />
+				<span class="line" />
+				<span class="line" />
+				<span ng-class="vm.LegendText(4)">High</span>
+			</div>
+			<div class="tuning-legend-text">
+				<span class="line first" />
+				<span class="line" />
+				<span class="line" />
+				<span class="line" />
+				<span class="line" />
+				<span ng-class="vm.LegendText(5)">Highest</span>
+			</div>
+			<div class="tuning-legend-text">
+				<span class="line first" />
+				<span class="line" />
+				<span class="line" />
+				<span class="line" />
+				<span class="line" />
+				<span class="line" />
+			</div>
+			<div class="tuning-legend">
+				<span>
+						<i class="fa first"
+							 ng-class="vm.LegendIcon(0)"
+							 ng-mouseenter="vm.OnLegendEnter(0)"
+							 ng-mouseleave="vm.OnLegendLeave(0)"></i>
+						<i class="fa"
+							 ng-class="vm.LegendIcon(1)"
+							 ng-mouseenter="vm.OnLegendEnter(1)"
+							 ng-mouseleave="vm.OnLegendLeave(1)"></i>
+						<i class="fa"
+							 ng-class="vm.LegendIcon(2)"
+							 ng-mouseenter="vm.OnLegendEnter(2)"
+							 ng-mouseleave="vm.OnLegendLeave(2)"></i>
+						<i class="fa"
+							 ng-class="vm.LegendIcon(3)"
+							 ng-mouseenter="vm.OnLegendEnter(3)"
+							 ng-mouseleave="vm.OnLegendLeave(3)"></i>
+						<i class="fa"
+							 ng-class="vm.LegendIcon(4)"
+							 ng-mouseenter="vm.OnLegendEnter(4)"
+							 ng-mouseleave="vm.OnLegendLeave(4)"></i>
+						<i class="fa"
+							 ng-class="vm.LegendIcon(5)"
+							 ng-mouseenter="vm.OnLegendEnter(5)"
+							 ng-mouseleave="vm.OnLegendLeave(5)"></i>
+					</span>
+			</div>
+		</td>
+		<td>
+			<p>
+				Tuning allows control of how testing is performed on a field-by-field basis.
+			</p>
+			<p>
+				Fields are shown hierarchically below.  
+				A search feature is provided to quickly find fields of interest.  
+				Each field, or set of fields, can be excluded from testing or have its testing focus 
+				turned up or down. 
+				As a field’s focus is turned up (High or Highest), 
+				test cases will be generated more often for that field.  
+				If a field is turned down (Low, Lowest), 
+				fewer test cases will be generated for that field. 
+				Fields that are excluded will not have any test cases generated.
+			</p>
+			<p>
+				Excluding fields from testing should be used judiciously as it can lead to undiscovered
+				faults.
+			</p>
+		</td>
+	</tr>
+	</tbody>
+</table>
+<hr/>
+
+<div class="row">
+	<div class="col-xs-12">
+		<div class="form-group input-group">
+			<input autocomplete="off"
+						 ng-model="search"
+						 type="text"
+						 class="form-control"
+						 placeholder="Search for fields..."
+						 ng-change="vm.OnSearchChange()"
+						 ng-keypress="vm.OnSearchKeyPress($event)"
+						 ng-class="vm.DirtySearch()"
+						 ng-disabled="!vm.CanSearch"
+						 peach:auto-focus />
+			<span class="input-group-btn">
+				<button class="btn btn-default"
+								ng-click="vm.OnSearch()"
+								ng-disabled="!vm.CanSearch"
+								type="submit">
+					<i class="fa fa-search"></i>
+				</button>
+			</span>
+		</div>
+	</div>
+</div>
+
+<div class="row"
+		 style="margin-bottom: 10px">
+	<div class="col-xs-6">
+		<span ng-show="vm.ShowSaved"
+					class="green">
+			Saved successfully.
+		</span>
+	</div>
+	<div class="col-xs-6 text-right">
+		<button class="btn btn-xs btn-danger"
+						ng-disabled="!vm.CanSave"
+						ng-click="vm.OnSave()">
+			<i class="fa fa-save"></i>
+			Save
+		</button>
+	</div>
+</div>
+
+<form name="form"
+      peach:unsaved>
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="alert alert-info"
+			     ng-show="!hasLoaded">
+				Loading data...
+			</div>
+			<div class="alert alert-warning"
+					 ng-show="hasLoaded && !hasData">
+				This pit cannot be tuned. 
+				See <a href="/docs/dev/PitTool_Compile.html">PitTool - Compile</a> for more information on how to enable tuning this pit.
+			</div>
+			<div class="alert alert-info"
+			     ng-show="hasLoaded && hasData && isTruncated">
+				This view has been truncated to {{MAX_NODES}} nodes.
+			</div>
+			<div class="alert alert-info"
+			     ng-show="hasLoaded && hasData && flat.length === 0">
+			  Search results are empty.
+			</div>
+			<div class="tuning"
+			     ng-show='hasLoaded'>
+				<div>
+					<table>
+						<tbody>
+						<tr ng-repeat="node in flat track by node.fullId"
+						    ng-class="vm.RowHover(node)"
+						    ng-mouseenter="vm.OnRowEnter(node)"
+						    ng-mouseleave="vm.OnRowLeave(node)">
+							<th ng-class="vm.RowHover(node)">
+								<i class="fa pointer {{node.weightIcons[0]}} first"
+								   ng-click="vm.OnSelectWeight(node, 0)"
+								   uib-tooltip="Exclude"></i>
+								<i class="fa pointer {{node.weightIcons[1]}}"
+								   ng-click="vm.OnSelectWeight(node, 1)"
+								   uib-tooltip="Lowest"></i>
+								<i class="fa pointer {{node.weightIcons[2]}}"
+								   ng-click="vm.OnSelectWeight(node, 2)"
+								   uib-tooltip="Low"></i>
+								<i class="fa pointer {{node.weightIcons[3]}}"
+								   ng-click="vm.OnSelectWeight(node, 3)"
+								   uib-tooltip="Normal"></i>
+								<i class="fa pointer {{node.weightIcons[4]}}"
+								   ng-click="vm.OnSelectWeight(node, 4)"
+								   uib-tooltip="High"></i>
+								<i class="fa pointer {{node.weightIcons[5]}}"
+								   ng-click="vm.OnSelectWeight(node, 5)"
+								   uib-tooltip="Highest"></i>
+							</th>
+							<td>
+								<div class="node"
+									ng-class="{ pointer: node.showExpander }"
+									ng-style="node.style"
+									ng-click="vm.OnToggleExpand(node)">
+									<span class="expander">
+											<i class="fa {{node.expanderIcon}}"
+												 ng-show="node.showExpander" />
+										</span>
+									<span ng-bind-html="node.display" />
+								</div>
+							</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>

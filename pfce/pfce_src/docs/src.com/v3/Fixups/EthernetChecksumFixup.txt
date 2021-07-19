@@ -1,0 +1,25 @@
+:toc!:
+== EthernetChecksumFixup
+
+The _EthernetChecksumFixup_ will produce a checksum using the ethetnet algorithm.
+
+=== Parameters
+
+ * _link:../ref.html[ref]_ -- Reference to element
+
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <!-- .... -->
+
+  <Number size="32">
+    <Fixup class="EthernetChecksumFixup">
+	  <Param name="ref" value="Data" />
+	</Fixup>
+  </Number>
+</Block>
+
+<Blob name="Data" />
+----

@@ -1,0 +1,5 @@
+:toc!:
+== Pit Parser Analyzer
+
+The Pit Parser analyzer is the default parsing handler for fuzzing definitions.
+

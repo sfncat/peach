@@ -1,0 +1,29 @@
+:toc!:
+== Methodology ==
+
+This page contains the basic methodology for fuzzing a system at a high level.  There is also a description of the fuzzer development process link:Development.html[here].
+
+ * Risk analysis of system
+ *** Identify trust boundaries
+ *** Data flow (DFD)
+ *** Age of code
+ 
+ * File Fuzzing
+ *** Analyze format for CRC's, crypto, etc.
+ *** Collect sample files (LOTS!)
+ *** Perform minset coverage analysis (peach/tools/minset)
+ *** Perform fuzzing
+ **** Build a "dumb" fuzzing template (fixup crcs, etc).
+ **** Move to smarter fuzzing as needed
+ **** Use Microsoft SDL Fuzzing requirements to know when to stop
+
+ * Network Fuzzing
+ *** Analyze format for CRC's crypto, etc.
+ *** Collect sample use cases
+ *** Perform code coverage
+ **** Identifies areas of code to receive fuzzing
+ **** Expand use cases to improve code coverage
+ *** Perform fuzzing
+ **** Build a "dumb" fuzzing template (fixup crcs, etc).
+ **** Move to smarter fuzzing as needed
+ **** Use Microsoft SDL Fuzzing requirements to know when to stop

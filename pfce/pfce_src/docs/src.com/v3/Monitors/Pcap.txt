@@ -1,0 +1,22 @@
+:toc!:
+== Pcap Monitor
+
+The _Pcap_ monitor takes a network capture during the iteration.  The captured data is discarded and re-captured on each iteration.  If a fault occurs the captures data is logged as a pcap file.  Pcap files are compatable with Wireshark and tcpdump.
+
+=== Parameters
+
+ * _Device_ -- Device name for capturing
+ * _Filter_ -- pcap style filter (optional)
+
+=== Examples
+
+.Capture port 80
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="Pcap">
+		<Param name="Device" value="Local Area Connection" />
+		<Param name="Filter" value="port 80" />
+	</Monitor>
+</Agent>
+----

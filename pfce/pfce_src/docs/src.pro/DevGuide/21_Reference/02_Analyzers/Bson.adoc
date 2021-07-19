@@ -1,0 +1,168 @@
+
+[[Analyzers_Bson]]
+== BSON Analyzer
+
+This analyzer converts BSON documented into data models.
+
+When used in the DataModel section of a Peach Pit, the Fuzzer walks the BSON data and creates the appropriate elements. 
+
+When used from the command line, the Fuzzer walks the BSON data, creates the appropriate elements, and saves the results of the generated model to disk. Once saved, the results can be added to a PIT or serve as the basis for a new PIT. 
+
+IMPORTANT: The BSON analyzer requires data from a Blob data type. 
+
+=== Syntax
+
+[source,xml]
+----
+<Blob name="BsonData">
+	<Analyzer class="Bson" />
+</Blob>
+----
+
+----
+pittool analyzer Bson input.bin output.xml
+----
+
+=== Command Line Syntax
+
+----
+pittool analyzer Bson <input file> <output file>
+----
+
+input file::
+    File containing BSON encoded data.
+
+output file::
+    File creating containing generated data model
+
+=== Attributes
+
+_Required:_
+
+There are no required attributes.
+
+_Optional:_
+
+There are no optional attributes.
+
+=== Examples
+
+.BSON Inline Example
+==========================
+This example uses the BSON analyzer on inline data. 
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="TheModel">
+		<Blob valueType="hex" value='\x16\x00\x00\x00\x02\x68\x65\x6c\x6c\x6f\x00\x06\x00\x00\x00\x77\x6f\x72\x6c\x64\x00\x00'>
+			<Analyzer class="Bson" />
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="TheModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output from inline example.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 49484.
+2018-03-28 12:36:39.4049 Peach.Core.Engine runTest: Iteration Starting: 1,  =============================
+
+[R1,-,-] Performing iteration
+2018-03-28 12:36:39.4370 Peach.Core.Engine runTest: Performing control recording iteration.
+2018-03-28 12:36:39.5127 Peach.Core.Dom.StateModel Run(): Changing to state "initial".
+2018-03-28 12:36:39.5192 Peach.Core.Dom.Action Run(Action): Output
+2018-03-28 12:36:39.6926 Peach.Pro.Core.Publishers.ConsolePublisher start()
+2018-03-28 12:36:39.6926 Peach.Pro.Core.Publishers.ConsolePublisher open()
+2018-03-28 12:36:39.6926 Peach.Pro.Core.Publishers.ConsolePublisher output(22 bytes)
+00000000   16 00 00 00 02 68 65 6C  6C 6F 00 06 00 00 00 77   .....hello.....w
+00000010   6F 72 6C 64 00 00                                  orld..
+2018-03-28 12:36:39.6926 Peach.Pro.Core.Publishers.ConsolePublisher close()
+2018-03-28 12:36:39.7086 Peach.Core.Engine runTest: context.config.singleIteration == true
+2018-03-28 12:36:39.7086 Peach.Core.Engine All test cases executed, stopping engine.
+2018-03-28 12:36:39.7086 Peach.Pro.Core.Publishers.ConsolePublisher stop()
+2018-03-28 12:36:39.7086 Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+
+.BSON Data From File Example
+==========================
+This example uses the BSON analyzer on an external file containing BSON encoded data. 
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="TheModel">
+		<Blob>  
+			<Analyzer class="Bson" />
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="TheModel" />
+				<Data fileName="example.bson"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output from BSON data file example.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 36094.
+2018-03-28 12:41:03.4793 Peach.Core.Engine runTest: Iteration Starting: 1,  =============================
+
+[R1,-,-] Performing iteration
+2018-03-28 12:41:03.5129 Peach.Core.Engine runTest: Performing control recording iteration.
+2018-03-28 12:41:03.5329 DataCracker -+ DataModel 'TheModel', Bytes: 0/22, Bits: 0/176
+2018-03-28 12:41:03.5329 DataCracker  | Size: ??? (Deterministic)
+2018-03-28 12:41:03.5329 DataCracker  |-- Blob 'DataElement_0', Bytes: 0/22, Bits: 0/176
+2018-03-28 12:41:03.5464 DataCracker  |   Size: 22 bytes | 176 bits (Last Unsized)
+2018-03-28 12:41:03.5464 DataCracker  |   Value: 16 00 00 00 02 68 65 6c 6c 6f 00 06 00 00 00 77 6f 72 6c 64 00 00
+2018-03-28 12:41:03.5464 DataCracker  /
+2018-03-28 12:41:03.6427 Peach.Core.Dom.StateModel Run(): Changing to state "initial".
+2018-03-28 12:41:03.6427 Peach.Core.Dom.Action Run(Action): Output
+2018-03-28 12:41:03.7630 Peach.Pro.Core.Publishers.ConsolePublisher start()
+2018-03-28 12:41:03.7630 Peach.Pro.Core.Publishers.ConsolePublisher open()
+2018-03-28 12:41:03.7655 Peach.Pro.Core.Publishers.ConsolePublisher output(22 bytes)
+00000000   16 00 00 00 02 68 65 6C  6C 6F 00 06 00 00 00 77   .....hello.....w
+00000010   6F 72 6C 64 00 00                                  orld..
+2018-03-28 12:41:03.7655 Peach.Pro.Core.Publishers.ConsolePublisher close()
+2018-03-28 12:41:03.7655 Peach.Core.Engine runTest: context.config.singleIteration == true
+2018-03-28 12:41:03.7655 Peach.Core.Engine All test cases executed, stopping engine.
+2018-03-28 12:41:03.7806 Peach.Pro.Core.Publishers.ConsolePublisher stop()
+2018-03-28 12:41:03.7806 Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+

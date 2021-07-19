@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+
+TARGET="${TARGET:-Peach.exe}"
+
+# Optionally souurce a user's environment file
+USER_ENV="$(dirname ${0})/Peach.user.env"
+if [ -e "${USER_ENV}" ]; then
+	source ${USER_ENV}
+	ERRORCODE=$?
+	if [[ $ERRORCODE -ne 0 ]]; then
+		exit $ERRORCODE
+	fi
+fi
+
+# Detect OS, Distribution, Version
+
+OS=unknown
+DIST=unknown
+DIST_LIKE=unknown
+DIST_VERSION=unknown
+
+if [ "${SKIP_OS_DETECT}" == "true" ]; then
+	# Skip platform detection
+	SKIP_OS_DETECT="true"
+elif [ "$(uname)" == "Darwin" ]; then
+	# Do something under Mac OS X platform
+	OS=darwin
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+	# Do something under GNU/Linux platform
+	OS=linux
+	# ## Detect Linux distribution
+	if [ -f /etc/os-release ]; then
+		# freedesktop.org and systemd
+		. /etc/os-release
+		DIST=$ID
+		DIST_LIKE=$ID_LIKE
+		DIST_VERSION=$VERSION_ID
+	elif type lsb_release >/dev/null 2>&1; then
+		# linuxbase.org
+		DIST=$(lsb_release -si)
+		DIST_VERSION=$(lsb_release -sr)
+	elif [ -f /etc/lsb-release ]; then
+		# For some versions of Debian/Ubuntu without lsb_release command
+		. /etc/lsb-release
+		DIST=$DISTRIB_ID
+		DIST_VERSION=$DISTRIB_RELEASE
+	elif [ -f /etc/debian_version ]; then
+		# Older Debian/Ubuntu/etc.
+		DIST=debian
+		DIST_VERSION=$(cat /etc/debian_version)
+	elif [ -f /etc/SuSe-release ]; then
+		# Older SuSE/etc.
+		echo ""
+		echo "Error, unsupported version of SUSE detected."
+		echo ""
+		echo "  An older, unsupported version of Linux was detected."
+		echo "  Please contact support (support@peachfuzzer.com) for"
+		echo "  assistance."
+		echo ""
+		exit 1
+	elif [ -f /etc/redhat-release ]; then
+		# Older Red Hat, CentOS, etc.
+		echo ""
+		echo "Error, unsupported version of Redhat/CentOS/RHEL detected."
+		echo ""
+		echo "  An older, unsupported version of Linux was detected."
+		echo "  Please contact support (support@peachfuzzer.com) for"
+		echo "  assistance."
+		echo ""
+		echo ""
+		exit 1
+	fi
+
+	DIST=${DIST,,}
+	DIST_VERSION=${DIST_VERSION,,}
+
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
+	# Do something under 32 bits Windows NT platform
+	OS=windows
+	DIST=mingw
+elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then
+	# Do something under 64 bits Windows NT platform
+	OS=windows
+	DIST=mingw
+elif [ "$(expr substr $(uname -s) 1 9)" == "CYGWIN_NT" ]; then
+	# Do something under 64 bits Windows NT platform
+	OS=windows
+	DIST=cygwin
+fi
+
+# Figure out our peach folder and debug options
+
+DIRNAME="`dirname ${0}`"
+DEBUG=""
+case "$*" in
+  *--debug*)
+    DEBUG="--debug"
+    ;;
+esac
+
+# Update dllmap as needed
+if [ "$OS" == "linux" ]; then
+
+	# Find ldconfig.  On suse /sbin is not in non-admin paths
+	LDCONFIG=ldconfig
+	if ! hash ldconfig 2>/dev/null; then
+		if [ -x "/sbin/ldconfig" ]; then
+			LDCONFIG=/sbin/ldconfig
+		elif [ -x "/bin/ldconfig" ]; then
+			LDCONFIG=/bin/ldconfig
+		elif [ -x "/usr/bin/ldconfig" ]; then
+			LDCONFIG=/usr/bin/ldconfig
+		elif [ -x "/usr/sbin/ldconfig" ]; then
+			LDCONFIG=/usr/sbin/ldconfig
+		elif [ -x "/usr/local/bin/ldconfig" ]; then
+			LDCONFIG=/usr/local/bin/ldconfig
+		elif [ -x "/usr/local/sbin/ldconfig" ]; then
+			LDCONFIG=/usr/local/sbin/ldconfig
+		else
+			echo ""
+			echo "Unable to locate ldconfig.  Please add to your path"
+			echo "and try again."
+			echo ""
+			exit 1
+		fi
+	fi
+
+	# find pcap
+    # head -n 1 will ensure that if multiple entries are found we only take the first one
+	PCAP=`$LDCONFIG -p | grep libpcap | head -n 1 | cut -d ' ' -f 1 | tr -d '[:space:]'`
+	if [ ! -z "$PCAP" ]; then
+		#echo "PCAP: '$PCAP'"
+		sed -i "s/libpcap.so[^\"]*/$PCAP/g" ${DIRNAME}/SharpPcap.dll.config
+	else
+		echo ""
+		echo "Error: libpcap not found.  Please install and try again."
+		echo ""
+		exit 1
+	fi
+
+fi
+
+MONO="$(which mono)"
+if [ -z $MONO ];
+then
+	echo "Error: mono could not be found."
+	echo ""
+	echo "Ensure mono is properly installed and try again."
+	echo ""
+	exit 1
+fi
+
+MCS="$(which mcs)"
+if [ -z $MCS ];
+then
+	echo "Warning: some mono components could not be found."
+	echo ""
+	echo "If you have issues, please install the full mono package for your distribution."
+	echo "On ubuntu, this is mono-complete."
+	echo ""
+	echo "See: http://www.mono-project.com/docs/getting-started/install"
+fi
+
+${MONO} --gc=sgen ${DEBUG} ${DIRNAME}/${TARGET} $@
+
+# end

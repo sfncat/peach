@@ -1,0 +1,126 @@
+# Files created by windows
+Thumbs.db
+
+# Files created by OSX
+.DS_Store
+
+# Visual C++ cache files
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.suo
+ipch/
+packages/
+
+# Visual Studio 2015
+*.VC.db
+*.VC.opendb
+.vs/
+
+# Visual Studio Code
+# python plugin uses ctags
+tags
+
+# python generated files
+*.pyc
+
+# waf build artifacts
+/.lock-waf*
+/slag/
+/output/
+
+# MonoDevelop files
+*.pidb
+*.userprefs
+test-results/
+*.resources
+
+# Build results
+# Ignore top level directories and one level deep
+# This allows debug/release folders to not be ignored in 3rdParty
+/[Dd]ebug/
+/[Rr]elease/
+/x64/
+/*/[Dd]ebug/
+/*/[Rr]elease/
+/*/x64/
+
+# Build folders
+# Ignore top level directories and one level deep
+# This allows bin/obj folders to not be ignored in 3rdParty
+/*/[Bb]in/
+/*/[Oo]bj/
+/farm/*/*/[Bb]in/
+/farm/*/*/[Oo]bj/
+/farm/*/[Bb]in/
+/farm/*/[Oo]bj/
+
+# User-specific files
+*.user
+*.cache
+*.unsuccessfulbuild
+
+_Resharper*
+
+*.csproj
+*.sln
+*.lastbuildstate
+.depproj/
+/WebEssentials-Settings.json
+
+# ignore these are root level since remote builds
+# make use of this .gitignore
+/pro/Web/[Bb]in/
+/pro/Web/[Oo]bj/
+/pro/Web/public/js/app/
+/pro/Web/public/js/test/
+/pro/Web/public/tests.html
+/pro/Web/bower_components
+/pro/Web/node_modules
+/pro/Web/.tscache
+/pro/Web/.grunt
+/pro/Web/.e2e
+/pro/Web.baseDir.ts
+/pro/Web/Gruntfile.js*
+/pro/Web/Gruntfile.min*
+/pro/Web/npm-debug.log
+
+# NUnit files
+TestResult.xml
+*.VisualState.xml
+
+# local doc previews
+/docs/Gemfile.lock
+/docs/src.pro/DevGuide/DevGuide.html
+/docs/src.pro/UserGuide/UserGuide.html
+/docs/src.web/UserGuide/UserGuide.html
+
+# Emacs backup files
+*~
+
+# Downloader site
+/pro/Downloader/Web.local.config
+
+# paket
+paket/.paket/paket.exe
+paket/packages
+paket/paket-files
+paket/nas
+
+# Rider EAP
+.idea
+!.idea/codeStyleSettings.xml
+
+# Packer artifacts
+web/packer/output-peachweb
+web/packer/output-vmware-iso
+web/packer/packer_cache
+web/packer/tmp
+packer/tmp
+packer/output-vmware-iso
+packer/packer_cache
+paket/.paket/Paket.Restore.targets
+
+# vim swapfiles
+*.swp

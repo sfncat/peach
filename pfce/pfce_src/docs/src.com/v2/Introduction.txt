@@ -1,0 +1,37 @@
+:toc!:
+== Peach Introduction ==
+
+The Peach Fuzzing Platform was designed to speed up the development of fuzzers for both security researchers and also security teams, consultants and companies.  Peach accomplishes this by separating out modeling of the data and state systems being fuzzed and the actual fuzzing.  Peach also provides a robust agent/monitoring system to allow for monitoring a fuzzing run, detecting faults (bugs), etc.  All the major components of Peach are pluggable and extensible allowing for infinite flexibility.
+
+For the security researcher, Peach provides the ability to create custom fuzzing strategies and data producers (mutators).  The combination of this allows full control over how fuzzing is performed.  This allows the security researcher the ability to compare different approaches to fuzzing with out having to re-write everything from scratch.
+
+Peach has the following high level concepts:
+
+_Modeling_ -- Peach operating by applying fuzzing to models of data and state.  As such there is a heavy focus on data modeling and state modeling in Peach.  For the average Peach user this is were most of the time is spent.  The level of detail places into the models will distinguish between a dumb Peach fuzzer and a smart Peach fuzzer.
+
+_Publisher_ -- Publishers are I/O interfaces.  They take the abstract concepts of input, output, call, etc. as seen in the state modeling and provide the actual transport or implementation.  A number of Publishers are included with Peach providing the ability to write to files, connect over TCP, UDP or other network protocols, make web requests, or even call COM object.  It is easy to create custom Publishers.
+
+
+_Fuzzing Strategy_ -- The fuzzing strategy is the logic around how we are going to perform our fuzzing.  Are we going to modify one data element at a time, or many?  Which mutators will we use?  Will we modify some parts of our model more than others?  Will we change the flow of our state model?  The only thing a strategy does not typically do is produce actual data.  This is left to the mutators.
+
+Several fuzzing strategies are included with Peach which should be sufficient for the majority of users.
+
+_Mutators_ -- Mutators are used to produce data.  They can use the existing default value and modify it, or produce completely new data.  Mutators tend to contain very simple logic and should perform a single type of mutation.  Examples of mutators would be: "Produce number from current value - 50 to current value + 50."  or "Produce string that vary in length from 1 to 10,000 characters."  or "Produce 500 random numbers between 0 and int32."
+
+_Agents_ -- Agents are special Peach processes that can run locally or remotely and host one or mode link:Monitors.html[Monitors] or remote Publishers.  Agents are the basis for the robust monitor facility provided by the Peach Fuzzing Platform and allow for monitoring simple fuzzing configurations through very complex systems that have a many tiers.  A Peach fuzzer can make use of zero or more agents.
+
+_Monitors_  -- Monitors run inside of Peach Agent processes and perform utility tasks like taking captures of network traffic during a fuzzing iteration, or attaching a debugger to a process to detect crashes, or even re-starting a network service if it crashes or stops.  A number of monitors are included with Peach, and it's easy to write and include new monitors.
+
+_Logger_ -- A logging facility to save crashes and fuzzing run information.  Peach comes with a file system logger by default.
+
+=== Fuzzing With Peach ===
+
+Peach provides a fuzzing engine with robust monitoring capabilities, however some work is left up to the user.  The following are the main steps needed to fuzz a target with Peach:
+
+ . Create Models
+ . Select/Configure Publisher
+ . Configure Agents/Monitors
+ . Configure Logging
+
+
+>> TODO - Finish write up :) <<

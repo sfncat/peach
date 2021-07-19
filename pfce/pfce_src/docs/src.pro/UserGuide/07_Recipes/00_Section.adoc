@@ -1,0 +1,48 @@
+[[Configuration_Recipes]]
+== Monitoring Recipes
+
+Peach Fuzzer has very powerful monitoring capabilities that detect faults that occur in the test
+target, collect data surrounding each fault, and automate the test
+environment. This section provides some suggested monitoring configurations for
+different types of targets. These recipes can be used as-is or as
+starting points for a custom configurations.
+
+All of the recipes here follow a common process:
+
+1.	Define the workflow for the fuzzing session.
+2.	Define the Peach components to use in configuring the fuzzing setup.
+This step focuses on the monitoring needs and the agents that house the monitors.
+3.	Provide configuration settings used to fuzz a sample test target using the recipe.
+
+[NOTE]
+=======
+*NOTE*: Assumptions/Givens in each recipe include the following:
+
+* A Pit, pre-defined or custom, is ready to use.
+* Peach is installed and ready to run.
+* All software modules needed to perform the fuzzing job are available for use.
+=======
+
+*What's left to do?* +
+When you finish developing a recipe, it's time to fill out and test the
+configuration, then run the fuzzing job.
+
+* See the xref:JumpStart[Getting Started with the Peach Fuzzer Platform] for the workflow to run a fuzzing job.
+
+The remainder of this section provides the following monitor recipes:
+
+* xref:Recipe_FileFuzzing[Monitoring a File Consumer (File Fomat)]
+* xref:Recipe_LinuxNetServer[Monitoring a Linux Network Service]
+* xref:Recipe_LinuxNetClient[Monitoring a Linux Network Client]
+* xref:Recipe_NetDevice[Monitoring a Network Device]
+* xref:Recipe_WindowsNetServer[Monitoring a Windows Network Service]
+* xref:Recipe_WindowsNetClient[Monitoring a Windows Network Client]
+
+include::01_FileFuzzing.adoc[]
+include::02_LinuxNetClient.adoc[]
+include::03_LinuxNetService.adoc[]
+include::04_NetworkDevice.adoc[]
+include::05_WindowsNetClient.adoc[]
+include::06_WindowsNetService.adoc[]
+
+// end

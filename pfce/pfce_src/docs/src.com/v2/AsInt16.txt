@@ -1,0 +1,18 @@
+:toc!:
+= type.AsInt16 =
+
+Transforms a number into an Int16 or UInt16. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="type.AsInt16"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +type.AsInt16+, +AsInt16+

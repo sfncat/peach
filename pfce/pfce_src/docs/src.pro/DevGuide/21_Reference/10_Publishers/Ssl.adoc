@@ -1,0 +1,119 @@
+<<<
+[[Publishers_Ssl]]
+== Ssl Publisher
+
+The _Ssl_ Publisher enables a pit to communicate via an SSL over TCP socket.
+
+_Ssl_ is used to fuzz protocols built inside an SSL encrypted channel (such as HTTPS).
+
+Since it is easy to confuse _Ssl_ and _SslListner_, here's the difference:
+
+* The _Ssl_ Publisher connects out
+* The _SslListner_ Publisher accepts (inward) connections
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="Ssl">
+	<Param name="Host" value="192.168.48.128" />
+	<Param name="Port" value="433" />
+</Publisher>
+
+<Publisher class="Ssl">
+	<Param name="Host" value="192.168.48.128" />
+	<Param name="Port" value="433" />
+	<Param name="Alpn" value="h2;spdy/3.1;http/1.1" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Host:: Hostname to connect to.
+Port:: Port to connect to.
+
+_Optional:_
+
+ClientCert::
+    Provide client certificate for server verification.
+    Path to client certificate in PEM format
+    
+ClientKey::
+    Provide client key for server verification.
+    Path to client private key in PEM format
+
+Alpn::
+    Enable ALPN TLS extension (RFC 7301).
+    Example value: +h2;spdy/3.1;http/1.1+
+
+VerifyServer::
+    Verify the server certificate. Defaults to false.
+
+ConnectTimeout::
+    Max milliseconds to wait for connection (default 10000).
+    
+Timeout::
+    How many milliseconds to wait for data (default 3000).
+
+=== Actions
+
+xref:Action_start[start]:: Implicit Action to start the Publisher.
+xref:Action_stop[stop]:: Implicit Action to stop the Publisher.
+xref:Action_open[open]:: Open and initialize the SSL connection.
+xref:Action_close[close]:: Close and clean up the SSL connection.
+xref:Action_output[output]:: Data sent via output is written to the SSL stream.
+xref:Action_input[input]:: Data received via input is read from the SSL input buffer.
+
+=== Examples
+
+.Sending and receiving data
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="OutModel">
+		<Block name="Headers">
+			<String value="POST /testsslpage.html HTTP/1.0\r\n" />
+			<String value="User-Agent: TestAgent/1.0\r\n"/>
+			<String value="Content-Length:   " /> 
+			<String name="ContentLen">
+				<Relation of="Data" type="size"/> 
+			</String>
+			<String value="\r\n\r\n"/>     
+			<String name="Data"/> 
+		</Block>	
+	</DataModel>
+
+	<DataModel name="InModel">
+		<String value="{" token="true" />
+		<String />
+		<String value="}" token="true" />
+	</DataModel>
+
+	<StateModel name="State" initialState="First">
+		<State name="First">
+			<Action type="output">
+				<DataModel ref="OutModel">
+			</Action>
+			<Action type="input">
+				<DataModel ref="InModel">
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+    
+		<Publisher class="Ssl">
+			<Param name="Host" value="localhost"/>
+			<Param name="Port" value="31337"/>
+			<Param name="Timeout" value="3000"/>
+		</Publisher>
+	</Test>
+</Peach>
+----
+

@@ -1,0 +1,86 @@
+[[Param]]
+== Param
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// * valueType, value, name
+// * What are they used for
+// * cross link to things that take params
+// * examples
+//  * Different things using param
+//  * valueType
+
+// Reviewed:
+// 04/07/2015 editing and cleanup
+
+The _Param_ child element specifies a configuration setting for its parent element. The structure of a _Param_ is a key-value parameter pair. _Params_ are common elements used by xref:AgentsMonitors[Monitors], xref:Publisher[Publishers], and xref:Fixup[Fixups].
+
+NOTE: A second usage of Param is with the Action_Call statement. This usage follows the attribute descriptions.
+
+[source,xml]
+----
+<Publisher class="Tcp">
+  <Param name="Host" value="127.0.0.1" />
+  <Param name="Port" value="80" />
+</Publisher>
+
+<Fixup class="Crc32Fixup">
+  <Param name="ref" value="MyDataStuff" />
+</Fixup>
+
+<Monitor class="WindowsDebugger">
+  <Param name="Executable" value="CrashableServer.exe" />
+  <Param name="Arguments" value="127.0.0.1 4244" />
+</Monitor>
+----
+
+_Attributes:_
+
+_Required:_
+
+xref:name[name]:: Name of parameter.
+xref:value[value]:: Default value.
+
+_Optional:_
+
+xref:valueType[valueType]:: Format of value attribute.
+
+=== Child Elements
+
+None.
+
+=== _Param_ and the Call Action
+
+_Param_ can also be an argument to the xref:Action_call[call] Action. Call actions can have an array of parameters (defined by Param) used in different ways by the Publisher.
+
+In this usage, the element is solely a container for a DataModel and Data. The Data described in Param is fuzzed by Peach.
+
+==== Syntax
+
+[source,xml]
+----
+<Action type="call" method="Players[1].OpenUrl">
+  <Param name="P1">
+    <DataModel ref="TheDataModel" />
+    <Data>
+      <Field name="Value" value="video.mov"/>
+    </Data>
+  </Param>
+</Action>
+----
+
+==== Attributes
+
+_Required:_
+
+xref:name[name]:: Name of parameter
+
+_Optional:_
+
+None.
+
+==== Child Elements
+
+xref:DataModel[DataModel]:: Reference to a DataModel that acts as a source for fuzzed data.
+xref:Data[Data]:: Set of initial data to be cracked into the above DataModel before fuzzing.

@@ -1,0 +1,27 @@
+:toc!:
+== StateModel ==
+
+The StateModel elements defines a state model.  The state model consists of at least one link:State.html[State] containing at least one link:Action.html[Action].  The first state is indicated by the _initialState_ attribute.
+
+[source,xml]
+----
+<StateModel name="SimpleModel" initialState="FirstState">
+
+  <State name="FirstState">
+    <Action type="output">
+       <DataModel ref="TheDataModel" />
+    </Action>
+  </State>
+
+</StateModel>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the state model [required]
+ * link:initialState.html[initialState] -- Name of first state [required]
+
+_Valid Child-Elements:_
+
+ * link:State.html[State]

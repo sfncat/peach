@@ -1,0 +1,63 @@
+:toc!:
+== Test ==
+
+The Test element is used to configure a specific fuzzing test that combines a StateModel with a Publisher and other configuration options such as including/excluding elements from being mutated, Agents, and fuzzing strategies.
+
+Multiple Test elements are supported, simply provide the name of the test element to use
+on the Peach command line.
+
+NOTE: When running Peach, the Test element named "Default" will be run if a test name is
+not provided on the command line.
+
+[source,xml]
+----
+<Test name="Default">
+
+  <!-- Optionally exclude some elements from mutation -->
+  <Exclude xpath="//Reserved" />
+  <Exclude xpath="//Magic" />
+
+  <!-- Optional agent references -->
+  <Agent ref="LocalWindowsAgent" platform="windows" />
+  <Agent ref="LocalOsxAgent" platform="osx" />
+  <Agent ref="LocalLinuxAgent" platform="linux" />
+  
+  <Agent ref="RemoteAgent" />
+
+  <!-- Indicate which state model to use (required) -->
+  <StateModel ref="TheState" />
+
+  <!-- Configure the publisher to use (required) -->
+  <Publisher class="Tcp">
+     <Param name="Host" value="127.0.0.1" />
+     <Param name="Port" value="9001" />
+  </Publisher>
+
+  <!-- Use a different fuzzing strategy -->
+  <Strategy class="Random" />
+  
+  <!-- Log output to disk -->
+  <Logger class="File">
+    <Param name="Path" value="logs" />
+  </Logger>
+</Test>
+----
+
+=== Attributes
+
+ * link:name.html[name] -- Name of the test, use "Default" for default test [required]
+ * _waitTime_ -- Time to wait in between each test case (Defaults to zero (0))
+ * _faultWaitTime_ -- Time to wait for a fault to occur before starting next iteration (Defaults to 0)
+ * _controlIteration_ -- How often should we perform control iterations.  (Defaults to 0)
+
+=== Valid Child-Elements
+
+ * link:AgentsMonitors.html[Agent] (optional)
+ * link:StateModel.html[StateModel] (required)
+ * link:Publisher.html[Publisher] (required)
+ * link:Test/Include.html[Include] (optional)
+ * link:Test/Exclude.html[Exclude] (optional)
+ * link:MutationStrategies.html[Strategy] (optional)
+ * link:Logger.html[Logger] (optional, recommended)
+
+ 

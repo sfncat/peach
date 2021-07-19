@@ -1,0 +1,33 @@
+[[TutorialDumbFuzzing_ConfigurePublisher]]
+== Configure Publisher
+
+The last thing we need to do before we can try out our nifty fuzzer is to configure a xref:Publisher[Publisher].
+xref:Publisher[Publishers] are I_O connectors that implement the plumbing between actions like _output_, _input_, and _call_.
+For our file fuzzer, we will use the xref:Publisher[Publisher] called xref:Publishers_File[File].
+This publisher allows us to write out a file.
+
+Configuring our publisher is easy, just locate the following XML near the bottom of the +png.xml+ file;
+it is a child of xref:Test[Test].
+
+[source,xml]
+----
+<!-- TODO: Complete publisher -->
+<Publisher />
+----
+
+Now, this publisher takes a single parameter called _FileName_ that contains the file name of the fuzzed file.
+
+[source,xml]
+----
+<Publisher class="File">
+	<Param name="FileName" value="fuzzed.png"/>
+</Publisher>
+----
+
+=== What's Next?
+
+We will need to configure a way to detect when our target crashes.
+We will also want to collect some information like a stack trace to look at later on.
+Head to the next section to learn how to configure an agent and monitor.
+
+// end

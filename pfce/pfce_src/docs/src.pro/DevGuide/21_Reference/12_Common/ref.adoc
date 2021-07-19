@@ -1,0 +1,47 @@
+[[ref]]
+== Ref Attribute
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// * Use examples from slides to walk through what ref does.
+// * Perhaps this is more terse than the long description in the booky part.
+// * Examples with output
+// * Ref datamodel
+// * Ref block
+// * Ref with replacement
+// * Ref with deep replacement
+// * Ref only with datamodel and block, not single elements
+// * Ref copies the full thing down
+// * Ref with namespace (included xml file)
+// * What about new element that was not in original parent (goes at end)
+// * How we find elements by name (should include as this will be references from several places)
+// * If no name attribute, will get the datamodel's name or a unique derivative
+// * Replacing an element loses fixups, relations, transformers.
+
+The ref attribute specifies a reference to another element by name or by class structure.  References can be relative or fully qualified. 
+
+// TODO
+
+=== Examples ===
+
+_Relative by Name:_
+
+[source,xml]
+----
+<Block ref="ElementName"/>
+----
+
+_Fully qualified with namespace prefix:_
+
+[source,xml]
+----
+<Block ref="namespace:parent.parent.child"/>
+----
+
+_Fully qualified:_
+
+[source,xml]
+----
+<Block ref="parent.parent.child"/>
+----

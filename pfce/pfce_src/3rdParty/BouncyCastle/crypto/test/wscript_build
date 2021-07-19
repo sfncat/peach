@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+deps = [
+	'BouncyCastle.Crypto.dll',
+	'System.dll',
+	'System.Core.dll',
+]
+
+pkgs = [
+	'NUnit',
+]
+
+bld(
+	name = 'BouncyCastle.Crypto.Tests.dll',
+	#solutions = ['Peach.sln', 'PeachWeb.sln'],
+	features = 'cs paket',
+	use = deps,
+	use_packages = pkgs,
+	paket_settings = dict(
+		frameworks = ['net45'],
+	),
+	source = bld.path.ant_glob('src/**/*.cs'),
+	resource = bld.path.ant_glob('data/**/*'),
+	namespace = 'UnitTests',
+	csflags = [
+		'/nowarn:0168', # Variable declared but never used
+		'/nowarn:0169', # Field is never used
+		'/nowarn:0169', # Field is never used
+		'/nowarn:0649', # Field is never assigned to
+		'/nowarn:0414', # Field assigned but never used
+		'/nowarn:0219', # Variable assigned but never used
+		'/nowarn:0618', # Calling obsolete function
+		'/define:LIB,SEPARATE_UNIT_TESTS',
+	],
+	version = False,
+	csdoc = False,
+	ide_path = '../',
+)

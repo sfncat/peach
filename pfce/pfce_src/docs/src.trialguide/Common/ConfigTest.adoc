@@ -1,0 +1,12 @@
+==== Configuring the test
+
+These steps will create the same configuration as is in use in the 
+{pitname} configuration that is already present on the trial instance.
+ifdef::advancedconfigname[]
+The steps are the same for both the basic and advanced configuration except where indicated.
+endif::[]
+To create the configuration:
+
+. Click Library and then click *{pitname}*.  
+. Enter a name when prompted and optionally a description, then click *Submit*.
+

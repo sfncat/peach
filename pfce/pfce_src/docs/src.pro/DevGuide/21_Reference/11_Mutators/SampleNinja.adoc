@@ -1,0 +1,19 @@
+<<<
+[[Mutators_SampleNinjaMutator]]
+== SampleNinja
+
+The SampleNinja Mutator swaps elements between different sample files using a
+xref:PitTool_Ninja[Sample Ninja] database.
+
+NOTE: This mutator is enabled only if a sample ninja database exists.
+You can use PitTool to create a sample ninja database.
+
+=== Supported Elements
+
+All elements are supported.
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

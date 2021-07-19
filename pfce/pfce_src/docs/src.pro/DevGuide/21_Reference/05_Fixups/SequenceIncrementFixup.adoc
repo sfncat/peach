@@ -1,0 +1,309 @@
+<<<
+[[Fixups_SequenceIncrementFixup]]
+== SequenceIncrement
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include
+//   Use case "This is used when fuzzing {0} "
+//   Will return number within valid range of parent number
+//   Actions that increment number are call, set, output
+//   Discuss reentrant / skipto non-determinism
+// Give full pit to run using hex publisher, test works
+// Example 1
+//   Once Param evaluates to true w/multiple output actions 5,5,5 -> 6,6,6
+// Example 2
+//   Once evaluates to false w/multiple output actions 1,2,3 -> 4,5,6
+// Example 3
+//   Show example off changing offset w/multiple output actions
+// Test each example works
+// List Parent element types
+// Number, String
+
+// Updated:
+// - 02/18/2014: Mick
+// Added full examples
+
+_SequenceIncrement_ supplies a value that increments with each iteration in a fuzzing session. 
+The value supplied for the first iteration starts with 1. This fixup is useful when a field 
+must be a unique value, or a sequenced value every iteration.
+
+This checksum is useful for fuzzing a protocol that contains an increasing numerical sequence. 
+The Fixup produces valid numbers for the data element it modifies. The maximum value supplied 
+by _SequenceIncrement_ is constrained to the size of the data element.
+
+=== Parent Elements
+
+xref:Number[Number]
+xref:String[String]
+
+=== Parameters
+
+Group:: Designates a group name that bundles a single fixup to multiple data elements. The result coordinates the incrementing process with the members of the group.  The default value is "".
+InitialValue:: Sets the initial value for the first iteration. The default value is 1, and the sequence using the default value starts with 1, 2, 3. If InitialValue is set to the value 57, the sequence starts with 57, 58, 59. 
+Offset:: Sets the initial value each iteration to Offset * (Iteration - 1). The default value is null.
+Once:: Increment the value once per iteration. The default value is false.
+
+=== Examples
+
+.Basic SequencialIncrement Example
+==================================
+Three outputs with Once set to false. The number is incremented before each action.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Packet">
+    <Number name="SrcPort"  size="16" endian="big" value="1234"/>
+    <Number name="DestPort" size="16" endian="big" value="1235"/>
+    <Number name="Length"   size="16" endian="big">
+      <Relation type="size" of="Packet"/>
+    </Number>
+    <Number name="IncrementingNumber" size="16"  endian="big">
+      <Fixup class="SequenceIncrementFixup"/>
+    </Number>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" />
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 64358.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 00 01                            ????????
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 00 02                            ????????
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 00 03                            ????????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==================================
+
+.Non Default Offset
+==================================
+Three outputs with Once set to false and Offset to 5. The number is incremented by 5 each iteration.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Packet">
+    <Number name="SrcPort"  size="16" endian="big" value="1234"/>
+    <Number name="DestPort" size="16" endian="big" value="1235"/>
+    <Number name="Length"   size="16" endian="big">
+      <Relation type="size" of="Packet"/>
+    </Number>
+    <Number name="IncrementingNumber" size="16"  endian="big">
+      <Fixup class="SequenceIncrementFixup">
+        <Param name="Offset" value="5" />
+      </Fixup>
+    </Number>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" />
+  </Test>
+</Peach>
+----
+
+Output of this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 26794.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 00 01                            ????????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==================================
+
+
+.Non Default Once
+==================================
+Three outputs with Once set to true. Each action outputs the same incremented number.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Packet">
+    <Number name="SrcPort"  size="16" endian="big" value="1234"/>
+    <Number name="DestPort" size="16" endian="big" value="1235"/>
+    <Number name="Length"   size="16" endian="big">
+      <Relation type="size" of="Packet"/>
+    </Number>
+    <Number name="IncrementingNumber" size="16"  endian="big">
+      <Fixup class="SequenceIncrementFixup">
+        <Param name="Once" value="true" />
+      </Fixup>
+    </Number>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" />
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 2157.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 00 01                            ????????
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 00 01                            ????????
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 00 01                            ????????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+----
+==================================
+
+
+.Group
+==================================
+The group parameter coordinates the incrementing process among the data elements that specify a fixup with a common group name, as in the following DataModel.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+    <DataModel name='DM'>
+		<Number name='num' size='16'>
+			<Fixup class='SequenceIncrementFixup'>
+				<Param name='Group' value='mygroup'/>
+			</Fixup>
+		</Number>
+		<Number name='num2' size='16'>
+			<Fixup class='SequenceIncrementFixup'>
+				<Param name='Group' value='mygroup'/>
+			</Fixup>
+		</Number>
+	</DataModel>
+
+    <StateModel name="TheState" initialState="initial">
+        <State name="initial">
+          <Action type="output">
+            <DataModel ref="Packet" />
+          </Action>
+        </State>
+    </StateModel>
+
+    <Test name="Default">
+      <StateModel ref="TheState"/>
+
+      <Publisher class="ConsoleHex" />
+    </Test>
+</Peach>
+----
+
+In this example, data elements "num" and "num3" each have a fixup defined with the Group parameter set to "mygroup". This means that both data elements use the same fixup. When fuzzing occurs, the fixup initially assigns the value 1 to num. The next data item, "num2", uses this fixup as well and receives the value 2. 
+
+On the second fuzzing iteration, num and num2 receive the values 3 and 4 from the fixup, respecively.
+
+Now, to contrast this behavior, if the Group parameter is not specified, num uses one fixup that has a starting value of 1; num2 also uses a fixup, albeit a different fixup, that has a starting value of 1. When fuzzing occurs, the fixup associated to num assigns the value 1 to num. The other fixup, associated to num2, assigns the value 1 to num2.
+
+On the second fuzzing iteration, num and num2 receive the next values from their fixups. For num, this value is 2. For num2, the value from the second fixup is 2 as well.
+==================================

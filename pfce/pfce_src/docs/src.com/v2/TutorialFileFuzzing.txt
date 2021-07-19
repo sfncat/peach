@@ -1,0 +1,16 @@
+:toc!:
+= Tutorial: File Fuzzing =
+
+Welcome to the file fuzzing tutorial, part of the Peach Quickstart.  In this tutorial we are going to build a wave (.wav) file fuzzer.  Wave files are based on the http://netghost.narod.ru/gff/vendspec/micriff/ms_riff.txt[RIFF file format].  This format is not overly complex and will show off several features of Peach.  The target of this fuzzer is http://www.mplayerhq.hu/[mplayer], an open-source, cross-platform, command line media player.
+
+== Tutorial Outline ==
+
+ . link:TutorialFileFuzzing/DevelopmentEnvironment.html[Development environment]
+ . link:TutorialFileFuzzing/CreateDataModel.html[Creating the data model]
+ . link:TutorialFileFuzzing/CreateStateModel.html[Creating the state model]
+ . link:TutorialFileFuzzing/ConfigurePublisher.html[Configuring a publisher]
+ . link:TutorialFileFuzzing/AgentAndMonitor.html[Adding an agent and monitor]
+ . link:TutorialFileFuzzing/OptimizeTesting.html[Optimizing test count]
+ . link:TutorialFileFuzzing/RunningInParallel.html[Running in parallel]
+
+link:TutorialFileFuzzing/DevelopmentEnvironment.html[Start >>]

@@ -1,0 +1,17 @@
+:toc!:
+== LengthCalc Type Attribute ==
+
+The _lengthCalc_ attribute defines a scripting expression that returns the elements length as an integer value.
+
+Special variables available:
+
+ * _self_ -- Element we are calculating the length of
+
+=== Examples ===
+
+[source,xml]
+----
+<String value="MAGIC" lengthType="calc" lengthCalc="4+1"/>
+
+<String value="MAGIC" lengthType="calc" lengthCalc="len(self.name)"/>
+----

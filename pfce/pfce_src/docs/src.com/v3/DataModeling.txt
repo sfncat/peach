@@ -1,0 +1,44 @@
+:toc!:
+== Data Modeling ==
+
+Peach Pit files contain at least one DataModel, and possibly more.  DataModels describe data including type information, relationships (size, count, offsets), and other information that allows the fuzzer to perform smart mutations.
+
+DataModels can be reused and referenced by other DataModels allowing complex data definitions to be broken up into readable portions.
+
+=== Data Modeling Elements
+
+ * link:DataModel.html[DataModel]
+ * link:Blob.html[Blob]
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:Custom.html[Custom]
+ * link:Flag.html[Flag]
+ * link:Flags.html[Flags]
+ * link:Number.html[Number]
+ * link:Padding.html[Padding]
+ * link:String.html[String]
+ * link:XmlAttribute.html[XmlAttribute]
+ * link:XmlElement.html[XmlElement]
+
+=== Relations
+
+Relations are used to to link two elements that relate by size, count or offset. An example of this would be a length field that specifies the length of the following data. In Peach you would model this relationship by attaching a Relation element to the length field and link it to the element who's size is needed. Another example would be the count of items in an array. To model this, again a Relation element is added to the data element that contains the count linking it to the array element.
+
+ * link:Relation.html[Relation]
+ 
+=== Fixups and Transformers
+
+Fixups are used to generate a data elements value based on the value of (typically) one or more other elements. An example of this would be generating a CRC32.
+ 
+ * link:Fixup.html[Fixup]
+
+Transformers operate on the data elements current value (default or mutated) performing a one or two way operation such as Base64 encoding or ZIP compression. This way the original value before encoding can be fuzzed.
+
+ * link:Transformer.html[Transformer]
+
+=== Placement
+
+Placement is used to move an element to a different place in the DataModel once the model has been cracked (had data parsed into it). This is useful when parsing complex array structures. This is often used in conjunction with an Offset Relation.
+
+ * link:Placement.html[Placement]
+

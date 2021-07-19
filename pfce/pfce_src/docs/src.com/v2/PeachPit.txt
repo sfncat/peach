@@ -1,0 +1,14 @@
+:toc!:
+== Peach Pit ==
+
+Peach Pit files are XML files that contain all of the information needed for Peach to perform a fuzzing run.  When you fuzz something with Peach you are creating a Peach Pit file.
+
+Peach Pit files contain the following:
+
+ ** link:GeneralConfiguration.html[GeneralConf]
+ ** DataModeling
+ ** link:StateModeling.html[StateModeling]
+ ** link:AgentsMonitors.html[Agents and Monitors]
+ ** link:TestRun.html[Test and Run configuration]
+
+You might also want to know how to link:DebuggingPitFiles.html[debug pit files] and how you can link:ValidatingPitFiles.html[validate your pit files] as well.

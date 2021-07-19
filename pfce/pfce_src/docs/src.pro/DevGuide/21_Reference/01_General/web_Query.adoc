@@ -1,0 +1,84 @@
+[[web_Query]]
+== Web Query
+
+The _Query_ element models an HTTP querystring parameter. This element is only valid when used with a parent element of xref:Action_web[web].
+
+=== Syntax
+
+[source,xml]
+----
+<Action type="web" method="GET" url="http://www.google.com/users">
+    <Query key="first" value="John"/>
+    <Query key="last" value="Smith"/>
+</Action>
+----
+
+=== Attributes
+
+_Required:_
+
+key:: Subsitution identifier
+
+_Optional:_
+
+name:: 
+    Name of parameter.  
+    When not specified, a sanitized version of _key_ will be used to generate a name.
+    The _name_ field is shown in the job metrics.
+xref:value[value]:: 
+    Default value. When used, a DataModel is automatically created and attached to this element.
+    Cannot be used in conjunction with a DataModel child element.
+xref:valueType[valueType]:: Format of value attribute. 
+xref:mutable[mutable]:: 
+    When _value_ attribute is used, this attribute will mark all elements in the automatically generated model with this mutable value.
+
+=== Child Elements
+
+xref:DataModel[DataModel]:: Reference to a DataModel that acts as a source for fuzzed data.
+xref:Data[Data]:: Set of initial data to be cracked into the above DataModel before fuzzing.
+
+=== Examples
+
+.Simple Example
+===================================
+
+A simple web api request with a two _Query_ elements.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="LastName">
+	<String name="value" value="Smith">
+		<Hint name="Peach.TypeTransform" value="false" />
+	</String>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+    
+        <Action type="web" method="GET" url="http://www.example.com/users">
+            
+            <Query key="first" value="John"/>
+            
+            <Query key="last">
+                <DataModel ref="LastName" />
+            </Query>
+            
+            <Response />
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================

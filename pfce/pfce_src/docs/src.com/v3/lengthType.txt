@@ -1,0 +1,22 @@
+:toc!:
+== Length Type Attribute ==
+
+The _lengthType_ attribute defines the unit of length in use.
+
+A length must be defined to use this attribute. 
+
+ * _bits_ -- Length is specified in units of bits
+ * _bytes_ -- Length is specified in unites of bytes (default)
+ * _chars_ -- Length is specified in unites of characters (only applies to link:String.html[String])
+ * _calc_ -- Length is a calulation using a scripting expression.  When set must provide link:lengthCalc.html[lengthCalc] attribute.
+
+=== Examples ===
+
+[source,xml]
+----
+<Blob length="8" lengthType="bytes" value="01 02 03 04 05 06 07 08" valueType="hex" />
+
+<String value="MAGIC" length="5" lengthType="chars"/>
+
+<String value="MAGIC" lengthType="calc" lengthCalc="4+1"/>
+----

@@ -1,0 +1,85 @@
+:targetapp: Mirth Connect
+:protocol: HL7 
+:pitname: HL7 Net TCP MLLP
+:configname: Example-HL7 Net TCP MLLP
+:seedval: 9182
+:stopcase: 15
+:targetexe: /var/targets/MirthConnect/mcserver
+:runimage: HL7-run.png
+[[HL7]]
+=== {protocol}
+
+This configuration will test an application using HL7.
+The application on the trial instance is Mirth Connect
+
+NOTE: Mirth Connect is a Java application, so testing this is slightly 
+different than what might be done for an application written in a non-managed 
+language in terms of the monitors that are used.
+
+[[HL7-run]]
+include::../Common/RunTest.adoc[]
+
+include::../Common/ConfigTest.adoc[]
+
+
+===== Configuring Variables
+
+The first thing you need to configure are the variables that control how {product} will test the application.
+Follow these steps to create a working configuration on your trial instance:
+
+. Click *Configure Variables*.
+. Configure your variables as appropriate for your application.  The following
+should be used for Mirth Connect running on the trial instance:
+.. Target IPv4 Address: set to *127.0.0.1* since that is what {targetapp} is configured to listen on
+.. Target Port: set to *6661*.  {targetapp} has an {protocol} configuration already present that uses this port
+.. Sample Path: Leave the default *{2H}PitLibraryPath##/_Common/Samples/Application*.
+.. Sample Path: Leave the default *{2H}PitLibraryPath##/_Common/Samples/Application*.
+.. Seed File: Leave the default *{asterisk}.hl7*.
+.. Under Advanced Configuration, leave all the defaults as they are acceptable for Mirth Connect.  If you have an application that takes a long time to start up or process messages (e.g. when using a debug build or running on slower hardware), then you may need to increase the values of some or all of these settings.
+.. Under System Defines, do NOT change any of the values present.  These values normally do not require changing.
+.. Once all the settings have the desired values, click *Save*.
++
+image::{images}/HL7-basic-variables.png[]
+
+include::../Common/AddAgent.adoc[]
+
+===== Configuring Monitors
+For this configuration, you will want the following monitors:
+
+* *Process Monitor*.
+This will allow {product} to launch {targetapp} so that it can fuzz the application.
+* *Syslog Monitor*.
+{targetapp} will log exceptions to the syslog, so this monitor will allow {product} to detect faults by monitoring the syslog for exceptions.
+For other applications, this monitor can be useful to gather data about the state of the application when a fault was found, but in this particular case it is the best way to determine if a fault has occurred.
+* *Network Capture monitor*.
+Since {protocol} is a network protocol, this monitor will allow {product} to capture the actual data that was sent and received as a pcap.
+This will help determine what may have caused a fault and could also be useful in trying to create a repro or test case that can aid in creating a fix for the application.
+Any configuration that is fuzzing a network protocol should typically have this monitor.
+
+To add and configure the monitors:
+
+. Click *Add Monitor*.  In the pop-up, scroll down and select Process.  Click *Ok*.
+. Under *Executable*, enter *{targetexe}* which is the location of {targetapp}'s launcher. 
+This will allow the monitor to launch the application when fuzzing starts.
+Do not change any of the other settings for this monitor.
+. Click *Save*.
++
+image:{images}/DICOM-process-monitor.png[]
+. Click *Add Monitor* and select *Syslog*.
+. Leave the defaults for *Interface* and *Port*
+. Under *Fault Regex*, enter *.[a-zA-Z]+Exception:.* so that the monitor will log a fault any time {targetapp} throws an exception.
+This is the best way to detect faults for this particular Java application
+. Click *Save*.
++
+image:{images}/DICOM-syslog-monitor.png[]
+. Click *Add Monitor*.  In the pop-up, scroll down and select *Network Capture* under the *Data Collection* section.  Click *Ok*.
+. Under *Device*, enter *lo* (for loopback, since {targetapp} is listening on the loopback interface)
+. Under *Filter*, enter *port {2H}TargetPort##* to capture all traffic going to or from the port you specified when you configured the variables in the previous section.
+. Click *Save*.
++
+image:{images}/DICOM-network-capture-monitor.png[]
+
+include::../Common/TestConfig.adoc[]
+Follow the steps under <<HL7-run, Running the test>> to start testing the application.
+
+// end

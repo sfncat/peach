@@ -1,0 +1,22 @@
+:toc!:
+== Extending Peach ==
+
+Peach has been designed to be easy to extend.  Extensions are picked up using a process called reflection in which 
+assemblies (.NET DLL's) are found and examined for extensions that should be used by the system.  As such, no
+Peach code must be changed to add an extension, just place your extension DLL in the Peach folder and go.
+
+Development of a Peach extension on Windows requires Visual Studio to build your assembly.  On OS X or Linux the
+Mono runtime is used and has a free compiler/runtime.
+
+Areas of easy extension:
+
+ * *DataElement* -- Types used to model data (String, Number, etc)
+ * *link:CustomFixup.html[Fixup]* -- Typically used for updating Checksums, etc.
+ * *Transformer* -- Static transforms on data such as ZIP/Base64 encode/decode
+ * *link:CustomPublisher.html[Publisher]* -- I/O Interfaces
+ * *Mutator* -- Perform mutations on the data/state model
+ * *Fuzzing Strategy* -- Control how fuzzing is performed
+ * *Agent Channel* -- Communications between Peach and a Peach Agent
+ * *link:CustomMonitor.html[Monitor]* -- Fault detection and data collection classes hosted by agents (local or remote)
+ * *link:CustomLogger.html[Logger]* -- Module used to log information from fuzzing run.
+

@@ -1,0 +1,47 @@
+﻿<p>
+	Welcome to the Peach Fuzzer &reg; UI home page,
+	where you can do the following:
+	<ul>
+		<li>
+			Review results of fuzzing jobs, recent and not so recent
+		</li>
+		<li>
+			Run new fuzzing jobs
+		</li>
+		<li>
+			Replay fuzzing jobs to reproduce issues or to validate fixes of issues
+		</li>
+		<li>
+			Review fuzzing definitions (pits) installed on your system
+		</li>
+		<li>
+			Create and edit test configurations for the various pits
+		</li>
+	</ul>
+</p>
+
+<p>
+	To begin, click on the <i class="fa fa-book"/> Library on the left and 
+	select a pit to configure, then run in a new fuzzing job.
+</p>
+
+<hr/>
+
+<h4>Recent Jobs</h4>
+
+<p>
+	Here are the most recent fuzzing jobs. For any entry, you can perform the following actions:
+	<ul>
+		<li>
+			Click the <i class="fa fa-file-pdf-o"></i> icon 
+			to view the report generated for the fuzzing session.
+		</li>
+		<li>
+			Click the <i class="fa fa-remove"></i> icon 
+			to delete the job.
+		</li>
+	</ul>
+</p>
+
+<peach-jobs limit="10">
+</peach-jobs>

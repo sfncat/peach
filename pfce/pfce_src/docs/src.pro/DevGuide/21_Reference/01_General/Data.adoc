@@ -1,0 +1,80 @@
+[[Data]]
+
+== Data
+
+At the start of Pit processing, all data sets are empty or have their values defined in the data model (using the _value_ attribute). Peach uses the _Data_ element to override a _value_ attribute or to assign a value to create and load the data into a DataModel.
+
+Peach uses the cracking subsystem to map the data to the correct elements. This process fails if the data does not fit.
+
+Data is cracked in a DataModel the same way that we crack an xref:Action_input[input] Action in a StateModel. Currently, the cracking subsystem uses three ways to load data:
+
+* using values from a file
+* via a python expression
+* by setting values field by field
+
+The _Data_ element is a valid top-level element (child of <Peach>) when defining data sets that will be referenced during later processing.  It is also a valid child of xref:Action[Action] and xref:Param[Param] when used to define data or to reference an existing top level definition.
+
+=== Data and _switchCount_
+
+If you specify multiple XML blocks in a data file, use the _switchCount_ attribute with the xref:MutationStrategies[random strategy] to specify the number of iterations performed before switching to the next data file.
+
+If there are multiple _Data_ elements, after a specified number of fuzzing iterations (using _switchCount_), Peach switches the data element that it uses to populate the fuzzing file.
+
+The following example illustrates this using two _Data_ elements. Peach fuzzes with the first _Data_ element for the _switchCount_ number of iterations. Then, Peach switches _Data_ elements and continues fuzzing using the second _Data_ element.
+
+[source,xml]
+----
+
+<DataModel name="MyDataModel">
+   <Block name="FooBlock">
+      <String name="Value" />
+   </Block>
+</DataModel>
+
+<Data name="HelloWorldDataSet">
+  <Field name="FooBlock.Value" value="Hello World!" />
+</Data>
+
+<Data name="LoadFromFile" fileName="sample.bin" />
+
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xref:name[name]:: Name of the Data.
+xref:fileName[fileName]:: Name of file to load, or folder with files to cycle through.
+
+=== Child Elements
+
+ * xref:Field[Field]
+
+=== Examples
+
+.Basic Usage Example
+====================
+Multiple Data elements switch after _switchCount_ iterations.
+
+[source,xml]
+----
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="output">
+      <DataModel ref="TheDataModel" />
+      <Data name="SampleData1">
+        <Field name="Block1.Value" value="Hello World!" />
+      </Data>
+      <Data name="SampleData2">
+        <Field name="Block1.Value" value="Good Afternoon World!" />
+      </Data>
+    </Action>
+  </State>
+</StateModel>
+----
+====================

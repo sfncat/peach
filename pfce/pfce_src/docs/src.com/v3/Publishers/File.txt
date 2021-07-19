@@ -1,0 +1,63 @@
+:toc!:
+== File Publisher
+
+The _File_ publisher will open a file for reading or writing.
+
+=== Parameters
+
+ * _FileName_ -- Name of file to open
+ * _Overwrite_ -- Overwrite existing files (optional, defaults to true)
+ * _Append_ -- Append data to existing file (optional, defaults to false)
+
+=== Actions
+
+ * link:../Action.html#\_output[_output_] -- Data to be written to file
+ * link:../Action.html#\_input[_input_] -- Data to be read from file
+ 
+=== Examples
+
+.Write to file
+[source,xml]
+----
+<DataModel name="Data">
+   <!-- ... -->
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="output">
+      <DataModel ref="Data" />
+    </Action>
+  </State>
+</StateModel>
+
+<Test name="Default">
+  <!-- ... -->
+  <Publisher class="File">
+    <Param name="FileName" value="fuzzed.bin" />
+  </Publisher>
+</Test>
+----
+
+.Read from file
+[source,xml]
+----
+<DataModel name="Data">
+   <Blob/>
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="input">
+      <DataModel ref="Data" />
+    </Action>
+  </State>
+</StateModel>
+
+<Test name="Default">
+  <!-- ... -->
+  <Publisher class="File">
+    <Param name="FileName" value="fuzzed.bin" />
+  </Publisher>
+</Test>
+----

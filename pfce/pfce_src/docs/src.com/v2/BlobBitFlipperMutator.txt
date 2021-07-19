@@ -1,0 +1,12 @@
+:toc!:
+== BlobBitFlipperMutator ==
+
+This mutator will flip a percentage of the bits in a blob. The default percentage of bits flipped is 20%.
+
+_Target Elements_
+
+ * link:Blob.html[Blob]
+
+_Hints_
+
+ * BlobBitFlipperMutator-N -- Set percentage of total bits flipped for this blob. [Peach 2.2 / Peach 3.0]

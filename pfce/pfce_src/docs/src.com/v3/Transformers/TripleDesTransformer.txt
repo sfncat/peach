@@ -1,0 +1,24 @@
+:toc!:
+== TripleDesTransformer
+
+The _TripleDesTransformer_ will produce the bytes from a Triple DES encryption of the value in the parent data model.  
+
+=== Parameters 
+
+ * Key - User provided symmetric key used to encrypt the value
+ * IV  - User provided initialization vector used as the first block for the TripleDES operation  
+
+=== Examples
+
+[source,xml]
+----
+ <DataModel name="Ex1">
+    <String name="TransformMe" value="superdoopersecret">
+      <Transformer class="TripleDes">
+        <Param name="Key" value="ae1234567890aeaffeda214354647586fefdfaddefeeaf12"/>
+        <Param name="IV" value="aeaeaeaeaeaeaeae"/>
+      </Transformer>
+    </String>
+  </DataModel>
+----
+

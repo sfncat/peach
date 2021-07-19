@@ -1,0 +1,35 @@
+=== Dumb Fuzzing
+
+Several types of fuzzing technology exist; one of the most common technologies is
+dumb fuzzing. Dumb fuzzers are a class of fuzzers that operate with the following characteristics:
+
+* Limited or no information or understanding of the target.
+* Limited or no understanding of the data they provide the target.
+
+Dumb fuzzers are popular because they take very little effort to get running and
+can produce good results with certain targets. Since they lack any knowledge about
+the data that the target is consuming, they have limited practical use.
+
+The most common mutation that dumb fuzzers perform is bit flipping. Bit flipping selects a part of data to change and modifies it in a simple manner. One might
+make a single change, or multiple changes depending on the fuzzer. The resulting
+data is sent to the data consumer to see whether it causes the data consumer to misbehave--such as crash.
+
+You can build a dumb fuzzer with Peach. For an example, see the xref:TutorialDumbFuzzing[dumb file fuzzing tutorial.]
+
+Dumb fuzzing makes a great starting point when first fuzzing as it is the easiest
+method to use. However, in many cases, dumb fuzzing does not work. One example
+that prevents a dumb fuzzer from working is the use of checksums in the data format.
+Checksums validate integrity of the data during transmission or storage. Any change to the data will result in a checksum that does not match, as shown in the following image:
+
+image::{images}/DevGuide/FuzzingIntro/crc_missmatch.png[]
+
+The highlighted `FF` in the data stream is a byte that was changed during fuzzing. The new checksum value does not match the one that already exists in the file.
+
+If the data consumer validates the checksum, the validation failure will cause the
+data consumer to stop the test case. If the failure is early in the data consumer's processing cycle (such as upon receipt of the data), the fuzzed data would not deeply test the data consumer; in turn, this action would limit the number of faults that can be found in the test target.
+
+Smart fuzzers allow updating the data to correct for things like checksums, encryption, encoding, and compression so that the data passes through the initial system checks and is processed by the data consumer.
+
+Peach makes it easy to shift from dumb fuzzing into smart fuzzing.
+
+// end

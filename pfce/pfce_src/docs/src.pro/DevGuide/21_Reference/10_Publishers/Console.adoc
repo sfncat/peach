@@ -1,0 +1,58 @@
+<<<
+[[Publishers_Console]]
+== Console Publisher
+
+// Updated:
+// - 02/14/2014: Jordyn
+// Added full example
+
+The _Console_ publisher outputs data to standard out.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="Console" />
+----
+
+=== Parameters
+
+There are no parameters for this publisher.
+
+=== Actions
+
+xref:Action_open[open]:: Initialize stream to standard out.
+xref:Action_close[close]:: Close stream to standard out.
+xref:Action_output[output]:: Data sent via output is written to the console.
+
+=== Examples
+
+.Display data to console
+=========================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41"/>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="Console" />
+  </Test>
+</Peach>
+----
+=========================

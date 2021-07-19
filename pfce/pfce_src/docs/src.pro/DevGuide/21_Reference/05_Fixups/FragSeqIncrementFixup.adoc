@@ -1,0 +1,114 @@
+<<<
+[[Fixups_FragSeqIncrementFixup]]
+== FragSeqIncrement
+
+_FragSeqIncrement_ is a specialized version of xref:Fixups_SequenceIncrementFixup[SequenceIncrement] fixup for use in xref:Frag[Frag] element _Templates_. This fixup should not be used for any other purpose.
+
+_FragSeqIncrement_ supplies a value that increments with each iteration in a fuzzing session. 
+The value supplied for the first iteration starts with 1. This fixup is useful when a field 
+must be a unique value, or a sequenced value every iteration.
+
+This checksum is useful for fuzzing a protocol that contains an increasing numerical sequence. 
+The Fixup produces valid numbers for the data element it modifies. The maximum value supplied 
+by _FragSeqIncrement_ is constrained to the size of the data element.
+
+See also xref:Fixups_SequenceIncrementFixup[SequenceIncrement], xref:Frag[Frag].
+
+NOTE: This fixup must be used in a xref:Frag[Frag] element _Template_ model.
+
+=== Parent Elements
+
+xref:Number[Number]
+xref:String[String]
+
+=== Parameters
+
+Group:: Designates a group name that bundles a single fixup to multiple data elements. The result coordinates the incrementing process with the members of the group.  The default value is "".
+InitialValue:: Sets the initial value for the first iteration. The default value is 1, and the sequence using the default value starts with 1, 2, 3. If InitialValue is set to the value 57, the sequence starts with 57, 58, 59. 
+Offset:: Sets the initial value each iteration to Offset * (Iteration - 1). The default value is null.
+Once:: Increment the value once per iteration. The default value is false.
+
+=== Examples
+
+.Simple Example
+==========================
+
+Produce three fragments with each fragment contianing the current fragment lenght, fragement sequence and total length of data. The Payload is 30 bytes of 0x41.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+    <DataModel name="Fragmented">
+        <Frag fragLength="10" >
+
+            <Block name="Template">
+                <Number name="FragSequence" size="32">
+                    <Fixup class="FragSeqIncrement" />
+                </Number>
+
+                <Blob name="FragData" />
+            </Block>
+
+            <Block name="Payload">
+                <Blob valueType="hex" value="
+                    41 41 41 41 41 41 41 41 41 41
+                    41 41 41 41 41 41 41 41 41 41
+                    41 41 41 41 41 41 41 41 41 41"/>
+            </Block>
+        </Frag>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="outfrag">
+				<DataModel ref="Fragmented"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex"/>
+	</Test>
+</Peach>
+----
+
+The example pit will produce three fragments with 10 bytes of payload per-fragment.
+
+Output from this example:
+
+----
+>peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.87:8888/
+
+[*] Test 'Default' starting with random seed 8670.
+2016-07-12 13:40:06.2441 Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach-pro\output\win_x64_debug\bin\Logs\example.xml_20160712134004\debug.log
+
+[R1,-,-] Performing iteration
+2016-07-12 13:40:06.4156 Peach.Core.Engine runTest: Performing control recording iteration.
+2016-07-12 13:40:06.4457 Peach.Core.Dom.Frag Generating fragments:
+2016-07-12 13:40:06.4617 Peach.Core.Dom.StateModel Run(): Changing to state "Initial".
+2016-07-12 13:40:06.4617 Peach.Core.Dom.Action Run(Action): Outfrag
+2016-07-12 13:40:06.5968 Peach.Pro.Core.Publishers.ConsolePublisher start()
+2016-07-12 13:40:06.5968 Peach.Pro.Core.Publishers.ConsolePublisher open()
+2016-07-12 13:40:06.6008 Peach.Pro.Core.Publishers.ConsolePublisher output(14 bytes)
+00000000   01 00 00 00 41 41 41 41  41 41 41 41 41 41         ....AAAAAAAAAA <1>
+2016-07-12 13:40:06.6008 Peach.Pro.Core.Publishers.ConsolePublisher output(14 bytes)
+00000000   02 00 00 00 41 41 41 41  41 41 41 41 41 41         ....AAAAAAAAAA <2>
+2016-07-12 13:40:06.6008 Peach.Pro.Core.Publishers.ConsolePublisher output(14 bytes)
+00000000   03 00 00 00 41 41 41 41  41 41 41 41 41 41         ....AAAAAAAAAA <3>
+2016-07-12 13:40:06.6008 Peach.Pro.Core.Publishers.ConsolePublisher close()
+2016-07-12 13:40:06.6008 Peach.Core.Engine runTest: context.config.singleIteration == true
+2016-07-12 13:40:06.6008 Peach.Pro.Core.Publishers.ConsolePublisher stop()
+2016-07-12 13:40:06.6008 Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+<1> First fragment. Notice sequence number is 1.
+<2> Second fragment. Notice sequence number is 2.
+<3> Third fragment. Notice sequence number is 3.
+==========================

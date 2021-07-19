@@ -1,0 +1,174 @@
+#!/usr/bin/env python
+
+if 'asciidoctor-pdf' in bld.env.supported_features:
+	# Apply the peach theme to all asciidoctor_pdf builders
+	bld.set_asciidoctor_pdf_theme('../build/assets/themes', 'peach')
+
+	# Apply the datasheet theme to all asciidoctor_html builders
+	bld.set_asciidoctor_html_theme('../build/assets/datasheet')
+
+if 'webhelp' in bld.env.supported_features:
+	# Apply the peach webhelp theme to all webhelp builders
+	bld.set_webhelp_theme('../build/assets/webhelp')
+
+# The following 2 entires generate the Peach Pro doc using outline of v3Q4 update
+# Commnented out while I work on User Guide structuring.
+
+bld(
+	features = 'asciidoctor-pdf',
+	source = 'src.trialguide/TrialGuide/HostedTrialGuideHealthcare.adoc',
+	images = 'src.trialguide/images',
+	name = 'Hosted_Peach_Trial_Guide-Healthcare.pdf',
+	install_path = '${BINDIR}/docs/publish',
+	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+)
+bld(
+	features = 'asciidoctor-pdf',
+	source = 'src.trialguide/TrialGuide/HostedTrialGuideICS.adoc',
+	images = 'src.trialguide/images',
+	name = 'Hosted_Peach_Trial_Guide-ICS.pdf',
+	install_path = '${BINDIR}/docs/publish',
+	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+)
+bld(
+	features = 'asciidoctor-pdf',
+	source = 'src.trialguide/TrialGuide/HostedTrialGuideFileFormat.adoc',
+	images = 'src.trialguide/images',
+	name = 'Hosted_Peach_Trial_Guide-Fileformat.pdf',
+	install_path = '${BINDIR}/docs/publish',
+	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+)
+bld(
+	features = 'asciidoctor-pdf',
+	source = 'src.trialguide/TrialGuide/HostedTrialGuideNetwork.adoc',
+	images = 'src.trialguide/images',
+	name = 'Hosted_Peach_Trial_Guide-Network.pdf',
+	install_path = '${BINDIR}/docs/publish',
+	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+)
+
+
+bld(
+	features = 'asciidoctor-pdf',
+	source = 'src.trialguide/TrialGuide/ClientTrialGuideNetwork.adoc',
+	images = 'src.trialguide/images',
+	name = 'Client_Peach_Trial_Guide-Network.pdf',
+	install_path = '${BINDIR}/docs/publish',
+	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+)
+bld(
+	features = 'asciidoctor-pdf',
+	source = 'src.trialguide/TrialGuide/ClientTrialGuideICS.adoc',
+	images = 'src.trialguide/images',
+	name = 'Client_Peach_Trial_Guide-ICS.pdf',
+	install_path = '${BINDIR}/docs/publish',
+	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+)
+
+devGuide = bld(
+ 	features = 'asciidoctor-pdf',
+ 	source = 'src.pro/DevGuide/DevGuide.adoc',
+ 	images = 'src.pro/images',
+ 	name = 'Peach_Pro_Developer_Guide.pdf',
+ 	install_path = '${BINDIR}/sdk/docs',
+ 	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+)
+
+bld(
+ 	features = 'webhelp',
+ 	source = 'src.pro/DevGuide/DevGuide.adoc',
+ 	images = 'src.pro/images',
+ 	name = 'webhelpDevGuide',
+ 	install_path = '${BINDIR}/sdk/docs/webhelp',
+)
+
+# The following 2 entires generate the Peach Pro User Guide doc using (new in 2015)
+userGuide = bld(
+	features = 'asciidoctor-pdf',
+	source = 'src.pro/UserGuide/UserGuide.adoc',
+ 	images = 'src.pro/images',
+ 	name = 'Peach_Pro_User_Guide.pdf',
+ 	install_path = '${BINDIR}/docs',
+ 	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+ 	extra_install = '${BINDIR}/docs/publish',
+)
+
+bld(
+  	features = 'webhelp',
+  	source = 'src.pro/UserGuide/UserGuide.adoc',
+  	images = 'src.pro/images',
+  	name = 'webhelpUserGuide',
+  	install_path = '${BINDIR}/docs/webhelp',
+  )
+  
+bld(
+  	features = 'doxygen',
+  	doxyfile = 'apidocs/apidocs.conf',
+  	name = 'apidocs',
+  	install_path = '${BINDIR}/sdk',
+  )
+
+installGuide = bld(
+ 	features = 'asciidoctor-pdf',
+ 	source = 'src.pro/UserGuide/InstallationGuide.adoc',
+ 	images = 'src.pro/images',
+ 	name = 'Peach_Pro_Installation_Guide.pdf',
+ 	install_path = '${BINDIR}/docs',
+ 	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+ 	extra_install = '${BINDIR}/docs/publish'
+)
+ 
+whatsNew = bld(
+ 	features = 'asciidoctor-pdf',
+ 	source = 'src.pro/UserGuide/WhatsNew.adoc',
+ 	images = 'src.pro/images',
+ 	name = 'Peach_Pro_Changes.pdf',
+ 	install_path = '${BINDIR}/docs',
+ 	require = '../build/assets/asciidoctor-pdf-extensions.rb',
+ 	extra_install = '${BINDIR}/docs/publish',
+)
+
+check_sources_list = [
+	devGuide,
+	userGuide,
+	installGuide,
+	whatsNew,
+]
+
+def check_sources(ctx, tgs):
+	if 'asciidoctor-pdf' not in ctx.env.supported_features:
+		return
+
+	from waflib import Logs
+	import re
+
+	srcs = set()
+	dirs = set()
+	deps = set()
+	for tg in tgs:
+		for tsk in tg.compiled_tasks:
+			dirs.update([x.parent for x in tsk.inputs])
+			deps.update(tsk.inputs)
+			deps.update(ctx.node_deps.get(tsk.uid(), []))
+
+	for d in dirs:
+		srcs.update(d.ant_glob('**/*'))
+
+	convert = lambda text: int(text) if text.isdigit() else text.lower()
+	alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key.abspath()) ]
+	extras = sorted(srcs.difference(deps), key = alphanum_key)
+
+	for e in extras:
+		Logs.warn('Unreferenced Documentation: %s' % e.path_from(bld.path))
+	if extras:
+		suffix = {}
+		for e in extras:
+			name = str(e)
+			ext = name[-len(name) + name.rfind('.'):]
+			suffix[ext] = suffix.get(ext, 0) + 1
+		for k,v in suffix.iteritems():
+			Logs.warn('Unreferenced \'*%s\' Files: %s' % (k, v))
+
+		Logs.warn('%s Total Unreferenced Documentation Files' % len(extras))
+
+bld.add_post_fun(lambda x: check_sources(x, check_sources_list))

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<Number size="32" signed="false" value="31337" />
+	</DataModel>
+
+	<StateModel name="State" initialState="Initial" >
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+			<Action type="close"/>
+			<Action type="call" method="ScoobySnacks" publisher="Peach.Agent"/>
+		</State>
+	</StateModel>
+
+	<Agent name="Local">
+		<Monitor class="CrashWrangler">
+			<Param name="Executable" value="/Applications/Safari.app/Contents/MacOS/Safari" />
+			<Param name="Arguments" value="fuzzed.bin" />
+
+			<Param name="UseDebugMalloc" value="true" />
+			<Param name="ExploitableReads" value="true" />
+			<Param name="ExecHandler" value="./exc_handler" />
+
+			<Param name="StartOnCall" value="ScoobySnacks" />
+		</Monitor>
+	</Agent>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+		<Agent ref="TheAgent" />
+
+		<Publisher class="File">
+			<Param name="FileName" value="fuzzed.bin"/>
+		</Publisher>
+	</Test>
+</Peach>

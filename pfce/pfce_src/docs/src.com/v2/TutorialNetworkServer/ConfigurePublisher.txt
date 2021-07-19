@@ -1,0 +1,66 @@
+:toc!:
+link:CreateStateModel.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:AgentAndMonitor.html[Next >>]
+
+''''
+
+== Configure Publisher ==
+
+The last thing we need todo before we can try out our nifty fuzzer is to configure a link:Publisher.html[Publisher].  link:Publisher.html[Publisher]s are I/O connectors that implement the plumbing between actions like _output_, _input_, and _call_.  For our file fuzzer we will use the link:Publisher.html[Publisher] called _tcp.Tcp_.  This publisher will allow us to connect to a remote host and send/receive data.
+
+Configuring our publisher is easy, just locate the following XML near the bottom of the +mysql.xml+ file, it will be a child of link:Test.html[Test].
+
+[source,xml]
+----
+<!-- TODO: Complete publisher -->
+<Publisher />
+----
+
+
+Now, this publisher takes two parameters called _host_ and _port_ that will contain the MySQL hostname and port number respectively.
+
+[source,xml]
+----
+<Publisher class="tcp.Tcp">
+	<Param name="host" value="127.0.0.1"/>
+	<Param name="port" value="3306"/>
+</Publisher>
+----
+
+
+Now that we have the publisher configured we can test our fuzzer!
+
+== Testing Fuzzer ==
+
+Lets go ahead and run the fuzzer!  Open up a command window and navigate to the location of +mysql.xml+.  Now run the following command:
+
+----
+c:\mysql>c:\peach\peach.py -t mysql.xml
+
+] Peach 2.2 Runtime
+] Copyright (c) 2004-2008 Michael Eddington
+
+File parsed with out errors.
+
+----
+
+
+Hopefully you got this output and no problems were found.  If a problem was found go back through the prior sections and try and identify the problem.
+
+== Running Fuzzer ==
+
+Now lets actually kick off our fuzzer for real!
+
+----
+c:\mysql>c:\peach\peach.py mysql.xml
+----
+
+
+Use Wireshark to verify the communication is correct.
+
+== Whats Next? ==
+
+Okay, now that we have a running fuzzer we will need to configure a way to detect when our target crashes.  We will also want to collect some information like a stack trace to look at later on.  Head to the next section to learn how to configure an agent and monitor.
+
+''''
+
+link:CreateStateModel.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:AgentAndMonitor.html[Next >>]

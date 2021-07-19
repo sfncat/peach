@@ -1,0 +1,103 @@
+:targetapp: opendnp3
+:protocol: DNP3
+:pitname: DNP3_Slave
+:configname: Example-DNP3_Slave-Basic
+:advancedconfigname: Example-DNP3_Slave-Advanced
+:seedval: 5574 
+:stopcase: 50
+:targetexe: /var/targets/dnp3/outstation-demo
+:advancedtargetexe: /var/targets/advanced/dnp3/oustation-demo
+:runimage: {pitname}/run-test.png 
+:advancedrunimage: {runimage} 
+[[DNP3-Slave]]
+=== {protocol}-Slave
+
+This configuration will test an application using {protocol}.
+ifdef::advancedconfigname[]
+It has two versions, a basic configuration and an advanced configuration.
+The basic configuration is compiled only with the Debug option.
+The advanced configuration is compiled with Address Sanitizer, Debug, and Optimization Level 1 options.
+endif::[]
+
+ifdef::hosted[]
+[[DNP3-Slave-RunTest]]
+include::../Common/RunTest.adoc[]
+endif::[]
+
+include::../Common/ConfigTest.adoc[]
+
+===== Configuring Variables
+
+The first thing you need to configure are the variables that control how {product} will test the application.
+ifdef::advnacedconfigname[]
+Both the Basic and Advanced configuration will use the same variables with the same values.
+endif::[]
+Follow these steps to create a working configuration on your trial instance:
+
+. Click *Configure Variables*.
+. Configure your variables as appropriate for your application.  The following
+should be used for {targetapp} running on the trial instance:
+ifdef::hosted[]
+.. Target IPv4 Address: set to *127.0.0.1*
+endif::[]
+ifndef::hosted[]
+.. Target IPv4 Address: set to the IP address of the target VM, e.g. *192.168.17.145*
+endif::[]
+.. Target Port: Leave the default value of *20000* since {targetapp} will also default to this port.
+.. DNP3 Target Address: Set to *10* to match the configuration of {targetapp}.
+.. DNP3 Source Address: Set to *1* to match the configuration of {targetapp}.
+.. Under *Advanced Configuration*, leave all the defaults as they are acceptable for {targetapp}.
+.. Under System Defines, do NOT change any of the values present.  These values normally do not require changing.
+. Once all the settings have the desired values, click *Save*.
++
+ifdef::hosted[]
+image::{images}/{pitname}/variables.png[]
+endif::[]
+ifndef::hosted[]
+image::{images}/{pitname}/variables-client.png[]
+endif::[]
+
+include::../Common/AddAgent.adoc[]
+
+:configtype: basic
+:compileroptions: Debug enabled
+:gdb:
+:pcap: port ##TargetPort##
+
+include::../Common/ConfigMonitors.adoc[]
+
+:configtype: advanced
+:compileroptions: Debug, Address Sanitizer (ASan), and Optimization level 1
+:asanwarn:
+:gdb!:
+:process:
+:targetexe: /var/targets/advanced/dnp3/outstation-demo
+
+include::../Common/ConfigMonitors.adoc[]
+
+:pcap!:
+:process!:
+:configtype!:
+:asanwarn!:
+:compileroptions!:
+
+include::../Common/TestConfig.adoc[]
+Follow the steps under <<DNP3-Slave-RunTest, Running the test>> to start testing the application.
+
+ifndef::hosted[]
+[[DNP3-Slave-RunTest]]
+include::../Common/RunTest.adoc[]
+endif::[]
+
+:targetapp!: 
+:protocol!: 
+:pitname!: 
+:configname!:
+:advancedconfigname!:
+:seedval!:
+:stopcase!:
+:targetexe!: 
+:advancedtargetexe!: 
+:runimage!:
+:advancedrunimage!:
+// end

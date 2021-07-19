@@ -1,0 +1,18 @@
+:toc!:
+= crypto.Crypt =
+
+UNIX style crypt. If no salt is provided, the first two chars of data are used. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="crypto.Crypt"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +crypto.Crypt+, +Crypt+

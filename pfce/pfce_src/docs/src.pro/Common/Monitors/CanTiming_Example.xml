@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach>
+
+  <DataModel name="CanId" mutable="false">
+    <Number name="Value" size="29" signed="false" 
+      endian="big" mutable="false" />
+  </DataModel>
+  
+  <DataModel name="Standard_Message_1_3">
+    <Number name="Signal_8_VtSig" size="8" signed="false" value="170" />
+  </DataModel>
+  
+  <StateModel name="TheStateModel" initialState="SendCanFrames">
+    <State name="SendCanFrames">
+      <Action name="SendCanFrame_3" type="call" method="Send">
+        <Param name="Id">
+          <DataModel ref="CanId" />
+		  <Data>
+			<Field name="Value" value="0x1"/>
+		  </Data>
+        </Param>
+        <Param name="Data">
+          <DataModel ref="Standard_Message_1_3" />
+        </Param>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Agent name="Local">
+    <Monitor class="CanTiming">
+        <Param name="CanDriver" value="Vector XL"/>
+        <Param name="CanChannel" value="1"/>
+        <Param name="CanBitrate" value="500000"/>
+        <Param name="Id" value="0x07DC"/>
+        <Param name="Window" value="500"/>
+    </Monitor>
+  </Agent>
+
+  <Test name="Default" maxOutputSize="64">
+    <Agent ref="Local"/>
+    <StateModel ref="TheStateModel" />
+    <Publisher class="Can">
+	  <Param name="Driver" value="Vector XL" />
+	  <Param name="Channel" value="1" />
+	  <Param name="Bitrate" value="500000" />
+    </Publisher>
+  </Test>
+</Peach>

@@ -1,0 +1,25 @@
+:toc!:
+= process.WindowsService (Peach 2.3) =
+
+This monitor controls and monitors a Windows service.  It's capable of monitoring local or remote services.
+
+[source,xml]
+----
+<Monitor class="process.WindowsService">
+  <Param name="Service" value="w3c" />
+  <Param name="RestartOnEachTest" value="false" />
+  <Param name="FaultOnEarlyExit" value="false" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * Machine -- Machine name running service [optional, defaults to localhost]
+ * Service -- Short service name [required]
+ * RestartOnEachTest -- Restart service on each test [option, defaults to false]
+ * FaultOnEarlyExit -- Raise a fault if service shutdown unexpectedly [optional, defaults to true]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

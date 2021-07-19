@@ -1,0 +1,27 @@
+<<<
+[[Import]]
+== Import
+
+The Import element applies to only Python files. It allows you to import custom Python modules to use in your Pit file. 
+
+_Import_ works like the Python import keyword.
+
+=== Syntax
+
+[source,xml]
+----
+<Import import="MyCode" />
+----
+
+=== Attributes
+
+_Required:_
+
+import:: Same as python import keyword. A file must exist with a +.py+ postfix.
+
+_Optional:_
+
+None.
+
+// == Examples
+// TODO Import examples

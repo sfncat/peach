@@ -1,0 +1,16 @@
+:toc!:
+== SHA1Transformer
+
+The _SHA1Transformer_ will produce a SHA1 hash of the value in the parent data model.  
+
+=== Examples
+
+[source,xml]
+----
+ <DataModel name="Ex1">
+    <String name="TransformMe" value="Password!">
+      <Transformer class="Sha1"  />
+    </String>
+  </DataModel>
+----
+

@@ -1,0 +1,154 @@
+[[web_Path]]
+== Web Path
+
+The _Path_ child element specifies an HTTP path identifier used by the parent xref:Action_web[web] action. All _Path_ elements must have a matching subsitution identifier in the _web_ action URL. The identifier must match the value of the _Path_ _id_ attribute.
+
+[source,xml]
+----
+<Action type="web" method="GET" url="http://www.google.com/product/{id}">
+    <Path key="id" value="100"/>
+</Action>
+----
+
+_Attributes:_
+
+_Required:_
+
+key:: Subsitution identifier
+
+_Optional:_
+
+name:: 
+    Name of parameter.  
+    When not specified, a sanitized version of _key_ will be used to generate a name.
+    The _name_ field is shown in the job metrics.
+xref:value[value]:: Default value.
+xref:valueType[valueType]:: Format of value attribute.
+xref:mutable[mutable]:: Mutable
+
+=== Child Elements
+
+xref:DataModel[DataModel]:: Reference to a DataModel that acts as a source for fuzzed data.
+xref:Data[Data]:: Set of initial data to be cracked into the above DataModel before fuzzing.
+
+=== Examples
+
+.Simple Example
+===================================
+
+A simple web api request with a single _Path_ element.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+    
+        <Action type="web" method="GET" url="http://www.example.com/product/{id}">
+            <Path key="id" value="1"/>
+            
+            <Response />
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================
+
+.Path with DataModel
+===================================
+
+A simple web api request with a single _Path_ element.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+<DataModel name="PathValue">
+    <String value="foo"/>
+    <String value="-" />
+    <String value="bar" />
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+    
+        <Action type="web" method="GET" url="http://www.example.com/product/{id}">
+            <Path key="id">
+                <DataModel ref="PathValue" />
+            </Path>
+            <Response />
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================
+
+.Path with Data sets
+===================================
+
+A simple web api request with a single _Path_ element.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+<DataModel name="PathValue">
+    <String name="Value"/>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+    
+        <Action type="web" method="GET" url="http://www.example.com/product/{id}">
+            <Path key="id">
+                <DataModel ref="PathValue" />
+                <Data>
+                    <Field name="Value" value="100" />
+                </Data>
+                <Data>
+                    <Field name="Value" value="101" />
+                </Data>
+                <Data>
+                    <Field name="Value" value="102" />
+                </Data>
+            </Path>
+            <Response />
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================

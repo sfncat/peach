@@ -1,0 +1,90 @@
+<<<
+[[Publishers_WebSocket]]
+== WebSocket Publisher
+
+The _WebSocket_ publisher allows rapid delivery of fuzzing data to browsers using a web socket. 
+
+The web socket publisher works through a simple JSON based protocol. The browser evokes a JavaScript handler to accept data from the fuzzer and display it. The iterations wait for the data to be fully loaded prior to completing an iteration. 
+
+Peach provides a fuzzer template with a placeholder to drop the encoded data. The client code loads the template into an iframe.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="WebSocket">
+    <Param name="Port" value="8080"/>
+    <Param name="Template" value="peach_ws_template.html"/>
+    <Param name="Publish" value="base64"/>
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Template:: Data template for publishing. The template contains the HTML that is loaded into an iframe element in the browser each iteration. It must contain the _DataToken_ placeholder which will be replaced with the data based on the _Publish_ parameter.
+
+_Optional:_
+
+Port:: Port to listen for connections on. Defaults to +8080+.
+Publish:: How to publish data, base64 or URL. Defaults to +base64+.
+DataToken:: Token to replace with data in template. Defaults to `##DATA##`.
+Timeout:: Time in milliseconds to wait for client response. Defaults to +60000+.
+
+=== Actions
+
+xref:Action_output[output]:: Generate and send _Template_
+ 
+=== Examples
+
+.Basic Usage Example
+====================
+A working example of the WebSocket publisher comes with the {product} binary distribution in the _samples_ folder. The full example is a combination of four files and is too long to list in this document. The list of files is below.
+
+websocket.xml:: Pit file
+peach_ws_client.html:: HTML file that is loaded into browser
+peach_ws_template.html:: Template for HTML generated and sent to target
+peach_ws_client.js:: JavaScript code used by _peach_ws_client.html_
+
+[source,xml]
+.websocket.xml
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <Blob/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="Initial">
+    <State name="Initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel"/>
+        <Data fileName="samples_png" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Agent name="TheAgent">
+    <Monitor class="WindowsDebugger">
+      <Param name="Executable" value="C:\Program Files (x86)\Mozilla Firefox\firefox.exe" />
+      <Param name="Arguments" value="peach_ws_client.html" />
+    </Monitor>
+  </Agent>
+
+  <Test name="Default">
+    <Agent ref="TheAgent"/>
+    <StateModel ref="TheState"/>
+
+    <Publisher class="WebSocket">
+      <Param name="Port" value="8080"/>
+      <Param name="Template" value="peach_ws_template.html"/>
+      <Param name="Publish" value="base64"/>
+    </Publisher>
+  </Test>
+
+</Peach>
+----
+====================

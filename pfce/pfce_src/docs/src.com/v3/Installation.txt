@@ -1,0 +1,56 @@
+:toc!:
+== Installing Peach 3 ==
+
+The following sections list the steps needed to install Peach on different 
+operating systems.  Peach 3 is a complete rewrite of Peach 2 utilizing 
+Microsoft.NET/Mono and the C# language.  The features available are very 
+similar in this first release to Peach 2 with the main changes being under 
+the hood.  Our initial testing shows Peach 3 to be 3-4 times faster than Peach 2.3.
+
+== Install Binary Distribution ==
+
+_Windows_
+
+ . Install http://www.microsoft.com/en-us/download/details.aspx?id=17718[Microsoft.NET v4 Runtime]
+ . Install http://msdn.microsoft.com/en-us/library/windows/hardware/ff551063(v=vs.85).aspx[Debugging Tools for Windows]
+ . Unzip Peach binary distribution to a working folder
+ . Your now ready to start using Peach 3!
+
+_If you would like to enable network captures when fuzzing network protocols then also install http://wireshark.org[Wireshark] or http://www.winpcap.org/[Winpcap]._
+
+_OS X_
+
+ . Install latest http://www.go-mono.com/mono-downloads/download.html[Mono packages]
+ . Install Crash Wrangler (link:/images/44947_crashwrangler.zip[download])
+ . Unzip Peach binary distribution to a working folder
+ . Your now ready to start using Peach 3!
+
+_Linux_
+
+ . Install latest Mono packages
+ .. Ubuntu/Debian: mono-complete package
+ .. SUSE: See link:http://www.go-mono.com/mono-downloads/download.html[download instructions]
+ . Unzip Peach binary distribution to a working folder
+ . Your now ready to start using Peach 3!
+
+== Building Peach 3 from Source ==
+
+_Windows_
+
+ . Install http://www.microsoft.com/en-us/download/details.aspx?id=8515[Microsoft.NET v4 SDK]
+ . Install http://msdn.microsoft.com/en-us/library/dd831853(v=vs.100).aspx[Visual Studio 2010] with http://www.microsoft.com/en-us/download/details.aspx?id=23691[SP1]
+ . Install a recent version of http://www.python.org/getit/[Python 2]
+ . Unzip Peach source code to a working folder or use GIT to grab the latest source code
+ . Run "waf.bat configure"
+ . Run "waf.bat install"
+
+You will now have an "output" folder with binaries.
+
+_OS X & Linux_
+
+ . Install http://www.go-mono.com/mono-downloads/download.html[Mono with compilers]
+ . Unzip Peach source code to a working folder or use GIT to grab the latest source code
+ . Run "./waf configure"
+ . Run "./waf install"
+
+You will now have an "output" folder with binaries.

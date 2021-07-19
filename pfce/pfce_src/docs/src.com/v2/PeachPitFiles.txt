@@ -1,0 +1,18 @@
+:toc!:
+== Peach Pit Files ==
+
+Peach Pit's are XML files that instruct Peach on how to fuzz something.  Weather it's a network protocol, a file format, or a COM object you will create one or more of these XML files.
+
+The files contain a number of different such as the following:
+
+*General Configuration*
+
+Configuration options, and imports.
+
+*Data Modeling*
+
+The core part of your fuzzer definition are the data models.  They tell Peach how to construct and parse data providing type information, relationships, etc.
+
+*State Modeling*
+
+Another aspect to ... [TODO FINISH]

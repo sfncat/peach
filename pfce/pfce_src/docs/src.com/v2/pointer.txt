@@ -1,0 +1,29 @@
+:toc!:
+== Pointer Attribute ==
+
+The pointer attribute is only used when modeling C structures that will be published by a publisher that supports the ctypes interface.  This attribute allows modeling types that are wrapped in a pointer.
+
+See also: link:pointerDepth.html[pointerDepth]
+
+[source,xml]
+----
+
+<Block name="HelloWorld" pointer="true">
+  <String value="Hello world!" />
+</Block>
+----
+
+
+Would result in the following ctypes code:
+
+[source,python]
+----
+class CustomStructure(ctypes.Structure):
+    _fields_ = [ ("HelloWorld", c_char_p) ]
+
+block = CustomStructure()
+block["HelloWorld"] = c_char_p("Hello world!")
+
+result = POINTER(block)
+----
+

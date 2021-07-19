@@ -1,0 +1,15 @@
+<<<
+[[Mutators_StringCaseLower]]
+== StringCaseLower
+
+This mutator produces a single test case by making the characters in the string all lower case. This mutator is not enabled for strings that contain all lowercase data.
+
+=== Supported Elements
+
+* xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

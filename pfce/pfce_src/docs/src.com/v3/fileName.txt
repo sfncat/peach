@@ -1,0 +1,8 @@
+:toc!:
+== fileName ==
+
+When used with the link:Data.html[Data] element, this attribute can specify a single file ("+sample.png+"), or multiple files by pointing to a folder ("+samples+") or providing a file glob ("+samples/*.jpg+").
+
+If multiple files are specified by suppling a folder or file glob, the attribute _switchCount_ with the link:MutationStrategies.html[random strategy] can be used to specify the number of iterations performed before switching to the next file.
+
+*NOTE:* Multiple files are only supported by the random mutation strategy!

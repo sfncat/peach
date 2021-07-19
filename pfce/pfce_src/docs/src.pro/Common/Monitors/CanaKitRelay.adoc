@@ -1,0 +1,189 @@
+<<<
+[[Monitors_CanaKitRelay]]
+== CanaKitRelay Monitor
+
+*Monitor category*: *Automation*
+
+The _CanaKitRelay_ monitor provides automation to a number of test configurations:
+
+* Control power to an external device that is the fuzzing target.
+You can turn it on at the start of the test,
+then toggle power after a fault occurs to return the device to a known, stable state.
+* Control a supporting device in a fuzzing test configuration.
+Supporting devices can include recording devices,
+lighting,
+heating devices,
+sound or motion generators.
+An example is turning on an espresso machine after every 10,000th test iteration.
+* Emulate a button push by inserting the device into a circuit containing the button.
+The idea is to automate the press of a button,
+such as `NumLock`,
+or the play button on a surveillance device.
+* For simulating the attachment or removal of a cable,
+such as USB,
+by routing the power line (VCC) through the relay.
+
+The CanaKit is an external product that you can add as part of your test configuration.
+The kit consists of 4 relays.
+A relay is an electrically operated switch that uses an electromagnet to operate a switching mechanism. Each relay in the kit is capable of controlling a 5-amp,
+110V AC or a 24V DC circuit.
+Communication with the kit occurs over USB.
+
+For more information on the kit,
+including configurations,
+installation,
+and the relay command set,
+see http://www.canakit.com/4-port-usb-relay-controller.html[CanaKit 4-Port USB Relay Controller].
+
+You can purchase the CanaKit from the manufacturer at the previous web site or from Amazon.com.
+In each case,
+the kit price is about $60.00 U.S. plus shipping costs.
+
+The _CanaKitRelay_ monitor controls one relay in a kit.
+Use one monitor per relay to control multiple relays concurrently.
+Within a fuzzing session,
+the monitor can trigger the relay at the following times:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* During the detection of a fault
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+
+The following diagram shows a sample configuration that controls power through Relay 1.
+
+image::{images}/Common/Monitors/CanaKitRelay.png[scalewidth="75%"]
+
+Each relay supplies three terminals:
+Normally Open (NO),
+Common (COM),
+and Normally Closed (NC).
+Basic configurations will connect the hot wire to Common and the other wire to either NO or NC.
+For DC connections,
+attach the anode (+) to the Common terminal.
+
+NO provides an open circuit when the relay is off.
+NC provides a closed circuit when the relay is off,
+giving opposite on/off states from NO.
+The following diagram shows the terminal layout and imagines that Relay 1 is On.
+
+image::{images}/Common/Monitors/CanaKitRelay_Terminals.png[scalewidth="75%"]
+
+TIP: The CanaKit Relay requires a driver that is available at the supplier's website.
+At the time of this writing,
+the driver is unsigned,
+which forces you to turn off Driver Signing Enforcement when installing the driver in 64-bit Windows 8.
+For instructions on how to install unsigned drivers in this environment,
+see http://www.howtogeek.com/167723/how-to-disable-driver-signature-verification-on-64-bit-windows-8.1-so-that-you-can-install-unsigned-drivers/[How to Disable Driver Signature Verification on 64-Bit Windows 8.1].
+
+After installing the CanaKit device driver,
+connect the unit to your PC.
+Windows dynamically assigns a serial port to the USB channel for the connection.
+You can see the port assignment by looking at the `Ports(COM and LPT)` entry in the Device Manager.
+The Device Manager is available from the System applet in the Control Panel.
+
+NOTE: For controlling power to devices using 3-prong outlets, Peach
+provides the xref:Monitors_IpPower9258[IpPower9258],
+xref:Monitors_ApcPower[ApcPower], and
+xref:Monitors_SnmpPower[SnmpPower] monitors.
+
+=== Parameters
+
+_Required:_
+
+SerialPort::
+Serial port for the board (such as COM2).
+
+RelayNumber::
+Relay to trigger (1, 2, 3, or 4).
+Each relay number corresponds to a single relay in the kit, as shown in the first diagram.
+
+_Optional:_
+
+Action::
+Perform an action on the specified relay, defaults to ToggleOff.
+Valid actions include the following:
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Action     |Description
+|ToggleOff  |Sets the relay to the OFF position, then sets the relay to the ON position.
+|ToggleOn   |Sets the relay to the ON position, then sets the relay to the OFF position.
+|SetOn      |Sets the relay to the ON position.
+|SetOff     |Sets the relay to the OFF position.
+|==========================================================
+
+StartOnCall::
+Toggle power when the specified call is received from the state model.
+This value is used only when the 'When' parameter is set to `OnCall`.
+
+ToggleDelay::
+Pause in milliseconds between off/on, defaults to `500`.
+Formerly named OnOffPause.
+
+When::
+Specify one of the following values to determine when a relay should be toggled:
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"When" Setting              |Description
+|DetectFault                 |
+Toggle power when checking for a fault.
+This occurs after OnIterationEnd.
+|OnStart                     |
+Toggle power when the fuzzing session starts.
+This occurs once per session.
+|OnEnd                       |
+Toggle power when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Toggle power at the start of each iteration.
+|OnIterationEnd              |
+Toggle power at the end of each iteration.
+|OnFault                     |
+Toggle power when any monitor detects a fault.
+This is the default setting.
+|OnIterationStartAfterFault  |
+Toggle power at the start of an iteration that immediately follows a fault detection.
+|OnCall                      |
+Toggle power when the call specified by the 'StartOnCall' parameter is received from the state model.
+|==========================================================
++
+.When Choices for Performing an Action
+image::{images}/Common/Monitors/Timings_SSH.png[scalewidth="75%"]
+
+
+=== Examples
+
+.Reset power on Relay 1 +
+
+This uses the CanaKitRelay monitor to reset relay{nbsp}1,
+which toggles the power off,
+then back on.
+A device attached to this relay will restart when the relay resets.
+The default setting for the 'When' parameter is `OnFault`,
+so the relay will be toggled after a fault is detected.
+
+ifdef::peachug[]
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter            |Value
+|SerialPort           |`COM5`
+|RelayNumber          |`1`
+|==========================================================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+===========================
+[source,xml]
+----
+include::CanaKitRelay_Example.xml[]
+----
+===========================
+
+endif::peachug[]

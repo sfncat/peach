@@ -1,0 +1,13 @@
+[appendix]
+== Common Tasks
+
+This section includes more detailed instructions on how to perform the more
+frequent tasks in this document.
+
+include::01_AddAgent.adoc[]
+
+include::02_UsingVariables.adoc[]
+
+include::03_Faults.adoc[]
+
+//end

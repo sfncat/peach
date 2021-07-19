@@ -1,0 +1,853 @@
+Peach Farm User Guide
+=====================
+:author:	Deja vu Security
+:email:		peach@dejavusecurity.com
+
+// * Document the web ui
+//  * What each screen does
+//  * How to look through fault data
+//  * How to download job run logs
+//  * What is the bucketing
+
+// * Introduction
+// * What is farm
+// * What is it's perpose
+// * How does it work at a high level
+//  * How do nodes register, etc.
+// * Use of tags
+//  * Multiple oses, targets, architectures
+// * States of nodes
+//  * How do you deal with a node in error state?
+//  * How do you restart an errored node?
+// * What are jobs
+// * What are faults
+// * etc.
+
+[[Preface]]
+== Preface
+
+This book is the official user guide documentation of Peach Farm. 
+It has been written by the Peach Farm team and represents a concerted effort to fully document all of the Peach Farm features. 
+This is the first publicly available version of Peach Farm.
+
+== Introduction
+
+=== What Is Peach Farm
+
+Peach Farm extends the functionality of Peach Enterprise by distributing or replicating test work across multiple machines or Peach Farm Nodes.
+Using a multiple server environment, typically a network of virtual machines, Peach Farm enables many instances of Peach to run in an automated fashion.
+
+=== Purpose of Peach Farm
+
+Peach Farm enables many instances of Peach to run in an automated fashion.
+The advantages of using Peach Farm include:
+
+1) Increase the rate at which bugs are found.
+If one instance of Peach finds one bug per hour for your given target application, 10 Peach Farm Nodes may increase the rate to 10 bugs per hour or may find the single bug in 6 minutes.
+Note: The above statement is a simplified example based on unrealistic assumptions, not a true claim of performance.
+
+2) Automate the use of Peach.
+When a single instance of Peach is not performant enough for your testing requirements, Peach Farm can run many instances of Peach without management of the individual instances.
+
+3) Manage Peach on many machines with a mix of processor architectures and operating systems.
+A single instance of Peach Farm, using a single Controller service, can manage many Nodes running on a mix of operating systems and processor architectures.
+Using Tags for identifying Nodes a Peach Farm administrator can manage many Jobs specific to operating system or target application,
+or Jobs that test applications on many operating systems at once.
+
+4) Centralized bug information collection.
+While the typical use of Peach generates text files as it encounters bugs, Peach Farm stores all bug information in a centralized database.
+This brings the many common advantages of databases such as searching, sorting, and efficient retrieval and display from supporting applications.
+
+5) Web based monitoring application.
+Peach Farm includes a web application for monitoring Jobs and Nodes, viewing reported errors from Peach Farm, and a browser for all Faults (bugs) reported from individual Peach instances.
+Other features include downloading Peach output text files and PDF reporting of Fault information and metrics.
+
+
+=== How Peach Farm Works     
+
+Controller Service: This service handles all Admin commands and manages all Nodes.
+Its primary responsibility is to interpret Admin commands and distribute commands to Nodes if necessary.
+
+Node Service: This service handles the running of Peach and collection of data to the databases.
+One Node installation will be installed on each machine, virtual or otherwise, that is intended to run Peach.
+
+Reporting Service: This service handles PDF report generation.
+
+Admin Console: This application is used to send commands to the Controller.
+When the Controller is done processing the command, the Admin Console will display the result.
+
+Monitor Web Application: This web based tool is for monitoring Job progress, monitoring Node status, display of Fault information, and retrieval of PDF reports and Fault data.
+
+== Installation
+
+include::Install.txt[]
+
+
+== Terms and Definitions
+
+Job - A Peach Farm Job encapsulates all the running instances of Peach for a given Pit and its dependencies.
+When you initiate a Start command with the Peach Farm Admin tool, you are starting a Job.
+The Admin tool will return a JobID identifying the Job. 
+You will also see a list of Jobs in the Peach Farm Monitor web site.\
+
+Fault - Faults are records of errors or exceptions from the target application being fuzzed.
+Peach collects these exceptions along with other information such as stack traces and input files to form a Fault.
+Faults are potential bugs within the target application.
+
+Controller - The Peach Farm Controller is the service that takes commands from the Admin tool,
+distributes them to Nodes if necessary, and returns any resulting information. 
+The Controller also handles Node management.
+
+Node - Nodes do the work of running Peach as part of a Job.
+Many Nodes will be a part of a Peach Farm deployment.
+
+== Targeting Specific Nodes
+
+Each Node instance has a configuration file called node.config.
+The configuration file is in XML format and contains connection information for communicating with the Controller Service as well as an element for Tags.
+Tags are set on individual Nodes to indicate the capabilities, operating environment, or target application that is installed.
+These Tags can be named freely and are used as a means of selecting Nodes for Jobs.
+
+.Example
+[source,xml]
+----
+<Tags>
+	<add name="Windows" />
+	<add name="x64" />
+	<add name="MyApplication" />
+</Tags>
+----
+Tags do not affect how the Node operates, they're only used as identifiers.
+You may specify as many or as few Tags as you want.
+Name them in a way that is meaningful to you and corresponds to how you would use them to select a set of Nodes for running a Job.
+Tags are especially useful if your Peach Farm environment contains many machines running a mix of operating systems, processor architectures, or applications for test.
+To relate Tags to Admin commands, let's look at an example:
+----
+pf_admin -start -t Windows mypit.xml
+----
+This command will run mypit.xml on all available Nodes that have a Tag of "Windows". 
+Here's another example:
+----
+pf_admin -start -n 5 Windows,x64 mypit.xml
+----
+This command will select the first 5 available nodes that have both a Tag of "Windows" and "x64". 
+To specify multiple tags, delimit them with a comma.
+The Controller will match Nodes based on ALL Tags specified.
+
+=== How Nodes Register ===
+
+Referring to the same node.config from above, when the Node starts it will send heartbeat messages via RabbitMQ to the Controller Service.
+Nodes will be deemed available for use by the Controller when the Controller receives a given Node's first heartbeat.
+
+=== Understanding Node Status ===
+
+Each instance of the Node service sends a heartbeat message containing its status and other information once every 10 seconds.
+Nodes can have these status values: Alive, Running, Error, and Stopping
+
+.Node Statuses
+[options="header"]
+|=======================
+|Status		|Description
+|Alive
+|The Node is available for running Jobs.
+The Controller will select Nodes with this status when Start Peach commands are received.
+
+|Running
+|The Node is currently running a Peach Job. 
+When viewing the status of a Node, Running Nodes will also report the JobID of the Job currently being run.
+
+|Stopping
+|The Node is currently in the process of shutting down. 
+A Node won't accept commands in this state and Stopping is used by the Controller to remove the Node from the list of selectable Nodes for Jobs.
+
+|Error
+|Error is not treated as a status, but rather a notification that the Node has encountered an error. 
+When an error is encountered, the Node will send one Error heartbeat, then recover, and go to an Alive status. 
+The most common causes of an Error heartbeat is a misconfigured Pit file or lack of processor or memory resources on the Node for running the Job.
+It is not likely that administrators of Peach Farm will see a Node in an Error state.
+Use the admin command -errors to view a list of errors.
+|=======================
+
+=== Understanding Jobs ===
+
+A Job is a unified run of Peach on one or more Nodes. 
+It is identified by a 12 character JobID. 
+When a Start command is sent, the Controller will select Nodes based on the parameters and tell them to start running the Job.
+The Controller will then reply back to the Admin with the new JobID.
+
+.Example
+----
+C:\pf>pf_admin -start -t Windows samples\DebuggerWindows.xml	# <1>
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+Waiting for response...
+Start Peach Success						# <2>
+User Name: Administrator					# <3>	
+Pit File: DebuggerWindows					# <4>
+Job ID: 6AB0409D83AD						# <5>
+----
+<1> A command line example. All nodes with Tag "Windows" are selected from the list of Nodes, DebuggerWindows.xml is the Pit file to execute
+<2> Indicates that the Start command was a success. 
+This might read "Start Peach Failed" along with an error if there weren't enough matching Nodes or if there was an error in the Pit file.
+<3> User name of the person who started the job, should correspond to your own login.
+<4> Pit file name. Should correspond to the one that was typed into the command.
+<5> The ID of the Job. Use this to query for more information on the Monitor Web Application or by the -jobinfo command.
+
+To see more information about a Job, use the -jobinfo command.
+
+.Example
+----
+C:\pf>pf_admin -jobinfo 6AB0409D83AD	# <1>
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+JobID:  6AB0409D83AD			# <2>
+User Name:      Administrator
+Pit Name:       DebuggerWindows
+Start Date:     1/25/2014 3:08:51 AM
+Iterations:     27
+
+Running Nodes:				# <3>
+Name            Status  Last Updated             Job ID       Iterations
+--------------- ------- ------------------------ ------------ ----------------
+10.0.1.44       Running 1/24/2014 7:14:11 PM     6AB0409D83AD 14
+10.0.1.67       Running 1/24/2014 7:14:13 PM     6AB0409D83AD 13
+----
+<1> A command line example that gets the Job information for the Job that was started in the previous example.
+<2> The ID of the Job
+<3> The list of Nodes that are currently running the Job, which includes their last status update date and current iteration count.
+
+
+.Job Statuses
+[options="header"]
+|=======================
+|Status		|Description
+|Inactive
+|The Job has been completed or stopped.
+
+|Active
+|The Job is currently running on one or more Nodes
+
+|Error
+|A Node running this job has encountered an error.
+|=======================
+
+NOTE: While you may never see a Node in an Error state, you may see a Job in an Error state.
+If a Job is in an Error state it is because it received one or more Error heartbeats from the Nodes.
+A Job may continue running on Nodes that haven't errored.
+Be sure to check the status of each Node to confirm whether or not any of them are still running the Job.
+If you want to sto
+
+== Web Monitor
+
+=== Jobs View
+
+.Jobs View
+image::monitor-jobs.png[]
+
+Status: Indicates the status of a Job. 
+Possible values are Inactive, Running, and Error.
+Inactive means completed or stopped.
+Running means actively fuzzing on one or more Nodes.
+Error means that an error was reported from a Node during the running of a Job.
+
+Job ID: The ID of the Job.
+This value is returned in the Admin tool when creating a Job.
+Use the Job ID in Job related Admin tool commands.
+
+Pit File: The name of the Pit File submitted with the Job.
+
+Owner: The user name of the person that submitted the Job.
+
+Start Date: The date and time when the Job was started.
+
+Iterations: The total number of iterations run by Nodes for a Job.
+
+Job Input: A link to the files submitted as part of the Job.
+Click it to download the Job input files, it will be a ZIP file containing the Pit File at a minimum along with a Defines File and/or sample data files if they were included in the Job.
+
+Faults: A link to the Faults View, which will show all the Faults reported by Peach for that Job.
+The number between the parentheses indicated the number of Faults collected.
+
+PDF Report: A status of PDF Report generation or a link to the processed PDF Report.
+The PDF Report will be generated when a Job completes or is stopped.
+While the Job Status is Running, the PDF Report column will read "Waiting for Job completion".
+During the processing of the PDF Report, the column will read "Processing".
+When the PDF Report has been fully generated, the column will read "Download" and will be a link to download the file.
+
+=== Nodes View
+
+.Nodes View
+image::monitor-nodes.png[]
+
+Status: Indicates the status of Nodes.
+Possible values are Alive (blue), Running (green), and Late (yellow).
+
+Name: The name of the Node.
+By default this will be the IP address of the Node, otherwise the name will reflect the nameOverride value in the Node configuration.
+
+Last Update: The date and time of the most recent heartbeat for the Node.
+
+Tags: The Tags that the Node is configured with.
+
+Version: The full version of the Peach Farm Node software.
+
+Job ID: In the case of Running status, the ID of the Job that the Node is running.
+Otherwise, blank.
+
+Pit File: In the case of Running status, the name of the Pit File submitted for the Job.
+Otherwise, blank.
+
+Seed: In the case of Running status, the seed the Node is fuzzing with.
+Otherwise, 0.
+
+Iteration: In the case of Running status, the maximum iteration the Node has reached during fuzzing.
+Otherwise, 0.
+
+
+=== Errors View
+
+.Errors View
+image::monitor-errors.png[]
+
+Name: The name of the Node that reported the error.
+
+Last Update: The date and time of the reported error.
+
+Job ID: If the error occurred while running a Job, this will indicate the Job ID.
+
+Pit File: If the error occurred while running a Job, this will indicate the name of the Pit File.
+
+Description: This is an expandable field that occupies the entire row.
+Click it to expand and view the entire description of the error.
+
+=== Job Detail View
+
+The Job Detail View is for viewing all the Faults for a specific Job. 
+The Pit File name and Job ID are listed at the top.
+The two links just below the title section:
+
+Download Job Input: A link to a ZIP file containing all files submitted for the Job.
+At a minimum this will include the Pit File.
+If more files were submitted, such as a Defines File and sample files, they will be included in the ZIP file.
+
+Download Job Output: A link to a ZIP file containing all files written by Peach during the fuzzing process.
+The folder structure of this ZIP file should match the output of a single instance of Peach, with an extra level for each Node.
+
+The main portion of the Job Detail View is divided into two sections: Fault Groups and Faults.
+
+Fault Groups: Fault Groups are categories of Faults. 
+Click the View Faults link to view all the Faults within that Fault Group.
+Included is a category ALL FAULTS that includes all Faults recorded.
+
+Faults: The list of Faults for the chosen Fault Group. 
+Included with each Fault is an expansion button that when clicked will reveal the full description of the Fault and links to other files generated by Peach.
+Explanation of fields follows the graphic.
+
+.Faults View
+image::monitor-faults.png[]
+
+Title: Title of Fault.
+
+Exploitability: Exploitability of Fault.
+
+Source: The name of the Monitor or debugger that detected the Fault.
+
+Major Hash: Major hash of fault.
+
+Minor Hash: Minor hash of fault.
+
+Iteration: The iteration the Fault was found on.
+
+Is Reproduction: True indicates that this Fault is a reproduction of an earlier found Fault.
+
+=== Fault Expanded View
+
+Shown below is one of the Fault records expanded.
+The Description section contains exception information for the Fault.
+The Generated Files section lists links to files generated by Peach such as input data and stack trace information.
+
+.Fault Detail View
+image::monitor-faultdetail.png[]
+
+
+== Command Line Usage
+
+pf_admin.exe is the admin interface for Peach Farm.
+All Peach Farm functions can be controlled via this tool.
+
+=== Configuration
+
+Edit pf_admin.exe.config before running the tool.
+Configure the marked elements to correspond with the information entered during installation.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+	<configSections>
+		<section name="peachfarm.admin" type="PeachFarm.Admin.Configuration.AdminSection, PeachFarm.Admin" allowLocation="true" allowDefinition="Everywhere" />
+	</configSections>
+	<peachfarm.admin>
+		<Controller ipAddress="10.0.1.39" />	# <1>
+		<RabbitMq 				# <2>
+			hostName="10.0.1.39" 
+			port="-1" 
+			userName="guest" 
+			password="guest" 
+			useSSL="false" />	
+	</peachfarm.admin>
+
+<startup><supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0" /></startup>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="System.Runtime.Serialization" publicKeyToken="b77a5c561934e089" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-4.0.0.0" newVersion="4.0.0.0" />
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+</configuration>
+----
+<1> Controller ipAddress: set this to the name or IP address of the Controller.
+<2>	RabbitMq: set the attributes necessary for connecting to Rabbit MQ
+
+=== Start Job
+
+To start a Peach Farm Job use the -start command.
+The parameters that can be specified are used as matching parameters for nodes (-n, -t, -i),
+and for describing how Peach should run on each node (pitFilePath, -d, -a, -e, -r).
+
+.Syntax
+----
+pf_admin.exe -start <pitFilePath> -n <clientCount> -t <tags> -i <ipAddress> -d <definesFile> -a <targetName> -test <testName>
+----
+
+[options="header"]
+|=======================
+|Argument				| Required | Description
+|-start pitFilePath		| * | Pit file or deployment zip
+|-n clientCount			|   | Number of nodes to use in job
+|-t tags				|   | Tags used to select nodes
+|-i ipAddress			|   | IP Address of node to use
+|-d definesFile			|   | Configuration file
+|-a targetName			|   | Target name for report metrics
+|-e testName			|   | Name of test in Pit to run (if not default)
+|-r start-end			|   | Specify iteration range to run on nodes, eg. -r 1000-2000
+|=======================
+
+.Example: Start job on any 5 nodes in our cluster
+----
+pf_admin.exe -start -n 5 pitFile.xml
+----
+      
+.Example: Start job on 5 nodes with Win64 tag
+----
+pf_admin.exe -start -n 5 -t Win64 pitFile.xml
+----
+
+.Example: Start job on a single node specified by IP address
+----
+pf_admin.exe -start -ip 192.168.1.10 pitFile.xml
+----
+
+.Example: Start job on all alive nodes in our cluster with the Win64 tag
+----
+C:\pf>pf_admin -start -t Windows -n 1 samples\DebuggerWindows.xml
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+Waiting for response...
+Start Peach Success
+User Name: user1
+Pit File: DebuggerWindows
+Job ID: 3AD30302FE7F			# <1>
+----
+
+<1> The JobID of the Job that was started. Make note of this for later use.
+
+==== Understanding the pitFilePath Parameter
+
+The pitFileParameter can take one of two types of files, an XML file (.xml) or a ZIP file (.zip).
+For simple Jobs where only a Pit XML file and optionally a Defines XML file is necessary you can pass both to the Start Peach command like this:
+
+.Start Peach with a defines file
+----
+pf_admin.exe -start -n 1 pitFile.xml -d definesFile.xml
+----
+
+However, if more files are needed such as test data, a ZIP file will need to be created.
+The structure of the ZIP file can be flexible, however a few conditions must be met.
+1) The Pit file and optional Defines file must be located in the top level of the ZIP file.
+2) The relative paths of any sample files included must match the relative paths in the Pit file.
+3) The Pit file name and Defines file name must be the same as the ZIP file name with specific extensions
+
+.Example ZIP file structure
+----
+PNG.zip					# <1>
+	PNG.xml				# <2>
+	PNG.config.xml			# <3>
+	samples\			# <4>
+		sample1.png
+		sample2.png
+		...
+----
+<1> The name of the ZIP file.
+
+<2> The Pit file, note how its name matches the name of the ZIP file but with a .XML extension
+
+<3> The Defines file, note how its name matches the name of the ZIP and Pit files but with a .config.xml extension
+
+<4> An example of a sample file structure. 
+As opposed to the ZIP, Pit, and Defines files rules, this may be structured in any way.
+However, it must match any sample definitions in your Pit or Defines files based on relative path.
+
+.Start Peach with pit, defines, and sample data in a zip file
+----
+pf_admin.exe -start -n 1 PNG.zip
+----
+
+=== Stop Job
+
+Stop Peach on Nodes matching <jobID>:
+
+.Syntax
+----
+pf_admin.exe -stop <jobID>
+----
+
+[options="header"]
+|=======================
+|Argument       | Required | Description
+|JobID |* | The JobID of the Job to stop.
+|=======================
+
+.Example: Stop Job 6A0819E9742E
+----
+C:\pf>pf_admin -stop 6A0819E9742E
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+Waiting for response...
+Stop Peach Success
+----
+
+==== List Nodes
+
+Get list of all Nodes:
+
+.Syntax
+----
+pf_admin.exe -nodes
+----
+
+[options="header"]
+|=======================
+|Argument       | Required | Description
+|(none) | |
+|=======================
+
+.Example
+----
+C:\pf>pf_admin -nodes			# <1>
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+					# <2>
+Name            Status  Stamp                    Version      JobID/Tags
+10.0.1.98       Alive   1/29/2014 4:11:39 PM     1.1.110.0    Linux,x64		# <3>
+10.0.1.44       Running 1/29/2014 4:11:46 PM     1.1.110.0    6A0819E9742E	# <4>
+10.0.1.67       Alive   1/29/2014 4:11:39 PM     1.1.110.0    Windows,x64
+10.0.1.99       Alive   1/29/2014 4:11:45 PM     1.1.110.0    Linux,x64
+----
+<1> The command line for getting a list of Nodes
+
+<2> The list of online Nodes
+
+<3> An example of a Node in an Alive state. 
+Alive means "ready for work" and includes the Tags the Node is configured with.
+
+<4> An example of a Node in a Running state. 
+Running means "working on a Job" and includes the JobID of the Job that the Node is running.
+
+=== Show Errors
+
+Get list of errors reported by Nodes:
+
+.Syntax
+----
+pf_admin.exe -errors <jobID>
+----
+
+[options="header"]
+|=======================
+|Argument       | Required | Description
+|jobID | |Specify a JobID to query for, omit to display all errors.
+|=======================
+
+.Example: Get list of all errors in Peach Farm
+----
+C:\pf>pf_admin -errors
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+10.0.1.23       Error   12/18/2013 4:53:36 PM
+Peach Exception during job (6BCB0D3A29CE):
+Peach.Core.PeachException: Unable to locate test named 'bork'. ---> System.Colle
+ctions.Generic.KeyNotFoundException: The given key was not present in the dictio
+nary.
+----
+
+.Example: Get list of errors reported by Nodes for Job ABCDEF012345
+----
+C:\pf>pf_admin -errors 6BCB0D3A29CE
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+10.0.1.23       Error   12/18/2013 4:53:36 PM
+Peach Exception during job (6BCB0D3A29CE):
+Peach.Core.PeachException: Unable to locate test named 'bork'. ---> System.Colle
+ctions.Generic.KeyNotFoundException: The given key was not present in the dictio
+nary.
+----
+
+=== List Jobs
+
+Get information for all Jobs
+
+.Syntax
+----
+pf_admin.exe -jobs
+----
+
+[options="header"]
+|=======================
+|Argument       | Required | Description
+|(none) | |
+|=======================
+
+.Example
+----
+C:\pf>pf_admin -jobs
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+Active Jobs
+-----------
+(no active jobs)
+
+Inactive Jobs
+-------------
+Job ID       User Name      Pit Name             Start Date
+24A7CFAFCDA5 user1          HelloWorld           12/18/2013 7:49:10 PM
+1B408E02C704 user1          HelloWorld           12/18/2013 7:51:12 PM
+D88589FBDBB8 user1          HelloWorld           12/18/2013 7:53:04 PM
+093AD6654F45 user1          HelloWorld           12/18/2013 8:03:44 PM
+CB1359E372BD user1          HelloWorld           12/18/2013 9:41:27 PM
+442FBD24121C user2          DebuggerWindows      12/19/2013 12:52:26 AM
+6BCB0D3A29CE user2          DebuggerWindows      12/19/2013 12:53:31 AM
+9B83C427D7B1 user2          DebuggerWindows      12/19/2013 12:54:01 AM
+AD4E678EA58D user2          DebuggerWindows      12/19/2013 12:54:18 AM
+D125D9292EAD user2          DebuggerWindows      12/20/2013 2:14:07 AM
+6AB0409D83AD user2          DebuggerWindows      1/25/2014 3:08:51 AM
+CEB4323B0F1F user2          DebuggerWindows      1/27/2014 11:10:25 PM
+6A0819E9742E user2          DebuggerWindows      1/30/2014 12:11:39 AM
+----
+
+=== Job Information
+
+.Get information for a Job and a list of Running Nodes
+----
+pf_admin.exe -jobinfo jobID
+----
+
+[options="header"]
+|=======================
+|Argument|Required|Description
+|jobID|* |Display information about a Job including Nodes running the Job and iteration count
+|=======================
+
+.Example: Get information for a specific Job
+----
+C:\pf>pf_admin -jobinfo DB042B35AF30
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+JobID:  DB042B35AF30
+User Name:      DEJA\matt
+Pit Name:       DebuggerWindows
+Start Date:     1/30/2014 12:51:57 AM
+Iterations:     1
+
+Running Nodes:
+Name            Status  Last Updated             Job ID       Iterations
+--------------- ------- ------------------------ ------------ ----------------
+10.0.1.67       Running 1/29/2014 4:52:12 PM     DB042B35AF30 1
+----
+
+=== Download Job Output
+
+Get generated files for a Job
+
+.Syntax
+----
+pf_admin.exe -output jobID destinationFolder
+----
+
+[options="header"]
+|=======================
+|Argument       | Required | Description
+
+|jobID
+|*   
+|The JobID of the Job that you want to export files for
+
+|destinationFolder
+|*
+|The local hard drive folder where output files should be placed.
+Must be empty.
+|=======================
+
+.Example: Get generated files for a Job
+----
+C:\pf>pf_admin -output 6A0819E9742E C:\pf\6A0819E9742E
+
+] Peach Farm - Admin Client
+] Version: 0.0.0.0
+] Copyright (c) Deja vu Security
+
+
+Done!
+----
+
+==== Understanding Job Output
+
+In the previous example, the -output command retrieves collected data from each instance of Peach that ran the Job 6A0819E9742E.
+Here's a look at the folder structure.
+
+----
+C:\pf\6A0819E9742E\						# <1>
+	Job_6A0819E9742E_DebuggerWindows\			# <2>
+		DebuggerWindows.zip				# <3>
+		Job_6A0819E9742E_DebuggerWindows.pdf		# <4>
+		output\						# <5>
+			Node_10.0.1.44\				# <6>
+				status.txt
+				NonReproducable\Unknown\2\
+					1.Initial.SendValue1.bin
+					2.Initial.SendValue2.bin
+					LocalAgent.Monitor.SystemDebugger.description.txt
+					LocalAgent.Monitor_2.PcapMonitor.description.txt
+					LocalAgent.Monitor_2.PcapMonitor.NetworkCapture.pcap
+----
+
+<1> The destination folder specified in the -output example
+
+<2> The Job folder, named with the JobID and the Pit File Name
+
+<3> A ZIP file of the Job input used during the -start command
+
+<4> The PDF report generated after the Job was stopped
+
+<5> The folder containing Peach output files
+
+<6> The Node folder, there will be one of these for each Node that participated in the Job
+
+NOTE: Everything under the Node folder will look identical to what Peach would output on its own.
+To understand the Peach output files, see the Peach documentation.
+
+=== Regenerate Report
+
+Force a (re)processing of a PDF report
+
+.Syntax
+----
+pf_admin -report jobID [reprocess]
+----
+
+[options="header"]
+|=======================
+|Argument       | Required | Description
+
+|jobID
+|*
+|The JobID of the Job that should be processed
+
+|reprocess
+|
+|Use this to reprocess a PDF report and overwrite an existing one.
+Omitting this will only create a PDF report if one does not already exist.
+|=======================
+
+.Example: xyz
+----
+pf_admin.exe 
+----
+
+=== Clear Existing Data
+
+Delete stored data.
+
+.Delete all data in Peach Farm
+----
+pf_admin.exe -clear -type=all
+----
+
+.Delete fault detail for job
+----
+pf_admin.exe -clear -type=job <jobID>
+----
+
+.Delete fault detail for all jobs matching target
+----
+pf_admin.exe -clear -type=target <targetName>
+----
+
+[options="header"]
+|=======================
+|Argument       | Required | Description
+|type
+|*
+|Values are job, target, and all.
+
+|parameter
+|all: no, job: yes, target: yes
+|When type=job parameter should be the JobID.
+When type=target parameter should be the target name.
+|=======================
+
+.Example: 
+----
+pf_admin.exe -clear -type=job ABCDEF012345
+----
+
+== Index
+
+// Place holder. Ascii doc will fill this in

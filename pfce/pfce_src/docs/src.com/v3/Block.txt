@@ -1,0 +1,182 @@
+:toc!:
+== Block ==
+
+The Block element is a child element of link:DataModel.html[DataModel] or Block.  Blocks are used to group one or more data elements such as link:Number.html[Number] or link:String.html[String] together into a logical structure.  Blocks and DataModels are very similar, the only difference is their location. DataModels are a top level element, blocks are a child of link:DataModel.html[DataModel].  Both Block and link:DataModel.html[DataModel] elements can be used as the "template" for other Blocks or link:DataModel.html[DataModels].
+
+[source,xml]
+----
+<Block name="HelloWorld">
+  <String value="Hello world!" />
+</Block>
+----
+
+
+=== Attributes
+
+All attributes are optional unless noted.
+
+ * link:name.html[name] -- Name of the block. 
+ * link:ref.html[ref] -- Reference to a [DataModel/DataModel]] to use as a template.
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur. 
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur.
+ * link:mutable.html[mutable] -- Is data element changeable (should it be mutated), defaults to true.
+
+=== Valid Child-Elements
+
+ * link:Blob.html[Blob]
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:Custom.html[Custom]
+ * link:Fixup.html[Fixup]
+ * link:Flag.html[Flag]
+ * link:Flags.html[Flags]
+ * link:Number.html[Number]
+ * link:Padding.html[Padding]
+ * link:Placement.html[Placement]
+ * link:Relation.html[Relation]
+ * link:Seek.html[Seek]
+ * link:String.html[String]
+ * link:Transformer.html[Transformer]
+ * link:XmlAttribute.html[XmlAttribute]
+ * link:XmlElement.html[XmlElement]
+
+=== Examples ===
+
+==== Empty Block ====
+The simplest block is an empty block. This definition will produce no output. 
+
+[source,xml]
+----
+<DataModel name="BlockExample1">
+ <Block> 
+ </Block> 
+</DataModel>
+----
+
+==== Nested Blocks ====
+
+Blocks can be nested as deep as required. Blocks help create logical structure and do not change the data contained within.
+
+[source,xml]
+----
+<DataModel name="BlockExample2">
+<Block>
+  <Block>
+    <Block>
+      <String value="1" />
+    </Block>
+   
+    <Block>
+      <String value="2" />
+    </Block>
+
+    <String value="3" />
+  </Block>
+  <String value="4" />
+</Block>
+</DataModel>
+----
+
+This nested block definition will produce the following output:
+
+----
+1234
+----
+
+==== Naming A Block ====
+
+Assign blocks a friendly name to make them easier to understand and debug. 
+
+[source,xml]
+----
+<DataModel name="BlockExample2">
+ <Block name="HeaderDef">
+  <String name="Header" /> 
+  <String name="Colon" value=":"/>
+  <String name="Val"/> 
+ <Block>
+
+ <Block name="DataDef">
+   <Number name="Type"  size="8" value="4"/>
+   <Number name="Data" size="8" value="32"/>
+ </Block> 
+ </DataModel>
+----
+
+==== Referencing A Block ====
+
+A reference (ref attribute) supplied the contents of the reference are copied to create the base of the new Block.  Any child elements in the Block will override elements that already exist with the same name.
+
+[source,xml]
+----
+<DataModel name="OtherDataModel">
+   <String value="Hello World"/>
+ </DataModel>
+
+ <DataModel name="ThisDataModel">
+    <Block name="MyName" ref="OtherDataModel"/>
+ </DataModel> 
+----
+
+The Block "MyName" will be overwritten with the referenced block "OtherDataModel". When parsed it's data structure will look like this. 
+
+[source,xml]
+----
+ <DataModel name="ThisDataModel">
+   <Block name="MyName"> 
+    <String value="Hello World"/>
+   </Block> 
+ </DataModel> 
+----
+
+Referencing allows for powerful templates to be built. This is a template for a Key: Value\r\n. 
+
+[source,xml]
+----
+<DataModel name="Template">
+  <String name="Key" />
+  <String value=": " token="true" />
+  <String name="Value" />
+  <String value="\r\n" token="true" />
+</DataModel>
+----
+
+To use this template as a reference. 
+
+[source,xml]
+----
+<DataModel name="OtherModel">
+  <String value="Before Block\r\n" />
+
+  <Block name="Customized" ref="Template">
+    <String name="Key" value="Content-Length" />
+    <String name="Value" value="55"/>
+  </Block>
+</DataModel>
+----
+
+The output will be 
+
+----
+ Before Block\r\n
+ Content-Length: 55\r\n
+----
+
+Two key things happened here. When parsed the Customized Block will replace it's structure with the DataModel of Template. Adding the string values of ":" and "\r\n". 
+
+At the same time the "Customized" block overwrote the values of the String elements for Key and Value. Replacing them with "Content-Length" and 55. The final DataModel would be parsed as so. 
+
+[source,xml]
+----
+<DataModel name="OtherModel">
+  <String value="BeforeBlock" />
+
+  <Block name="Customized" ref="Template">
+    <String name="Key" value="Content-Length" />
+    <String value=": " token="true" />
+    <String name="Value" value="55" />
+    <String value="\r\n" token="true" />
+  </Block>
+</DataModel>
+----
+

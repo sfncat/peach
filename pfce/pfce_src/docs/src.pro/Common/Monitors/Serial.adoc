@@ -1,0 +1,297 @@
+<<<
+[[Monitors_Serial]]
+== Serial Port Monitor
+
+*Monitor Categories*: *Automation*, *Data collection*, *Fault detection*
+
+The _Serial Port_ monitor can be used to perform
+data collection,
+fault detection,
+or automation,
+based on specified parameters.
+
+The default usage of the _Serial Port_ monitor is data collection.
+The data received via the serial port is logged when a fault occurs.
+
+To perform fault detection,
+specify a regular expression using the 'FaultRegex' parameter.
+When the regular expression matches,
+Peach generates a fault.
+
+For automation tasks, use the 'WaitForRegex' and 'WaitWhen' parameters.
+These automation parameters cause Peach to wait for matching input before continuing.
+The _Serial Port_ monitor can wait at various points in time during a fuzzing session:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+Additionally,
+Peach supports multiple _Serial Port_ monitors in a pit,
+allowing for more complex configurations.
+This can be used to monitor multiple serial ports.
+Multiple monitors may also be configured to use the same port, allowing for fault detection,
+automation,
+and/or data collection to occur on a single port.
+
+=== Parameters
+
+_Required:_
+
+Port::
+The port to use (for example, `COM1` or `/dev/ttyS0`)
+
+_Optional:_
+
+BaudRate::
+The baud rate (only standard values are allowed).
+Defaults to `115200`.
+
+DataBits::
+The data bits value.
+Defaults to `8`.
+
+Parity::
+Specifies the parity bit.
+Defaults to `None`.
+Available options for this parameter are:
++
+[horizontal]
+Even;;
+Mark;;
+None;;
+Odd;;
+Space;;
+
+StopBits::
++
+Specifies the number of stop bits used.
+Defaults to `One`.
+Available options for this parameter are:
++
+[horizontal]
+One;;
+OnePointFive;;
+Two;;
+
+Handshake::
++
+Specifies the control protocol used in establishing a serial port communication.
+Defaults to `None`.
+Available options for this parameter are:
++
+[horizontal]
+None;;
+RequestToSend;;
+RequestToSendXOnXOff;;
+XOnXOff;;
+
+DtrEnable::
+Enables the Data Terminal Ready (DTR) signal during serial communication.
+Defaults to `false`.
+
+RtsEnable::
+Enables the Request To Transmit (RTS) signal during serial communication.
+Defaults to `false`.
+
+MaxBufferSize::
+Maximum amount of serial data to store in bytes.
+Defaults to `1048576`.
+
+FaultRegex::
+Generate a fault when the specified regular expression matches received data.
+This causes the _Serial Port_ monitor to be used for fault detection.
+
+WaitRegex::
+Wait until the specified regular expression matches received data.
+This causes the _Serial Port_ monitor to be used for automation.
+
+WaitOnCall::
+Begin waiting for the regular expression specified in the 'WaitRegex' parameter after the monitor receives the specified call from the state machine.
+This value is used only when the 'WaitWhen' parameter is set to `OnCall`.
+
+WaitWhen::
++
+Specify one of the following values to determine when to begin waiting for the regular expression specified in the 'WaitRegex' parameter to match received data:
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"WaitWhen" Setting              |Description
+|OnStart                     |
+Waits when the fuzzing session starts.
+This occurs once per session.
+This is the default setting.
+|OnEnd                       |
+Waits when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Waits at the start of each iteration.
+|OnIterationEnd              |
+Waits at the end of each iteration.
+|OnFault                     |
+Waits when any monitor detects a fault.
+|OnIterationStartAfterFault  |
+Waits at the start of the iteration that immediately follows a fault detection.
+|OnCall                      |
+Waits upon receipt of the call specified by the 'WaitOnCall' parameter from the state model.
+|==========================================================
++
+.WaitWhen Choices
+image::{images}/Common/Monitors/Timings_All.png[scalewidth="75%"]
+
+=== Examples
+
+ifdef::peachug[]
+
+.Data Collection example
+====================
+This parameter example is from a setup that uses the default settings for the _Serial Port_ monitor,
+resulting in the monitor performing data collection of the data received over `COM1` when a fault is detected by another monitor.
+Other than the mandatory 'Port' declaration, the setup uses default values.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Port        |`COM1`
+|==========================================================
+====================
+
+.Fault Detection example
+====================
+This parameter example is from a setup that detects a fault on `COM1`.
+In addition to normal data collection,
+this setup generates a fault when the text `ERROR` is received over the serial port.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Port        |`COM1`
+|FaultRegex  |`ERROR`
+|==========================================================
+====================
+
+.Combined Automation and Fault Detection example
+====================
+This example might be used when fuzzing a network device such as a router.
+One _Serial Port_ monitor is configured to wait until the router has booted before starting the fuzzing session.
+Another _Serial Port_ monitor is configured to detect faults and also to wait for the router to finish rebooting after a fault is detected.
+The xref:Monitors_IpPower9258[IpPower9258 Monitor] is configured to reboot the router after a fault is detected.
+
+*Serial Port (Wait for boot) parameters*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Monitor     |`SerialPort`
+|Name        |`Wait for boot`
+|Port        |`COM1`
+|WaitRegex   |`Boot up completed`
+|==========================================================
+
+*Serial Port (Detect fault) parameters*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Monitor     |`SerialPort`
+|Name        |`Detect fault`
+|Port        |`COM1`
+|FaultRegex  |`ERROR`
+|WaitRegex   |`Boot up completed`
+|WaitWhen    |`OnIterationAfterFault`
+|==========================================================
+
+*IpPower9258 (Reboot router) parameters*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Monitor     |`IpPower9258`
+|Name        |`Reboot router`
+|Host        |`192.168.1.1:8080`
+|Port        |`1`
+|User        |`peach`
+|Password    |`PeachPower`
+|When        |`OnFault`
+|==========================================================
+====================
+
+
+.Multiple Serial Port monitors for different ports
+=========================
+This example connects Peach to the console port and also the debug port of a target device.
+The monitor on the console port is set up for fault detection, data collection, and automation.
+The monitor on the debug port is set up for data collection.
+
+*Console Port*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Monitor     |`SerialPort`
+|Name        |`Console Port`
+|Port        |`COM1`
+|FaultRegex  |`ERROR`
+|WaitRegex   |`Boot up completed`
+|WaitWhen    |`OnIterationAfterFault`
+|==========================================================
+
+*Debug Port*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Monitor     |`SerialPort`
+|Name        |`Debug Port`
+|Port        |`COM2`
+|==========================================================
+=========================
+
+endif::peachug[]
+
+ifndef::peachug[]
+
+.Data Collection example
+=============================
+This example shows the _Serial Port_ monitor configured to log data received from `COM1`.
+
+[source,xml]
+----
+include::SerialPort_Example_DataCollection.xml[]
+----
+=============================
+
+.Collect Serial Data on Fault
+=============================
+This example shows the _Serial Port_ monitor configured to log received data and to generate a fault when the text `ERROR` is received.
+
+[source,xml]
+----
+include::SerialPort_Example_FaultDetection.xml[]
+----
+=============================
+
+.Combined Automation and Fault Detection example
+=====
+This example might be used when fuzzing a network device such as a router.
+One _Serial Port_ monitor is configured to wait until the router has booted before starting the fuzzing session.
+Another _Serial Port_ monitor is configured to detect faults and also to wait for the router to finish rebooting after a fault is detected.
+The xref:Monitors_IpPower9258[IpPower9258 Monitor] is configured to reboot the router after a fault is detected.
+
+[source,xml]
+----
+include::SerialPort_Example_Automation.xml[]
+----
+=====
+
+
+.Multiple Serial Port monitors for different ports
+=========================
+This example connects Peach to the console port and also the debug port of a target device.
+The monitor on the console port is set up for fault detection, data collection, and automation.
+The monitor on the debug port is set up for data collection.
+
+[source,xml]
+----
+include::SerialPort_Example_MultiplePorts.xml[]
+----
+=========================
+
+endif::peachug[]

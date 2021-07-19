@@ -1,0 +1,238 @@
+<<<
+[[Padding]]
+== Padding
+
+The _Padding_ element provides padding for variable-sized blocks or data models.
+
+When padding the data, the value of the pad characters is always 0. This is not customizable.
+
+When cracking data into a model that contains the padding element, the pad data is skipped.
+
+=== Syntax
+
+[source,xml]
+----
+<DataModel name="NumberExample1">
+ <String name="VariableSizeString" />
+
+ <Padding />
+</DataModel>
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xref:name[name]:: Element name.
+alignment:: Align to the specified bit boundary: 8, 16, 32, 64, etc. The default value is  8
+alignedTo:: Name of reference element for alignment, defaults to parent element.
+The alignment starts at the beginning of the reference element
+xref:mutable[mutable]:: Is the data element changeable (should it be mutated during fuzzing), defaults to true. Valid options true and false.
+
+=== Child Elements
+
+xref:Fixup[Fixup]:: Performs dynamic transformations such as checksums and CRCs.
+xref:Hint[Hint]:: Provides information to mutators
+xref:Transformer[Transformer]:: Performs static transformations such as compression or encoding.
+
+=== Mutators
+
+The following mutators can operate on this element type:
+
+_Enabled when the data element is marked as an array_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]:: This mutator grows and shrinks an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]:: This mutator randomizes the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]:: This mutator reverses the sequence of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]:: This mutator grows and shrinks an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementBitFlipper[DataElementBitFlipper]:: This mutator produces test cases by flipping bits in the output value.
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator combines data elements from different data sets.
+
+_Enabled when the data element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator causes the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator causes the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator changes both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator changes both sides of the relation (data and value) to match numerical variances of the current size.
+
+
+=== Examples
+
+.Padding with Default Options
+=============================
+This example demonstrates the default case of padding. The AlignTo attribute aligns pad characters along 8-bit boundaries.
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<Number size="1" value="0" />
+		<Number size="8" value="0xff" />
+
+		<Padding />
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 56742.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(2 bytes)
+00000000   7F 80                                              .?
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+=============================
+
+.Padding Aligned to 32 bit Boundary
+=============================
+This example aligns the pad  data to a 32-bit boundary.
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<Number size="1" value="0" />
+		<Number size="8" value="0xff" />
+
+		<Padding alignment="32" />
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 51106.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(4 bytes)
+00000000   7F 80 00 00                                        .???
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+=============================
+
+.Padding Separated from Unaligned Value
+=============================
+This example demonstrates padding with unaligned data preceding and following the padding.
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<Number name="ToBeAligned" size="1" value="0" />
+
+		<Number size="16" value="42" />
+		<Number size="2" value="1" />
+
+		<Padding alignment="32" alignedTo="ToBeAligned" />
+
+		<Number size="6" value="42" />
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 49630.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(7 bytes)
+00000000   15 00 20 00 00 00 2A                               ?? ???*
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+=============================

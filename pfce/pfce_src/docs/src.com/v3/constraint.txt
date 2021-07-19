@@ -1,0 +1,37 @@
+:toc!:
+== Constraint Attribute ==
+
+The constraint attribute specifies a scripting expression that helps Peach identify if the data element has been properly consumed for incoming data. The constraint expression must evaluate to true or false. True indicates that the incoming data was properly parsed into the data element. False indicates that an error has occurred. The constraint attribute does not affect how the value is mutated.
+
+NOTE: Constraints are only executed when parsing data into a data element.
+
+TIP: Constraints are typicaly slower than using link:Choice.html[Choice] or the _token_ attribute
+
+The following special variables are available to the expression:
+
+ * _element_ -- The data element instance
+ * _value_ -- The value of the data cracked into the data element.  This value will be cast
+to a string or byte array.
+
+=== Example ===
+
+[source,xml]
+----
+<!-- Operate on number and check result -->
+<Number name="constrainedNum" size="32" constraint="int(value) & 0xfefe == 5" />
+----
+
+[source,xml]
+----
+<!-- Case insensitive equals -->
+<String constraint="value.lower() == 'peach'" />
+
+<!-- Value contains peach -->
+<String constraint="value.find('peach') != -1" />
+----
+
+[source,xml]
+----
+<!-- Length is less than 100 bytes -->
+<Blob constraint="len(value) < 100" />
+----

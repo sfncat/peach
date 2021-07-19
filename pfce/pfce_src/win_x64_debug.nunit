@@ -1,0 +1,10 @@
+﻿<NUnitProject>
+  <Settings activeconfig="Default" appbase="C:\Users\flaub\src\peach-pro\.depproj\bin\win_debug_x64" />
+  <Config name="Default" binpathtype="Auto" runtimeFramework="any">
+    <assembly path="Peach.Core.Test.dll" />
+    <assembly path="Peach.Pro.Test.dll" />
+    <assembly path="Peach.Pro.Test.OS.Windows.dll" />
+    <assembly path="Godel.Tests.dll" />
+    <assembly path="PitTester.exe" />
+  </Config>
+</NUnitProject>

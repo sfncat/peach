@@ -1,0 +1,30 @@
+:toc!:
+= Placement (Peach 2.2) =
+
+The placement element tell the data cracker that specific elements should be moved after the input stream is parsed.  This, combined with link:Seek.html[Seek] and the link:Relation.html[offset-of relation] are the ways Peach supports handling files that contain references to elements by offset.
+
+Note: Placement only works when data is being parsed into the DataModel via an input Action or a Data statement pointing to a file.
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+  <Block name="Chunks">
+    <Block name="ArrayOfChunks" maxOccurs="4">
+      <Number size="8" signed="false">
+        <Relation type="offset" of="Data"/>
+      </Number>
+      <String name="Data" length="6">
+        <Placement after="Chunks"/>
+      </String>
+    </Block>
+  </Block>
+</DataModel>
+----
+
+
+_Attributes:_
+
+One of the following is required:
+
+ * after -- Element to move after
+ * before -- Element to move before

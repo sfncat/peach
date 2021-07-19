@@ -1,0 +1,22 @@
+<<<
+[[Mutators_StringUtf32BomLength]]
+== StringUtf32BomLength
+
+The _StringUtf32BomLength_ mutator produces test cases for Unicode UTF-32 strings by altering an individual string in two ways:
+
+* Adjust the length of the string using the xref:Mutators_StringLengthVariance[StringLengthVariance] mutator
+* Insert 1 to 6 Unicode Byte Ordering Marks (BOMs) in arbitrary places in the string
+
+BOM are not considered characters, and using them can cause buffer length calculations to be incorrect.
+
+BOM marks, whether for Big Endian-ness or for Little Endian-ness, are selected arbitrarily.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support any hints.
+
+// end

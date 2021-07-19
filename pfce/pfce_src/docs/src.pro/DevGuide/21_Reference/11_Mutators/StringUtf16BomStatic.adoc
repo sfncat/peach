@@ -1,0 +1,23 @@
+<<<
+[[Mutators_StringUtf16BomStatic]]
+== StringUtf16BomStatic
+
+The _StringUtf16BomStatic_ mutator produces test cases for Unicode UTF-16 strings by creating a mutated string in two ways:
+
+* Create a string using the xref:Mutators_StringStatic[StringStatic] mutator
+* Inject 1 to 6 Unicode Byte Ordering Marks (BOMs) in arbitrary places in the string
+
+BOM are not considered characters, and injecting BOMs into a string that might be filtered could cause
+the filtering not to work and the string would be accepted.
+
+BOM marks, whether for Big Endian-ness or for Little Endian-ness, are selected arbitrarily.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support any hints.
+
+// end

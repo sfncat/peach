@@ -1,0 +1,172 @@
+[[Analyzers_StringToken]]
+== String Token Analyzer
+
+The String Token Analyzer creates a tokenized tree from an input string based on special characters and punctuation in the string. For example, the string "?key=value&key2=value2" creates a tree similar to the following:
+
+image::{images}/DevGuide/Analyzers/StringToken_ParseExample.png[]
+
+The tree allows Peach to perform mutations that can expose bugs in parsers.
+
+When run using the command line, the results of the generated model are saved to disk. Once saved, you can use and modify the results as needed.
+
+=== Syntax
+
+[source,xml]
+----
+<String value="GET /index.html?name=peach&amp;testing=true&amp;admin=false&amp;debug=1" />
+  <Analyzer class="StringToken" />
+</String>
+----
+
+----
+pittool analyzer StringToken input.txt output.xml
+----
+
+=== Command Line Syntax
+
+----
+pittool analyzer StringToken <input file> <output file>
+----
+
+input file::
+    Text file
+
+output file::
+    Generated PIT file
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+None.
+
+=== Parameters
+
+Tokens:: List of characters to pass to the StringToken analyzer.
+
+=== Examples
+
+.Simple HTTP GET URL Example
+==========================
+This example uses the string tokenizer on an inline value.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="TheModel">
+    <String value="GET /index.html?name=peach&amp;testing=true&amp;admin=false&amp;debug=1" />
+      <Analyzer class="StringToken" />
+    </String>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="ConsoleHex" />
+  </Test>
+</Peach>
+----
+
+Output from the example that uses the string tokenizer on an inline value.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 26956.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(59 bytes)
+00000000   47 45 54 20 2F 69 6E 64  65 78 2E 68 74 6D 6C 3F   GET /index.html?
+00000010   6E 61 6D 65 3D 70 65 61  63 68 26 74 65 73 74 69   name=peach&testi
+00000020   6E 67 3D 74 72 75 65 26  61 64 6D 69 6E 3D 66 61   ng=true&admin=fa
+00000030   6C 73 65 26 64 65 62 75  67 3D 31                  lse&debug=1
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/StringToken_Output.png[]
+
+==========================
+
+
+.Custom String Tokens Example
+==========================
+This example uses the StringToken analyzer on a string with a custom set of tokens.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="TheModel">
+    <String name="TheString"  value="(abc:{123,xyz}, def:{456})">
+      <Analyzer class="StringToken">
+        <Param name="Tokens" value="(){},:"/>
+      </Analyzer>
+    </String>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="ConsoleHex" />
+  </Test>
+</Peach>
+----
+
+Output from the example of the string that contains custom tokens.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 56835.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(26 bytes)
+00000000   28 61 62 63 3A 7B 31 32  33 2C 78 79 7A 7D 2C 20   (abc:{123,xyz},
+00000010   64 65 66 3A 7B 34 35 36  7D 29                     def:{456})
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/StringToken_TokensOutput.png[]
+
+==========================

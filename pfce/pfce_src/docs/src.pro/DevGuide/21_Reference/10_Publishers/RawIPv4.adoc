@@ -1,0 +1,165 @@
+<<<
+[[Publishers_RawIPv4]]
+== RawIPv4 Publisher
+
+// 02/17/2014: Jordyn
+//  Added full example using UDP
+//  Added supported protocol numbers and their corresponding protocol names
+//  Added MTU description
+//  Added information about when receiving input
+//  Added get/setProperty actions
+
+The _RawIPv4_ publisher sends raw IPv4 packets with IP headers. 
+
+Input received from _RawIPv4_ includes the IPv4 header. 
+
+The _RawIPv4_ maximum and minimum MTU size can be fuzzed by using the _setProperty_ action.
+
+NOTE: This publisher runs best on Linux and requires root privileges.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="RawV4">
+    <Param name="Host" value="127.0.0.1" />
+    <Param name="Protocol" value="17" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Host:: Hostname or IP address of remote host
+Protocol:: IP protocol to use (e.g. TCP)
+
+_Optional:_
+
+Interface:: IP of interface to bind to
+Timeout:: How long to wait in milliseconds for data/connection. Defaults to 3,000.
+MaxMTU:: Maximum allowable MTU property value. Defaults to 131,070.
+MinMTU:: Minimum allowable MTU property value. Defaults to 1,280.
+
+=== Actions
+
+xref:Action_start[start]:: Implicit Action to start the Publisher.
+xref:Action_stop[stop]:: Implicit Action to stop the Publisher.
+xref:Action_open[open]:: Open and initialize the socket.
+xref:Action_close[close]:: Close and clean up the socket.
+xref:Action_output[output]:: Data sent via output is written to the open socket.
+xref:Action_input[input]:: Data received via input is read from the open socket.
+xref:Action_getProperty[getProperty]::
+	Get a property value. +
+	This publisher supports two properties:	+
+	[horizontal]
+	MTU;; The current MTU value
+	LastRecvAddr;; The last receive address
+
+xref:Action_setProperty[setProperty]:: 
+	Set a property value. This can be used to fuzz properties exposed by the publisher.	+
+	This publisher supports one property: +
+	[horizontal]
+	MTU;; Set the current MTU value. The value is ignored if it is not within the set range.
+
+=== Examples
+
+.Sending data
+===============
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="propertySize">
+    <Number size="32" value="1500"/>
+  </DataModel>
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41"/>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <DataModel name="UDPPacket">
+    <Block name="Header">
+      <Number name="SrcPort"  size="16" endian="big" value="31337"/>
+      <Number name="DestPort" size="16" endian="big" value="31337"/>
+      <Number name="Length"   size="16" endian="big">
+        <Relation type="size" of="UDPPacket"/>
+      </Number>
+      <Number name="Checksum" size="16" endian="big">
+        <Fixup class="UDPChecksumFixup">
+          <Param name="ref" value="UDPPacket"/>
+          <Param name="src" value="127.0.0.1"/>
+          <Param name="dst" value="127.0.0.1"/>
+        </Fixup>
+      </Number>
+    </Block>
+    <Block name="UdpPayload" ref="Data"/>
+  </DataModel>
+
+  <DataModel name="Packet">
+    <Block name="Header">
+      <Flags size="16" endian="big">
+        <Flag name="Version" position="0" size="4" valueType="hex" value="04" token="true"/>
+        <Flag name="HeaderLength" position="4" size="4" valueType="hex">
+          <Relation type="size" of="Header" expressionGet="size * 4" expressionSet="size / 4"/>
+        </Flag>
+        <Flag name="DSCP" position="8" size="6" valueType="hex" value="00"/>
+        <Flag name="ECN" position="14" size="2" valueType="hex" value="00"/>
+      </Flags>
+      <Number name="TotalLength" size="16" endian="big" valueType="hex">
+        <Relation type="size" of="Packet"/>
+      </Number>
+      <Number name="Identification" size="16" endian="big" value="0"/>
+      <Flags name="Flags" size="16" endian="big">
+        <Flag name="Reserved" position="0" size="1" valueType="hex" value="00"/>
+        <Flag name="DF" position="1" size="1" valueType="hex" value="01"/>
+        <Flag name="MF" position="2" size="1" valueType="hex" value="00"/>
+        <Flag name="FragmentOffset" position="3" size="13" valueType="hex" value="00 00"/>
+      </Flags>
+      <Number name="TTL" size="8" endian="big" valueType="hex" value="40"/>
+      <Number name="Protocol" size="8" endian="big" valueType="hex" value="11"/>
+      <Number name="Checksum" size="16" endian="big">
+        <Fixup class="checksums.IcmpChecksumFixup">
+          <Param name="ref" value="Header"/>
+        </Fixup>
+      </Number>
+      <Block name="SrcBlock" length="4">
+        <String name="SrcIP" value="127.0.0.1" mutable="false">
+          <Transformer class="Ipv4StringToOctet" />
+        </String>
+      </Block>
+      <Block name="DstBlock" length="4">
+        <String name="DestIP" value="127.0.0.1" mutable="false">
+          <Transformer class="Ipv4StringToOctet" />
+        </String>
+      </Block>
+    </Block>
+    <Block name="Payload" ref="UDPPacket"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+    	<Action type="setProperty" property="MaxMTU">
+        <DataModel ref="propertySize"/>
+      </Action>
+
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="RawV4">
+      <Param name="Host" value="127.0.0.1" />
+     <Param name="Protocol" value="17" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+===============

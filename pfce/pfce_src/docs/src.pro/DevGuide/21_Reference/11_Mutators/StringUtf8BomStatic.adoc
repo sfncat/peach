@@ -1,0 +1,21 @@
+<<<
+[[Mutators_StringUtf8BomStatic]]
+== StringUtf8BomStatic
+
+The _StringUtf8BomStatic_ mutator produces test cases for ASCII and Unicode UTF-8 strings by creating a mutated string in two ways:
+
+* Create a string using the xref:Mutators_StringStatic[StringStatic] mutator
+* Inject 1 to 6 Unicode Byte Ordering Marks (BOMs) in arbitrary places in the string
+
+BOMs are not considered characters, and injecting BOMs into a string that might be filtered could cause
+the filtering not to work and the string would be accepted.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support any hints.
+
+// end

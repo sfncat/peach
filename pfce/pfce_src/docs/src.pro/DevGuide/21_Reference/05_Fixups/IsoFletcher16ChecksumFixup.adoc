@@ -1,0 +1,32 @@
+<<<
+[[Fixups_IsoFletcher16ChecksumFixup]]
+== IsoFletcher16Checksum
+
+The _IsoFletcher16Checksum_ fixup produces a checksum defined in RFC 1008 section 7.
+OSPF version 2 is one notable protocol which uses this checksum algorithm,
+as defined in RFC 2328 section 12.1.7.
+
+=== Parent Elements
+
+xref:Number[Number]
+xref:String[String]
+
+=== Parameters
+
+xref:ref[ref]:: The input data element used in the checksum calculation.
+
+=== Examples
+
+.Basic Usage Example
+=====================
+[source,xml]
+----
+include::IsoFletcher16ChecksumFixup_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::IsoFletcher16ChecksumFixup_Example.log[]
+----
+=====================

@@ -1,0 +1,45 @@
+[[Analyzers_WebRecordProxy]]
+== WebRecordProxy Analyzer
+
+This analyzer starts an HTTP proxy and records all HTTP requests. The recorded requests are then converted into a Peach Pit and written to disk for future use. This analyzer produces pits using the xref:Publishers_WebApi[WebApi] publisher and xref:Action_web[web] action.
+
+After converting, some manual work is usually needed to have a fully working pit.  This includes:
+
+ * Hooking up any authentication/authorization
+ * Adding slurps for resource identifiers
+ * Adding cleanup states to remove created resources
+ * Testing to verify it all works
+ 
+NOTE: This analyzer is intended to always be run from the command line.
+
+=== Syntax
+
+----
+pittool analyzer WebRecordProxy 8080 web_api_pit.xml
+----
+
+=== Command Line Syntax
+
+----
+pittool analyzer WebRecordProxy <proxy port> <output file>
+----
+
+proxy port::
+    TCP port used for incoming requests
+
+output file::
+    Filename of generated Peach Pit
+
+=== Attributes
+
+_Required:_
+
+There are no required attributes.
+
+_Optional:_
+
+There are no optional attributes.
+
+=== Examples
+
+No examples.

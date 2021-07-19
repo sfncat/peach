@@ -1,0 +1,40 @@
+:toc!:
+== Choice ==
+
+The Choice element is a child element of DataModel or Block.  Choice elements are used to indicate any of the sub-elements are valid but only one should be selected.  Much like the "C" switch statement.
+
+[source,xml]
+----
+<Choice name="PngChunks">
+  <Block name="IHDRChunk">
+    <!-- ... -->
+  </Block>
+  <Block name="PLTEChunk">
+    <!-- ... -->
+  </Block>
+  <Block name="IENDChunk">
+    <!-- ... -->
+  </Block>
+</Choice>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [optional]
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur
+ * link:pointer.html[pointer] -- (Peach 2.3) Is this a pointer to a structure (true|false), default is false [optional]
+ * link:pointerDepth.html[pointerDepth] -- (Peach 2.3) How many levels of pointers (e.g. void** p is 2), default is 1 [optional]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]
+
+_Valid Child-Elements:_
+
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:String.html[String]
+ * link:Number.html[Number]
+ * link:Blob.html[Blob]
+ * link:Flags.html[Flags]
+ * link:Fixup.html[Fixup]
+ * link:Transformer.html[Transformer]

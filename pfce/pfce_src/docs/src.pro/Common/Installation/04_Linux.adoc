@@ -1,0 +1,277 @@
+[[InstallOnLinux]]
+=== Linux
+
+Peach is supported on three distributions of Linux;
+Peach may run on other Linux distributions,
+but are not officially supported.
+This section provides instructions for installing Peach on the following supported Linux systems,
+and includes a checklist for installing Peach on other Linux systems:
+
+* Ubuntu/Debian Linux
+* Redhat Enterprise Linux (RHEL and CentOS)
+* SUSE Enterprise Linux (SLES)
+
+
+==== Ubuntu/Debian Linux
+
+When installing Peach on an Ubuntu or Debian Linux system,
+the operating system is ready for Peach without modification.
+The installation starts with the Mono .NET runtime, then Peach.
+If you want to attach a debugger to a target process,
+install GDB when the Mono installation completes.
+
+[NOTE]
+====
+Peach Fuzzer, LLC,
+recommends using Ubuntu Linux version 16.04 LTS,
+and Mono .NET runtime version 4.8.1 from the mono project.
+The mono project has `apt` packages for Ubuntu.
+
+Peach will not run with Mono version 5.0 or newer due to incompatibilities with IronPython.
+If you have Mono 5.0 installed, you must downgrade to 4.8.1.
+
+Peach will not run with version 4.4 of the Mono runtime as there are known
+handle leaks which can cause Peach to run out of memory during long fuzzing runs.
+If you have Mono 4.4 installed,
+you can either upgrade to 4.6+ or downgrade to 4.2.
+
+Some Linux kernel versions have known issues with the Mono runtime.
+When using Ubuntu 14.04 LTS,
+avoid using kernel versions 3.13.0-48 through 3.13.0-54 inclusive.
+Version 14.04 LTS might require that you update the Linux kernel.
+If so, perform the following to update the kernel: `sudo apt-get install linux-image-generic`.
+
+The Peach installer checks for compatibility and alerts the user if an incompatibility has been detected.
+====
+
+The following steps will prepare Peach to run properly:
+
+. Install the latest `mono-complete` package.
++
+----
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys  3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+
+echo "deb http://download.mono-project.com/repo/debian wheezy/snapshots/4.8.1.0 main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list
+
+sudo apt-get update
+
+sudo apt-get install mono-complete
+
+----
+
+.	Install libpcap using the following command:
++
+----
+sudo apt-get install libpcap
+----
+
+. Optionally, install the GNU Debugger (GDB) to enable debugging of local processes.
++
+----
+sudo apt-get install gdb
+----
+
+. Unzip the Peach distribution to the appropriate folder.
+The file is a zip file with the extension `.zip`.
+Use the filename that begins with `peach-pro` and contains the appropriate architecture for your system,
+such as +peach-pro-{BUILDTAG}-linux_x86_64_release.zip+.
+
+==== Redhat Enterprise Linux (RHEL and CentOS)
+
+Installing Peach on a RHEL CentOS platform requires additional steps.
+Begin by installing Extra Packages for Enterprise Linux (EPEL),
+followed by the Mono package and Peach.
+
+[NOTE]
+====
+Peach Fuzzer, LLC, recommends using Mono .NET runtime version 4.8.1 from the mono project.
+The mono project has `yum` packages for RHEL and CentOS distributions.
+
+Peach will not run with Mono version 5.0 or newer due to incompatibilities with IronPython.
+If you have Mono 5.0 installed, you must downgrade to 4.8.1.
+
+Peach will not run with version 4.4 of the Mono runtime as there are known
+handle leaks which can cause Peach to run out of memory during long fuzzing runs.
+If you have Mono 4.4 installed,
+you can either upgrade to 4.6+ or downgrade to 4.2.
+====
+
+[NOTE]
+====
+The following Mono installation steps are taken from the
+link:http://www.mono-project.com/docs/getting-started/install/linux/#centos-7-fedora-19-and-later-and-derivatives[Mono Project].
+====
+
+The following steps provide the needed details:
+
+. Install `yum-utils` using the following command:
++
+----
+sudo yum install yum-utils
+----
+
+. Install Extra Packages for Enterprise Linux (EPEL) using the following command:
++
+----
+sudo yum install epel-release
+----
+
+. Import the GPG signing key for the mono package using the following command. Note the long search key:
++
+----
+sudo rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+----
+
+. Add and enable the mono project repository for CentOS using the yum configuration manager:
++
+----
+sudo yum-config-manager --add-repo http://download.mono-project.com/repo/centos/
+----
+
+.	Install the latest version of Mono using the following command:
++
+----
+sudo yum install mono-complete-4.8.1.0-0.xamarin.1
+----
+
+.	Install libpcap using the following command:
++
+----
+sudo yum install libpcap
+----
+
+. Unzip the Peach distribution to the appropriate folder.
+The file is a zip file with the extension `.zip`.
+Use the filename that begins with `peach-pro` and contains the appropriate architecture for your system,
+such as +peach-pro-{BUILDTAG}-linux_x86_64_release.zip+.
+
+[TIP]
+=====
+If you receive and error regarding libMonoPosixHelper the +/etc/mono/config+ file may need to be edited.
+To edit locate a line that looks like the following (the path may be different):
+
+----
+<dllmap dll="MonoPosixHelper" target="/usr/lib/libMonoPosixHelper.so" os="!windows" />
+----
+
+Once found use the Linux _find_ command to locate the shared library:
+
+----
+find /usr -name "*libMonoPosixHelper.so"
+----
+
+And finally, update the +/etc/mono/config+ entry to the correct path.
+=====
+
+[NOTE]
+====
+For more information, see the following resources:
+* http://www.mono-project.com/docs/getting-started/install/linux#centos-fedora-and-derivatives
+* https://fedoraproject.org/wiki/EPEL#How_can_I_use_these_extra_packages.3F
+====
+
+==== SUSE Enterprise Linux (SLES)
+
+To install Peach on a SUSE Enterprise Linux platform,
+use the 1-click SUSE mono-complete installation file.
+If you want to attach a debugger to a target process,
+install GDB when the Mono installation completes.
+
+[NOTE]
+====
+Peach Fuzzer, LLC, recommends using Mono .NET runtime version 4.8.1 from the mono project.
+The mono project has packages for SLES distributions.
+
+Peach will not run with Mono version 5.0 or newer due to incompatibilities with IronPython.
+If you have Mono 5.0 installed, you must downgrade to 4.8.1.
+
+Peach will not run with version 4.4 of the Mono runtime as there are known
+handle leaks which can cause Peach to run out of memory during long fuzzing runs.
+If you have Mono 4.4 installed,
+you can either upgrade to 4.6+ or downgrade to 4.2.
+====
+
+
+The following steps provide the needed details:
+
+. Import the GPG signing key for the mono package using the following command. Note the long search key:
++
+----
+sudo rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+----
+
+. Add and enable the mono project repository using the zypper configuration manager:
++
+----
+sudo zypper ar -f http://download.mono-project.com/repo/centos/ mono
+----
+
+.	Install the latest supported version of Mono using the following command:
++
+----
+sudo zypper in mono-complete=4.8.1.0-0.xamarin.1
+----
+
+.	Install libpcap using the following command:
++
+----
+sudo zypper in libpcap
+----
+
+. Optionally, install the GNU Debugger (GDB) for debugging local processes.
++
+----
+sudo yum install gdb
+----
+
+. Unzip the Peach binary distribution to the appropriate folder.
+The file is a zip file with the extension `.zip`.
+Use the filename that begins with `peach-pro` and contains the appropriate architecture for your system,
+such as +peach-pro-{BUILDTAG}-linux_x86_64_release.zip+.
+
+[TIP]
+=====
+If you receive and error regarding libMonoPosixHelper the +/etc/mono/config+ file may need to be edited.
+To edit locate a line that looks like the following (the path may be different):
+
+----
+<dllmap dll="MonoPosixHelper" target="/usr/lib/libMonoPosixHelper.so" os="!windows" />
+----
+
+Once found use the Linux _find_ command to locate the shared library:
+
+----
+find /usr -name "*libMonoPosixHelper.so"
+----
+
+And finally, update the +/etc/mono/config+ entry to the correct path.
+=====
+
+
+==== Other Linux Distributions
+
+For other Linux versions,
+the installation steps are a checklist,
+not specific commands.
+The checklist follows:
+
+. Install the Mono runtime. Version 4.8.1 is recommended.
+. Unzip the Peach distribution to an appropriate folder.
+The file is a zip file with the extension `.zip`.
+Use the filename that begins with `peach-pro` and contains the appropriate architecture for your system,
+such as +peach-pro-{BUILDTAG}-linux_x86_64_release.zip+.
+
+[NOTE]
+====
+Peach Fuzzer, LLC, recommends using Mono .NET runtime version 4.8.1 from the mono project.
+
+Peach will not run with Mono version 5.0 or newer due to incompatibilities with IronPython.
+If you have Mono 5.0 installed, you must downgrade to 4.8.1.
+
+Peach will not run with version 4.4 of the Mono runtime as there are known
+handle leaks which can cause Peach to run out of memory during long fuzzing runs.
+If you have Mono 4.4 installed,
+you can either upgrade to 4.6+ or downgrade to 4.2.
+====
+
+// end

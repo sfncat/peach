@@ -1,0 +1,527 @@
+<<<
+[[Publishers_Rest]]
+== Rest Publisher (Depricated)
+
+This publisher is depricated, please see xref:Publishers_WebApi[WebApi publisher].
+
+The _Rest_ Publisher  is an I/O adapter that communicates using the Representational State Transfer (Rest) architecture. This publisher communicates using HTTP as the underlying transport.
+
+This publisher supports sending body data as:
+
+ * JSON when models contain Json elements (JsonString, JsonObject, etc.) or the deprecated Json element.
+ * XML when models contain XmlElement
+ * As raw binary data when a custom content type is provided
+
+Similar to the xref:Publishers_Http[Http] publisher, the _Rest_ publisher supports setting headers by using a special action type 'call' syntax.
+See the examples section for an example of setting a custom header field.
+
+Several analyzers are useful when building Pits for RESTful APIs:
+
+xref:Analyzers_Json[Json]::
+    Converts JSON documents or strings into Peach data models.
+    Can be used both inside of DataModels with the String element or also via the command line.
+    
+xref:Analyzers_Postman[Postman]::
+    Converts Postman Catalogs to Peach Pits.
+    
+xref:Analyzers_Swagger[Swagger]::
+    Converts Swagger JSON to Peach Pits
+
+
+TIP: SSL/TLS is supported, just use +https+ as the protocol in the URL.
+
+TIP: By default the publisher will attempt to detect the body content type and set the correct ContentType header.
+
+=== Syntax
+
+[source,xml]
+----
+<!-- AUtomatically detect content type -->
+<Publisher class="Rest"/>
+
+<!-- Custom content type header -->
+<Publisher class="Rest">
+    <Param name="ContentType" value="application/octet-stream" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+There are no required parameters.
+
+_Optional:_
+
+ContentType:: Value for content-type header.  Set this to allow sending of binary data.
+
+BaseUrl:: Base URL is used by some authentication types. Only used as part of authentication.
+Username:: Username for authentication
+Password:: Optional password associated with the Username in authentication
+Domain:: Domain for authentication
+
+Cookies:: Enable cookie support. The default value is true.
+CookiesAcrossIterations:: Track cookies across iterations. The default value is false.
+
+FailureStatusCodes:: 
+    Comma separated list of status codes that are failures causing current test case to stop.
+    Defaults to: +400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,500,501,502,503,504,505+
+
+FaultOnStatusCodes:: Comma separated list of status codes that are faults. Defaults to none.
+Timeout:: How long to wait in milliseconds for data/connection. the default value is 3,000.
+IgnoreCertErrors:: Allow HTTPS regardless of cert status. The default value is true.
+
+Proxy::
+    To use HTTP proxy, set the URL. Default is none. Example: +http://192.168.1.1:8080+. +
+     +
+    Please note that the host +localhost+ and IP 127.0.0.1 will bypass the provided proxy. This is a behavior hardcoded into the underlying http networking code. For a discussion of options to deal with this limitation see the following article: link:http://docs.telerik.com/fiddler/Configure-Fiddler/Tasks/MonitorLocalTraffic[Fiddler - Monitoring Local Traffic].
+
+
+=== Actions
+
+xref:Action_call[call]::
++
+Call actions are used to perform Rest calls.
++
+The method attribute contains both the HTTP method (GET, POST, etc.) and the URL.
+The URL portion of the method attribute can contain parameter substitution tokens.
+These tokens are replaced with the parameters provided.
+One additional parameter can be provided that is used for the body of the request.
++
+* The format of the method attribute is: +METHOD URL+
+* This example places a call that expects to receive a single parameter: +GET /product/{0}+
+* This example places a call that expects to receive two parameters: +GET /invoices?start_date={0}&end_date={1}+
++
+A final Param can be added to provide the body content if needed.
++
+This action also supports the xref:Action_call[Result] element to capture the response paylaod.
++
+TIP: The order of the parameters is important. In order they are matched to the substitutions of {0}, then {1}, etc.  The final Param (optional) is used for the body payload.
+
+xref:Action_call[call]::
++
+Call actions are used to set HTTP headers.
++
+To set a header using a call action you must:
++
+* Set the method to "Header"
+* Have two parameters named +Name+ and +Value+
+* The +Name+ parameter is the header key name
+* The +Value+ parameter is the value for the header
++
+By default they are fuzzed. This can be disabled using the +mutable+ attribute on the data model and data elements or using the +Include/Exclude+ elements in the +Test+ portion of the xml.
++
+An example of settings headers both via Python and also the +call+ action are provided in the Example section.
+
+=== Scripting
+
+The Rest publisher exposes a public Headers dictionary that can be used to add/remove headers from Python scripting code.  See example _Setting Custom Authentication Header via Python_ below.
+
+=== Example
+
+.Calling Rest Services with Result
+===================================
+
+The following example provides three fragments using the GET and POST methods. 
+For the GET request, the Result element is used to capture any returned data.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="PostData">
+    <JsonObject>
+        <JsonString propertyName="Name" value="Widget" />
+        <JsonDouble propertyName="Price" value="1.99" />
+        <JsonInteger propertyName="Quantify" value="1" />
+    </JsonObject>
+</DataModel>
+
+<DataModel name="RestString">
+	<String name="value" value="">
+		<Hint name="Peach.TypeTransform" value="false" />
+	</String>
+</DataModel>
+
+<DataModel name="RestResult">
+	<Choice name="ResultOrEmpty">
+		<String name="Result">
+			<Analyzer class="Json" />
+		</String>
+		<Block name="Empty" />
+	</Choice>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+        <Action type="call" method="GET http://www.example.com/product/{0}">
+            <!-- {0} -->
+            <Param name="Id">
+                <DataModel ref="RestString" />
+				<Data>
+					<Field name="value" value="1"/>
+				</Data>
+            </Param>
+
+            <!-- Capture Response (optional) -->
+            <Result>
+                <DataModel ref="RestResult" />
+            </Result>
+        </Action>
+
+        <Action type="call" method="GET http://www.example.com/invoices?start_date={0}&amp;end_data={1}">
+            <!-- {0} -->
+            <Param name="StartDate">
+                <DataModel ref="RestString" />
+				<Data>
+					<Field name="value" value="11-21-2011"/>
+				</Data>
+            </Param>
+
+            <!-- {1} -->
+            <Param name="EndDate">
+                <DataModel ref="RestString" />
+				<Data>
+					<Field name="value" value="11-21-2015"/>
+				</Data>
+            </Param>
+
+            <!-- Capture Response (optional) -->
+            <Result>
+                <DataModel ref="RestResult" />
+            </Result>
+        </Action>
+
+        <Action type="call" method="POST http://www.example.com/product/{0}">
+            <!-- {0} -->
+            <Param name="Id">
+                <DataModel ref="RestString" />
+				<Data>
+					<Field name="value" value="100"/>
+				</Data>
+            </Param>
+
+            <!-- POST Body -->
+            <Param name="PostData">
+                <DataModel ref="PostData" />
+            </Param>
+        </Action>
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="Rest" />
+</Test>
+
+</Peach>
+----
+
+===================================
+
+
+.Posting XML
+===================================
+
+The following example provides three fragments using the GET and POST methods.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="RestString">
+	<String name="value" value="">
+		<Hint name="Peach.TypeTransform" value="false" />
+	</String>
+</DataModel>
+
+<DataModel name="PostData">
+    <XmlElement elementName="Product">
+        <XmlAttribute attributeName="Name">
+            <String value="Widget" />
+        </XmlAttribute>
+        <XmlAttribute attributeName="Price">
+            <String value="1.99" />
+        </XmlAttribute>
+        <XmlAttribute attributeName="Quantity">
+            <String value="1" />
+        </XmlAttribute>
+    </XmlElement>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+
+        <Action type="call" method="POST http://www.example.com/product/{0}">
+            <!-- {0} -->
+            <Param name="Id">
+                <DataModel ref="RestString" />
+                <Data>
+                    <Field name="value" value="1" />
+                </Data>
+            </Param>
+
+            <!-- POST Body -->
+            <Param name="PostData">
+                <DataModel ref="PostData" />
+            </Param>
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="Rest" />
+</Test>
+
+</Peach>
+----
+===================================
+
+
+.Posting Binary
+===================================
+
+The following example provides three fragments using the GET and POST methods.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="RestString">
+	<String name="value" value="">
+		<Hint name="Peach.TypeTransform" value="false" />
+	</String>
+</DataModel>
+
+<DataModel name="PostData">
+    <Blob />
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+
+        <Action type="call" method="POST http://www.example.com/product/{0}/image">
+            <!-- {0} -->
+            <Param name="Id">
+                <DataModel ref="RestString" />
+                <Data>
+                    <Field name="value" value="1" />
+                </Data>
+            </Param>
+
+            <!-- POST Body -->
+            <Param name="PostData">
+                <DataModel ref="PostData" />
+                <Data fileName="image.png" />
+            </Param>
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+
+    <StateModel ref="Default"/>
+    <Publisher class="Rest">
+        <Param name="ContentType" value="application/octet-stream" />
+    </Publisher>
+
+</Test>
+
+</Peach>
+----
+===================================
+
+.Setting Custom Header via Pit
+===================================
+
+The following example shows how to set a custom header via the Pit XML.
+The custom header is named "X-CustomeHeader" with a value of "Hello World".
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="RestString">
+	<String name="value" value="">
+		<Hint name="Peach.TypeTransform" value="false" />
+	</String>
+</DataModel>
+
+<DataModel name="RestResult">
+	<Choice name="ResultOrEmpty">
+		<String name="Result">
+			<Analyzer class="Json" />
+		</String>
+		<Block name="Empty" />
+	</Choice>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+	
+		<!-- Add X-CustomHeader header -->
+		<Action type="call" method="Header">
+            <Param name="Name">
+                <DataModel ref="RestString" />
+				<Data>
+					<Field name="value" value="X-CustomHeader"/>
+				</Data>
+            </Param>
+            <Param name="Value">
+                <DataModel ref="RestString" />
+				<Data>
+					<Field name="value" value="Hello World!"/>
+				</Data>
+            </Param>
+		</Action>
+	
+        <Action type="call" method="GET http://www.example.com/product/{0}">
+            <!-- {0} -->
+            <Param name="Id">
+                <DataModel ref="RestString" />
+				<Data>
+					<Field name="value" value="1"/>
+				</Data>
+            </Param>
+
+            <!-- Capture Response (optional) -->
+            <Result>
+                <DataModel ref="RestResult" />
+            </Result>
+        </Action>
+		
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="Rest" />
+</Test>
+
+</Peach>
+----
+
+===================================
+
+.Setting Custom Authentication Header via Python
+===================================
+
+The following example shows how to add custom authentication via a python script.
+In this example we will configure a pit for fuzzing an Amazon AWS S3 service endpoint.
+This is only and example and should not actually be used to fuzz AWS.
+
+[source,python]
+----
+import base64
+import hmac
+from hashlib import sha1
+from email.Utils import formatdate
+
+AWS_ACCESS_KEY_ID = "44CF9590006BF252F707"
+AWS_SECRET_KEY = "OtxrzxIsfpFjA7SwPzILwy8Bw21TLhquhboDYROV"
+
+def AwsAuthGen(context, action):
+
+    # Get the Publisher (RestPublisher)
+    if action.publisher:
+        publisher = context.test.publishers[action.publisher]
+    else:
+        publisher = context.test.publishers[0]
+
+    XAmzDate = formatdate()
+
+    h = hmac.new(AWS_SECRET_KEY, "PUT\n\napplication/json\n\nx-amz-date:%s\n/?policy" % XAmzDate, sha1)
+    authToken = base64.encodestring(h.digest()).strip()
+
+    publisher.Headers.Add("x-amz-date", XAmzDate)
+    publisher.Headers.Add("Authorization", "AWS %s:%s" % (AWS_ACCESS_KEY_ID, authToken))
+
+# end
+----
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <Import import="aws_s3_example"/>
+  
+  <!--
+{
+"Version":"2008-10-17",
+"Id":"aaaa-bbbb-cccc-dddd",
+"Statement" : [
+    {
+        "Effect":"Allow",
+        "Sid":"1", 
+        "Principal" : {
+            "AWS":["111122223333","444455556666"]
+        },
+        "Action":["s3:*"],
+        "Resource":"arn:aws:s3:::bucket/*"
+    }
+ ] 
+} 
+  -->
+  <!-- Generated using the JSON analyzer -->
+  <DataModel name="Policy">
+    <JsonObject>
+      <JsonString propertyName="Version" name="Version" value="2008-10-17" />
+      <JsonString propertyName="Id" name="Id" value="aaaa-bbbb-cccc-dddd" />
+      <JsonArray propertyName="Statement" name="Statement">
+        <JsonObject propertyName="Statement" name="Statement">
+          <JsonString propertyName="Effect" name="Effect" value="Allow" />
+          <JsonString propertyName="Sid" name="Sid" value="1" />
+          <JsonObject propertyName="Principal" name="Principal">
+            <JsonArray propertyName="AWS" name="AWS">
+              <JsonString propertyName="AWS" name="AWS" value="111122223333" />
+              <JsonString value="444455556666" />
+            </JsonArray>
+          </JsonObject>
+          <JsonArray propertyName="Action" name="Action">
+            <JsonString propertyName="Action" name="Action" value="s3:*" />
+          </JsonArray>
+          <JsonString propertyName="Resource" name="Resource" value="arn:aws:s3:::bucket/*" />
+        </JsonObject>
+      </JsonArray>
+    </JsonObject>
+  </DataModel>
+
+  <StateModel name="TheStateModel" initialState="Initial">
+    <State name="Initial">
+
+      <Action type="call" method="PUT http://XXXXX.s3.amazonaws.com/?policy"
+              onStart="aws_s3_example.AwsAuthGen(context, action)">
+            
+        <Param name="Body">
+          <DataModel ref="Policy" />
+        </Param>
+      </Action>
+      
+    </State>
+  </StateModel>
+
+  <Test name="Default" maxOutputSize="20000000">
+    <StateModel ref="TheStateModel"/>
+    <Publisher class="Rest">
+      <Param name="FaultOnStatusCodes" value="500,501,502,503,504,505" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+
+===================================
+
+

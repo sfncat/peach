@@ -1,0 +1,20 @@
+:toc!:
+== ProcessKiller Monitor
+
+The _ProcessKiller_ monitor will kill (terminate) specified processes after each iteration.
+
+=== Parameters
+
+ * _ProcessNames_ -- Names of processes to kill (comma separated)
+ 
+=== Examples
+
+.Terminate two processes
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="ProcessKiller">
+		<Param name="ProcessNames" value="nc.exe,foo.exe" />
+	</Monitor>
+</Agent>
+----

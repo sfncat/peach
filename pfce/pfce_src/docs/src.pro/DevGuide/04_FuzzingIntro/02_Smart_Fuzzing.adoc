@@ -1,0 +1,31 @@
+=== Smart Fuzzing
+
+Smart fuzzers are a class of fuzzers that operate with some knowledge and understanding of the target, and of data that the target consumes. The amount of knowledge depends on the fuzzer used.
+
+A typical smart fuzzer does the following things:
+
+* Understand the data format used by the target application to consume incoming data.
+* Monitor the target for fault conditions.
+* Modify the data to gain better coverage or increase the ability to detect certain types of issues.
+
+Data understanding includes:
+
+* Type information (string, integer, byte array).
+* Relationships between fields in the data (length, offset, count).
+* Ability integrity fields such as a checksum or a CRC.
+
+At this level, understanding the data structures and data types allows the fuzzer to make more-informed changes (mutations) to the data. Smart fuzzers use this understanding level to find more bugs.
+
+Smart fuzzers can control and monitor the fuzzing environment. Environment and instrumentation controls start all the components of the system so they are ready to fuzz; on a faulting condition, they reset the environment to a known, good state. Smart fuzzers can detect a faulting condition and collect any interesting data in the system at the time of the fault (including output from a debugger, a network capture, or files on the file system), and log the data for later review. High-quality smart fuzzers can run unattended for long periods and capture enough information to allow a resource to reasonably reproduce and investigate the faults that occurred.
+
+Smart fuzzers also perform bug bucketing and basic risk analysis.
+  Fuzzing commonly finds the same issue multiple times during a long run. Bucketing is an industry term for associating similar (and possibly duplicate) issues together.  Bucketing implementations can use a simple set of categories to group issues, or use a tiered set of categories. The Peach Fuzzer buckets issues using two tiers: major and minor levels.
+
+* Minor differences between faults mean that the issues are basically the same, but worth reviewing to make sure.
+* Major differences are generally distinct issues.
+
+Along with buckets, initial risk analysis allows you to direct your attention first on higher risk faults before spending time on lower risk issues. Risk analysis is not always possible, but useful when it can be performed.
+
+For an example of building a smart fuzzer with Peach, see the xref:TutorialFileFuzzing[smart file fuzzing tutorial.]
+
+// end

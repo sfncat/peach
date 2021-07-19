@@ -1,0 +1,8 @@
+:toc!:
+== UnicodeUtf8ThreeCharMutator ==
+
+This mutator will generate a large list of long UTF-8 three byte strings that are useful for fuzzing.
+
+_Target Elements_
+
+ * link:../String.html[String]

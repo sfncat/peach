@@ -1,0 +1,20 @@
+[[Program_PeachValidator]]
+== Peach Validator
+
+The Peach Validator tool provides a visual view of data models before and after data is cracked into them. It's a useful to verify data is correctly cracking into your model in a visual manner.
+
+Peach Validator is used with the +--debug+ parameter to debug custom pit files. When an error does occur some debugging information is provided via Peach Validator; for a more complete picture, review the +--debug+ output.
+
+To use Peach Validator:
+
+. Open the application
+. Using the icons in the toolbar, open the pit file.
+. In the drop down menu, use the toolbar to select one of the data models found in the file.
+. Once you select the data model, it is displayed in the lower half of the window.
+. A sample file can be loaded and cracked by using the right-most file-open icon in the toolbar.
+
+Once the file is loaded, it is automatically cracked into the model. As elements are selected in the lower half of the screen, the byte range is shown in the hex view on top.
+
+// TODO - Expand on peach validator docs. Add images.
+
+// end

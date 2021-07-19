@@ -1,0 +1,91 @@
+<<<
+[[Monitors_PopupWatcher]]
+== PopupWatcher Monitor (Windows)
+
+*Monitor Categories*: *Automation*, *Fault detection*
+
+The _PopupWatcher_ monitor closes pop-up windows based on a window title.
+_PopupWatcher_ monitors the test target for a list of windows.
+When a window opens whose name is in the list,
+_PopupWatcher_ closes the pop-up window,
+and if specified in the configuration,
+initiates a fault.
+
+This monitor starts at the beginning of the session and runs to the session end.
+
+[NOTE]
+====
+Some applications re-use a pop-up window for many purposes.
+The window has one title,
+but the main area of the window can display several different messages depending on the context of the application.
+If you're interested in monitoring a pop-up window based on content rather than the window title,
+consider using the xref:Monitors_ButtonClicker[ButtonClicker Monitor].
+====
+
+=== Parameters
+
+_Required:_
+
+WindowNames::
+One or more Window names separated by commas.
+
+TIP: The comma-delimited list should not contain any white-space characters.
+
+_Optional:_
+
+Fault::
+Trigger a fault when a pop-up window is found, default `false`.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Fault on Assert
+====================
+
+This parameter example is from a setup that initiates a fault when a window titled `Assertion` is found.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|WindowNames  |`Assertion`
+|Fault        |`true`
+|==========================================================
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Close Notepad
+================
+For this example, you must first launch `notepad.exe`, then start Peach.
+
+[source,xml]
+----
+include::PopupWatcher_Example.xml[]
+----
+
+Output for this example.
+
+----
+include::PopupWatcher_Example.log[]
+----
+================
+
+.Fault on Assert
+================
+[source,xml]
+----
+include::PopupWatcher_Example_Fault.xml[]
+----
+
+Output for this example.
+
+----
+include::PopupWatcher_Example_Fault.log[]
+----
+================
+
+endif::peachug[]

@@ -1,0 +1,117 @@
+<<<
+[[Test_Mutators]]
+== Mutators
+
+The Mutators element, a child element of Test, specifies either a list of mutators to include in a fuzzing test run or a list of mutators to exclude from a fuzzing test run. 
+	
+By default, Peach includes all mutations in a fuzzing run. 
+
+When specifying mutators to include in a test, Peach uses the supplied list of mutators 
+in the test. If a mutator name is not listed, peach does not include that mutator in the test run.
+
+When specifying the mutators to exclude from a test, Peach uses all mutators in the test except those 
+supplied in the list. If a mutator name is not listed, peach keeps the mutator included in the test session.
+
+NOTE: A test can include at most one list of mutators: an include list or an exclude list.
+
+TIP: The mutator names are listed in the Peach DOM, accessible by running the *peach --showenv* command.
+
+=== Syntax
+
+[source,xml]
+----
+<Test>
+    <Mutators mode="include_or_exclude">
+        <Mutator class="Xyz" />
+    </Mutators>
+</Test>
+
+----
+
+=== Attributes
+
+_Required:_
+
+mode:: Either "include" or "exclude" must be specified. The list of mutators must contain at least one mutator entry.
+
+_Optional:_
+
+None.
+
+=== Examples
+
+.Test a single mutator
+====================
+This example uses a single mutator in the test run.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String  type="utf16" value="1" />
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+    <Test name="Default">
+		<StateModel ref="TheStateModel" />
+		<Publisher class="ConsoleHex"/>
+
+        <!-- Use StringUtf16BomLength mutator in the test.  -->
+        <!-- No other mutator is in the test run.  -->
+        
+        <Mutators mode="include">
+            <Mutator class="StringUtf16BomLength" />
+        </Mutators>
+    </Test>
+
+</Peach>
+----
+====================
+
+.Omit a single mutator from testing
+====================
+This example excludes one mutator from the test run.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String  type="utf16" value="2" />
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+    <Test name="Default">
+		<StateModel ref="TheStateModel" />
+		<Publisher class="ConsoleHex"/>
+
+        <!-- Exclude the StringCaseLower mutator from the test. -->
+        <!-- All other mutators are in the test run.   -->
+        
+        <Mutators mode="exclude">
+            <Mutator class="StringCaseLower" />
+        </Mutators>
+    </Test>
+
+</Peach>
+----
+====================

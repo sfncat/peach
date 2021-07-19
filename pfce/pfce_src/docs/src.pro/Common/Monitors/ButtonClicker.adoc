@@ -1,0 +1,101 @@
+<<<
+[[Monitors_ButtonClicker]]
+== ButtonClicker Monitor
+
+*Monitor Category*: *Automation*
+
+The _ButtonClicker_ monitor provides automation functionality by clicking buttons
+in the Windows GUI. This monitor runs in the Windows environment. _ButtonClicker_
+watches and clicks the appropriate button within the specified window. You can use
+_ButtonClicker_ to click a button in the window, such as "OK" or "Close".
+
+The intent of this monitor is to initiate an action or to close a window to keep a
+fuzzing session active. _Buttonclicker_ runs from the beginning of a fuzzing session
+to the end of the session.
+
+The following example uses an FTP client, FileZilla, that sometimes opens a popup window
+asking whether to install an update. Here, _ButtonClicker_ monitor provides a mouse
+click to the "Close" button to close the popup window. With the popup window out of
+the way, fuzzing continues without delay.
+
+image::{images}/Common/Monitors/ButtonClicker_FTP.png[scalewidth="40%"]
+
+NOTE: Another monitor to consider for watching popup windows is
+xref:Monitors_PopupWatcher[PopupWatcher], that can monitor several popup windows.
+
+=== Parameters
+
+_Required:_
+
+WindowText:: Text from the window title that identifies the window to receive the button
+click. The text string can be part or all of the window title.
+
+ButtonName:: Text label of the button to click. The label is displayed to the user,
+and is on or near the button that will receive the click.
+
+_Optional:_
+
+None.
+
+[TIP]
+====
+If Peach has trouble clicking a button, the button might have a link to a shortcut key.
+
+The shortcut key is displayed in the label using an underlined character. Windows does
+this by inserting an ampersand "&" immediately before the shortcut key within the button
+label. Further, not all underlining shows in the initial display of the window.
+
+In an application, you can manually force underlining to display in window buttons by
+pressing the <CTRL> or <ALT> key. Once you find the underlining in the application,
+you can adjust the value of the +ButtonName+ parameter for _ButtonClick_ by inserting
+an ampersand (&) immediately before any underlined character. Then, Peach will find the
+button to click.
+
+For example, in Microsoft Word, the Browsing dialog box used to open a document does
+not immediately display underlining in its command buttons. You can see this by following
+the sequence that opens a file:
+
+. Click *File* on the ribbon.
+. Click *Open* on the vertical menu.
+. Click *Computer* in the Open column.
+. Click the *Browse* button. +
+The dialog opens and the "Open" button in the lower right corner is not underlined. Press the <ALT> or <CTRL> key to see the underlining as in the following illustration.
++
+image::{images}/Common/Monitors/ButtonClicker_Shortcut.png[]
+====
+
+=== Examples
+
+ifdef::peachug[]
+
+.Basic Usage Example +
+
+This parameter example is from the FTP client previous listed. The monitor will respond to the popup window that asks whether to install an update.
+
+The ButtonClicker monitor uses the following parameter settings to click the "Close" button in the popup window :
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|WindowText   |`for Updates`
+|ButtonName   |`Close`
+|==========================================================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Basic Usage Example +
+
+This example uses the ButtonClicker monitor to respond to a question from a pop-up window that displays when restarting an application after a crash.
+
+=======================
+[source,xml]
+----
+include::ButtonClicker_Example.xml[]
+----
+
+=======================
+
+endif::peachug[]

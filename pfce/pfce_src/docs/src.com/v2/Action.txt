@@ -1,0 +1,229 @@
+:toc!:
+== Action ==
+
+Action elements perform various actions in the state model such as sending output, receiving input, or changing to another state in the state model.  Actions are child elements of link:State.html[State].
+
+[source,xml]
+----
+<Action name="SendData" type="output">
+  <DataModel ref="MyDataModel" />
+
+  <!-- Optional data element -->
+  <Data name="load defaults" fileName="template.bin" />
+</Action>
+
+----
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the action [optional]
+ * link:type.html[type] -- Action type [required]
+ * link:when.html[when] -- Only preform action if expression provided is true.
+ * link:onComplete.html[onComplete] -- Expression to run on completion of action
+ * link:onStart.html[onStart] -- Expression to run on start of action
+ * link:method.html[method] -- Method to call [required, type=call]
+ * link:property.html[property] -- Property to get or set [required, type=setprop, getprop]
+ * link:setXpath.html[setXpath] -- XPath for value to set [required, type=slurp]
+ * link:value.html[value] -- Value [type=slurp]
+ * link:valueXpath.html[valueXpath] -- XPath for value [type=slurp]
+ * link:ref.html[ref] -- Reference of state to change to [type=changeState]
+
+_Valid Child-Elements:_
+
+ * link:DataModel.html[DataModel]
+ * link:Data.html[Data]
+ * link:Param.html[Param]
+
+== Action Types ==
+
+=== start (implicit) ===
+
+Start up the publisher, this is an implicit action and is not normally needed.
+
+[source,xml]
+----
+<Action type="start" />
+----
+
+
+=== stop (implicit) ===
+
+Stop the publisher, this is an implicit action and is not normally needed.
+
+[source,xml]
+----
+<Action type="stop" />
+----
+
+
+=== open/connect (implicit) ===
+
+Open and connect are aliases for each other and perform the same action.  Typically this action is implicit, for files the file must be opened or created, for sockets a connection is made.  Only when special control is required does one need to use this action.
+
+[source,xml]
+----
+<Action type="open" />
+----
+
+
+[source,xml]
+----
+<Action type="connect" />
+----
+
+
+=== close (implicit) ===
+
+Close is also implicit and is not normally required unless specific control is wanted.
+
+[source,xml]
+----
+<Action type="close" />
+----
+
+
+=== accept ===
+
+Accept an incoming connection.  Not all publishers support this action type.  This action will typically block until the incoming connection available.
+
+[source,xml]
+----
+<Action type="accept" />
+----
+
+
+=== input ===
+
+Receive or read input from the publisher.  Requires a data model be specified to hold the incoming data.
+
+[source,xml]
+----
+<Action type="input">
+   <DataModel ref="InputModel" />
+</Action>
+----
+
+
+=== output ===
+
+Send or write output via publisher.  Requires a data model and an optional data set.
+
+[source,xml]
+----
+<Action type="output">
+   <DataModel ref="SomeDataModel" />
+</Action>
+
+<Action type="output">
+   <DataModel ref="SomeDataModel" />
+   <Data name="somesampledata" fileName="sample.bin" />
+</Action>
+----
+
+
+=== call ===
+
+Call a method with optional parameters.  Not supported by all publishers.
+
+[source,xml]
+----
+<Action type="call" method="openUrl">
+  <Param name="p1" type="in">
+     <DataModel ref="Param1DataModel" />
+  </Param>
+  <Param name="p2" type="in">
+     <DataModel ref="Param2DataModel" />
+     <Data name="p2data">
+        <Field name="value" value="http://foo.com" />
+     </Data>
+  </Param>
+</Action>
+----
+
+
+=== setprop ===
+
+Set a property.
+
+[source,xml]
+----
+<Action type="setprop" property="Name">
+   <DataModel ref="NameModel"/>
+</Action>
+----
+
+
+=== getprop ===
+
+Get a property.
+
+[source,xml]
+----
+<Action type="setprop" property="Name">
+   <DataModel ref="NameModel"/>
+</Action>
+----
+
+
+=== slurp ===
+
+Slurp allows moving data between two data models.  Typically these data models are assigned to different Actions in a StateModel.  A standard use case is during a protocol sequence you are given a sequence id, or a challenge id you must send back to the server.  You can use slurp to move that data to be sent back.
+
+[source,xml]
+----
+<DataModel name="ReceiveChallenge">
+  <String name="Challenge" />
+</DataModel>
+<DataModel name="SendChallenge">
+  <String name="Challenge" />
+</DataModel>
+
+<!-- Other stuff -->
+
+<State>
+  <Action name="ReceiveChallenge" type="input">
+    <DataModel ref="ReceiveChallenge"/>
+  </Action>
+
+  <Action type="slurp" valueXpath="//ReceiveChallenge//Challenge" setXpath="//SendChallenge//Challenge" />
+  
+  <Action name="SendChallenge" type="output">
+    <DataModel ref="SendChallenge"/>
+  </Action>
+</State>
+----
+
+
+=== changeState ===
+
+Change to a different state.
+
+[source,xml]
+----
+
+<StateModel name="StateModel" initialState="State1">
+
+    <State name="State1">
+
+       <Action type="changeState" ref="State2">
+
+       ...
+
+       </Action>
+
+    </State>
+
+    <State name="State2">
+
+       <Action>
+
+       ...
+
+       </Action>
+
+    </State>
+
+</StateModel>
+
+----
+

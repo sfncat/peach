@@ -1,0 +1,12 @@
+:toc!:
+== BitFlipperMutator ==
+
+This mutator will by default flip 20% of the bits in a Blob element.  This can with large blobs lead to lots of test cases.  Using the Hint _BitFlipperMutator-N_ one can supply the number of bits to flip.
+
+_Target Elements_
+
+ * link:Blob.html[Blob]
+
+_Hints_
+
+ * BitFlipperMutator-N -- Number of bits to flip [Peach 2.2]

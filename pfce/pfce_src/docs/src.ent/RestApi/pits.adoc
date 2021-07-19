@@ -1,0 +1,114 @@
+
+== Pits
+
+Pits
+Stuff related to pits
+
+*Versioning*
+
+Versioning is largely hidden from the user and is a revision history of all changes to the pit. This
+is done so we can have a link between jobs and the exact pit used on the job. Via PF UI the user could
+ask to see the "revision history", but we are not making that a focus of any workflow. (e.g. you 
+would not create a new job with an old pit.)
+
+.Get all availble pits
+[source,java]
+----
+GET /p/pits
+< 200
+< Content-Type: application/json
+{
+    <!-- array of pit entries -->
+    "pits":[{}]
+}
+----
+
+.Get all stored pits
+[source,java]
+----
+GET /p/pits/ID
+< 200
+< Content-Type: application/json
+{
+    "pitUrl":"",
+    "name":"PNG Graphics Format",
+    "description":"",
+	
+    /* When a pit is locked, new versions cannot be created. Pits in the
+         peach enterprise library are always locked to avoid update conflicts */
+    "locked":"false",
+    "tags":[{}],
+	
+	// all versions of this pit
+    "versions":[{
+            // sequencial version counter
+            "version":1,
+            
+			/* once a version of a pit has been used to create a job
+                 it is considered locked and unable to be updated. a new
+                 version of the pit needs to be created when saving. */
+            "locked":"false",
+            
+			// files list should include any dependency files
+            "files":[
+				{"name":"foo.xml", 
+				"fileUrl":"GRIDFS URL"
+				}
+			],
+            
+			// versions of peach supported by definition
+            "peaches":[
+                {"major":3,"minor":1,"build":0,"peachesUrl":""}
+                ],
+			
+            "user":"deja\\mike",
+            "timestamp":9/23/2013 8:30:04 PM
+    }]
+}
+----
+
+.Upload a new pit
+[source,java]
+----
+POST /p/pits
+{
+    "name":"",
+    "description":"",
+    "tags":[{"name":""}],
+    "files":[{"name":""}]
+}
+< 201
+< Content-Type: application/json
+{
+    <!-- pit information here -->
+}
+----
+
+.Adds a new version and files to a pit
+[source,java]
+----
+PUT /p/pits/ID
+{
+    "files":[{"name":""}]
+}
+< 201
+< Content-Type: application/json
+{
+    <!-- pit information here -->
+}
+----
+
+.Deletes a pit (???)
+[source,java]
+----
+DELETE /p/pits/ID
+< 200
+< Content-Type: application/json
+{}
++++++
+< 422
+< Content-Type: application/json
+{
+    "message":"validation message"
+}
+----

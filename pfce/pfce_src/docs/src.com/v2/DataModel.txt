@@ -1,0 +1,68 @@
+:toc!:
+== DataModel ==
+
+The DataModel element is a child of the Peach root element.  DataModels define the structure of a data block by specifying additional child elements such as link:Number.html[Number] and link:String.html[String].
+
+[source,xml]
+----
+<DataModel name="HelloWorld">
+  <String value="Hello world!" />
+</DataModel>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [required]
+ * link:ref.html[ref] -- Reference to a data model to use as a template [optional]
+ * link:pointer.html[pointer] -- (Peach 2.3) Is this a pointer to a structure (true|false), default is false [optional]
+ * link:pointerDepth.html[pointerDepth] -- (Peach 2.3) How many levels of pointers (e.g. void** p is 2), default is 1 [optional]
+
+_Valid Child-Elements:_
+
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:String.html[String]
+ * link:Number.html[Number]
+ * link:Blob.html[Blob]
+ * link:Flags.html[Flags]
+ * link:Fixup.html[Fixup]
+ * link:Relation.html[Relation]
+ * link:Transformer.html[Transformer]
+
+Any number of data models can be specified in a Peach Pit file.  Typically models of complex formats are split up into parts, each part in it's own data model to make it easier to read or re-use.
+
+If a reference (ref attribute) is supplied the contents of the reference are copied to create the base of the new data model.  Any child elements in the data model will override elements that already exist with the same name.
+
+[source,xml]
+----
+<DataModel name="Template">
+  <String name="Key" />
+  <String value=": " token="true" />
+  <String name="Value" />
+  <String value="\r\n" token="true" />
+</DataModel>
+
+<DataModel name="Customized" ref="Template">
+  <String name="Key" value="Content-Length" />
+  <String name="Value">
+    <Relation type="size" of="HttpBody" />
+  </String>
+</DataModel>
+----
+
+
+When parsed into a data model, Customized will look like the combination of both data models.
+
+[source,xml]
+----
+<DataModel name="Customized" ref="Template">
+  <String name="Key" value="Content-Length" />
+  <String value=": " token="true" />
+  <String name="Value">
+    <Relation type="size" of="HttpBody" />
+  </String>
+  <String value="\r\n" token="true" />
+</DataModel>
+----
+

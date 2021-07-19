@@ -1,0 +1,12 @@
+:toc!:
+== HotFuzz - Automatic Protocol Fuzzer ==
+
+HotFuzz is an open source implementation of the Peach-In-The-Middle network fuzzing concept.  This concept has two main feature:
+
+ . Modify Peach to act as a network proxy
+ . Use Wiresharks protocol dissectors to perform smart fuzzing with no data model creation
+ . Modify Peach agent system to drive the "network client" and monitor the "network server"
+
+HotFuzz goes further and also provides a UI interface for usage and excellent documentation for both the user and developer.  HotFuzz is an automatic protocol fuzzer build on Peach fuzzing framework. It is two-semestral work of five students at Charles University in Prague. For more information, please refer to specification.
+
+http://hotfuzz.sourceforge.net/[HotFuzz Project Page]

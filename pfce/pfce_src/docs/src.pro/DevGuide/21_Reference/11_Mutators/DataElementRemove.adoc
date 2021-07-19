@@ -1,0 +1,15 @@
+<<<
+[[Mutators_DataElementRemove]]
+== DataElementRemove
+
+This mutator produces a single test case by removing all data elements from the model.
+
+=== Supported Elements
+
+All data elements are supported.
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

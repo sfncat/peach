@@ -1,0 +1,106 @@
+:toc!:
+== Transformers ==
+
+Transformers perform static tranforms or encoding on the parent element.  These transforms are typically (but not always) two directional (encode and decode).  Such as ZIP compression, Base64 encoding, HTML encoding, etc.
+
+Transfomers differ from Fixups in they operate on the parent element while Fixups typically get a reference to another element they pull data from.
+
+
+For example:
+
+[source,xml]
+----
+<DataModel name="Base64TLV">
+  <Number name="Type" size="8" signed="false" value="1" token="true" />
+  <Number name="Length" size="16" signed="false">
+    <Relation type="size" of="base64Block" />
+  </Number>
+
+  <Block name="base64Block">
+    <Transformer class="encode.Base64Encode" />
+    <Blob name="Data" />
+  </Block>
+</DataModel>
+----
+
+
+
+When out putted would have the value of 0x01<len(b64(Data))><b64(Data)>
+
+== Default Transformers ==
+
+*ASN.1*
+
+ * BerEncodeBitString
+ * BerEncodeBoolean
+ * BerEncodeInteger
+ * BerEncodeObjectIdentifier
+ * BerEncodeOctetString
+ * CerEncodeBitString
+ * CerEncodeBoolean
+ * CerEncodeInteger
+ * CerEncodeObjectIdentifier
+ * CerEncodeOctetString
+ * DerEncodeBitString
+ * DerEncodeInteger
+ * DerEncodeObjectIdentifier
+ * DerEncodeOctetString
+ * DerEncodeBoolean
+
+
+*Compression*
+
+ * Bz2Compress
+ * Bz2Decompress
+ * GzipCompress
+ * GzipDecompress
+
+*Crypto*
+
+ * link:Crypt.html[Crypt]
+ * UnixMd5Crypt
+ * ApacheMd5Crypt
+ * CvsScramble
+ * link:MD5.html[MD5]
+ * link:SHA1.html[SHA1]
+ * link:HMAC.html[HMAC]
+
+*Encode*
+
+ * SidStringToBytes
+ * WideChar
+ * link:Utf8.html[Utf8]
+ * link:Utf16.html[Utf16]
+ * Utf16Le
+ * Utf16Be
+ * UrlEncode
+ * UrlEncodePlus
+ * HtmlEncode
+ * HtmlDecode
+ * HtmlEncodeAgressive
+ * JsEncode
+ * NetBiosEncode
+ * NetBiosDecode
+ * Base64Encode
+ * Base64Decode
+ * Ipv4StringToOctet
+ * Ipv4StringToNetworkOctet
+ * Ipv6StringToOctet
+ * link:Hex.html[Hex]
+ * HexString
+
+
+*Type*
+
+ * StringToInt
+ * StringToFloat
+ * IntToHex
+ * _AsNumber
+ * AsInt8
+ * AsInt16
+ * AsInt24
+ * AsInt32
+ * AsInt64
+
+*Misc*
+ * Eval

@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+deps = [
+	'System.dll',
+	'System.Configuration.Install.dll',
+	'System.Core.dll',
+	'System.ServiceProcess.dll',
+]
+
+app = bld(
+	features = 'cs win',
+	use = deps,
+	source = bld.path.ant_glob('**/*.cs'),
+	name = 'CrashingService.exe',
+)

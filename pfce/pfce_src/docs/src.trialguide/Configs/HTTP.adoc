@@ -1,0 +1,104 @@
+:targetapp: Mongoose
+:protocol: HTTP
+:pitname: HTTP_Server
+:configname: Example-HTTP_Server-Basic
+:advancedconfigname: Example-HTTP_Server-Advanced
+:seedval: 46122
+:stopcase: 30
+:targetexe: /var/targets/mongoose/restful_server
+:runimage: {pitname}/run-test.png
+:advancedrunimage: {runimage} 
+// derp
+[[HTTP-Server]]
+=== {protocol}-Server
+
+This configuration will test an application using {protocol}.
+ifdef::advancedconfigname[]
+It has two versions, a basic configuration and an advanced configuration.
+The basic configuration is compiled only with the Debug option.
+The advanced configuration is compiled with Address Sanitizer, Debug, and Optimization Level 1 options.
+endif::[]
+
+ifdef::hosted[]
+[[HTTP-RunTest]]
+include::../Common/RunTest.adoc[]
+endif::[]
+
+include::../Common/ConfigTest.adoc[]
+
+===== Configuring Variables
+
+The first thing you need to configure are the variables that control how {product} will test the application.
+ifdef::advancedconfigname[]
+Both the Basic and Advanced configuration will use the same variables with the same values.
+endif::[]
+Follow these steps to create a working configuration on your trial instance:
+
+. Click *Configure Variables*.
+. Configure your variables as appropriate for your application.  The following
+should be used for {targetapp} running on the trial instance:
+ifdef::hosted[]
+.. Target IPv4 Address: set to *127.0.0.1*
+endif::[]
+ifndef::hosted[]
+.. Target IPv4 Address: set to the IP address of the target VM e.g. *192.168.17.145*
+endif::[]
+.. Target Port: set to 4040 as {targetapp} will also use to this port.
+.. HTTP Host Header: set to *peachapisec* as {targetapp} has been configured to use this host name.
+.. Under *Advanced Configuration*, leave all the defaults as they are acceptable for {targetapp}.
+.. Under System Defines, do NOT change any of the values present.  These values normally do not require changing.
+. Once all the settings have the desired values, click *Save*.
++
+ifdef::hosted[]
+image::{images}/{pitname}/variables.png[]
+endif::[]
+ifndef::hosted[]
+image::{images}/{pitname}/variables-client.png[]
+endif::[]
+
+include::../Common/AddAgent.adoc[]
+
+:configtype: basic
+:compileroptions: Debug enabled
+:gdb:
+:args: -p 4040
+:pcap: port ##TargetPort##
+
+include::../Common/ConfigMonitors.adoc[]
+
+:configtype: advanced
+:compileroptions: Debug, Address Sanitizer (ASan), and Optimization level 1
+:asanwarn:
+:gdb!:
+:process:
+:targetexe: /var/targets/advanced/mongoose/restful_server
+
+include::../Common/ConfigMonitors.adoc[]
+
+:pcap!:
+:process!:
+:configtype!:
+:asanwarn!:
+:compileroptions!:
+:args!:
+
+include::../Common/TestConfig.adoc[]
+Follow the steps under <<HTTP-RunTest, Running the test>> to start testing the application.
+
+ifndef::hosted[]
+[[HTTP-RunTest]]
+include::../Common/RunTest.adoc[]
+endif::[]
+
+:protocol!: 
+:pitname!: 
+:targetapp!: 
+:configname!:
+:advancedconfigname!:
+:seedval!:
+:stopcase!:
+:targetexe!: 
+:advancedtargetexe!: 
+:runimage!:
+:advancedrunimage!:
+// end

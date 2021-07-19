@@ -1,0 +1,89 @@
+<<<
+[[Fixups_MD5Fixup]]
+== Md5
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher, test works
+// List Parent element types
+// Blob
+
+// Updated:
+// - 02/18/2014: Jordyn
+// Added full examples
+
+// Updated:
+// - 02/21/2014: Mick
+// Parent elements
+
+The _Md5_ fixup hashes the value of the reference element using the MD5 algorithm.
+The MD5 algorithm is defined in defined in RFC 1321 and can be found in the .Net Framework Implementation.
+
+=== Parent Elements
+
+ * xref:String[String]
+ * xref:Blob[Blob]
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the input data element used in the hash calculation.
+
+=== Examples
+
+.Basic Usage Example
+====================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41">
+      <Fixup class="MD5Fixup">
+        <Param name="ref" value="Data"/>
+      </Fixup>
+    </Blob>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 60443.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(25 bytes)
+00000000   53 74 61 72 74 10 09 04  EA 69 04 2A 0E 15 00 72   Start????i?*???r
+00000010   FD 70 D0 25 52 53 74 6F  70                        ?p?%RStop
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+====================

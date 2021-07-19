@@ -1,0 +1,14 @@
+:toc!:
+== PythonPath ==
+
+The PythonPath element is a top level element that adds a path to the paths searched by Python for modules.  Its primary use is when extending Peach and including the location of custom code.
+
+[source,xml]
+----
+<PythonPath path="c:/peach/mycode">
+----
+
+
+_Attributes:_
+
+ * path -- The path to add [required]

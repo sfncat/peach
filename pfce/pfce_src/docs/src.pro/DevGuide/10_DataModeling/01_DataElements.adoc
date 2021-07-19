@@ -1,0 +1,141 @@
+[[DataModeling_DataElements]]
+=== Data Elements
+
+Data elements describe the intrinsic types that begin to model the data. Typically data are comprised of several data types (such as numbers and string).
+Providing the correct data elements is critical to the success of a fuzzer. Since mutators operate on specific types of data elements, if a data element is incorrect, less effective mutations will occur.
+
+Common data elements:
+
+xref:DataModel[DataModel]::
++
+--
+The _DataModel_ element is a top-level element that defines a data model.
+
+Multiple _DataModels_ can exist in a pit file. _DataModels_ by themselves
+have no size and are containers for other data elements.
+--
+
+xref:Blob[Blob]::
++
+--
+A Blob is a container for unstructured data (think of a byte array). The term Blob is borrowed from the relational database field for a column that holds raw binary data.
+
+Data held in Blobs will be dumb fuzzed.
+--
+
+xref:Block[Block]::
++
+--
+The Block element is a container for other data elements.
+
+By themselves, Blocks do not have size nor contain other data. The main use of a Block is to group other data elements so they can be referenced or operated on as a unit. For example, if two data elements need to be included in a checksum calculation, they can be grouped in a block element. Then, by placing the fixup element as a child element in the block, both data elements will be included in the fixup calculation.
+--
+
+xref:Choice[Choice]::
++
+--
+The choice element allows switch-like conditional statements in Peach data models. Choice is used when modeling type-length-value (TLV) metaphors, or in other situations when the data format changes.
+--
+
+xref:Flags[Flags]::
++
+--
+The Flags element defines a set of flags.
+
+Flags is a container for Flag elements that define the individual flags. This can
+be a nice shortcut when dealing with a flag set that has many unused positions.
+
+The _Number_ element supports unaligned sizes and can also be used to define flags.
+--
+
+xref:Flag[Flag]::
++
+--
+Defines a specific flag in a flag set. Flag elements have a bit position and bit length.
+--
+
+xref:Number[Number]::
++
+--
+Defines a binary integer.
+
+Numbers are packed to bit/byte representation with byte order (endian-ness). For ASCII strings, use the String element.
+--
+
+xref:Padding[Padding]::
++
+--
+Defines a padding for a block or data model.
+
+Padding supports various options and is used when the padding size is variable (pad to 8-bit or byte boundary).
+--
+
+xref:Stream[Stream]::
++
+--
+A Stream represents a group of data files that contain other files (like zip files) in a single model. Stream-aware publishers can use the stream metadata and content to combine all streams in a data model into a single file.
+--
+
+xref:String[String]::
++
+--
+Defines a string type with encoding. Supported character encodings include ASCII and various Unicode formats.
+--
+
+TIP: You can add custom data elements. New data elements should be containers that expose existing types such as Blob, Number, and String. This approach allows your custom data element to use the existing mutators. If you add a custom data type that is not based on any of the existing types, you will need to add mutators that can fuzz the new data type. Otherwise, fuzzing for the new type won't be effective.
+
+
+.UDP Packet Example
+===================
+This example describes how to format a UDP packet.
+
+This example does not provide any business logic or constraints on the data. It contains just enough information to describe the types and relations, and to update the checksum field. When fuzzing this data model, Peach will be able to keep the _Length_ field in sync with the _Data_ field changes, unless it specifically decides to mutate the _Length_. The same is true of the _CheckSum_ field.
+
+[source,xml]
+----
+<DataModel name="UdpPacket">
+  <Number name="SrcPort" size="16" endian ="big" />
+  <Number name="DestPort" size="16" endian="big" />
+  <Number name="Length" size="16" endian="big">
+    <Relation type="size" of="UdpPacket" />
+  </Number>
+  <Number name="CheckSum" size="16" endian="big">
+    <Fixup class="UDPChecksumFixup">
+      <Param name="ref" value="UdpPacket"/>
+    </Fixup>
+  </Number>
+
+  <Blob name="Data" />
+</DataModel>
+----
+===================
+
+
+==== Handling XML Documents
+
+When fuzzing XML documents, you have a choice of fuzzing targets:
+
+ * The consumer of the data stored in the XML document.
+ * The XML parser.
+
+The first target is the most common and is the focus of this section. The second target fuzzes the XML parser.
+
+When targeting the data consumer, two special data modeling elements apply to the XML document to modify both the document structure and the document content.
+
+xref:XmlElement[XmlElement]::
++
+--
+Defines an XML element used to fuzz consumers of XML documents.
+--
+
+xref:XmlAttribute[XmlAttribute]::
++
+--
+Defines an XML attribute and is used to fuzz consumers of XML documents.
+_XmlAttribute_ is only valid as a child of _XmlElement_.
+--
+
+NOTE: The xref:Analyzers_Xml[XML analyzer] automatically converts XML to data models. When fuzzing XML documents, use xref:Analyzers_Xml[XML analyzer] so you don't have to manually enter the document structure into Peach.
+
+IMPORTANT: When using _XmlAttribute_ or _XmlElement_, the XML parser is not targeted. The target is only the consumer of the data stored in the XML document.
+

@@ -1,0 +1,179 @@
+<<<
+[[Transformers_TripleDesTransformer]]
+== TripleDes
+
+// Reviewed:
+//  - 02/19/2014: Seth & Adam: Outlined
+// TODO:
+// Verify parameters expand parameter description
+// Full pit example using hex console
+// expand  general description
+// Identify direction / actions supported for (Input/Output/Call/setProperty/getProperty)
+// See AES for format
+// Test output, input
+
+// Updated:
+// 2/19/14: Mick
+// verified params
+// added supported actions
+// expanded description
+// added full example
+
+[horizontal]
+Type:: Cryptography
+
+The _TripleDesTransformer_ produces the bytes from a Triple DES encryption of the value in the parent xref:DataModel[DataModel].
+
+The xref:Transformer[Transformer] can bi-directionally encrypt data as well as decrypt data.
+
+=== Parameters
+
+None.
+
+=== Attributes
+
+_Required:_
+
+Key:: User provided symmetric key used to encrypt the value. Must be a hex string representation of a 24 byte key.
+IV::  User provided initialization vector used as the first block for the TripleDES operation. Must be a hex string representation of an 8 byte value.
+
+_Optional:_
+
+None.
+
+=== Actions Supported
+
+xref:Action_input[input]:: On input, this transformer decrypts the incoming data.
+xref:Action_output[output]:: On output, this transformer encrypts the outgoing data.
+
+=== Examples
+
+.Simple Console Example
+==========================
+This example uses the TripleDes transformer on an inline value and writes the transformed value to a file, reads the value from a file, and outputs it to the console.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ex1">
+		<String name="TransformMe" value="superdoopersecret">
+			<Transformer class="TripleDes">
+				<Param name="Key" value="ae1234567890aeaffeda214354647586fefdfaddefeeaf12"/>
+				<Param name="IV" value="aeaeaeaeaeaeaeae"/>
+			</Transformer>
+		</String>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<!-- Encrypted Output -->
+			<Action type="output" publisher="ConsolePub">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<!-- Write Encrypted Output to File -->
+			<Action type="output" publisher="FilePubWrite">
+				<DataModel ref="Ex1" />
+				<Data>
+					<Field name="TransformMe" value="superdoopersecret" />
+				</Data>
+			</Action>
+
+			<Action type="close" publisher="FilePubWrite" />
+
+			<!-- Read and decrypt encrypted file and slurp output to console -->
+			<Action type="input" publisher="FilePubRead" >
+				<DataModel name="InputModel" ref="Ex1" />
+			</Action>
+
+			<Action type="slurp" valueXpath="//InputModel//TransformMe" setXpath="//OutputModel//StringValue" />
+
+			<Action type="output" publisher="ConsolePub">
+				<DataModel name="OutputModel">
+					<String name="StringValue" />
+				</DataModel>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" name="ConsolePub"/>
+
+		<Publisher class="File" name="FilePubWrite">
+			<Param name="FileName" value="encrypted.bin" />
+		</Publisher>
+
+		<Publisher class="File" name="FilePubRead">
+			<Param name="FileName" value="encrypted.bin" />
+			<Param name="Overwrite" value="false" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 54300.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(24 bytes)
+00000000   27 C4 63 A3 AA 09 C1 6D  08 CF DC C8 F5 CD E2 DB   '?c????m????????
+00000010   19 31 30 F1 6A C8 28 10                            ?10?j?(?
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher output(24 bytes)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Input
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher input()
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'InputModel' Bytes: 0/24, Bits: 0/192
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'InputModel' Size: <null>, Bytes : 0/24, Bits: 0/192
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'InputModel.TransformMe' Bytes: 0/24, Bits : 0/192
+Peach.Core.Cracker.DataCracker getSize: -----> String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 192
+Peach.Core.Cracker.DataCracker Crack: String 'InputModel.TransformMe' Size: 192, Bytes: 0/24, Bits: 0/192
+Peach.Core.Dom.DataElement String 'InputModel.TransformMe' value is: superdoopersecret
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Slurp
+Peach.Core.Dom.Action Slurp, setting OutputModel.StringValue from InputModel.TransformMe
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(24 bytes)
+00000000   73 75 70 65 72 64 6F 6F  70 65 72 73 65 63 72 65   superdoopersecre
+00000010   74 00 00 00 00 00 00 00                            t???????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

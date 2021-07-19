@@ -1,0 +1,170 @@
+<<<
+[[Transformers_Ipv4StringToOctetTransformer]]
+== Ipv4StringToOctet
+
+// 02/19/2014: Seth & Adam: Outlined
+//  TODO:
+//  Verify parameters expand parameter description
+//  Full pit example using hex console
+//  expand  general description
+//  Identify direction / actions supported for (Input/Output/Call/setProperty/getProperty)
+//  See AES for format
+//  Test output, input
+
+// 2/19/14: Mick
+// verified params
+// added supported actions
+// expanded description
+// added full example
+
+[horizontal]
+Type:: Encoder/Decoder
+
+=== Transformer type: Encoder/Decoder
+
+_Ipv4StringToOctet_ produces the bytes from the string representation of an Internet Protocol version 4 address.
+An example would be transforming the string 127.0.0.1 to 0x7F000001.
+
+The xref:Transformer[Transformer] can bidirectionally encode data as well as decode data.
+
+=== Parameters
+
+None.
+
+=== Attributes
+
+None.
+
+=== Actions Supported
+
+xref:Action_input[input]:: On input, Ipv4StringToOctet converts bytes into an IP address string representation.
+xref:Action_output[output]:: On output, Ipv4StringToOctet converts an IP address string representation into bytes.
+
+=== Examples
+
+.Simple Encode Example
+==========================
+This example uses Ipv4StringToOctet on an inline value, writes the transformed value to a file, and reads the value from the file to the console.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ex1">
+		<String name="TransformMe" value="192.168.1.1">
+			<Transformer class="Ipv4StringToOctet" />
+		</String>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<!-- Encoded Octet Output -->
+			<Action type="output" publisher="ConsolePub">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<!-- Write Encoded Octet Output to File -->
+			<Action type="output" publisher="FilePubWrite">
+				<DataModel ref="Ex1" />
+				<Data>
+					<Field name="TransformMe" value="192.168.1.1" />
+				</Data>
+			</Action>
+
+			<Action type="close" publisher="FilePubWrite" />
+
+			<!-- Read and Decode file and slurp the IP String to output in console -->
+			<Action type="input" publisher="FilePubRead" >
+				<DataModel name="InputModel" ref="Ex1" />
+			</Action>
+
+			<Action type="slurp" valueXpath="//InputModel//TransformMe" setXpath="//OutputModel//StringValue" />
+
+			<Action type="output" publisher="ConsolePub">
+				<DataModel name="OutputModel">
+					<String name="StringValue" />
+				</DataModel>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" name="ConsolePub"/>
+
+		<Publisher class="File" name="FilePubWrite">
+			<Param name="FileName" value="encoded.bin" />
+		</Publisher>
+
+		<Publisher class="File" name="FilePubRead">
+			<Param name="FileName" value="encoded.bin" />
+			<Param name="Overwrite" value="false" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 2053.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(4 bytes)
+00000000   C0 A8 01 01                                        ????
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher output(4 bytes)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Input
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher input()
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'InputModel' Bytes: 0/4, Bits: 0/32
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'InputModel' Size: <null>, Bytes : 0/4, Bits: 0/32
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'InputModel.TransformMe' Bytes: 0/4, Bits: 0/32
+Peach.Core.Cracker.DataCracker getSize: -----> String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 32
+Peach.Core.Cracker.DataCracker Crack: String 'InputModel.TransformMe' Size: 88, Bytes: 0/11, Bits: 0/88
+Peach.Core.Dom.DataElement String 'InputModel.TransformMe' value is: 192.168.1.1
+
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Slurp
+Peach.Core.Dom.Action Slurp, setting OutputModel.StringValue from InputModel.TransformMe
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(11 bytes)
+00000000   31 39 32 2E 31 36 38 2E  31 2E 31                  192.168.1.1
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================
+

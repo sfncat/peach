@@ -1,0 +1,27 @@
+[[Providing_Sample_Data]]
+== Providing Sample Data
+
+To fuzz effectively with Peach, create a set of sample data to use as a fuzzing mutation base. Peach provides two ways to load sample data into a fuzzing session:
+
+* Specify initial values using the xref:Data[Data] element
+* Specify initial values in data files
+
+=== Specifying Initial Values Using the Data Element
+
+You can provide sample data by specifying the information for each element, one at a time. This can be useful when no sample exists with the wanted values or for testing formats with a small number of fields, such as some network protocols. In this case, the xref:Data[Data] element is used along with the _Field_ child-element. See the xref:Data[Data] reference section for examples.
+
+=== Specifying Initial Values in Data Files
+
+The most common way to provide sample data is via disk files. For example, when fuzzing a graphics format such as PNG you might use a set of 1,000 sample images. This method can also be used for network fuzzing by providing samples of each output as files and referencing them.
+
+For targets that consume files, perform code coverage metrics to choose the minimum set of sample files needed for the best code coverage.
+
+Research has shown that using a minimum set of samples increases the likelihood of finding new faults while fuzzing. Peach provides a tool called xref:Program_PeachMinset[minset] to help you create a minimum sample set.
+
+IMPORTANT: The minset tool only works for targets that accept a filename from the command line.
+
+The minset tool runs each sample file through the target application, collecting code coverage data for each file. It then selects a set of files that use or cover different parts of the code base. No duplicate samples are included in the resulting set of files.
+
+TIP: Assume that only the features and code exercised by the provided sample data will be thoroughly fuzzed. While Peach may discover additional paths to code by mutating certain values, those paths will not gain the same level of test coverage compared to fuzzing robust sample data. To achieve the best test coverage, provide data samples that fully exercise all code paths reasonably possible.
+
+// end

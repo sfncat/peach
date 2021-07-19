@@ -1,0 +1,17 @@
+:toc!:
+== Signed Attribute ==
+
+Defines if the number contains a signed value or not. Useful when parsing length data. 
+
+=== Examples: ===
+
+
+To indicate this is an unsigned data element set the signed attribute equal to "false". The default is true. 
+
+[source,xml]
+----
+<DataModel name="NumberExample3">
+ <Number name="Hi5" value="5" size="32" signed="false"/>
+</DataModel>
+----
+

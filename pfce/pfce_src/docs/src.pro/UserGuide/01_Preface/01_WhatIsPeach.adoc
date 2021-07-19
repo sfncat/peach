@@ -1,0 +1,25 @@
+=== What is {product}?
+
+{product} (Peach) is a fuzzer for data consumers. Fuzzing is a software testing technique that
+introduces malformed data to parts of a computer system. How the tested item reacts to unexpected
+data becomes the source of security bugs.
+
+Peach is a smart fuzzer that operates by performing the following actions:
+
+* Understands the data structure and the flows of the test target
+* Creates and feeds malformed data to the test target
+* Monitors the test target to record interesting information when unintended or undesirable behavior
+occurs (monitors include debuggers and network packet sniffers)
+
+Peach is a versatile product and has been used to fuzz a wide range of products and devices:
+
+* web browsers (file consumers)
+* web servers (network servers)
+* mobile devices (such as Android iOS)
+* robots
+* SCADA systems
+* Semiconductor chips
+
+Because Peach can easily extend its interfacing and monitoring, it is the most adaptable fuzzer that exists.
+
+// end

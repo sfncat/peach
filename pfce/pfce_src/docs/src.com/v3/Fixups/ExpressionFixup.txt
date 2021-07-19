@@ -1,0 +1,33 @@
+:toc!:
+== ExpressionFixup
+
+The _ExpressionFixup_ will evaluate a scripting expression that produces the new value for our element.
+
+=== Parameters
+
+ * _link:../ref.html[ref]_ -- Reference to element
+ * _expression_ -- Scripting expression to evaluate.  Must return a string or integer value.
+
+=== Scripting Variables
+
+ * _self_ -- Fixup instance
+ * _ref_ -- Referenced element
+ * _data_ -- Referenced elements value as a byte array
+ 
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <!-- .... -->
+
+  <Number size="32">
+    <Fixup class="ExpressionFixup">
+	  <Param name="ref" value="Data" />
+	  <Param name="expression" value="len(data) % 3" />
+	</Fixup>
+  </Number>
+</Block>
+
+<Blob name="Data" />
+----

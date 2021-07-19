@@ -1,0 +1,31 @@
+:toc!:
+== TCPV6ChecksumFixup
+
+The _TCPChecksumFixup_ will produce a checksum as defined in RFC 793 for IPv4 and RFC 2460 for IPv6.
+
+=== Parameters
+
+ * _link:../ref.html[ref]_ -- Reference to element
+ * _src_ -- Source IP Address
+ * _dst_ -- Destination IP Address
+
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <!-- .... -->
+
+  <Number size="16">
+    <Fixup class="TCPChecksumFixup">
+      <Param name="ref" value="Header" />
+      <Param name="src" value="192.168.1.10" />
+      <Param name="dst" value="192.168.1.11" />
+    </Fixup>
+  </Number>
+
+
+  <!-- ....  -->
+
+</Block>
+----

@@ -1,0 +1,55 @@
+:toc!:
+= com.Com =
+
+This publisher allows creating a COM object based on its CLSID and then performing _call_, _setprop_, and _getprop_ actions.
+
+[source,xml]
+----
+<Publisher class="com.Com">
+  <Param name="clsid" value="Peach.SillyComObject" />
+</Publisher>
+----
+
+
+_Parameters:_
+
+ * clsid -- CLSID of object to create [required]
+
+_Supported Actions:_
+
+ * link:call.html[call]
+ * link:getprop.html[getprop]
+ * link:setprop.html[setprop]
+
+_Example:_
+
+[source,xml]
+----
+<DataModel name="Param">
+  <String name="Value" />
+</DataModel>
+
+<StateModel name="TheStateModel" initialState="Initial">
+  <State name="Initial">
+    <Action type="call" method="Players[1].OpenUrl">
+      <Param type="in">
+        <DataModel ref="Param" />
+        <Data name="data">
+          <Field name="Value" value="mymovie.mov" />
+        </Data>
+      </Param>
+    </Action>
+
+    <Action type="call" method="Players[1].QTControl.Movie.Play" />
+  </State>
+</StateModel>
+
+<Test name="TheTest">
+  <StateModel ref="TheStateModel" />
+
+  <Publisher class="com.Com">
+    <Param name="clsid" value="QuickTimePlayerLib.QuickTimePlayerApp" />
+  </Publisher>
+</Test>
+----
+

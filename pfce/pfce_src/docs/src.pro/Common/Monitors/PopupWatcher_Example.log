@@ -1,0 +1,20 @@
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 18897.
+Peach.Core.Agent.Agent StartMonitor: Monitor PopupWatcher
+Peach.Core.Agent.Agent SessionStarting: Monitor
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(4 bytes)
+00000000   69 7A 00 00                                        iz??
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Agent.Agent SessionFinished: Monitor
+
+[*] Test 'Default' finished.

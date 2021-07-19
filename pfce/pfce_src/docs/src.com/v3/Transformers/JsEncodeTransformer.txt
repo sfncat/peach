@@ -1,0 +1,16 @@
+:toc!:
+== JsEncodeTransformer
+
+The _JsEncodeTransformer_ will produce a JavaScript encoded result of the value in the parent data model.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1"> 
+	<String name="TransformMe" value="~!@#$%^&amp;*()_+-=`?.,">
+		<Transformer class="JsEncode" />
+	</String>
+</DataModel>
+----
+

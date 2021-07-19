@@ -1,0 +1,250 @@
+[[Analyzers_Binary]]
+
+== Binary Analyzer
+
+The Binary analyzer applies to Blob data elements and provides an easy way to improve fuzzing of unknown binary data.
+
+The analyzer searches for known types (such as strings) in the Blob data and constructs a DataModel of the Blob. If a string type occurs in the Blob data, Peach runs the StringToken analyzer on each string found.
+
+IMPORTANT: The Binary analyzer requires data from a Blob data type.
+
+=== Syntax
+
+[source,xml]
+----
+<Blob name="BinaryData">
+	<Analyzer class="Binary" />
+</Blob>
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+None.
+
+=== Parameters
+
+Tokens:: List of characters to pass to the StringToken analyzer.
+AnalyzeStrings:: Calls the StringToken analyzer on string elements. The default value is true.
+
+=== Examples
+
+.Simple Hello World Example
+==========================
+This example uses the binary analyzer on inline Blob data.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="TheModel">
+		<Blob valueType="hex" value="54 65 73 74 69 6E 67 20 48 65 6C 6C 6F 57 6F 72 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 50 65 61 63 68 46 75 7A 7A 65 72 21 FF AA BB CC">
+			<Analyzer class="Binary" />
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="TheModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output from the inline Blob data example.
+
+----
+> peach -1 --debug example.xml
+
+Peach.Core.Analyzers.Binary Created 12 data elements from binary data.
+Peach.Core.Analyzers.Binary Created 12 data elements from binary data.
+
+[*] Test 'Default' starting with random seed 61927.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(48 bytes)
+00000000   54 65 73 74 69 6E 67 20  48 65 6C 6C 6F 57 6F 72   Testing HelloWor
+00000010   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F   ????????????????
+00000020   50 65 61 63 68 46 75 7A  7A 65 72 21 FF AA BB CC   PeachFuzzer!????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Binary_Output.png[]
+
+==========================
+
+
+.Load From File Example
+==========================
+This example uses the binary analyzer on an external file of Blob data (example.bin).
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="TheModel">
+		<Blob name="BinaryData">
+			<Analyzer class="Binary" />
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="TheModel" />
+				<Data name="SampleData1" fileName="example.bin"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output from the Blob data file example.
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 48471.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'TheModel' Bytes: 0/48, Bits: 0/384
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'TheModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'TheModel'
+Peach.Core.Cracker.DataCracker scan: Blob 'TheModel.BinaryData' -> Offset: 0, Un
+sized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'TheModel' Size: <null>, Bytes:
+0/48, Bits: 0/384
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'TheModel.BinaryData' Bytes: 0/48, Bits: 0/3
+84
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'TheModel.BinaryData'
+Peach.Core.Cracker.DataCracker scan: Blob 'TheModel.BinaryData' -> Offset: 0, Un
+sized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'TheModel.BinaryData'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 384
+Peach.Core.Cracker.DataCracker Crack: Blob 'TheModel.BinaryData' Size: 384, Byte
+s: 0/48, Bits: 0/384
+Peach.Core.Dom.DataElement Blob 'TheModel.BinaryData' value is: 54 65 73 74 69 6
+e 67 20 48 65 6c 6c 6f 57 6f 72 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f.
+. (Len: 48 bytes)
+Peach.Core.Analyzers.Binary Created 12 data elements from binary data.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(48 bytes)
+00000000   54 65 73 74 69 6E 67 20  48 65 6C 6C 6F 57 6F 72   Testing HelloWor
+00000010   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F   ????????????????
+00000020   50 65 61 63 68 46 75 7A  7A 65 72 21 FF AA BB CC   PeachFuzzer!????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Binary_Output.png[]
+
+==========================
+
+
+.Custom String Tokens Example
+==========================
+This example uses the binary analyzer on a value with a custom set of tokens defined.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="TheModel">
+    <Blob name="BinaryData" valueType="hex" value="28 54 65 73 74 69 6E 67 20 48 65 6C 6C 6F 57 29 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 7B 50 65 61 63 68 46 75 7A 7A 65 72 7D BB CC ">
+      <Analyzer class="Binary">
+        <Param name="Tokens" value="(){}"/>
+      </Analyzer>
+    </Blob>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="ConsoleHex" />
+  </Test>
+</Peach>
+----
+
+Output from the example that uses custom tokens.
+----
+> peach -1 --debug example.xml
+
+Peach.Core.Analyzers.Binary Created 18 data elements from binary data.
+Peach.Core.Analyzers.Binary Created 18 data elements from binary data.
+
+[*] Test 'Default' starting with random seed 9875.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(47 bytes)
+00000000   28 54 65 73 74 69 6E 67  20 48 65 6C 6C 6F 57 29   (Testing HelloW)
+00000010   00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F   ????????????????
+00000020   7B 50 65 61 63 68 46 75  7A 7A 65 72 7D BB CC      {PeachFuzzer}??
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Binary_TokensOutput.png[]
+
+==========================

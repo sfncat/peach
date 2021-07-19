@@ -1,0 +1,93 @@
+[[Fixup]]
+== Fixups
+
+A data that has been fuzzed might fail internal checks because integrity fields, such as checksums, are no longer valid. Fixups provide mechanisms to update the integrity fields and facilitate downstream processing. Peach provides "Fixups" to recalculate integrity-related items such as checksums, CRCs, and hash values.
+
+IMPORTANT: Fixups should be run after fuzzing and before processing fuzzed data.
+
+.Default Fixups
+[cols="2,^1,^1,^1,^1",options="header",halign="center"]
+|=======================================================
+|Fixup|Checksum|Hashing|Utility|Sequencing
+|xref:Fixups_CiscoFixup[CiscoCdp Checksum]|X|||
+|xref:Fixups_CopyValueFixup[CopyValue]|||X|
+|xref:Fixups_CrcFixup[Crc]|X|||
+|xref:Fixups_CrcDualFixup[CrcDual]|X|||
+|xref:Fixups_ExpressionFixup[Expression] |||X|
+|xref:Fixups_FillValueFixup[FillValue]|||X|
+|xref:Fixups_FragSeqIncrementFixup[FragSeqIncrement]||||X
+|xref:Fixups_FromFileFixup[FromFile]|||X|
+|xref:Fixups_HMACFixup[Hmac]||X||
+|xref:Fixups_IcmpChecksumFixup[Icmp Checksum]|X|||
+|xref:Fixups_IcmpV6ChecksumFixup[IcmpV6 Checksum]|X|||
+|xref:Fixups_IsoFletcher16ChecksumFixup[IsoFletcher16 Checksum]|X|||
+|xref:Fixups_LRCFixup[Lrc]|X|||
+|xref:Fixups_MD5Fixup[Md5] ||X||
+|xref:Fixups_ScriptFixup[Script]|||X|
+|xref:Fixups_SequenceIncrementFixup[Sequence Increment]||||X
+|xref:Fixups_SequenceRandomFixup[Sequence Random]||||X
+|xref:Fixups_SHA1Fixup[Sha]||X||
+|xref:Fixups_SHA224Fixup[Sha224]||X||
+|xref:Fixups_SHA256Fixup[Sha256]||X||
+|xref:Fixups_SHA384Fixup[Sha384]||X||
+|xref:Fixups_SHA512Fixup[Sha512]||X||
+|xref:Fixups_SspiFixup[Sspi]|||Y|
+|xref:Fixups_TCPChecksumFixup[TCP Checksum] |X|||
+|xref:Fixups_UDPChecksumFixup[UDP Checksum]|X|||
+|xref:Fixups_UnixTimeFixup[Unix Time]|||X|
+|=======================================================
+
+:leveloffset: 2
+include::CiscoFixup.adoc[]
+
+include::CopyValueFixup.adoc[]
+
+include::CrcDualFixup.adoc[]
+
+include::CrcFixup.adoc[]
+
+include::ExpressionFixup.adoc[]
+
+include::FillValueFixup.adoc[]
+
+include::FragSeqIncrementFixup.adoc[]
+
+include::FromFileFixup.adoc[]
+
+include::IcmpChecksumFixup.adoc[]
+
+include::IcmpV6ChecksumFixup.adoc[]
+
+include::IsoFletcher16ChecksumFixup.adoc[]
+
+include::LRCFixup.adoc[]
+
+include::HMACFixup.adoc[]
+
+include::MD5Fixup.adoc[]
+
+include::ScriptFixup.adoc[]
+
+include::SequenceIncrementFixup.adoc[]
+
+include::SequenceRandomFixup.adoc[]
+
+include::SHA1Fixup.adoc[]
+
+include::SHA224Fixup.adoc[]
+
+include::SHA256Fixup.adoc[]
+
+include::SHA384Fixup.adoc[]
+
+include::SHA512Fixup.adoc[]
+
+include::SspiFixup.adoc[]
+
+include::TCPChecksumFixup.adoc[]
+
+include::UDPChecksumFixup.adoc[]
+
+include::UnixTimeFixup.adoc[]
+
+// end

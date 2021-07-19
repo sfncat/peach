@@ -1,0 +1,373 @@
+[[StateModel]]
+== StateModel
+
+// 01/30/2014: Seth & Mike: Outlined
+//  * Attributes
+//  * Child-elements
+//  * When to use multiple states vs. multiple actions in single state
+//  * reentry states
+//   * Issue: Every time you re-enter data models are reset (loss of slurps)
+//   * Issue: Some exit condition required so we do not infinite loop
+//  * Scripting
+//   * state bag
+//  * Examples:
+//   * Single state
+//   * Multiple states
+//   * State bag w/scripting
+
+// 2/18/2014: Mick
+//  expanded description for multiple states
+//  talked about reentry
+//  added example for multiple states
+//  added example with statebag
+
+// 03/04/2014: Mike: Ready for tech review
+
+Two Peach models can create a fuzzer, the xref:DataModel[DataModel] and the _StateModel_.
+
+The _StateModel_ consists of at least one xref:State[State] element. _StateModel_ defines how to send data to and receive data from the fuzzing target as well as creating the basic state machine logic needed to test a protocol.
+
+NOTE: Only one _StateModel_ can be used for a given Test.
+
+_StateModel_ can range from very simple to extremely complex.
+When starting out, keep the _StateModel_ simple and expand as needed.
+
+Multiple xref:State[State] elements are required for non-deterministic interactions (such as a target sending an unpredictable command and expecting a certain response from the fuzzer). 
+In these situations, couple the xref:Action_changeState[changeState] action with a xref:Action_when[when] attribute to change to the correct state depending on Peach's state and data.
+
+_StateModel_ can contain various States to model full interactions with a target.
+Many interactions have deterministic I/O and do not need multiple States.
+Since actions inside a xref:State[State] occur sequentially, top to bottom, that is usually enough control.
+
+Recursion into States is allowed in Peach.
+When a state is re-entered, all data previously set through cracking input or slurping is reset to its default values.
+
+IMPORTANT: Peach is not responsible for guaranteeing an exit condition in recursive state changes; if you need such an exit condition, you will need to create it.
+
+Each xref:Action[Action] supports various parameters that execute scripts in certain times (such as once an xref:Action[Action] has completed or before it starts).
+This can be used by complicated StateModels that need counters or other advanced operations.  
+
+Advanced StateModels can use the Peach Statebag dictionaries from within these scripts to store data. The Statebag dictionaries are accessible via class RunContext.
+
+_StateModel_ variables can persist throughout a single iteration with _iterationStateStore_ (or the entire fuzzing session with _stateStore_) and can be referred to through the scripting environment. 
+
+=== Attributes
+
+_Required:_
+
+xref:name[name]:: The name of the StateModel
+initialState:: Name of the State to start executing first
+
+=== Child Elements
+
+xref:State[State]:: One or more State elements are required.
+
+=== Examples
+
+//   TODO Current examples I think may be duplicated from another section. Probably should be removed and replaced with ones listed in the top comments.
+
+.File Fuzzing
+==========================
+When file fuzzing, Peach writes data to a file, then calls the target process to open the file.
+Peach can uses a single state and three actions for a simple file fuzzer.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+  <DataModel name="TestTemplate">
+    <String value="Hello World!" />
+  </DataModel>
+  
+  <StateModel name="State" initialState="Initial">
+    <State name="Initial">
+      
+	  <!-- Output content of file -->
+      <Action type="output">
+        <DataModel ref="TestTemplate" />
+      </Action>
+      
+      <!-- Close file -->
+      <Action type="close" />
+      
+      <!-- Launch the file consumer -->
+      <Action type="call" method="ScoobySnacks" publisher="Peach.Agent"/>
+      
+    </State>
+  </StateModel>
+  
+  <Agent name="LocalAgent">
+    <Monitor class="WindowsDebugger">
+      <Param name="Executable" value="c:\windows\system32\notepad.exe" />
+      <Param name="Arguments" value="fuzzfile.bin" />
+      <Param name="StartOnCall" value="ScoobySnacks" />
+    </Monitor>
+    <Monitor class="PageHeap">
+      <Param name="Executable" value="notepad.exe"/>
+    </Monitor>
+  </Agent>
+  
+  <Test name="Default">
+    <Agent ref="LocalAgent" />
+    <StateModel ref="State"/>
+    
+    <Publisher class="File">
+      <Param name="FileName" value="fuzzfile.bin" />
+    </Publisher>
+  </Test>
+  
+</Peach>
+----
+==========================
+
+.Simple Network StateModel
+==========================
+In this state model, Peach sends and receives a set of packets from a TCP port.
+
+This example requires Windows XP or newer with Windows Debugging Tools installed.
+The sample executable _CrashableServer.exe_ is included with the Peach distribution.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TestTemplate">
+		<String name="TheString" value="Hello World!" />
+	</DataModel>
+
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			
+			<Action type="output">
+				<DataModel ref="TestTemplate" />
+			</Action>
+			
+			<Action type="output">
+				<DataModel ref="TestTemplate" />
+			</Action>
+			
+		</State>
+	</StateModel>
+
+	<Agent name="LocalAgent">
+		<Monitor class="WindowsDebugger">
+			<Param name="Executable" value="CrashableServer.exe" />
+			<Param name="Arguments" value="127.0.0.1 4244" />
+			<!--<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />-->
+		</Monitor>
+ 		<Monitor class="PageHeap">
+			<Param name="Executable" value="CrashableServer.exe"/>
+			<!--<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />-->
+		</Monitor>
+		<Monitor class="NetworkCapture">
+			<Param name="Device" value="Local Area Connection"/>
+		</Monitor>
+	</Agent>
+
+	<Test name="Default">
+		<Agent ref="LocalAgent" />
+
+		<StateModel ref="State"/>
+		<Publisher class="Tcp">
+			<Param name="Host" value="127.0.0.1" />
+			<Param name="Port" value="4244" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+==========================
+
+.Multiple State StateModel
+==========================
+The following StateModel utilizes multiple states to interact with the fuzzing target.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+
+	<DataModel name="Question">
+		<String value="Select A,B, or C:" />
+	</DataModel>
+
+	<DataModel name="CResponse">
+		<String value="C is for Correct" />
+		<String value=" === " />
+		<String value="YOU WIN" />
+	</DataModel>	
+
+	<DataModel name="BResponse">
+		<String value="B is for Bananas" />
+		<String value=":" />
+		<String value=" B - A - N - A - N - A - S" />
+	</DataModel>	
+
+	<DataModel name="AResponse">
+		<String value="A is for Apples" />
+		<String value=". " />
+		<String value="Play Again" />
+		<String value="\n" />
+	</DataModel>	
+
+	<DataModel name="Selection">
+		<String name="Letter" length="1"/>
+		<Blob length="1" valueType="hex" value="0A" token="true" />
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState"> 
+			<Action type="accept" />
+			<Action type="changeState" ref="AskState" />
+		</State>
+
+		<State name="AskState">
+			<Action type="output">
+				<DataModel ref="Question" /> 
+			</Action>
+	
+			<Action type="input"> 
+				<DataModel name="TheirSelection" ref="Selection"/> 
+			</Action> 
+
+			<Action type="changeState" ref="SelectedA" when="str(state.actions[1].dataModel.find('Letter').DefaultValue) == 'A'" />
+			<Action type="changeState" ref="SelectedB" when="str(state.actions[1].dataModel.find('Letter').DefaultValue) == 'B'"/>
+			<Action type="changeState" ref="SelectedC" when="str(state.actions[1].dataModel.find('Letter').DefaultValue) == 'C'"/>
+
+		</State> 
+
+		<State name="SelectedA">
+			<Action type="output">
+				<DataModel ref="AResponse" />
+			</Action>
+			<Action type="changeState" ref="AskState" />
+		</State>
+
+		<State name="SelectedB">
+			<Action type="output">
+				<DataModel ref="BResponse" />
+			</Action>
+		</State>
+
+		<State name="SelectedC">
+			<Action type="output">
+				<DataModel ref="CResponse" />
+			</Action>
+		</State>
+
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+		<Publisher class="TcpListener">
+			<Param name="Interface" value="0.0.0.0" />
+			<Param name="Port" value="31337" />
+			<Param name="AcceptTimeout" value="10000" />
+			<Param name="Timeout" value="10000" />
+		</Publisher>
+
+		<Logger class="File" >
+			<Param name="Path" value="logs"/>
+	    </Logger>
+	</Test>
+</Peach>
+----
+==========================
+
+.Loop Using Iteration State Bag
+==========================
+This example uses the iteration state bag to simulate a "do while" or "do until" loop.
+
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+  <DataModel name="TheDataModel">
+    <String value="Looping!\n" />
+  </DataModel>
+  
+  <StateModel name="State" initialState="Initial">
+    <State name="Initial">
+	  
+	  <!-- Initialize our counter -->
+	  <Action type="changeState" ref="Loop" onStart="context.iterationStateStore['count'] = 0" />
+	
+	</State>
+
+	<State name="Loop">
+
+	  <!-- onStart will increment counter -->
+      <Action type="output" onStart="context.iterationStateStore['count'] = context.iterationStateStore['count'] + 1">
+        <DataModel ref="TheDataModel" />
+      </Action>
+      
+	  <!-- Loop until our counter is greater than 3 -->
+	  <Action type="changeState" ref="Loop" when="context.iterationStateStore['count'] &lt; 3" />
+
+    </State>
+
+  </StateModel>
+  
+  <Test name="Default">
+    <StateModel ref="State"/>
+    
+    <Publisher class="Console"/>
+  </Test>
+  
+</Peach>
+----
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 28742.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.ChangeState
+Peach.Core.Dom.Action Changing to state: Loop
+Peach.Core.Dom.StateModel Run(): Changing to state "Loop".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(9 bytes)
+Looping!                                                                     <1>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.ChangeState
+Peach.Core.Dom.Action Changing to state: Loop
+Peach.Core.Dom.StateModel Run(): Changing to state "Loop".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(9 bytes)
+Looping!                                                                     <2>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.ChangeState
+Peach.Core.Dom.Action Changing to state: Loop
+Peach.Core.Dom.StateModel Run(): Changing to state "Loop".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(9 bytes)
+Looping!                                                                     <3>
+Peach.Core.Dom.Action Run: action 'Action_1' when returned false             <4>
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Output from iteration 1
+<2> Output from iteration 2
+<3> Output from iteration 3
+<4> _when_ expression returning false causing exit from loop
+==========================

@@ -1,0 +1,10 @@
+source "https://rubygems.org"
+
+gem 'asciidoctor', '~> 1.5.0'
+gem 'guard'
+gem 'guard-bundler'
+gem 'guard-livereload'
+gem 'guard-shell'
+gem 'yajl-ruby'
+gem 'wdm', '>= 0.1.0' if Gem.win_platform?
+gem 'win32console' if Gem.win_platform?

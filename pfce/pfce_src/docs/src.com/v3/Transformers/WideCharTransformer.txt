@@ -1,0 +1,15 @@
+:toc!:
+== WideCharTransformer
+
+The _WideCharTransformer_ will produce ...
+
+=== Examples
+
+[source,xml]
+----
+  <DataModel name="Ex1">
+    <String name="TransformMe" value="The brown lazy fox jumped over the fuzzed buffer">
+      <Transformer class="WideChar" />
+    </String>
+  </DataModel>
+----

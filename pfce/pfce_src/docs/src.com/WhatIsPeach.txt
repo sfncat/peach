@@ -1,0 +1,18 @@
+:toc!:
+= What is Peach? =
+
+Peach is a SmartFuzzer that is capable of performing both link:GenerationMutationFuzzing.html[generation] and link:GenerationMutationFuzzing.html[mutation] based fuzzing.
+
+Peach requires the creation of PeachPit files that define the structure, type information, and relationships in the data to be fuzzed.  It additionally allows for the configuration of a fuzzing run including selecting a data transport (link:v3/Publisher.html[Publisher]), logging interface, etc.
+
+Peach has been under active development for seven years and is in its third major version.  Peach was created and if actively developed by Michael Eddington of http://dejavusecurity.com[Deja vu Security]
+
+== History of Peach ==
+
+Peach v1.0 of Peach was developed in 2004 at http://ph-neutral.darklab.org/previous/0x7d4/[ph-neutral 0x7d4].  The first version of Peach was a Python framework for creating fuzzers.  Peach has come a long way since then.
+
+The first version of Peach 2.0 was released in the summer of 2007 and was the first comprehensive open source fuzzer that included process monitoring and creation of fuzzers using XML.
+
+Peach 3, a full re-write of Peach was released in early 2013.  Peach 3 is the first Peach release to move away from Python and instead uses the Microsoft .NET Framework, primarily C#.  Cross-platform support is facilitated by using the Mono open source runtime.
+
+Peach is not open source software, it's FREE software released under the MIT License.  The MIT License places no restrictions on the use or modification of Peach similar to the BSD License.

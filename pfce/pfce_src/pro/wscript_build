@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+subdirs = [
+	'ComContainer',
+	'Core',
+	'OS/UnixTrampoline',
+	'Peach',
+	'PeachAgent',
+	'PitTester',
+	'PitTool',
+	'Service',
+	'SDK',
+	'Test/Apps/AsanTest',
+	'Test/Apps/ComTest',
+	'Test/Apps/CrashableServer',
+	'Test/Apps/CrashingFileConsumer',
+	'Test/Apps/CrashingProgram',
+	'Test/Apps/CrashingService',
+	'Test/Apps/CrashTest',
+	'Test/Apps/CrashTestDummy',
+	'Test/Apps/SimpleHttpServer',
+	'Test/Core',
+	'Test/OS/Linux',
+	'Test/OS/OSX',
+	'Test/OS/Windows',
+	'Test/WebApi',
+	'Validator',
+	'Web',
+	'WebApi2',
+	'Worker',
+	'XmlGenerator',
+]
+
+bld.recurse(subdirs)
+
+# end

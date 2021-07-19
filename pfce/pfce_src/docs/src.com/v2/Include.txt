@@ -1,0 +1,15 @@
+:toc!:
+== Include ==
+
+The Include element allows for including other pit files into namespaces for use in the current pit file.  When referencing included pit files prefix element names with the namespace and a collen (:) _foo:datamodel_.
+
+[source,xml]
+----
+<Include ns="foo" src="file:foo.xml" />
+----
+
+
+_Attributes:_
+
+ * ns -- Namespace prefix [required]
+ * src -- Source URL, use "+file:+" prefix for filenames [required]

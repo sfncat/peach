@@ -1,0 +1,61 @@
+:toc!:
+== Public Pit Files ==
+This is a place to post and share your Pit files with other Peach users. Please use the following format, note that files can be attached to this page.
+
+== Target/Name ==
+Author: John Smith
+
+Description of Pit file, gotchas, etc.
+
+link:attached-link.html[Download]
+
+== ARJ pit ==
+Author: Dan Crowley
+
+Fuzzer for ARJ archive files. Not a well supported format, but simple. My first one, so this may not be perfect. _Note: The Fixup tags in this aren't recognized by Peach Builder as of this writing and will cause it to hang. Requires "wee.arj" as a sample file and writes logs to C:\peach\logtest_
+
+link:attachment:arj.xml.html[attachment:arj.xml]
+
+== AU pit ==
+Author: Dan Crowley
+
+Fuzzer for Sun Audio (.AU) files. A trivially simple format, might be interesting for beginners to look at. _Requires "wee.au" as a sample file and writes logs to C:\peach\logtest_
+
+link:attachment:au.xml.html[attachment:au.xml]
+
+== ELF32 pit ==
+Author: J. Brett Cunningham
+
+Fuzzer for ELF 32-bit files. Requires top(1) as a sample file and writes logs to C:\peach\logtest.
+
+link:attachment:Elf-File-Fuzzer.xml.html[attachment:Elf-File-Fuzzer.xml]
+
+== FTP Protocol ==
+Author: Dejan Lukan
+
+FTP fuzzer definition produced as part of master's thesis.  Full work has been http://code.google.com/p/ftpfuzz/[published here.]
+
+http://ftpfuzz.googlecode.com/git/peach/ftp.xml[ftp.xml]
+http://ftpfuzz.googlecode.com/git/peach/vulnserver.xml[vulnserver.xml]
+
+== ZIP pit ==
+Author: Jason Kratzer
+
+Fuzzer for Zip and Zip64 archives. _Requires "test.zip" as a sample file.  Logs are written to C:\peachfuzz\logs._
+
+link:attachment:zip.xml.html[attachment:zip.xml]
+
+== RAR pit ==
+Author: Jason Kratzer
+
+Fuzzer for RAR archives. _Requires "test.rar" as a sample file.  Also requires Fixup "custom.py".  Logs are written to C:\peachfuzz\logs.  This Pit does not cover the full specification but will crack most files.  Also, several points for improvement such as adding BLOCK OF RELATIONs to a number of the block types._
+
+link:attachment:rar.xml.html[attachment:rar.xml]
+link:attachment:custom.py.html[attachment:custom.py]
+
+== ASF pit ==
+Author: Jason Kratzer
+
+Fuzzer for ASF archives. _Requires "test.asf" as a sample file.  Logs are written to C:\peachfuzz\logs._
+
+link:attachment:asf.xml.html[attachment:asf.xml]

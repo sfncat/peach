@@ -1,0 +1,6 @@
+:toc!:
+== Random Deterministic Mutation Strategy ==
+
+This mutator like it's sibling SequencialMutationStrategy will fuzz every field, however it will spread out the fuzzing across every element and using every mutator until they are all complete.  This allows possibly hitting bugs in elements that would have been fuzzed last by the sequential fuzzer earlier on.
+
+This mutation strategy is not to be confuzed with the true random strategies.  Only one field is modified at a time and the fuzzer will stop when each field has been fuzzed.

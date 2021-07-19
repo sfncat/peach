@@ -1,0 +1,214 @@
+[[Program_PeachMultiNodeCli]]
+== Peach Multi-Node CLI Tool
+
+This tool is used to control multiple Peach instances at once.
+The tool can be used via the command line or as an interactive
+tool.
+
+The tool utilizes the Peach REST API to perform all actions.
+
+=== Installation
+
+Installation of this tool has two steps.
+
+==== Install Python 2.7
+
+Python v2.7 is recommended. Other versions may also work.
+
+==== Install dependencies
+
+----
+easy_install requests
+easy_install cmd2
+----
+
+==== Populate instances.py
+
+The instances.py file contains a list of all Peach instances
+that will be controlled from this tool.  Instances can be
+placed into groups. An instance can be part of more than one
+group.
+
+Configurations are pulled from a master instance configured in instances.py.
+Typically the master instance is running locally, but it can
+also be one of the fuzzing instances.
+
+WARNING: Only one master instance can be configured!
+  
+=== Syntax
+
+----
+peachcli
+  
+peachcli "jobs all" quit
+----
+  
+=== Commands
+
+==== jobs: View all jobs
+
+----
+jobs <group>
+
+jobs all
+----
+
+Show basic job information from each instance in a group.
+
+.Example
+============================
+-----------------------------------------------------------------------------------------------
+# peachcli.py
+
+| Peach CLI v0.1
+| Copyright (c) Peach Fuzzer, LLC
+
+
+>> jobs all
+
+-- http://192.168.48.128:8888 --
+Name                 Status     Start                Stop                 Count      Faults
+-------------------------------------------------------------------------------------------
+HTTP Server-Test     stopped    2016-01-12T23:13:11Z 2016-01-12T23:13:30Z 200        -
+HTTP Server-Test     stopped    2016-01-13T00:27:02Z 2016-01-13T00:54:05Z 781        -
+
+-- http://192.168.48.129:8888 --
+Name                 Status     Start                Stop                 Count      Faults
+-------------------------------------------------------------------------------------------
+HTTP Server-Test     stopped    2016-01-12T23:13:14Z 2016-01-12T23:13:25Z -          -
+HTTP Server-Test     stopped    2016-01-13T00:27:04Z 2016-01-13T00:48:35Z 13400      112
+
+>>
+-----------------------------------------------------------------------------------------------
+============================
+
+
+==== pause: Pause a set of jobs
+
+----
+pause <pit-config> <group>
+
+pause HTTP_Server-Test all
+----
+
+Pause pit configuration jobs running on a specified group.
+
+==== pull: Pull fault details
+
+----
+pull faults <pit-config> <group>
+
+pull faults HTTP_Server-Test all
+----
+
+Pull fault details for a specific pit configuration. Faults from all jobs in group will be
+collected.  The resulting faults are placed into a +faults+ folder, organized by risk, bucket,
+and node/test case number.
+
+.Example
+============================
+----
+# peachcli.py                                                                                                                        
+                                                                                                                                     
+| Peach CLI v0.1                                                                                                                     
+| Copyright (c) Peach Fuzzer, LLC                                                                                                    
+                                                                                                                                     
+                                                                                                                                     
+>> pull faults HTTP_Server-Test all                                                                                                  
+Pulling faults of HTTP_Server-Test for group all:                                                                                    
+                                                                                                                                     
+  Pulling 112 faults from http://192.168.48.129:8888...                                                                              
+                                                                                                                                     
+>> quit                                                                                                                              
+                                                                                                                                     
+# ls faults\HTTP_Server-Test\EXPLOITABLE\F0FF8D9D\1395E24B\                                                                          
+192.168.48.129_13290  192.168.48.129_13309  192.168.48.129_13328  192.168.48.129_13347  192.168.48.129_13366  192.168.48.129_13385   
+192.168.48.129_13291  192.168.48.129_13310  192.168.48.129_13329  192.168.48.129_13348  192.168.48.129_13367  192.168.48.129_13386   
+192.168.48.129_13292  192.168.48.129_13311  192.168.48.129_13330  192.168.48.129_13349  192.168.48.129_13368  192.168.48.129_13387   
+192.168.48.129_13293  192.168.48.129_13312  192.168.48.129_13331  192.168.48.129_13350  192.168.48.129_13369  192.168.48.129_13388   
+192.168.48.129_13294  192.168.48.129_13313  192.168.48.129_13332  192.168.48.129_13351  192.168.48.129_13370  192.168.48.129_13389   
+192.168.48.129_13295  192.168.48.129_13314  192.168.48.129_13333  192.168.48.129_13352  192.168.48.129_13371  192.168.48.129_13390   
+192.168.48.129_13296  192.168.48.129_13315  192.168.48.129_13334  192.168.48.129_13353  192.168.48.129_13372  192.168.48.129_13391   
+192.168.48.129_13297  192.168.48.129_13316  192.168.48.129_13335  192.168.48.129_13354  192.168.48.129_13373  192.168.48.129_13392   
+192.168.48.129_13298  192.168.48.129_13317  192.168.48.129_13336  192.168.48.129_13355  192.168.48.129_13374  192.168.48.129_13393   
+192.168.48.129_13299  192.168.48.129_13318  192.168.48.129_13337  192.168.48.129_13356  192.168.48.129_13375  192.168.48.129_13394   
+192.168.48.129_13300  192.168.48.129_13319  192.168.48.129_13338  192.168.48.129_13357  192.168.48.129_13376  192.168.48.129_13395   
+192.168.48.129_13301  192.168.48.129_13320  192.168.48.129_13339  192.168.48.129_13358  192.168.48.129_13377  192.168.48.129_13396   
+192.168.48.129_13302  192.168.48.129_13321  192.168.48.129_13340  192.168.48.129_13359  192.168.48.129_13378  192.168.48.129_13397   
+192.168.48.129_13303  192.168.48.129_13322  192.168.48.129_13341  192.168.48.129_13360  192.168.48.129_13379  192.168.48.129_13398   
+192.168.48.129_13304  192.168.48.129_13323  192.168.48.129_13342  192.168.48.129_13361  192.168.48.129_13380  192.168.48.129_13399   
+192.168.48.129_13305  192.168.48.129_13324  192.168.48.129_13343  192.168.48.129_13362  192.168.48.129_13381  192.168.48.129_13400   
+192.168.48.129_13306  192.168.48.129_13325  192.168.48.129_13344  192.168.48.129_13363  192.168.48.129_13382  192.168.48.129_13401   
+192.168.48.129_13307  192.168.48.129_13326  192.168.48.129_13345  192.168.48.129_13364  192.168.48.129_13383                         
+192.168.48.129_13308  192.168.48.129_13327  192.168.48.129_13346  192.168.48.129_13365  192.168.48.129_13384                         
+
+----
+============================
+
+==== push: Push pit configuration
+
+----
+push <pit-config> <group>
+
+push HTTP_Server-Test all
+----
+
+The push command will copy a configuration from the master instance to a group of remote instances.
+The pit configuration name must follow a specific naming convention to use this command. The name
+has two parts. The first part is the source pit name, for example "HTTP_Server". The second part
+is the configuration name, for example "Test". They are joined with a hyphen (-). The resulting
+name would be "HTTP_Server-Test".
+
+==== status: Status of all related jobs
+
+----
+status <pit-config> <group>
+
+status HTTP_Server-Test all
+----
+
+Collect information about all jobs for a specific pit configuration.
+
+.Example
+================================
+----
+# peachcli.py                                          
+                                                       
+| Peach CLI v0.1                                       
+| Copyright (c) Peach Fuzzer, LLC                      
+                                                       
+                                                       
+>> status HTTP_Server-Test all                         
+Status of HTTP_Server-Test for group all:              
+                                                       
+ Nodes    Running  Stopped  Paused   Count    Faults   
+-----------------------------------------------------  
+ 2        0        4        0        14381    112      
+                                                       
+>>
+----
+================================
+
+
+==== start: Start a new set of jobs
+
+----
+start <pit-config> <group>
+
+start HTTP_Server-Test all
+----
+
+Start a new job using the specified pit configuration on all instances in the specified group.
+
+==== stop: Stop a set of jobs
+
+----
+stop <pit-config> <group>
+
+stop HTTP_Server-Test all
+----
+
+Stop pit configuration jobs running on a specified group.
+
+
+// end

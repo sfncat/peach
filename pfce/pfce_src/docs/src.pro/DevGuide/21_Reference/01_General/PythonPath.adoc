@@ -1,0 +1,26 @@
+<<<
+[[PythonPath]]
+== PythonPath
+
+// 01/30/2014: Seth & Mike: Outlined
+//  * Adds a module path for python
+//  * Examples (better than we currently have :))
+
+The _PythonPath_ top-level element adds a path to the Python module search path list. It extends Peach and includes custom code locations.
+
+=== Syntax
+
+[source,xml]
+----
+<PythonPath path="c:/peach/mycode">
+----
+
+=== Attributes
+
+_Required:_
+
+path:: The path to add.
+
+_Optional:_
+
+None.

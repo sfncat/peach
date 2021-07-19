@@ -1,0 +1,24 @@
+:toc!:
+= network.UdpMonitor =
+
+This monitor listens for incoming packets on a specific port.  If a packet
+is received it will trigger a fault and log the packet data.
+
+[source,xml]
+----
+
+<Monitor class="network.UdpMonitor">
+  <Param name="host" value="0.0.0.0" />
+  <Param name="port" value="6666" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * host -- Interface to listen on (0.0.0.0 for all) [required]
+ * port -- Port to listen on [required]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

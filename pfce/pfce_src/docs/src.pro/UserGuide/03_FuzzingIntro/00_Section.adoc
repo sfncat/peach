@@ -1,0 +1,40 @@
+[[Intro_to_FuzzingBrand_new_items]]
+== Introduction to Fuzzing
+
+Welcome to the world of fuzzing!
+
+_What is fuzzing?_
+
+Fuzzing is the art of performing unexpected actions that result in target misbehavior.
+
+_What is our goal when we fuzz?_
+
+Our goal is to find new, previously unknown security vulnerabilities. Finding vulnerabilities is limited only by our ability to detect them automatically.
+
+The most common target for fuzzing is a data consumer such a network service or a web browser. For a data consumer, the unexpected actions consist of sending data to the consumer that is malformed in some way. When the target consumes the fuzzed data, the malformed data could trigger a target vulnerability. The likelihood that a single change causes a vulnerability might not be high, but when the act of sending fuzzed data repeats over and over, a very good chance exists that the target will misbehave in some interesting manner.
+
+Fuzzers submit hundreds, thousands, even millions of data samples malformed in some way; fuzzers call the malformed data mutations. Once written, fuzzers typically run for long periods of time finding more and more vulnerabilities, called faults.
+
+Consider the following C structure and corresponding data shown in hex:
+
+image::{images}/DevGuide/FuzzingIntro/struct_with_hex.png[]
+
+The data is parsed by the data consumer into the structure. The data and structure are color coded to show which parts of the data are loaded into each member of the structure _Header_. Following the structure, two lines of code occur that use the _Header_ structure. Looking at that code, we can identify several issues that could likely lead to crashing our program that we could trigger by changing our input data.
+
+The first thing we could do is change the _len_ in our data from `0x0021` to `0x0001`. This would cause the memory allocation to return a smaller amount of memory than what is needed for copying data using the _strcpy_ function. Once _strcpy_ executes, we will have written past the end of _msg_data_, possibly causing the target process to crash.
+
+image::{images}/DevGuide/FuzzingIntro/struct_with_hex_len.png[]
+
+Another change we could make to the data is to remove or change the null byte that terminates the string _data_. In C, string functions operate on data up to the null character. If the null byte is changed, the _strcpy_ function  copies more than 33 bytes into _msg_data_. This could cause the target process to crash.
+
+image::{images}/DevGuide/FuzzingIntro/struct_with_hex_data.png[]
+
+The two changes we made to trigger two similar but different bugs in the code is something we look to automate with fuzzing. Taking this input data and randomly changing a byte to a random value, would, over the course of many attempts, eventually find both of these issues.
+
+One of the goals with fuzzing is to find as many faults in targets with the least amount of human time.
+
+include::01_Dumb_Fuzzing.adoc[]
+include::02_Smart_Fuzzing.adoc[]
+include::../../Common/End_Fuzzing.adoc[]
+
+// end

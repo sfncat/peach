@@ -1,0 +1,16 @@
+:toc!:
+== NetBiosEncodeTransformer
+
+The _NetBiosEncodeTransformer_ performs a NetBios decode of the value in the parent data model. 
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<Blob name="TransformMe" value="45 4D 45 42 45 4F 45 4E 45 42 45 4F" valueType="hex" >
+		<Transformer class="NetBiosDecode" />
+	</Blob>
+</DataModel>
+----
+

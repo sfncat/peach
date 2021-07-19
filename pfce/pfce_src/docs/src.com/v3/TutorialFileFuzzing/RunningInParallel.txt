@@ -1,0 +1,53 @@
+:toc!:
+link:OptimizeTesting.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:../TutorialFileFuzzing.html[Finish >>]
+
+''''
+
+== Running in Parallel ==
+
+We have a nice optimized fuzzer now, but we still want to get our fuzzing done faster and
+it just so happens we have a couple extra machines sitting around just begging to be used for fuzzing.
+Luckily Peach supports parallel fuzzing, and it's super easy.
+All we need to do is add a single command line argument and run our fuzzer on each machine.
+Here is how we do it:
+
+== 1. Configure Machines ==
+
+First we need to configure each machine to have:
+
+ . Peach
+ . Target application
+ . +wav.xml+
+ . +sample.wav+
+
+== 2. Run Peach ==
+
+Next we just run the fuzzer on each machine.  We can launch peach using this syntax:
+
+*Machine #1*
+----
+c:\peach\peach.exe -p3,1 wav.xml
+----
+
+
+*Machine #2*
+----
+c:\peach\peach.exe -p3,2 wav.xml
+----
+
+
+*Machine #3*
+----
+c:\peach\peach.exe -p3,3 wav.xml
+----
+
+
+Notice that we are adding an argument "-p" to the command line with two numbers.
+The first number indicates the total number of machines we will use.
+The second number indicates the machine we are running Peach on.
+
+EASY!
+
+''''
+
+link:OptimizeTesting.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:../TutorialFileFuzzing.html[Finish >>]

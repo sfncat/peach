@@ -1,0 +1,30 @@
+:toc!:
+== Frequently Asked Questions ==
+
+== General ==
+
+ * *Q: What platforms does Peach run on?*
+   A: Peach 3 is tested on Windows, Linux, and OS X.  Peach 3 should also run on other platforms that Mono supports.
+
+ * *Q: What version of the .NET Runtime is required?*
+   A: Windows: Microsoft .NET v4, Linux/OS X: Mono  2.10 or greater
+
+ * *Q: Can Peach fuzz files?*
+   A: Yes! Check out link:TutorialFileFuzzing.html[this tutorial].
+
+ * *Q: Can Peach fuzz network protocols?*
+   A: Yes! Peach is excelent at fuzzing even complex state based protocols. 
+
+ * *Q: Can Peach fuzz COM/DCOM?*
+   A: Yes! Peach supports both stream based fuzzing (files and sockets) and also call based fuzzing (COM/DCOM, RPC, etc). 
+
+== Building
+
+ * *Q: Compiling error: Impossible to find a valid architecture for building (in setup_msvc)*
+   A: The build system (called waf) is unable to locate the x86 and/or x64 c++ compilers. Verify you have Visual Studio Pro 2010 installed.  You can also run "waf.bat configure -v" for more verbose output.
+   
+== Installing
+
+ * *Q: On Windows Vista/7/8, after extracting the archive, the executables are all crashing.*
+   A: Check that you first unblocked the zip file by right clicking on the archive, select properties, click the "Unblock" button at bottom of dialog.  Now extract the files in the archive.
+   

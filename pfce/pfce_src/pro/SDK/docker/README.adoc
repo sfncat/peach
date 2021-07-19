@@ -1,0 +1,25 @@
+= Dockerfile for Peach Fuzzer
+
+The SDK\docker folder contains a docker container specification
+for Peach. The container is based on Ubuntu 14.04 and installs
+the following packages:
+
+* Mono 4.2 (mono-devel)
+* OpenSSH Client (openssh-client)
+* Zip/Unzip
+* Curl
+* Peach (archive must be provided)
+
+== Default Settings
+
+* Expose 8888 to internal containers
+* Publisher port 8888 to external interfaces
+* Volume for /opt/peach
+
+== Scripts and Files
+
+build.sh:: Build the Peach container image
+Dockerfile:: Container description file. Depends on ubuntu:14.04 image
+README.adoc:: This file
+run.sh:: Run a Peach container image
+runpeach.sh:: Run Peach in loop, uploaded to container image during build.

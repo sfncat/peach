@@ -1,0 +1,12 @@
+:toc!:
+== BlobDWORDSliderMutator ==
+
+This mutator will slide a DWORD through the blob.
+
+_Target Elements_
+
+ * link:../Blob.html[Blob]
+
+_Hints_
+
+ * BlobDWORDSliderMutator -- Ability to disable this mutator by setting the hint to "off".

@@ -1,0 +1,47 @@
+[[GeneralConfiguration]]
+=== General
+
+This section documents general elements used in creating a fuzzing definition.
+
+:leveloffset: 2
+include::Workflow.adoc[]
+
+include::Data.adoc[]
+
+include::Defaults.adoc[]
+
+include::Import.adoc[]
+
+include::Include.adoc[]
+
+include::Logger.adoc[]
+
+include::MutationStrategies.adoc[]
+
+include::Param.adoc[]
+
+include::PythonPath.adoc[]
+
+include::Test.adoc[]
+
+include::Test_Exclude.adoc[]
+
+include::Test_Include.adoc[]
+
+include::Test_Mutators.adoc[]
+
+include::web_Path.adoc[]
+
+include::web_Query.adoc[]
+
+include::web_Header.adoc[]
+
+include::web_FormData.adoc[]
+
+include::web_Body.adoc[]
+
+include::web_Part.adoc[]
+
+include::web_Response.adoc[]
+
+// end

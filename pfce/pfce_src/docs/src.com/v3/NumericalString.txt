@@ -1,0 +1,17 @@
+:toc!:
+== NumericalString ==
+
+The NumericalString hint can only be used with link:String.html[String] elements 
+to indicate it's value is a number.  When this hint is used it activates all 
+of the numerical mutators along with the standard string mutators.
+
+*Note:* If the default value of a string is a number, the NumericalString hint
+is automatically added.
+
+[source,xml]
+----
+<String value="250">
+   <Hint name="NumericalString" value="true" />
+</String>
+----
+

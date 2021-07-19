@@ -1,0 +1,15 @@
+:toc!:
+== Import ==
+
+This element allows importing custom Python modules for use in Pit file.  It works just like the Python _import_ keyword.
+
+NOTE: Peach 3 currently does not support the from attribute.
+
+[source,xml]
+----
+<Import import="MyCode" />
+----
+
+_Attributes:_
+
+ * import -- Same as python import keyword [required]

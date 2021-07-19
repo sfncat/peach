@@ -1,0 +1,81 @@
+<<<
+[[Publishers_FilePerIteration]]
+== FilePerIteration Publisher
+
+// 02/13/2014: Seth & Adam: Outlined
+//  Params are good
+//  discuss format string format for filename and how it appends the number, give examples!
+//  give full put to run for example
+
+// 02/14/2014: Jordyn
+//  Added full example
+//  Added description of format string for filename and how it appends the number with examples
+
+The _FilePerIteration_ publisher creates an output file for each fuzzer iteration.  
+
+Use _FilePerIteration_ when pre-generating fuzzing cases. 
+
+When generating the fuzzed files, Peach appends the iteration number to the fuzzed files name.  For a file name format of "fuzzed_{0}.bin" the {0} will be replaced with the current iteration number which produces the following filenames: fuzzed_1.bin, fuzzed_2.bin, fuzzed_3.bin, fuzzed_4.bin, etc.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="FilePerIteration">
+    <Param name="FileName" value="fuzzed_{0}.bin" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+FileName:: Name of file to create.  Filename must contain "\{0\}" which will be substituted with the iteration count.
+
+_Optional:_
+
+There are no optional parameters for this publisher.
+
+=== Actions
+
+xref:Action_open[open]:: Open file for reading/writing
+xref:Action_close[close]:: Close file stream
+xref:Action_output[output]:: Data to be written to file
+xref:Action_input[input]:: Read data from file
+
+=== Examples
+
+.Basic Usage Example
+======================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <Number name="Magic" size="8" value="47" token="true"/>
+    <Number name="Length" size="8">
+      <Relation type="size" of="Data"/>
+    </Number>
+    <Blob name="Data"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel" />
+        <Data fileName="file.bin"/>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="FilePerIteration">
+      <Param name="FileName" value="fuzzed_{0}.bin" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+======================

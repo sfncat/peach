@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+peach = bld.path.find_node('../Peach')
+
+bld(
+	name = 'peach-sdk',
+	features = 'doc',
+	install_path = '${BINDIR}/sdk',
+	install_755 = {
+		bld.path : bld.path.ant_glob('**/*', excl='wscript_build'),
+		peach    : peach.ant_glob('samples/**'),
+	}
+)
+
+bld(
+	name = 'ExtendExamples.dll',
+	features = 'cs paket',
+	source = bld.path.ant_glob('extend/examples/*.cs'),
+	use = [
+		'Peach.Core.dll',
+		'System.dll',
+		'System.Core.dll',
+		'System.Xml.dll',
+	],
+	use_packages = ['NLog'],
+	paket_settings = dict(
+		frameworks = ['net45'],
+	),
+	install_path = None, # Compile only, don't install in ${BINDIR}
+)
+
+# end

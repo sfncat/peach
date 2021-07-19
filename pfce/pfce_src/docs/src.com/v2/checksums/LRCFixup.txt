@@ -1,0 +1,26 @@
+:toc!:
+= checksums.LRCFixup =
+
+This fixup will XOR each byte of data with the previous result. You can read more about link:Fixups.html[fixups here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Number name="CRC" size="32" signed="false" endian="little">
+     <Fixup class="checksums.LRCFixup">
+        <Param name="ref" value="Data"/>
+     </Fixup>
+  </Number>
+  <Blob name="Data"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- Must be +checksums.LRCFixup+
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param] - name = 'ref'; value = '<name of referenced link:DataModel.html[DataModel] or link:Block.html[Block]>'.

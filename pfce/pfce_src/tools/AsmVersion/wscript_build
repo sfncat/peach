@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+
+deps = [
+	'System.dll',
+]
+
+bld(
+	name = 'AsmVersion.exe',
+	features = 'cs peach-web',
+	solutions = ['PeachWeb.sln'],
+	use = deps,
+	source = bld.path.ant_glob('**/*.cs'),
+	platform = 'AnyCPU',
+	install_path = '${PREFIX}/Web',
+)

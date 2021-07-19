@@ -1,0 +1,189 @@
+[[Godel]]
+== Godel
+
+// TODO - Expand on Godel documentation
+
+Godel elements allow scripting expressions to be evaluated when the Peach StateModel executes.
+If any of the Godel scripting expressions evaluates to false, Peach generates a fault.
+
+A single Godel element can be placed as a child of xref:StateModel[StateModel], xref:State[State] or xref:Action[Action]:
+
+* When a Godel element is a child of xref:StateModel[StateModel], the expression evaluates when the StateModel starts and when the StateModel finishes.
+* When a Godel element is a child of xref:State[State], the expression evaluates when the State starts and when the State finishes.
+* When a Godel element is a child of xref:Action[Action], the expression evaluate when the Action starts and finishes.
+
+Godel elements support the following scripting expressions:
+
+* 'inv' - An invariant expression that evaluates both at the start and at the finish of the appropriate level of the StateModel (StateModel, State, or Action) 
+* 'pre' - An expression evaluates at start of the appropriate level of the StateModel
+* 'post' - A expression that is evaluated upon completion of the appropriate level of the StateModel 
+
+=== Syntax
+
+[source,xml]
+----
+<Godel inv="self != None"/>
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xref:name[name]:: Name of the data model
+xref:ref[ref]:: Reference to a [Godel] to use as a template.
+inv:: Scripting expression that evaluates to true or false. Default is null.
+pre:: Scripting expression that evaluates to true or false. Default is null.
+post:: Scripting expression that evaluates to true or false. Default is null.
+
+=== Scripting Expressions
+
+When evaluating the 'inv' and 'pre' scripting expressions two variables are provided: 'self' and 'context':
+
+* 'self' is a reference to the parent element.  
++
+For example, when a Godel element is a child of State, 'self' is the state.
+
+* 'context' is a reference to the Peach RunContext that contains all state information regarding the current fuzzing run.
+
+When evaluating the 'post' scripting expressions, an additional variable 'pre' is provided.
+
+* The 'pre' variable is a reference to the previous self from when the parent element started.
++
+For example, when a 'post' expression is placed on an Action, this expression can access the action as it was prior to completing with the 'pre' variable.
+
+=== Examples
+
+The following example uses a simple Godel pre-condition on StateModel, State and Action
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="DM">
+		<String name="str" value="Hello"/>
+	</DataModel>
+
+	<StateModel name="SM" initialState="Initial">
+		<Godel pre="str(self.states[0].actions[0].dataModel.find('str').InternalValue) == 'Hello'"/>
+
+		<State name="Initial">
+			<Godel pre="str(self.actions[0].dataModel.find('str').InternalValue) == 'Hello'"/>
+
+			<Action type="output">
+				<Godel pre="str(self.dataModel.find('str').InternalValue) == 'Hello'"/>
+
+				<DataModel ref="DM"/>
+			</Action>
+
+		</State>
+
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="SM"/>
+		<Publisher class="Console"/>
+	</Test>
+
+</Peach>
+----
+
+Produces the following output:
+
+----
+>peach -1 example.xml --debug
+
+Godel.Core.GodelPitParser Attached godel node to Action 'SM.Initial.Action'.
+Godel.Core.GodelPitParser Attached godel node to State 'SM.Initial'.
+Godel.Core.GodelPitParser Attached godel node to StateModel 'SM'.
+
+[*] Test 'Default' starting with random seed 56278.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Godel.Core.GodelContext Godel pre: Passed. (StateModel 'SM')
+Godel.Core.GodelContext Godel pre: Passed. (State 'SM.Initial')
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Godel.Core.GodelContext Godel pre: Passed. (Action 'SM.Initial.Action')
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(5 bytes)
+HelloPeach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+The following example shows using a reference to a Godel template
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="DM">
+		<String name="str" value="Hello"/>
+	</DataModel>
+
+	<Godel name="check" pre="str(self.dataModel.find('str').InternalValue) == 'Hello'"/>
+
+	<StateModel name="SM" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<Godel ref="check"/>
+				<DataModel ref="DM"/>
+			</Action>
+
+			<Action type="output">
+				<Godel ref="check"/>
+				<DataModel ref="DM"/>
+			</Action>
+		</State>
+
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="SM"/>
+		<Publisher class="Console"/>
+	</Test>
+
+</Peach>
+----
+
+Produces the following output:
+
+----
+>peach -1 example.xml --debug
+
+Godel.Core.GodelPitParser Attached godel node to Action 'SM.Initial.Action'.
+Godel.Core.GodelPitParser Attached godel node to Action 'SM.Initial.Action_1'.
+
+[*] Test 'Default' starting with random seed 54985.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Godel.Core.GodelContext Godel pre: Passed. (Action 'SM.Initial.Action')
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(5 bytes)
+HelloPeach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Godel.Core.GodelContext Godel pre: Passed. (Action 'SM.Initial.Action_1')
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(5 bytes)
+HelloPeach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----

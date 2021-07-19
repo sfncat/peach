@@ -1,0 +1,30 @@
+[[value]]
+== Value Attribute ==
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// * Talk about valueType
+// * Talk about string escaping
+// * Examples of python expressions
+// * Examples of types of HEX formats we support
+//  * Multiline, \xNN, 0xNN, etc.
+// * Talk about how this just sets .DefaultValue
+//  * Default value also set via Data, Slurp, Input and value=
+// * List supported elements (e.g. not supported by containers such as block, choice, xmlelement, xmlattribute, etc.)
+
+
+The _value_ attribute specifies a default value for a data element when Peach is not mutating the element. 
+
+All Peach data element types support  _value_.  
+
+// TODO
+
+=== Examples ===
+
+[source,xml]
+----
+<Number name="five" size="8" value="5" />
+
+<String name="five" value="five" /> 
+----

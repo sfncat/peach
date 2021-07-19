@@ -1,0 +1,72 @@
+<<<
+[[Monitors_PageHeap]]
+== PageHeap Monitor (Windows)
+
+*Monitor Category*: *Automation*
+
+The _PageHeap_ monitor enables heap allocation monitoring for an executable through the Windows debugger. Peach sets and clears the parameters used for monitoring heap allocation at the beginning and end of the fuzzing session.
+
+NOTE: The _PageHeap_ monitor requires heightened or administrative permissions to run.
+
+=== Parameters
+
+_Required:_
+
+Executable::
+Executable name (no path)
+
+_Optional:_
+
+WinDbgPath::
+Path to the Windows Debugger installation.
+If not provided, Peach attempts to locate the directory.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Enable for Notepad
+====================
+
+This parameter example is from a setup that monitors heap allocation in Notepad.
+The example is a common setup in which both the PageHeap and the xref:Monitors_WindowsDebugger[Windows Debugger] monitors are configured for the fuzzing run.
+
+_PageHeap Monitor Parameters_
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Executable   |`notepad.exe`
+|==========================================================
+
+_Windows Debugger Monitor Parameters_
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Executable   |`notepad.exe`
+|Arguments    |`fuzzed.txt`
+|StartOnCall  |`launchProgram`
+|==========================================================
+
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+
+.Enable for Notepad
+========================
+[source,xml]
+----
+include::PageHeap_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::PageHeap_Example.log[]
+----
+========================
+
+endif::peachug[]

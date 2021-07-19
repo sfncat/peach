@@ -1,0 +1,19 @@
+:toc!:
+== Binary Analyzer ==
+
+Tha binary analyzer will perform some basic analysis of a binary blob of unknown data looking for strings, and string sizes.  It will then replace the link:Blob.html[Blob] element with a link:Block.html[Block] structure containing the broken out types.  Additionally it can locate simple relations ships in many cases and add them as well.
+
+*Note:* Binary analyzer only works when attached to a data element.  It cannot be used from the command line.
+
+[source,xml]
+----
+<Blob analyzer="binary.Binary" />
+----
+
+
+== Future extensions ==
+
+There are several planned extensions for the binary analyzer:
+
+ * Locate compressed segments (Zip, etc)
+ * Detect Base64 and other basic encodings

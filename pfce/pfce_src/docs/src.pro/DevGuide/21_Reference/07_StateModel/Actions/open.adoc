@@ -1,0 +1,273 @@
+<<<
+[[Action_open]]
+== open, connect
+
+// 01/30/2014: Seth & Mike: Outlined
+//  * Talk about open being implicit, when
+//  * Talk about what open/connect should do
+//  * Talk about when you would call it directly
+//   * Listen for udp
+//   * Open a handle prior to r/w
+//   * ...
+//   * Open calls listen in TclListener, then Accept blocks for connection
+//  Examples
+
+// 02/12/2014: Mick
+//  Added description of what Open does
+//  talked about using it explicitly
+//  Added attribute descriptions
+//  Added an example
+
+// 02/28/2014: Mike: Ready for tech writer
+//  Made content similar to close
+//  Updated examples
+//  Updated formatting
+//  Added some xrefs
+
+// 03/05/2014: Lynn: 
+//  Edited text 
+
+The _open_ (or _connect_) action is an implicit action that causes the associated publisher to open its resource. 
+The _open_ Action executes by default at the start of each iteration.
+
+Each Publisher is an I/O adapter and performs the _open_ Action according to its resource needs, as in the following examples: 
+
+* The xref:Publishers_File[File publisher] opens a file handle.
+* The xref:Publishers_Tcp[TCP publisher] initiates a network connection.
+
+The only time to declare the _open_ action in the StateModel is when the default behavior needs to be modified.
+
+NOTE: _connect_ is an alias for _open_. Both names can be used interchangeably.
+
+.Default Order of Actions
+****
+The following is the default order in which Actions are performed when fuzzing:
+
+. _start_ - Implicit, once per session
+. _open_ - Implicit, once per iteration
+. Explicit actions (_accept_, _input_, _output_, etc.)
+. _close_ - Implicit, once per iteration
+. _stop_ - Implicit, once per session
+****
+
+=== Syntax
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action type="open" />
+
+		<Action type="output"> 
+			<DataModel ref="DataModelToWrite"/> 
+		</Action> 
+
+	</State>
+</StateModel>
+----
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action type="connect" />
+
+		<Action type="output"> 
+			<DataModel ref="DataModelToSend"/> 
+		</Action> 
+
+	</State>
+</StateModel>
+----
+
+=== Attributes
+
+_Required:_
+
+type:: Action type, must be set to "open" or "connect"
+
+_Optional:_
+
+name:: Name used to identify the action
+publisher:: Name of the publisher to perform this action
+xref:Action_when[when]:: Perform action if the provided expression evaluates to true
+xref:Action_onStart[onStart]:: Evaluate the expression at the start of an action
+xref:Action_onComplete[onComplete]:: Evaluate the expression upon completion of an action
+
+=== Child Elements
+
+None.
+
+=== Examples
+
+.Implicit Use of _open_ Action
+==========================
+This is an example of the default implicit behavior of _open_. Note the absence of any declaration for _open_.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+  <DataModel name="TestTemplate">
+    <String value="Hello World!" />
+  </DataModel>
+  
+  <StateModel name="State" initialState="Initial">
+    <State name="Initial">
+      
+      <Action type="output">
+        <DataModel ref="TestTemplate" />
+      </Action>
+      
+    </State>
+  </StateModel>
+  
+  <Test name="Default">
+    <StateModel ref="State"/>
+    
+    <Publisher class="File">
+      <Param name="FileName" value="fuzzed.txt" />
+    </Publisher>
+  </Test>
+  
+</Peach>
+<!-- end -->
+----
+
+Output from executing the previous pit.
+
+----
+> peach -1 --debug C:\temp\example.xml
+
+[*] Test 'Default' starting with random seed 18872.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()                                   <1>
+Peach.Core.Publishers.FilePublisher output(12 bytes)
+Peach.Core.Publishers.FilePublisher close()                                  <2>
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Implicit xref:Action_open[_open_] Action occurring at start of iteration
+<2> Implicit _close_ Action occurring prior to end of iteration
+==========================
+
+.Explicit Use of _open_ Action
+==========================
+In this example, the _open_ and xref:Action_close[_close_] actions are used explicitly to perform two connections using the same publisher.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+  <DataModel name="TestTemplate">
+    <String name="Value" />
+  </DataModel>
+  
+  <StateModel name="State" initialState="Initial">
+    <State name="Initial">
+      
+      <Action type="output">
+        <DataModel ref="TestTemplate" />
+        <Data>
+          <Field name="Value" value="Connection #1\n" />
+        </Data>
+      </Action>
+      
+      <Action type="close" />
+
+      <Action type="open" />
+      
+      <Action type="output">
+        <DataModel ref="TestTemplate" />
+        <Data>
+          <Field name="Value" value="Connection #2\n" />
+        </Data>
+      </Action>
+      
+    </State>
+  </StateModel>
+  
+  <Test name="Default">
+    <StateModel ref="State"/>
+    
+    <Publisher class="Tcp">
+      <Param name="Host" value="127.0.0.1" />
+      <Param name="Port" value="31337" />
+    </Publisher>
+  </Test>
+  
+</Peach>
+----
+
+The netcat program can be used to simulate a listener. Netcat runs twice, once per connection.
+
+---------------------
+> nc -l 31337 ; echo "====" ; nc -l 31337
+Connection #1
+====
+Connection #2
+---------------------
+
+Output from this example. 
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 61010.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher start()
+Peach.Core.Publishers.TcpClientPublisher open()                              <1>
+Peach.Core.Publishers.TcpClientPublisher output(14 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   43 6F 6E 6E 65 63 74 69  6F 6E 20 23 31 0A         Connection #1·
+
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.TcpClientPublisher close()                             <2>
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 127.0.0.1:31337
+Peach.Core.Publishers.TcpClientPublisher Read 0 bytes from 127.0.0.1:31337, closing client connection.
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 127.0.0.1:31337
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Open
+Peach.Core.Publishers.TcpClientPublisher open()                              <3>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher output(14 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   43 6F 6E 6E 65 63 74 69  6F 6E 20 23 32 0A         Connection #2·
+
+Peach.Core.Publishers.TcpClientPublisher close()                             <4>
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 127.0.0.1:31337
+Peach.Core.Publishers.TcpClientPublisher Read 0 bytes from 127.0.0.1:31337, closing client connection.
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 127.0.0.1:31337
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.TcpClientPublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Implicit xref:Action_open[_open_]
+<2> Explicit _close_
+<3> Explicit xref:Action_open[_open_]
+<4> Implicit _close_
+==========================

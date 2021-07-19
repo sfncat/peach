@@ -1,0 +1,25 @@
+:toc!:
+== IcmpChecksumFixup
+
+The _IcmpChecksumFixup_ will produce a checksum using the ICMP algorithm used commonly in ICMP and IPv4. It is defined in RFC 2460.
+
+=== Parameters
+
+ * _link:../ref.html[ref]_ -- Reference to element
+
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <!-- .... -->
+
+  <Number size="16">
+    <Fixup class="IcmpChecksumFixup">
+      <Param name="ref" value="Data" />
+    </Fixup>
+  </Number>
+</Block>
+
+<Blob name="Data" />
+----

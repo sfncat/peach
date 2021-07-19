@@ -1,0 +1,40 @@
+:toc!:
+== Creating a Custom Fixup ==
+
+You can read about what a link:Fixup.html[Fixup is here].
+
+Here is a simple Fixup that is already included in Peach.  This fixup will calculate the CRC32 of a data element pointed to by a parameter passed to the Fixup.
+
+After creating the fixup you will need to import the Python module via link:Import.html[Import] before you can reference the fixup.
+
+The code you write should live in a _.py_ file in the same folder as your _.xml_ file.  This will make it all much easier to package up.  See the link:PythonPath.html[PythonPath] and link:Import.html[Import] elements for how to include your new code into your Peach XML file.
+
+*NOTE:* Never add the code into the Peach source folders!  You're welcome to submit them as patches, but otherwise keep them in another folder.  This will make it easier to move to another machine, and upgrade Peach in the future.
+
+[source,python]
+----
+import zlib
+from Peach.fixup import Fixup
+
+class Crc32Fixup(Fixup):
+	'''
+	Standard CRC32 as defined by ISO 3309.  Used by PNG, zip, etc.
+	'''
+	
+	def __init__(self, ref):
+		Fixup.__init__(self)
+		self.ref = ref
+	
+	def fixup(self):
+		# Locate and get the value of the element we are interested in
+		obj = self._findDataElementByName(self.ref)
+		if obj == None:
+			raise Exception("Error: Crc32Fixup was unable to locate [%s]" % self.ref)
+
+		stuff = obj.getValue()
+		
+		# Return the CRC32 of that value
+		return zlib.crc32(stuff)
+
+----
+

@@ -1,0 +1,31 @@
+:toc!:
+== State ==
+
+The State element is a child element of StateModel.  States are containers for link:Action.html[Action]s which are run top down.  A state model must contain at least one state (but could contain more).  States can be moved between using the link:changeState.html[changeState] action type.
+
+States must contain at least one link:Action.html[Action].
+
+[source,xml]
+----
+<State name="MyState">
+
+  <Action type="output">
+    <DataModel ref="FirstDataModel" />
+  </Action>
+
+  <Action type="input">
+    <DataModel ref="SecondDataModel" />
+  </Action>
+
+</State>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [required]
+
+
+_Valid Child-Elements:_
+
+ * link:Action.html[Action]

@@ -1,0 +1,19 @@
+[[Extend_Transformer]]
+=== Transformer
+
+Peach includes support for common encoding transformations such as encryption and compression.
+Custom transformers are used whenever the target requires special encoding of the data not included with Peach.
+Custom transformer implementations must implement two functions: internalEncode and internalDecode.
+
+Peach calls the internalEncode function when outputting data to a publisher.
+Inside this function, the provided source data of the parent data element is transformed into a new stream and the new stream is returned to Peach.
+For example, the AES transformer's implementation of this function encrypts the source data and returns the encrypted data.
+
+Peach calls the internalDecode function when cracking input data into the transformer's parent data element.
+This function call results from an input action or from a DataSet being applied.
+The internalDecode function is given a stream of encoded data.
+The function performs the necessary decoding logic and returns a new stream of decoded data.
+The decoded data is then used by the transformer's parent element for cracking.
+For example, the AES transformer's implementation of this function decrypts the source data and returns the decrypted data.
+
+// end

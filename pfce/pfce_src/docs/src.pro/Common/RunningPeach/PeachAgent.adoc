@@ -1,0 +1,45 @@
+[[Program_PeachAgent]]
+== PeachAgent
+
+Starts a Peach Agent server process.
+
+A Peach Agent can be started on a remote machine (remote to Peach) to accept connections from a Peach instance. 
+Agents run various utility modules called Monitors and also host remote Publishers. 
+Peach Agents do not need any specific configuration outside of which port to listen on. 
+All configuration is provided by a Peach instance.
+
+=== Licensing
+
+The Peach Agent server process does not require a license.
+In a typical deployment, only the machine running the core Peach process (Peach.exe) requires a license.
+
+=== Syntax
+
+----
+peachagent [--port=9001]
+----
+
+
+-h, --help::
+    Display this help and exit
+
+-V, --version::
+    Display version information and exit
+
+-v, --verbose::
+    Increase verbosity, can use multiple times
+
+--plugins=VALUE::
+    Specify the plugins path
+
+--port=VALUE::
+    Port to listen for incoming connections on (defaults to 9001).
+
+--debug::
+    Enable debug messages. Useful when debugging your Peach Pit file. Warning: Messages are very
+    cryptic sometimes.
+
+--trace::
+    Enable even more verbose debug messages.
+
+// end

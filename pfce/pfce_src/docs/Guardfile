@@ -1,0 +1,47 @@
+Bundler.require(:default)
+
+def load_properties(filename)
+	props = {}
+	File.open(filename, 'r') do |file|
+		file.read.each_line do |line|
+			line.strip!
+			if (line[0] != ?# and line[0] != ?=)
+				parts = line.split('=')
+				name = parts[0].strip
+				value = parts[1].strip
+				props[name] = value
+			end
+		end 
+	end
+	props
+end
+
+pp_props = load_properties('../peach-pro.properties')
+pp_parts = pp_props['RELEASE_VERSION'].split('.')
+pp_major = pp_parts[0]
+pp_minor = pp_parts[1]
+
+guard :bundler do
+	watch('Gemfile')
+end
+
+guard :shell do
+	watch(/^src.pro\/.+\.adoc$/) {|m|
+		puts m[0] + " has changed."
+		%x(
+			asciidoctor \
+				src.pro/DevGuide/DevGuide.adoc \
+				src.pro/UserGuide/UserGuide.adoc \
+				-a images=#{Dir.pwd}/src.pro/images \
+				-a BUILDTAG=#{pp_major}.#{pp_minor}.0.0 \
+				-a VER_MAJOR=#{pp_major} \
+				-a VER_MINOR=#{pp_minor} \
+				-a VER_BUILD=0 \
+				-a VER_BRANCH=0
+		)
+	}
+end
+
+guard :livereload do
+	watch(%r{^.+\.(css|js|html)$})
+end

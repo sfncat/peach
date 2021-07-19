@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+deps = [
+	'IronPython.dll',
+	'Microsoft.CSharp.dll',
+	'Microsoft.Scripting.dll',
+	'System.dll',
+	'System.Core.dll',
+	'System.Configuration.dll',
+	'System.Numerics.dll',
+	'System.Xml.dll',
+]
+
+pkgs = [
+	'NLog',
+]
+
+bld(
+	name = 'Peach.Core.dll',
+	features = 'cs paket',
+	use = deps,
+	use_packages = pkgs,
+	paket_settings = dict(
+		frameworks = ['net45'],
+	),
+	source = bld.path.ant_glob('**/*.cs'),
+	install_644 = 'NLog.config.template',
+)

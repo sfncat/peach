@@ -1,0 +1,113 @@
+<<<
+[[Monitors_CanSendFrame]]
+== CAN Send Frame Monitor
+
+*Monitor Category*: *Automation*
+
+The _CAN Send Frame_ monitor is used to send CAN frames that are not fuzzed.
+Frames can be sent at specific points during a test case, every N milliseconds,
+or both. This can be useful to simulate messages required by a target.
+
+The CAN frames being sent can share the same driver and channel as the fuzzing, or
+use a different driver/channel.
+
+NOTE: The DLC is auto set based on the data size provided.
+
+=== Parameters
+
+_Required:_
+
+CanDriver:: Driver to use. Defaults to 'Vector XL'.
+CanChannel:: Channel number
+CanBitrate:: Set the bitrate for CAN packet transmission (default 500,000)
+Id:: CAN Frame ID field in hex.
+Data:: CAN data to transmit in hex.
+
+_Optional:_
+
+SendEvery:: Send frame every N milliseconds. Disable by setting to zero. Defaults to 0.
+
+When::
+Specify one of the following values to determine when a CAN frame should be sent (defaults to `OnStart`):
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"When" Setting              |Description
+|DetectFault                 |
+Send CAN frame when checking for a fault.
+This occurs after OnIterationEnd.
+|OnStart                     |
+Send CAN frame when the fuzzing session starts.
+This occurs once per session.
+|OnEnd                       |
+Send CAN frame when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Send CAN frame at the start of each iteration.
+|OnIterationEnd              |
+Send CAN frame at the end of each iteration.
+|OnFault                     |
+Send CAN frame when any monitor detects a fault.
+This is the default setting.
+|OnIterationStartAfterFault  |
+Send CAN frame at the start of an iteration that immediately follows a fault detection.
+|OnCall                      |
+Send CAN frame when the call specified by the 'StartOnCall' parameter is received from the state model.
+|==========================================================
++
+.When Choices for Performing an Action
+image::{images}/Common/Monitors/Timings_SSH.png[scalewidth="75%"]
+
+StartOnCall::
+Send frame when the specified event is received from the state model.
+This value is used only when the 'When' parameter is set to `OnCall`.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Send CAN Frame Every 500 ms +
+
+==============================
+This parameter example is from a setup that uses the CAN Send Frame monitor 
+to send a CAN frame every 500 ms.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+| CanDriver   | `Vector XL`
+| CanChannel  | `1`
+| CanBitrate  | (default)
+| Id          | `0x07DC`
+| Data        | `AA BB CC DD EE FF`
+| SendEvery   | `500`
+| When        | (default)
+| StartOnCall | (default)
+|==========================================================
+
+==============================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Send CAN Frame Every 500 ms +
+
+==============================
+This parameter example is from a setup that uses the CAN Send Frame monitor 
+to send a CAN frame every 500 ms.
+
+[source,xml]
+----
+include::CanSendFrame_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::CanSendFrame_Example.log[]
+----
+==============================
+
+endif::peachug[]

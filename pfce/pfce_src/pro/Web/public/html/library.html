@@ -1,0 +1,87 @@
+﻿<p>
+	Welcome to the Peach Pit library. This page consists of the following sections:
+</p>
+
+<dl class="dl-horizontal">
+	<dt>
+		Pits
+	</dt>
+	<dd>
+		All Peach Pits (test modules) that are present on your system
+	</dd>
+
+	<dt>
+		Configurations
+	</dt>
+	<dd>
+		Ready to use, saved Pit configurations
+	</dd>
+
+	<dt>
+		Legacy
+	</dt>
+	<dd>
+		Pits from an older version of Peach that require migration so they can be used in the latest version.
+	</dd>
+</dl>
+
+<div class="form-group input-group">
+	<input autocomplete="off"
+				 ng-model="search"
+				 type="text"
+				 class="form-control"
+				 placeholder="Search for pits..."
+				 peach:auto-focus/>
+	<span class="input-group-btn">
+		<button class="btn btn-default"
+						type="submit">
+			<i class="fa fa-search"></i>
+		</button>
+	</span>
+</div>
+
+<div class="page-header"
+	ng-repeat="lib in vm.Libs">
+	<h3>{{lib.Name}}</h3>
+	<p>{{lib.Text}}</p>
+	<uib-accordion close-others="false">
+		<uib-accordion-group ng-repeat="cat in lib.Categories | filter: vm.filterCategory(search)"
+										 heading="{{cat.Name}}"
+										 is-open="true">
+			<div class="peach-library">
+				<ul class="list-inline">
+					<li ng-repeat="entry in cat.Pits | filter: { Pit: { name: search } }">
+						<a href=""
+							ng-click="vm.OnSelectPit(entry)">
+								{{entry.Pit.name | peachPitName}}
+							</a>
+							<div class="pull-right action-buttons"
+								ng-show="vm.ShowActions(entry)">
+								<a href="" 
+									class="green"
+									ng-click="vm.OnCopyPit(entry)"
+									uib-tooltip="Copy"
+									tooltip-append-to-body="true">
+									<i class="fa fa-copy" />
+								</a>
+								<a href="" 
+									class="blue"
+									ng-click="vm.OnEditPit(entry)"
+									uib-tooltip="Edit"
+									tooltip-append-to-body="true">
+									<i class="fa fa-pencil" />
+								</a>
+								<a href="" 
+									class="red"
+									ng-click="vm.OnDeletePit(entry)"
+									uib-tooltip="Delete"
+									tooltip-append-to-body="true">
+									<i class="fa fa-trash" />
+								</a>
+							</div>
+					</li>
+				</ul>
+			</div>
+		</uib-accordion-group>
+	</uib-accordion>
+</div>

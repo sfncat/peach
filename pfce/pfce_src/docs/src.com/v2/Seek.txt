@@ -1,0 +1,22 @@
+:toc!:
+= Seek (Peach 2.2) =
+
+The seek element will change the current offset into the data we are cracking.  It has no affect on generation/output of data.
+
+[source,xml]
+----
+
+<!-- Seek to position 600 in input stream -->
+<Seek position="600" />
+
+<Block name="HelloWorld">
+  <String value="Hello world!" />
+</Block>
+----
+
+
+_Attributes:_
+
+ * relative -- Seek to a position relative to the current position
+ * position -- Seek to a position relative to start of the input stream
+ * expression -- Expression that returns the position relative to the start of the input stream.  The special variables +self+, +pos+, and +dataLength+ are provided.

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <String length="32" value="31337"/>
+  </DataModel>
+
+  <StateModel name="State" initialState="Initial" >
+    <State name="Initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel"/>
+      </Action>
+
+      <Action type="close"/>
+    </State>
+  </StateModel>
+
+  <Agent name="Local">
+  <Monitor class="Process">
+    <Param name="Executable" value="notepad.exe" />
+    <Param name="Arguments" value="fuzzed.txt" />
+  </Monitor>
+  </Agent>
+
+  <Test name="Default">
+    <StateModel ref="State"/>
+    <Agent ref="Local" />
+
+    <Publisher class="File">
+      <Param name="FileName" value="fuzzed.txt"/>
+    </Publisher>
+  </Test>
+</Peach>

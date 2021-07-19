@@ -1,0 +1,490 @@
+Peach Fuzzer
+============
+
+[cols="default,asciidoc,asciidoc,asciidoc,asciidoc"]
+[width="75%",frame="none",grid="none"]
+|====
+^| image:images/peachc.png["Peach Community Fuzzer",height=70] 4+|
+
+Peach is a SmartFuzzer that is capable of performing both link:GenerationMutationFuzzing.html[generation] and link:GenerationMutationFuzzing.html[mutation] based fuzzing.
+
+Peach requires the creation of Peach Pit files that define the structure, type information, and relationships in the data to be fuzzed. It additionally allows for the configuration of a fuzzing run including selecting a data transport (link:v3/Publisher.html[Publisher]), logging interface, etc.
+
+Peach has been under active development since 2004 and is in its third major version. Peach was created by http://www.linkedin.com/in/michaeleddington[Michael Eddington] and is under active development by http://www.dejavusecurity.com[Deja vu Security].
+
+*Peach Community Fuzzer v3 - Quick downloads*
+[cols="^1,3"]
+!=====
+!3.1 BETA 1 ! link:http://sourceforge.net/projects/peachfuzz/files/Peach/3.1%20BETA1/[Downloads]
+!3.1 Nightly Builds ! link:http://sourceforge.net/projects/peachfuzz/files/Peach/3.1%20Nightly/[Downloads]
+! !
+! Source ! link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-source.zip[source]
+! Windows ! x64 link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-win-x64-debug.zip[debug], link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-win-x64-release.zip[release]; x86 link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-win-x86-debug.zip[debug], link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-win-x86-release.zip[release]
+! OS X ! link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-osx-debug.zip[debug], link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-osx-release.zip[release]
+! Linux ! x64 link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-linux-x64-debug.zip[debug], link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-linux-x64-release.zip[release]; x86 link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-linux-x86-debug.zip[debug], link:http://downloads.sourceforge.net/project/peachfuzz/Peach/3.0/peach-3.0.202-linux-x86-release.zip[release]
+!=====
+
+^| image:images/peache.png["Peach Enterprise Fuzzer",height=70] 4+| 
+
+The http://www.dejavusecurity.com/peach.html[Peach Fuzzer for Enterprise (PeachE)] is a licensed and supported variant of the popular Peach fuzzing framework and is designed for the enterprise. It allows enterprises to speed up their fuzzer deployment through training, enhance the quality of results by leveraging Deja vu's vast library of Peach Pits, and increase ease of use through a helpdesk support model. It is available as of May 27th, 2013.
+
+.PeachE extended features include
+
+ * Cross platform support (Linux, OS X, Windows, etc.)
+ * .Net based implementation that is Mono compatible
+ * Backwards compatible with existing Peach definitions
+ * Ability to create a private fuzzing cloud with Peach Fuzzer Farm(TM)
+ * Design to allow for next generation of fuzzing technology
+ * A number of GUI programs for Simple File Fuzzing and Simple Network Fuzzing
+ * Cloud-based fuzzing through Peach Farm
+ * Automated reports
+ * Subscription to Deja vu Security's library of Peach Pits
+ * Graphical interface to create and debug PIT files
+ * Enhanced controls for Peach Farm
+
+.PeachE tiered support enables customers to
+
+ * Optimize current Peach Fuzzer deployments
+ * Make teams more productive by resolving support related issues
+ * Obtain bug fixes and patches in a timely manner
+
+|====
+
+
+== News ==
+
+=== Peach Community 3.1 BETA 1 [10/18/2013] ===
+
+The first beta of Peach Community 3.1 has been released. Peach Fuzzer 3.1 contains numerouse bug fixes
+along with a number of new features. Over the next week new features will be discussed on the Peach forums
+in the thread linked to below.
+
+link:https://forums.peachfuzzer.com/showthread.php?135-Peach-3-1-Community-BETA-1[Forums Thread]
+link:http://sourceforge.net/projects/peachfuzz/files/Peach/3.1%20BETA1/[Downloads]
+
+=== Peach Fuzzer: Effective Fuzzing @ ToorCon San Diego [09/09/2013] ===
+
+I'm happy to annouce we are offering our 2 day Peach training at ToorCon San Diego. This will be our first time
+presenting this training at ToorCon.
+
+The training will be heald October 16th & 17th.
+
+link:http://sandiego.toorcon.net/workshops/[Peach @ ToorCon]
+
+
+=== Peach Fuzzer: Embedded Edition @ Blackhat Vegas [06/01/2013] ===
+
+I'm happy to annouce we are offering a new class at Blackhat Vegas this year focused on fuzzing embedded systems.
+
+*Overview*
+
+Fuzzing continues to be the fastest way to find security issues and test for bugs. Effective Hardware Fuzzing with Peach will introduce students to the fundamentals of device fuzzing. Peach was designed to fuzz any type of data consumer from servers to embedded devices. Researchers, corporations, and governments already use Peach to find vulnerabilities in hardware. This course will focus on using Peach to target embedded devices and collect information from the device in the event of a crash. Students that take this course will be able to interface or extend Peach to fuzz their own hardware platforms.
+
+The course is designed to be student-centric, hands-on, and lab intensive. On day one you will learn to bridge the Peach Fuzzing Framework to target hardware. You will learn how to use Peach to fuzz the variety of targets, buses, and protocols an embedded device can present. On the second day you learn how to collect feedback from behind the silicon curtain and extend Peach to fit your custom hardware targets.
+
+link:https://www.blackhat.com/us-13/training/peach-fuzzer-embedded-edition.html[Class Details]
+
+=== Peach Fuzzer: Effective Fuzzing @ Blackhat Vegas [06/01/2013] ===
+
+We are once again offering our Peach Fuzzer training at Blackhat Vegas.
+
+link:https://www.blackhat.com/us-13/training/peach-fuzzer-effective-fuzzing.html[Class Details]
+
+=== Peach 3.0 Released [05/13/2013] ===
+
+I'm happy to announce Peach 3.0 bits are now available for download.  This marks the first stable release of the Peach 3 series
+of development, a full re-write of Peach.
+
+In other news we are shutting down the Peach mailing list in favor of the link:http://forums.peachfuzzer.com/[Peach forums].
+
+=== Peach 3 Nightly Builds [04/26/2013] ===
+
+Peach 3 development and bugfixing has been going non-stop, so we are now posting nightly builds that pass 
+our unittests for all platforms.  The nightly builds are the recommended way to get the latest bug fixes and features.
+
+link:http://sourceforge.net/projects/peachfuzz/files/Peach/3.0%20Nightly/[Nightly Build Downloads]
+
+=== Peach 3 Release Candidate 1 [02/07/2013] ===
+
+Peach 3 Release Candidate 1 has been released today.  Peach 3 is now code complete and in active use. Peach 3 is a full re-write of
+Peach using the Microsoft.NET framework and Mono for cross-platform support.  We have also
+moved to a new source control system GIT.  Both the new GIT and older SVN repositories are
+both hosted on Source Forge.
+
+Now that Peach 3 is near to release you will see this site change to be more Peach 3 centric.
+
+http://forums.peachfuzzer.com/showthread.php?90-Peach-3-RC1[downloads & info]
+
+=== Peach 3 Training @ CanSecWest 2013 [01/08/2013] ===
+
+I'm happy to announce that we will once again be offering the Peach training class @ CanSecWest!  This is a two day  hands on class during which you will learn how to use Peach to fuzz just about anything.
+
+http://cansecwest.com/[CanSecWest 2013]
+
+=== Web Site Changes [01/08/2013] ===
+
+We have decided to move away from using a wiki to host our site and instead generate
+static content that we can manage from GIT and re-use in other formats.  As such you 
+may find a broken link or two.  If so please report to the peach mailing list. Thanks!
+
+=== Peach 3 BETA 1 Released [09/24/2012] ===
+
+I'm happy to announce the release of Peach 3 BETA 1!  Peach 3 is a full re-write of
+Peach using the Microsoft.NET framework and Mono for cross-platform support.  We have also
+moved to a new source control system GIT.  Both the new GIT and older SVN repositories are
+both hosted on Source Forge.
+
+In the coming weeks and months you will see this site change and become more Peach 3 centric.  For
+now use the Peach 3 portion of the left side menu.
+
+We are also going to move away from the Peach mailing list in favor of a forums site.  This is to allow
+supporting multiple Peach versions (community & enterprise) and related features.  It should also make 
+accessing older information easier with integrated search.
+
+http://forums.peachfuzzer.com/showthread.php?1-Peach-3-BETA-1[Downloads & Information]
+
+=== Peach v2.3.8 Released [04/05/2011] ===
+
+Peach v2.3.8 has been a long time coming.  Lots of updates, changes and bug fixes.  
+I'm also happy to say the Peach Validator GUI now works on all platforms!
+
+Major Changes:
+
+ * Python v2.7 is now the supported version for both 32bit and 64bit
+ * Peach Validator GUI works on all platforms
+ * The --strategy command line has been removed and is now an element <Strategy/> under <Test/>.  The command line tool peachrand.* has also been removed.  Instead please set the Strategy in the Peach Pit.  This change will allow strategies to be passed parameters.
+
+The Full Changeling:
+
+ * New: Moving to Python 2.7, this is the final python 2 version.
+ * New: Peach filesystem logger now always writes out first test case #
+ * New: Peach filesystem logger logs test case skipping
+ * New: Peach logging better detects crashes/ctrl+c and logs last test case #
+ * New: CleanupRegistry monitor added
+ * New: FilePerIteration publisher supports "##FILEBASE##" in filename
+ * New: Publishers now have self.parent set by parser code.
+ * New: DataModel can be defined inside of Action
+ * New: Timeout and iteration repeat when debugger hangs
+ * New: Windows Kernel module for fuzzing in Kernel space
+ * New: Nice error message for some Publisher parsing exceptions
+ * New: --seed paramter to set random seed
+ * New: <Strategy> element added to <Test>
+ * New: file system logger now logs command line
+ * New: file system logger now logs pit file name
+ * Change: Aliased internal analyzers to XmlAnalyzer, Asn1Analyzer, BinaryAnalyzer,
+           PitXmlAnalyzer, WireSharkAnalyzer, StringTokenAnalyzer
+ * Change: --strategy command line argument depricated
+ * Change: No longer warn when Unix debugger does not load
+ * Change: Now using psutil module to get cpu time
+ * Change: Added <Agent/> back to template.xml
+ * Change: Removed warning about vtrace/windbg not loading
+ * Change: Random SEED now logged
+ * Change: You can now --skipto in Random Strategy
+ * Change: Added Udp6Listener publisher
+ * Change: First iteration must work, else we stop
+ * Change: Updated peach.xsd to include raw.* publishers and udp.UdpListener
+ * Bug: COM publisher was not using "WithNode" mode to get Python data type
+ * Bug: Capture more stack traces when Publisher miss-configured
+ * Bug: Fixed parsing of hex values from XML
+ * Bug: Bug loading analyzers
+ * Bug: Not loading custom analyzer modules when asCommandLine enabled.
+ * Bug: valueType of literal was not always evaulated
+ * Bug: Fixed several bugs in Peach Shark.
+ * Bug: When a count relation goes into an array that can be 0, remove
+        relation-ship when array is 0, but only if a count is providing the 0.
+ * Bug: Inconsistent behaviour with exceptions and watchers/agents/publishers
+ * Bug: EngineWatcher.OnStopRun/Logger.OnStopRun was not being called correctly
+ * New: New IPv6 Raw publisher (raw.Raw6) added.
+ * Bug: Fixed ValidValues mutator/hint to work with Numbers
+ * Bug: XmlElement/XmlAttributes: xmlns:n attributes moving to parent element.
+        fixed by moving to internal python xml module instead of 4suite.
+        Also not pretty printing :)
+
+
+=== Peach Training @ CanSecWest 2011 [1/11/2011] ===
+
+I'm happy to announce that we will once again be offering the Peach training class @ CanSecWest!  This is a two day  hands on class during which you will learn how to use Peach to fuzz just about anything.
+
+http://cansecwest.com/index.html[CanSecWest 2011]
+
+=== Peach v2.3.7 Released [11/21/2010] ===
+
+I have finally cut the 2.3.7 release of Peach.  This release has a number of changes, new features and also many bug fixes.
+
+ * New: UdpMonitor monitor will trigger fault when UDP packet received.
+ * New: Tool mincrash.py will try to locate the min change for cash.
+ * New: Exposing new Asn1 data element that used to be internal only.
+ * New: Windows debugger will use processor CPU time to close the process earlier
+        for file fuzzing.
+ * New: Peach now logs the file name of the origional file if one was used
+        as the data source.  This makes matching up files easier when using
+        a large sample set.
+ * New: Added monitor for OS X that uses Crash Wrangler to detect faults
+        and perform bucketing (osx.CrashWrangler).
+ * New: Added new publishers under process called Launcher, LauncherGui,
+        DebuggerLauncher, and DebuggerLauncherGui.  Implemented to better
+        support multi publisher capabilities in Peach.
+ * Change: Updated minset to work better
+ * Change: Updated some of the samples to reflect multiple publishers
+ * Change: Depricated several Publishers such as FileWriterLauncher*.  Should
+           now make use of multiple publishers and use Launcher* and DebuggerLauncher*
+ * Change: New version of PyDbgEng used (v0.14).
+ * Change: Added ProcessName to CrashReporter
+ * Change: OS X: Kill Finder, Dock, and SystemUIServer every 1,000 iterations
+ * Bug: Fixed stupid error with logger path
+ * Bug: "Path" feature broken, fixed
+ * Bug: Patch for bug in shark applied
+ * Bug: Fixed small crash bug in binary analyzer related to shorts
+ * Bug: Changed number of stack frames to display due to DOS issue.
+ * Bug: Fixed crash in agent when mutator ran outo f memory
+ * Bug: Random strategy may miss removing some non-mutable elements
+ * Bug: Random sequence fixup now checks the underlying Number's size.
+ * Bug: Fixed messages for unfound references to show unfound reference
+ * Bug: Fixed Data expression handling to allow for external imports
+ * Bug: Fixed odd bug with size relations and non-relation arrays.
+ * Bug: Fixed bug in Dual CRC Fixup
+ * Bug: Fixed some bugs around Windows kernel debugging
+ * Bug: Fixed bug in process.Process causing the process to always be restarted
+ * Bug: Placement after/before reference found via data model, not placement
+        causing placements to be at the wrong element sometimes.
+ * Bug: Fixed some slow mutations in BlobMutator
+ * Bug: Small bug-fix added to struct2peach.pl script.
+ * Bug: Will now try to import the module prefix of a custom strategy.
+ * Bug: Fixed a couple bugs related to opening and closing processes
+        on OS X using the FileWriterLauncher.
+ * Bug: Fixed couple bugs in XmlAnalyzer when attached to a String
+
+
+
+=== HotFuzz Released ===
+
+For the several years I've had a Peach project on my todo list.  I've always wanted to utilize Wireshark's dissectors to create a man-in-the-middle (proxy) based fuzzer were the creation of a Peach pit was optional.  !HotFuzz is an implementation of this idea by a group of students from Prague.
+
+http://hotfuzz.atteq.com/[HotFuzz]
+
+=== Black Hat Vegas 2010 Training ===
+
+We will once again be offering Peach training at Black Hat Vegas this summer.  This is a 
+two day course with a heavy focus on creating working smart fuzzers.
+
+http://blackhat.com/html/bh-us-10/training/bh-us-10-training_lv-fuzzing.html[Course Information]
+
+=== Peach v2.3.6 Released [4/26/2010] ===
+
+Two releases in one month, crazy!  This is mainly a bug fix release, but there are
+a couple improvements.  First, a patch to support multiple Publishers has been added.
+You can now configure multiple Publishers per Test and reference them by name at the
+Action level in your state model.  Second, I have improved the speed of fuzzing, at
+least for file fuzzing by improving the communication between Windows Debugger and
+the Publisher.
+
+
+ * New: Multiple Publishers are now supported by adding a "name" attribute
+        to the <Publisher> element and a "publisher" attribute to <Action>.
+ * Changed: Improved Agent to Publisher communication, increasing fuzzing speed
+ * Changed: Improved osx.CrashReporter monitor.  More reliable now.
+ * Bug: Fixed issue were Peach Validator would not always run analyzers
+ * Bug: Updated WireShark Analyzer to use <DataModel> instead of <Template>
+ * Bug: Fixed bug with ASCII strings containing char values over 127
+ * Bug: Fixed bug in <Choice> fast checking.
+ * Bug: Fixed minor issue with <Result> cracking (marked data as haveAll).
+ * Bug: Fixed two bugs in UdpListener
+ * Bug: StringMutator changed to set currentValue instead of finalValue.
+        fixes bugs related to NULL termination or Unicode encodings.
+ * Bug: Windows Debugger module didn't have CRLF line feeds causing
+        notepad to display stacktrace wrong.
+ * Bug: Random freeze while calculating frames in stack trace
+ * Bug: Strings loose NULL termination when being mutated
+
+
+=== Peach v2.3.5 Released [4/8/2010] ===
+
+I finally got cut the v2.3.5 build.  This build has one of the longer change 
+lists in the 2 series and should probably be called 2.4 :)  A number of new 
+features have been added, including beta support for OS X Crash Reporter 
+instead of a debugger (see samples/DebuggerCrashReporter.xml).  This release 
+also includes a copy of the !exploitable, so it is no longer necessary to 
+download it separately when you install windbg. 
+
+Also with this release, I have posted a cut of the source along with the 
+binary installers. 
+
+ * New: minset promoted to first tier tool, now compiled 
+ * New: Action when attribute has a new method available, 'getXml()' 
+        to allow for using xpaths in when expressions. 
+ * New: Action when attribute has access to the 'random' module 
+ * New: Windows Debugger now has IgnoreSecondChanceGardPage option 
+ * New: New reproduction strategy for running pre-fuzzed files. 
+ * New: New default strategy is deterministic and random 
+ * New: New more agressive Blob mutator 
+ * New: Data fileName attribute can now specify multiple files. 
+        This will only work with the random mutation strategy. 
+        Files will be switched every 100 iterations by default, 
+        but switchCount attribute can change that.  Unix glob 
+        support ("folder/*/*.gif"), filename, or folder path. 
+ * New: Tcp publisher has new "throttle" parameter to specify wait 
+        time between connections. 
+ * New: Windows debugger module now suppoerts attaching by PID 
+ * New: !exploitable windbg module included in distribution 
+ * New: Flags now supported enabling padding to behave like structs 
+ * New: Cracking optimizations for Choice blocks added 
+ * Changed: Updated minset.py to use pydbgeng 
+ * Changed: Use random filename to move data between debugger threads 
+ * Changed: Xml Analyzer, default string type now utf8 
+ * Changed: Windows Debugger no longer takes mini-dump 
+ * Changed: Enabled mutator ValidValuesMutator by default 
+ * Changed: UnixDebugger updated to support new file fuzzing model 
+ * Changed: Cracker will throw exception if it cannot size a Blob 
+ * Changed: Optmized test cases for small Numbers 
+ * Changed: Binary analyzer changes how it locates strings as needed 
+ * Changed: Random mutation strategy more agressive 
+ * Changed: Data loaded by <Data fileName=""/> failes we will exit 
+ * Changed: Improved accuracy of count vs. actual rounds 
+ * Changed: Unix Debugger now uses multiprocessing module 
+ * Bug: Fixed a couple odd bugs in Flags/Flag 
+ * Bug: Fixed bug in Memory agent 
+ * Bug: Fixed bug in Network Pcap agent 
+ * Bug: Fixed checksum fixup to alwasy return positive crc32 
+ * Bug: Fixed bug were sequencial mutator strategy would throw an exception 
+ * Bug: Cracker updated to better handle Choices inside of Choices 
+ * Bug: Fixed bug in UnixDebugger & vtrace where threads are not 
+        being released. 
+ * Bug: Fixed bug in UnixDebugger were vtrace file handles were not 
+        being released. 
+ * Bug: Fixed bug with relations and complex Choice blocks 
+
+
+
+
+=== Peach Training @ CanSecWest 2010 in Vancouver, CA ===
+
+A two day Peach training class is being offered at http://cansecwest.com/index.html[CanSecWest 2010 in Vancouver, CA]. For additional information please see the http://cansecwest.com/dojopeach.html[course description here].
+
+=== Peach v2.3.4 Released [1/9/2010] ===
+
+This is primarily a bugfix release.
+
+ * New: Pech Validator now runs Analyzers
+ * Changed: Moved Flags to use a bit buffer class
+ * Changed: Listening for ExitProcess event in Debugger
+ * Changed: Improved random mutation weighting system
+ * Changed: Improved paired token support in StringTokenizer
+
+=== Peach v2.3.3 Released [11/3/2009] ===
+
+ * Bug: Fixed bug with Numerical mutators and Flags
+ * Bug: Flags parsing backwards
+ * Changed: Console output now shows element being modified
+
+=== Peach v2.3.2 Released ===
+
+ * Change: Windows debugger runs in seprate process
+ * Change: Patch for Linux Ping Monitor support
+
+=== Peach v2.3.1 Released [10/21/2009] ===
+
+Peach v2.3.1 has been released.  There is finally a fully working binary only distribution for Windows in both 32bit and 64bit flavors.  This is now the preferred method for installing and using Peach as it does not require Python or any module dependencies.
+
+ * New: All binary Windows release!
+ * New: Added --range parameter to commandline
+ * New: Improved start time of mutators
+ * New: SMTP Publisher
+ * New: AirPcap publisher
+ * New: Generate fault log when agent connection fails.
+ * Change: Estimated complete time updated every 20 iterations instead of 40.
+ * Depricated: Peach Builder -- To far out of date currently
+ * Bug: Fixed memory leaks in WindowsDebugger code
+ * Bug: Fixed memory leaks in PyDbgEng
+ * Bug: Fixed memory leaks in comtypes
+ * Bug: Fixed command line parsing for -p from batch files
+ * Bug: Win32 Dependencies batch files, fixed broken names
+ * Bug: Removed assert checks from mutators
+ * Bug: Reset debugger log buffer on each test
+ * Bug: Misc bugs found testing with complex fuzzer definitions
+ * Bug: Unicode bug fixes
+ * Bug: self.find('element') failed when inside of two sized Blocks.
+ * Bug: Fixed off-by-one error on --skipto
+
+=== Peach v2.3 Released ===
+
+Peach v2.3 has finally been released after adding more features than intended :)
+
+ * link:Analyzers.html[Data Analyzers]] feature added
+ * link:MutationStrategies.html[Mutation Strategies] feature added
+ * XmlElement, XmlAttribute data elements added
+ * Asn1Type data element added
+ * NumericalString hint added
+ * link:Binary.html[Binary analyzer added]
+ * link:StringTokenAnalyzer.html[StringToken analyzer added]
+ * link:XmlAnalyzer.html[XML analyzer added]
+ * link:Asn1Analyzer.html[ASN.1 analyzer added]
+ * Random Mutation Strategy added
+ * Real Unicode support added to Strings
+ * Unicode mutators added
+ * Complex native structure support for shared library/com fuzzing
+ ** linke:pointer.html[Pointer] support (to any link:pointerDepth.html[depth])
+ * Data elements can now populate arrays
+ * Data elements can now select from Choice statements
+ * Constraint python expressions can be specified for data elements
+ * Improved support for file fuzzing
+
+=== Peach Training @ Blackhat Vegas 2009 ===
+
+A two day hands on training class on Peach is being offered at Blackhat Vegas 2009.
+
+http://blackhat.com/html/bh-usa-09/train-bh-usa-09-lv-fuzzing.html[Course information and registration.]
+
+=== Peach and bang-exploitable (!exploitable) Support ===
+
+I'm happy to announce Peach v2.3 has full support for the Microsoft !exploitable windbg module.  Just drop the extension DLL into your "winexts" folder and Peach will automatically use it to perform crash analysis.  Support in all v2.3 releases including BETA 1.
+
+http://msecdbg.codeplex.com/[More information about !exploitable can be found here.]
+
+=== Peach v2.3 BETA 1 Released ===
+
+The first beta of Peach v2.3 has been released!  This version includes a number of new features and lots of bug fixes and speed improvements.
+
+=== Peach Training @ CanSecWest 2009 in Vancouver, CA ===
+
+A two day Peach training class is being offered at http://cansecwest.com/[CanSecWest 2009 in Vancouver, CA].  For additional information please see http://cansecwest.com/dojopeach.html[the course description here].
+
+=== Peach 2.2 Released ===
+
+Peach 2.2 has finally gone golden!  Head over to PeachInstallation for download links and installation instructions.
+
+Whats new:
+
+ * Win32: Binary distribution with no dependencies
+ * State model paths
+ * Enable/disable mutations by node
+ * Offset support via:
+   * Offset-of relation
+   * Seek element
+   * Placement element
+ * Peach Validator hex view
+ * Updated and new mutators
+ * Improved App Verifier support
+   * Exclude specific stop codes
+   * Custom check model list
+ * Major speed improvements
+ * New/updated supporting tools:
+   * minset - Find the minimum set of files
+   * missing - Gap analysis between files and pit
+   * struct2peach - Convert 010 Templates to Peach
+ * Numerouse bug fixes
+
+=== Peach 2.2 BETA 2 Released ===
+
+I'm pleased to announce the release of Peach 2.2 BETA2, hopefully the last release before Peach 2.2 is released.  This release contains numerous bug fixes from beta 1, along with a few new features such as the Hex view in the Peach Validation UI.  Is it strongly suggested that all users of Peach 2.2 BETA1 upgrade to BETA2.
+
+Please report any bugs directly the http://groups-beta.google.com/group/peachfuzz[Peach mailing list].
+
+https://sourceforge.net/project/showfiles.php?group_id=149840&package_id=165498[Download from here]
+
+=== Peach Training @ PacSec 2008 in Tokyo, JP ===
+
+A two day Peach training class is being offered at http://pacsec.jp/[PacSec 2008 in Tokyo, JP].  This will be the first time Peach training has been offered in Asia.  For additional information please see http://pacsec.jp/dojopeachfuzz.html[the course description here].
+
+=== Peach Training @ BA-Con 2008 in Buenos Aires, AR ===
+
+The two day Peach 101 training is being offered at http://ba-con.com.ar/[BA-Con in Buenos Aires, AR].  We are happy to be a part of this new South American security conference.  For additional information please see http://ba-con.com.ar/dojopeach.html[the course description here].

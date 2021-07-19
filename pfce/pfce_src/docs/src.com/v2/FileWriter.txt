@@ -1,0 +1,48 @@
+:toc!:
+= file.FileWriter =
+
+This publisher will allow writing a single file.
+
+[source,xml]
+----
+<Publisher class="file.FileWriter">
+  <Param name="fileName" value="peach.bin" />
+</Publisher>
+----
+
+
+_Parameters:_
+
+ * fileName -- Filename to write [required]
+
+_Supported Actions:_
+
+ * link:open.html[open]
+ * link:output.html[output]
+ * link:close.html[close]
+
+_Example:_
+
+[source,xml]
+----
+<!-- Create a simple data template containing a single string -->
+<DataModel name="HelloWorldTemplate">
+    <String value="Hello World!" />    
+</DataModel>
+
+<StateModel name="State" initialState="State1">
+    <State name="State1">
+        <Action type="output">
+            <DataModel ref="HelloWorldTemplate"/>
+        </Action>
+    </State>
+</StateModel>
+
+<Test name="HelloWorldTest">
+    <StateModel ref="State"/>
+    <Publisher class="file.FileWriter">
+        <Param name="fileName" value="fuzzed.txt"/>
+    </Publisher>
+</Test>
+----
+

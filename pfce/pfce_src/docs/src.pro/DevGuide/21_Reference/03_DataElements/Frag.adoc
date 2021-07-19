@@ -1,0 +1,216 @@
+<<<
+[[Frag]]
+== Frag
+
+This element is used model fragmentation layers in protocols. The fragmentation method can be simplistic such as length based or more complex requiring custom logic and inspection of payload to determine how to parition the data.
+
+The Peach fragmentation support also has two corresponding Actions that are specific for supporting fragmented protocols: xref:Action_outfrag[outfrag] and xref:Action_infrag[infrag]. These actions are aware of fragmentation and will correctly output multiple fragments or receive and reconstruct multiple fragments.
+
+The _Frag_ element expects two child elements to exist: _Payload_ and _Template_.
+The _Template_ model defines what each fragment will look like while the _Payload_ model contains the unfragmented data. 
+
+When outputing a _Frag_ element via the xref:Action_outfrag[outfrag] action, the _Frag_ element will generate a new child element called _Rendering_ of type xref:Sequence[Sequence] that contians each of the framgents.  Each fragment is a copy of the _Template_ element with the fragmented _Payload_ data placed into it's _FragData_ element. During an _outfrag_ action, each element in _Rendering_ is sent via it's own _output_ action.
+
+When receiving input into a _Frag_ element via the xref:Action_infrag[infrag] action, each fragment will be placed into a child element called _Rendering_ of type xref:Sequence[Sequence]. Once all fragments have been received the unfragmented data is cracked into the _Payload_ element.
+
+All _Frag_ elements are paired with a fragmentation algorithm which contains the logic for generating fragments and also reconstructing the fragments. Peach comes with a single fragmentation algorithm called +ByLength+ which supports simple size based fragmentation. For more complicated fragmentation logic a custom fragmentation algorithm must be written. Currently the fragmentation algorithms must be written in a Microsoft.NET language such as C#.
+
+NOTE: The _Frag_ element must be the first and only element in a xref:DataModel[DataModel]. Multiple layers of fragmentation is not supported.
+
+See also: xref:Action_outfrag[action outfrag], xref:Action_infrag[action infrag], xref:Sequence[Sequence], xref:DataModel[DataModel].
+
+=== Syntax
+
+[source,xml]
+----
+<Frag fragLength="1024" totalLengthField="TotalLength" fragLengthField="FragLength" fragIndexField="FragIndex">
+
+    <Block name="Template">
+        <Number name="FragLength" size="32"/>
+        <Number name="FragIndex" size="32"/>
+        <Number name="TotalLength" size="32"/>
+        
+        <Blob name="FragData" />
+    </Block>
+    
+    <Block name="Payload">
+        <!-- Payload contents -->
+    </Block>
+
+</Frag>
+----
+
+=== Attributes
+
+_Required:_
+
+No required attributes.
+
+_Optional:_
+
+xref:name[name]::
+	Name of the boolean value.
+    
+fragLength::
+    Fragment size in bytes. Used in combination with a fragmentation algorithm that supports this attribute such as the default _ByLength_ algorithm.    
+
+class::
+    Fragmentation algorithm to use, defaults to _ByLength_. The fragmentation algorithm provides the logic for generating fragments and also reconstructing fragments. Custom fragmentation algorithms are supported by extending from the +FragmentAlgorithm+ base class.
+
+xref:constraint[constraint]::
+	A constraint in the form of a python expression. Used during data cracking.
+
+payloadOptional::
+    Protocol allows for null payload. Some fragmentation layers will send a single fragment with a null payload.  This attribute enabled support for this mode of operation.
+
+totalLengthField::
+    Name of total length field in _Template_ element.
+    If the fragment template has a field for the total length of the payload it can be automatically set using this attribute.
+
+fragmentLengthField::
+    Name of fragment length field in _Template_ element.
+    If the fragment template has a field for the length of the current frament it can be automatically set using this attribute.
+
+fragmentOffsetField::
+    Name of fragment offset field in _Template_ element.
+    If the fragment template has a field for the offset of the current frament it can be automatically set using this attribute.
+
+fragmentIndexField::
+    Name of fragment index field in _Template_ element.
+    If the fragment template has a field for the offset of the current frament it can be automatically set using this attribute.
+
+reassembleDataSet::
+    Controls how a file based xref:Data[data set] is applied to a model containing a _Frag_ element.
+    If the value is _true_, the data set is expected to be fragmented and the _Frag_ element will perform reassembly.
+    If the value is _false_, the data set is not expected to be fragmented and is expected to only contain the value and will be applied directly to the _Payload_ element.
+    The default value is _false_.
+
+
+=== Child Elements
+
+No supported child elements.
+
+=== Mutators
+
+The muations for the _Frag_ element are:
+
+* Fuzz each fragment. All elements specified in _Template_ will be fuzzed.
+* Fuzz _Payload_. All elements specified in _Payload_ will be fuzzed.
+* Fuzz the _Rendering_ sequence using all Array mutators.
+** Out of order fragments
+** Missing fragments
+** Duplicated fragments
+
+The following mutators will operate on this element type:
+
+_Specific to this element type_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]::
+    This mutator will grow and shrink an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]::
+    This mutator will randomize the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]::
+    This mutator will reverse the order of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]::
+    This mutator will grow and shrink an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator will duplicate data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator will remove data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator will swap data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator will combine data elements from different data sets.
+
+=== Examples
+
+.Simple Example
+==========================
+
+Produce three fragments with each fragment contianing the current fragment lenght, fragement sequence and total length of data. The Payload is 30 bytes of 0x41.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+    <DataModel name="Fragmented">
+        <Frag fragLength="10" 
+              totalLengthField="TotalLength" 
+              fragmentLengthField="FragLength" 
+              fragmentIndexField="FragIndex">
+
+            <Block name="Template">
+                <Number name="FragLength" size="32"/>
+                <Number name="FragIndex" size="32"/>
+                <Number name="TotalLength" size="32"/>
+
+                <Blob name="FragData" />
+            </Block>
+
+            <Block name="Payload">
+                <Blob valueType="hex" value="
+                    41 41 41 41 41 41 41 41 41 41
+                    41 41 41 41 41 41 41 41 41 41
+                    41 41 41 41 41 41 41 41 41 41"/>
+            </Block>
+        </Frag>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="outfrag">
+				<DataModel ref="Fragmented"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex"/>
+	</Test>
+</Peach>
+----
+
+The example pit will produce three fragments with 10 bytes of payload per-fragment.
+
+Output from this example:
+
+----
+>peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.87:8888/
+
+[*] Test 'Default' starting with random seed 7010.
+2016-07-07 14:26:22.2979 Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: C:\peach-pro\output\win_x64_debug\bin\Logs\example.xml_20160707142621\debug.log
+
+[R1,-,-] Performing iteration
+2016-07-07 14:26:22.4288 Peach.Core.Engine runTest: Performing control recording iteration.
+2016-07-07 14:26:22.4690 Peach.Pro.Core.Dom.Frag Generating fragments:
+2016-07-07 14:26:22.4870 Peach.Core.Dom.StateModel Run(): Changing to state "Initial".
+2016-07-07 14:26:22.4951 Peach.Core.Dom.Action Run(Action): Outfrag
+2016-07-07 14:26:22.6139 Peach.Pro.Core.Publishers.ConsolePublisher start()
+2016-07-07 14:26:22.6139 Peach.Pro.Core.Publishers.ConsolePublisher open()
+2016-07-07 14:26:22.6188 Peach.Pro.Core.Publishers.ConsolePublisher output(22 bytes) <1>
+00000000   0A 00 00 00 01 00 00 00  1E 00 00 00 41 41 41 41   ............AAAA
+00000010   41 41 41 41 41 41                                  AAAAAA
+2016-07-07 14:26:22.6188 Peach.Pro.Core.Publishers.ConsolePublisher output(22 bytes) <2>
+00000000   0A 00 00 00 02 00 00 00  1E 00 00 00 41 41 41 41   ............AAAA
+00000010   41 41 41 41 41 41                                  AAAAAA
+2016-07-07 14:26:22.6188 Peach.Pro.Core.Publishers.ConsolePublisher output(22 bytes) <3>
+00000000   0A 00 00 00 03 00 00 00  1E 00 00 00 41 41 41 41   ............AAAA
+00000010   41 41 41 41 41 41                                  AAAAAA
+2016-07-07 14:26:22.6188 Peach.Pro.Core.Publishers.ConsolePublisher close()
+2016-07-07 14:26:22.6329 Peach.Core.Engine runTest: context.config.singleIteration == true
+2016-07-07 14:26:22.6329 Peach.Pro.Core.Publishers.ConsolePublisher stop()
+2016-07-07 14:26:22.6329 Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+
+----
+<1> First fragment. Notice sequence number is 1.
+<2> Second fragment. Notice sequence number is 2.
+<3> Third fragment. Notice sequence number is 3.
+==========================
+
+// end

@@ -1,0 +1,53 @@
+:toc!:
+== Agents and Monitors ==
+
+Agents are special Peach processes that can be run locally or remote. These processes host one or more monitors that can perform such actions as attaching debuggers, watching memory consumption, etc.
+
+ * link:Agent.html[Agent]
+
+== Monitors ==
+
+*Debuggers*
+
+ * link:WindowsDebugEngine.html[WindowsDebugEngine] (Windows) [Recommended]
+ * link:LinuxApport.html[LinuxApport] (Linux) [Recommended]
+ * link:UnixDebugger.html[UnixDebugger] (Linux/Unix)
+ * link:CrashWrangler.html[CrashWrangler] (OS X) [Recommended]
+ * link:CrashReporter.html[CrashReporter] (OS X)
+
+*Gui*
+
+ * link:PopupWatcher.html[PopupWatcher]
+
+*Memory*
+
+ * link:Memory.html[Memory]
+
+*Network*
+
+ * link:PcapMonitor.html[PcapMonitor]
+ * link:PingMonitor.html[PingMonitor]
+
+*Power*
+
+ * link:NetworkedPower.html[NetworkedPower]
+
+*Process*
+
+ * link:PageHeap.html[PageHeap]
+ * link:Process.html[Process]
+ * link:WindowsService.html[WindowsService] (Peach 2.3)
+ * link:ProcessKiller.html[ProcessKiller] (Peach 2.3)
+
+*socketmon*
+
+ * link:SocketMonitor.html[SocketMonitor]
+
+*Test*
+
+ * link:TestFault.html[TestFault]
+ * link:TestStopOnFirst.html[TestStopOnFirst]
+
+*Virtual Machine*
+
+ * link:Vmware.html[Vmware]

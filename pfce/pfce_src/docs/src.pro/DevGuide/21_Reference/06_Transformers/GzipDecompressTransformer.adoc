@@ -1,0 +1,181 @@
+<<<
+[[Transformers_GzipDecompressTransformer]]
+== GzipDecompress
+
+// Reviewed:
+//  - 02/19/2014: Seth & Adam: Outlined
+// TODO:
+// Verify parameters expand parameter description
+// Full pit example using hex console
+// expand  general description
+// Identify direction / actions supported for (Input/Output/Call/setProperty/getProperty)
+// See AES for format
+// Test output, input
+
+// Updated:
+// 2/20/14: Mick
+// verified params
+// added supported actions
+// expanded description
+// added full example
+
+[horizontal]
+Type:: Compress
+
+_GzipDecompress_ performs a gzip decompression on the value in the parent xref:DataModel[DataModel].
+
+The xref:Transformer[Transformer] can bidirectionally compress data as well as decompress data.
+
+=== Parameters
+
+None.
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+None.
+
+=== Actions Supported
+
+xref:Action_input[input]:: On input, GzipDecompress compresses incoming data.
+xref:Action_output[output]:: On output, GzipDecompress decompresses all outgoing data.
+
+=== Examples
+
+.Compression To and From File Example
+==========================
+This example uses GzipCompress to compress a value, write the value to the console, write to a file, and then reads it from the file to the console.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ex1">
+		<Blob name="TransformMe" value="1F 8B 08 00 00 00 00 00 04 00 EC BD 07 60 1C 49 96 25 26 2F 6D CA 7B 7F 4A F5 4A D7 E0 74 A1 08 80 60 13 24 D8 90 40 10 EC C1 88 CD E6 92 EC 1D 69 47 23 29 AB 2A 81 CA 65 56 65 5D 66 16 40 CC ED 9D BC F7 DE 7B EF BD F7 DE 7B EF BD F7 BA 3B 9D 4E 27 F7 DF FF 3F 5C 66 64 01 6C F6 CE 4A DA C9 9E 21 80 AA C8 1F 3F 7E 7C 1F 3F 22 9A 79 5D 2C DF 2E F2 55 99 67 4D 1E FE F5 FF 04 00 00 FF FF 32 B6 7E 40 1C 00 00 00" valueType="hex">
+			<Transformer class="GzipDecompress" />
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<!-- Decompressed Output -->
+			<Action type="output" publisher="ConsolePub">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<!-- Write Decompressed Output to File -->
+			<Action type="output" publisher="FilePubWrite">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<Action type="close" publisher="FilePubWrite" />
+
+			<!-- Read and decompress file and slurp output to console -->
+			<Action type="input" publisher="FilePubRead" >
+				<DataModel name="InputModel" ref="Ex1" />
+			</Action>
+
+			<Action type="slurp" valueXpath="//InputModel//TransformMe" setXpath="//OutputModel//BlobValue" />
+
+			<Action type="output" publisher="ConsolePub">
+				<DataModel name="OutputModel">
+					<Blob name="BlobValue" />
+				</DataModel>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" name="ConsolePub"/>
+
+		<Publisher class="File" name="FilePubWrite">
+			<Param name="FileName" value="decompressed.bin" />
+		</Publisher>
+
+		<Publisher class="File" name="FilePubRead">
+			<Param name="FileName" value="decompressed.bin" />
+			<Param name="Overwrite" value="false" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 52916.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(28 bytes)
+00000000   73 68 72 69 6E 6B 6D 65  70 6C 65 61 73 65 73 68   shrinkmepleasesh
+00000010   72 69 6E 6B 6D 65 70 6C  65 61 73 65               rinkmeplease
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher output(28 bytes)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Input
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher input()
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'InputModel' Bytes: 0/28, Bits: 0/224
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: Blob 'InputModel.TransformMe' -> Offset: 0
+ Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'InputModel' Size: <null>, Byte
+: 0/28, Bits: 0/224
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'InputModel.TransformMe' Bytes: 0/28, Bits:
+0/224
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker scan: Blob 'InputModel.TransformMe' -> Offset: 0
+ Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 224
+Peach.Core.Cracker.DataCracker Crack: Blob 'InputModel.TransformMe' Size: 296,
+ytes: 0/37, Bits: 0/296
+Peach.Core.Dom.DataElement Blob 'InputModel.TransformMe' value is: 1f 8b 08 00
+0 00 00 00 04 00 2b ce 28 ca cc cb ce 4d 2d c8 49 4d 2c 4e 2d 46 e1 01 00 32 b6
+7e.. (Len: 37 bytes)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Slurp
+Peach.Core.Dom.Action Slurp, setting OutputModel.BlobValue from InputModel.Tran
+formMe
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(37 bytes)
+00000000   1F 8B 08 00 00 00 00 00  04 00 2B CE 28 CA CC CB   ??????????+?(???
+00000010   CE 4D 2D C8 49 4D 2C 4E  2D 46 E1 01 00 32 B6 7E   ?M-?IM,N-F???2?~
+00000020   40 1C 00 00 00                                     @????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

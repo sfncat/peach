@@ -1,0 +1,21 @@
+:toc!:
+= network.PcapMonitor =
+
+This monitor will capture network traffic during a test iteration and send back a pcap capture file if a fault is detected.
+
+[source,xml]
+----
+<Monitor class="network.PcapMonitor">
+  <Param name="filter" value="port 27500" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * device -- Name of device to capture on [optional]
+ * filter -- Pcap filter to use [required]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

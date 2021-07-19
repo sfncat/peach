@@ -1,0 +1,194 @@
+[[Extend_Publisher]]
+=== Publisher
+
+Publishers need to be extended whenever Peach needs to send or receive data through a custom IO channel.
+Publishers support both a 'stream' view (open, input, output, close) and a 'function' view (call, setProperty, getProperty).
+Each publisher method corresponds to a single action type used in the StateModel.
+While publishers can support all action types, most do not need to.  For example, the File publisher does not
+implement call, accept, setProperty and getProperty.
+It is up to the developer to implement the appropriate set of functions.
+
+All of the publisher's public functions are implemented in the base class.
+The public functions ensure the publisher is in the proper state and
+that they call the protected implementation functions when needed. For example, the public open function
+calls the protected OnOpen function only when the publisher is not open.
+When developers implement custom publishers, they override the protected functions.
+The default implementation of these protected functions is to throw a NotImplementedException().
+
+The list of functions that users may override are:
+
+ * OnStart()
+ * OnStop()
+ * OnOpen()
+ * OnClose()
+ * OnAccept()
+ * OnInput()
+ * OnOutput()
+ * OnCall()
+ * OnSetProperty()
+ * OnGetProperty()
+
+The OnStart and OnStop functions perform initialization and teardown.
+These functions are normally called once per test.
+The Peach engine automatically calls stop on all publishers when the test
+completes. The OnOpen and OnClose functions control access to the underlying resource.
+These functions are normally called once per iteration.
+The Peach engine automatically calls close on all publishers when each iteration completes.
+
+The OnOutput function writes all the provided data to the underlying resource.
+The data is provided in a stream, and it is best to write the data to the resource one block at a time instead of making a single large contiguous buffer.
+If the underlying resource only consumes data in a single contiguous buffer, it is best to have a configurable maximum size and truncate data that exceeds it.
+
+The OnInput function tells the publisher to read data from the underlying resource.
+The data is then stored internally in a seek-able stream and used by Peach for cracking the data model.
+If the underlying resource already provides a seek-able stream (eg: a file stream) then OnInput doesn't have to do anything.
+However, for publishers like Udp, the OnInput function causes the next packet to be received.
+When implementing the OnInput function for publishers that block, it is best to expose a user configurable input timeout.
+If no data is received from the underlying resource after the timeout interval, a SoftException() should be thrown to
+indicate to the Peach engine that the action did not complete successfully.
+
+To assist developers in quickly writing publishers, Peach comes with two helper classes: StreamPublisher and BufferedStreamPublisher.
+Both of these classes make it easy to quickly write publishers for IO interfaces that already implement the C# System.IO.Stream interface.
+
+* StreamPublisher is used when the underlying stream supports the Seek() function (eg: file streams). To use the StreamPublisher, the developer only needs to override OnOpen() and set the 'this.stream' property.
+
+* BufferedStreamPublisher is used when the underlying stream does not support the Seek() function (eg: TCP Streams, SerialPort). The BufferedStreamPublisher automatically performs asynchronous reads on the underlying stream, and buffers the accumulated data in a seek-able stream.
++
+To use the BufferedStreamPublisher, the developer needs to do two things.
+
+.. Override OnOpen() and set this._client to the System.IO.Stream and call the StartClient() function.
+.. If extra cleanup code is required other than simply closing the stream,
+the developer needs to override ClientClose() and clean up any additional resources acquired during OnOpen().
+
+An example of a File publisher deriving from StreamPublisher.
+
+[source,java]
+----
+[Publisher("File", true)]
+[Publisher("FileStream")]
+[Publisher("file.FileWriter")]
+[Publisher("file.FileReader")]
+[Parameter("FileName", typeof(string), "Name of file to open for reading/writing")]
+[Parameter("Overwrite", typeof(bool), "Replace existing file? [true/false, default true]", "true")]
+[Parameter("Append", typeof(bool), "Append to end of file [true/false, default false]", "false")]
+public class FilePublisher : StreamPublisher
+{
+	private static NLog.Logger logger = LogManager.GetCurrentClassLogger();
+	protected override NLog.Logger Logger { get { return logger; } }
+
+	public string FileName { get; set; }
+	public bool Overwrite { get; set; }
+	public bool Append { get; set; }
+
+	private FileMode fileMode = FileMode.OpenOrCreate;
+
+	public FilePublisher(Dictionary<string, Variant> args)
+		: base(args)
+	{
+		if (Overwrite && Append)
+			throw new PeachException("File publisher does not support Overwrite and Append being enabled at once.");
+		else if (Overwrite)
+			fileMode = FileMode.Create;
+		else if (Append)
+			fileMode = FileMode.Append | FileMode.OpenOrCreate;
+		else
+			fileMode = FileMode.OpenOrCreate;
+	}
+
+	protected override void OnOpen()
+	{
+		stream = System.IO.File.Open(FileName, FileMode);
+	}
+}
+----
+
+An example of a Serial publisher deriving from BufferedStreamPublisher.
+
+[source,java]
+----
+[Publisher("SerialPort", true)]
+[Parameter("PortName", typeof(string), "Com interface for the device to connect to")]
+[Parameter("Baudrate", typeof(int), "The serial baud rate.")]
+[Parameter("Parity", typeof(Parity), "The parity-checking protocol.")]
+[Parameter("DataBits", typeof(int), "Standard length of data bits per byte.")]
+[Parameter("StopBits", typeof(StopBits), "The standard number of stop bits per byte.")]
+public class SerialPortPublisher : BufferedStreamPublisher
+{
+    private static NLog.Logger logger = LogManager.GetCurrentClassLogger();
+    protected override NLog.Logger Logger { get { return logger; } }
+
+    public string PortName { get; protected set; }
+    public int Baudrate { get; protected set; }
+    public Parity Parity { get; protected set; }
+    public int DataBits { get; protected set; }
+    public StopBits StopBits { get; protected set; }
+
+    protected SerialPort _serial;
+
+    public SerialPortPublisher(Dictionary<string, Variant> args)
+        : base(args)
+    {
+    }
+
+    protected override void OnOpen()
+    {
+        base.OnOpen();
+
+        try
+        {
+            _serial = new SerialPort(PortName, Baudrate, Parity, DataBits, StopBits);
+            _serial.Handshake = Handshake;
+            _serial.DtrEnable = DtrEnable;
+            _serial.RtsEnable = RtsEnable;
+            _serial.Open();
+            // Set _clientName so logs from the base class are pretty
+            _clientName = _serial.PortName;
+            // Set _client to use for async IO
+            _client = _serial.BaseStream;
+        }
+        catch (Exception ex)
+        {
+            string msg = "Unable to open Serial Port {0}. {1}.".Fmt(PortName, ex.Message);
+            Logger.Error(msg);
+            throw new PeachException(msg, ex);
+        }
+
+        // Start the async read operations
+        StartClient();
+    }
+
+    protected override void ClientClose()
+    {
+        base.ClientClose();
+
+        // No custom closing required
+        _serial = null;
+    }
+}
+----
+
+Some Publishers use the Function view metaphor (call, setProperty, getProperty). For this type of Publisher, sharing information occurs by implementing properties of the publisher that other parts of the Peach can access. For example, the StateModel or a script could make use of the ports that a Publisher uses, as in the following example.
+
+NOTE: Remote agents can host Publishers; therefore, Publishers should not directly use the IterationStateStore bag.
+
+An example of a Serial publisher deriving from BufferedStreamPublisher.
+
+[source,java]
+    protected override Variant OnGetProperty(string property)
+    {
+        switch(property)
+        {
+            case "Port":
+                return new Variant(Port);
+           case "SrcPort":
+                return new Variant(SrcPort);
+        }
+        return base.OnGetProperty(property);
+    }
+
+The property is then accessible in the state model using the getProperty action, or using a script as in the following:
+
+[source,java]
+Port = int(context.test.publishers[0].getProperty(‘Port’))
+
+// end

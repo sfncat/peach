@@ -1,0 +1,28 @@
+:toc!:
+== WordListMutator ==
+
+This mutator will allow users to specify additional data for each data element through a hint. Each of these values must be newline seperated in a file.
+
+_Target Elements_
+
+ * link:../String.html[String]
+ * link:../Number.html[Number]
+ * link:../Blob.html[Blob]
+
+_Hints_
+
+ * WordList -- Define additional values. Must be a path to a newline seperated word list file.
+
+For example:
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+  <String name="string1" value="Hello, World!">
+    <Hint name="WordList" value="mywordlist.txt"/>
+  </String>
+</DataModel>
+----
+
+
+In this case, "string1" would hold the values contained in mywordlist.txt in addition to its default value of Hello, World!

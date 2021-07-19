@@ -1,0 +1,120 @@
+<<<
+[[Monitors_SnmpPower]]
+== SNMP Power Monitor
+
+*Monitor Categories*: *Automation*
+
+The _SNMP Power_ monitor switches outlets on a power distribution unit (PDU) on and off via SNMPv1.
+This monitor is useful for automatically power cycling devices during a fuzzing session.
+
+Each _SNMP Power_ monitor switches one or more of a PDU's outlets, according to the configuration.
+All affected outlets are given the same commands, so turning some outlets on and others off would require another monitor.
+The monitor can reset the power outlets at the following points in time:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+TIP: The xref:Monitors_IpPower9258[IpPower9258 Monitor] and
+xref:Monitors_ApcPower[ApcPower Monitor] provide similar features, for
+IP Power 9258 and APC devices, respectively. For controlling power to
+a device by wiring through a relay, Peach provides a monitor for the
+xref:Monitors_CanaKitRelay[CanaKit 4-Port USB Relay Controller].
+
+=== Parameters
+
+_Required:_
+
+Host::
+IP address of the switched power distribution unit.
+
+OIDs::
+Comma-separated list of OIDs for controlling the power outlets.
+To determine the OIDs, start by installing the SNMP MIB provided by the device manufacturer.
+Use a utility like `snmptranslate` to lookup numeric OID associate with the OID name of an outlet.
+For example, `snmptranslate -On PowerNet-MIB::sPDUOutletCtl.1` indicates `.1.3.6.1.4.1.318.1.1.4.4.2.1.3.1` is the OID to use for outlet 1 on an APC Switched Power Distribution Unit (AC7900).
+
+
+_Optional:_
+
+OnCode::
+On indicator code used by outlet OIDs. Default is `1`.
+
+OffCode::
+Off indicator code used by outlet OIDs. Default is `2`.
+
+Port::
+SNMP port on the switched power distribution unit. Default is `161`.
+
+ReadCommunity::
+SNMP community string to use when reading the state of the outlets. Default is `public`.
+
+WriteCommunity::
+SNMP community string to use when modifying the state of the outlets. Default is `private`.
+
+RequestTimeout::
+Maximum duration in millseconds to block when sending an SNMP request to the PDU. Default is `1000`.
+
+SanityCheckOnStart::
+On startup, ensure switch state changes persist. Default is `true`.
+
+SanityCheckWaitTimeout::
+Maximum duration to wait for state change to take effect during startup sanity check. Default is `3000`.
+
+ResetOnCall::
+Reset power when the specified call is received from the state model.
+This value is used only when the 'When' parameter is set to `OnCall`.
+
+PowerOffOnEnd::
+Power off when the fuzzing session completes, default is `false`.
+
+PowerOnOffPause::
+Pause in milliseconds between power off/power on, default is `500`.
+
+When::
+When to reset power on the specified outlets. Default is `OnFault`.
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"When" Setting              |Description
+|DetectFault                 |
+Reset power when checking for a fault.
+This occurs after OnIterationEnd.
+|OnStart                     |
+Reset power when the fuzzing session starts.
+This occurs once per session.
+|OnEnd                       |
+Reset power when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Reset power at the start of each iteration.
+|OnIterationEnd              |
+Reset power at the end of each iteration.
+|OnFault                     |
+Reset power when any monitor detects a fault.
+This is the default setting.
+|OnIterationStartAfterFault  |
+Reset power at the start of an iteration that immediately follows a fault detection.
+|OnCall                      |
+Reset power when the call specified by the 'ResetOnCall' parameter is received from the state model.
+|==========================================================
++
+.When Choices for Performing an Action
+image::{images}/Common/Monitors/Timings_SSH.png[scalewidth="75%"]
+
+
+
+=== Examples
+ifndef::peachug[]
+
+.Reset power on ports 1 and 2 of a PDU
+========================
+[source,xml]
+----
+include::SnmpPower_Example.xml[]
+----
+========================
+
+endif::peachug[]

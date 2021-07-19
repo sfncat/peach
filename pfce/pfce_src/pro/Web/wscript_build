@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+deps = [
+]
+
+content = [
+	'bower.json',
+	'Gruntfile.coffee',
+	'package.json',
+	'protractor.conf.js',
+	'README.adoc',
+	'tsd-app.json',
+	'tsd-test.json',
+	'tslint.json',
+] + bld.path.ant_glob('public/ts/test/**/*.ts')
+
+public = bld.path.ant_glob('public/**/*', excl = [
+	'public/tests.html',
+	'public/js/app/*',
+	'public/js/test/*',
+	'public/**/*.ts',
+	'**/.DS_Store',
+])
+
+bld(
+	features = 'tsc',
+	name ='Peach.Pro.Web',
+	source = 'public/ts/app/app.ts',
+	install_path = '${BINDIR}',
+	install_644 = public,
+	ide_content = content,
+	ide_aspnet = True,
+	use = deps,
+)

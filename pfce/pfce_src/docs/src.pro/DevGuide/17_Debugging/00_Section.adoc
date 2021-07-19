@@ -1,0 +1,62 @@
+[[DebuggingPitFiles]]
+== Debugging Pit Files
+
+// TODO - Expand on debugging pits, include validator. Debug output walkthrough
+
+// * "-1 --debug"
+// * --debug vs. --trace
+// * How to read debug output
+// * Walk through example for WAV or other simple format
+// * Debugging in more complex environments
+// * Fault simulation
+// * Debugging models vs. debugging environment automation
+
+A PIT is NOT valid unless...
+
+ * The first iteration is successful against the target.
+ * The target is isolated from other input.
+ * You can demonstrate the target has parsed your data by checking the following items:
+ ** GUI opens the image data.
+ ** Network service logs your data.
+ ** You get the correct response packet from the target for the packet you sent.
+ ** The status lights blink appropriately.
+ * Logging is enabled.
+ * Monitoring is enabled.
+ * Monitoring has been tested and fault on a demo/test fault.
+
+=== What to do if the Pit Doesn't Parse
+
+Peach provides a tool to perform validation and lint checking that can assist in tracking down basic syntax issues in your pit file.  See xref:PitTool_Compile[PitTool] for additional information.
+
+----
+pittool compile pit_file.xml
+----
+
+=== The pit doesn't run properly
+
+During the testing and building phase, run the first iteration only. The +-1+
+command-line argument runs the record iteration on the Pit. No fuzzing occurs.
+
+----
+Peach.exe -1 pit_file.xml
+----
+
+Reduce the pit to basic parts in order make sure the following items are specified correctly:
+
+. Test - The references have the right names.
+. Log Path - The folder path is valid.
+. Publisher - The functionality works:
+** Communicating (network Publisher)
+** Sending or receiving data or
+** Outputting data
+. Agent - The Monitor setup is correct and the Monitor has connectivity.
+. State Machine (StateModel) - The references to the data models are correct.
+. DataModel - Loads and displays the appropriate layout in the Peach Validator.
+
+The Peach debug argument (+--debug+ on the command line) provides verbose output that can help in debugging a Pit file.
+
+----
+Peach.exe -1 --debug pit_file.xml
+----
+
+// end

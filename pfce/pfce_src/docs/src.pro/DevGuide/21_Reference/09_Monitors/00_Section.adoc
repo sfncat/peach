@@ -1,0 +1,7 @@
+:leveloffset: 1
+<<<
+include::../../../Common/Monitors/00_Section.adoc[]
+:leveloffset: 2
+include::../../../Common/Monitors/01_Monitors.adoc[]
+
+// end

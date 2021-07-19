@@ -1,0 +1,99 @@
+#!/usr/bin/env python
+
+deps = [
+	'BouncyCastle.Crypto.dll',
+	'Facades/System.Runtime.dll',
+	'Facades/System.Threading.Tasks.dll',
+	'Google.CityHash.dll',
+	'IronPython.dll',
+	'Microsoft.CSharp.dll',
+	'Microsoft.Dynamic.dll',
+	'Microsoft.Scripting.dll',
+	'Microsoft.Scripting.Metadata.dll',
+	'Peach.Core.dll',
+	'Renci.SshNet.dll',
+	'System.dll',
+	'System.Configuration.dll',
+	'System.Core.dll',
+	'System.Data.dll',
+	'System.Data.DataSetExtensions.dll',
+	'System.Data.SQLite.dll',
+	'System.Drawing.dll',
+	'System.Management.dll',
+	'System.Numerics.dll',
+	'System.Runtime.Remoting.dll',
+	'System.Runtime.Serialization.dll',
+	'System.ServiceProcess.dll',
+	'System.Net.Http.dll',
+	'System.Web.dll',
+	'System.Web.Services.dll',
+	'System.Xml.dll',
+]
+
+pkgs = [
+	'Dapper',
+	'DotNetZip',
+	'Microsoft.AspNet.WebApi.Client',
+	'Microsoft.Diagnostics.Runtime',
+	'Mono.Posix-4.5',
+	'Newtonsoft.Json',
+	'NLog',
+	'Nustache',
+	'PacketDotNet',
+	'SharpPcap',
+	'SocketHttpListener',
+	'vtortola.WebSocketListener',
+	'WebSocketSharp',
+]
+
+frameworks = [
+	'net45', 
+	'Net45', 
+	'portable-net45+dnxcore50+sl4+wp71+win8+wpa81', 
+	'portable-net45+win8+wpa81',
+	'net40',
+	'net3.5-client', 
+	'net20', 
+	'net',
+	'lib',
+]
+
+top = bld.path.parent.parent
+
+asm = bld(
+	name = 'Peach.Pro.dll',
+	features = 'cs paket',
+	unsafe = True,
+	use = deps,
+	use_packages = pkgs,
+	paket_settings = dict(
+		frameworks = frameworks,
+	),
+	source = bld.path.ant_glob('**/*.cs'),
+	resource = bld.path.ant_glob('Resources/**/* WebServices/Views/**/*'),
+	ide_content = 'WebServices/Models/Model.cd',
+	namespace = 'Peach.Pro.Core',
+	install_755 = {},
+	install_644 = {
+		# IronPython.Modules.dll is a dependency of IronPython.dll however
+		# we can't link directly to it.  The module directly implements the
+		# bzip2 decompressor from Ionic.Zip which will collide with peach's
+		# usage of Ionic.Zip.dll
+		top.find_or_declare('3rdParty/IronPython.2.7.5/lib/Net45') :
+		top.ant_glob('3rdParty/IronPython.2.7.5/lib/Net45/IronPython.Modules.dll'),
+		bld.path : bld.path.ant_glob('Scripts/**/*'),
+		bld.path.find_dir('Install') : bld.path.ant_glob('Install/**/*'),
+	}
+)
+
+if 'win' in bld.env['supported_features']:
+	deps.extend([
+		'UIAutomationClient.dll',
+		'UIAutomationTypes.dll',
+	])
+	root = bld.path.find_or_declare('OS/Windows')
+	asm.install_755[root] = root.ant_glob('Debuggers/DebugEngine/*.dll')
+
+if 'linux' in bld.env['supported_features']:
+	root = bld.path.find_or_declare('OS/Linux')
+	asm.install_755[root] = root.ant_glob('gdb/**/*')

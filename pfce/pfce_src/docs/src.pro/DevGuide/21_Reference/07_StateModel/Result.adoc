@@ -1,0 +1,45 @@
+[[Result]]
+== Result
+
+// Reviewed:
+//  - 02/20/2014: Seth & Mike: Outlined
+
+// Updated:
+//  - 02/17/14: Mick: added syntax and description
+
+// * Result is a form of input
+// * Result is always a child of call Actions
+// * Result is optional
+// * Result is publisher dependent (Publisher must support ability to return data from a call action)
+// * List out of box publishers that support Result
+// * Result data is cracked into the data model
+// * link to noun's such as DataModel, crack, slurp.
+// * Needs a working example
+// * Calls can be sent to agents/monitors and return data.
+
+Result is a child of the xref:Action_call[call] Action.
+
+Methods run with a call Action often return useful data. 
+Result allows cracking this returned data into a DataModel.
+This data can then be slurped into other DataModels and re-used for various purposes.
+
+=== Syntax
+
+[source,xml]
+----
+<Action type="call" method="Players[1].GetUrl">
+  <Result>
+    <DataModel ref="TheDataModel" />
+  </Result>
+</Action>
+----
+
+_Attributes:_
+
+xref:name[name]:: Name of parameter [optional].
+
+_Valid Child Elements:_
+
+xref:DataModel[DataModel]:: Reference to a DataModel to contain the cracked data.
+
+// TODO Needs more content (it's pretty sparse) including an example

@@ -1,0 +1,86 @@
+== Methodology
+
+The following sections introduce a basic methodology for fuzzing. Our goal is to find previously unknown vulnerabilities with a high return on investment (ROI). We approach this by intelligently picking our targets and finding a balance between the amount of human power required to build and maintain our fuzzers versus the number of faults we will find. To accomplish this goal, we need to do the following:
+
+* Select the correct targets
+* Develop adequate fuzzers that achieve good coverage
+* Understand when to fuzz
+* Understand how long to fuzz
+
+=== Selecting Fuzzing Targets
+
+Selecting good fuzzing targets is critical to success. For teams just starting down the fuzzing road, it is important to get good early results to prove the program and to build confidence in the technology and process. Once the team becomes confident with the process and tools, they should chose more complex targets. When picking a fuzzing target, a number of factors play into the choice.
+
+For each possible target, consider and evaluate the following things:
+
+What is the risk of issues found in the target?::
++
+--
+If issues are identified in this target, are they important to fix? Would they be seen as a high priority? Ideally, a target should be picked because the resulting issues would have a high diagnosis priority.
+--
+
+Does the development of the target pre-date a secure development lifecycle (SDL) being in place?::
++
+--
+Targets developed prior to an SDL process are more likely to contain security issues.
+Additionally, this characteristic is true of applications that contain complex parsers and logic.
+--
+
+What types of issues (bugs) would we expect to find in this target?::
++
+--
+The types of issues we are looking to identify should map well to fuzzing. The easiest issues to find are those that crash the target.
+--
+
+Does the fuzzer support tools that can be used out-of-the-box to identify issues in this target?::
++
+--
+If Peach already has the tools to identify the issues intended to be found without any extensions, it will be easier and faster to create/configure our fuzzer.
+For Windows, Linux, and OS X, this could be debugger support.
+With embedded devices, support tools should be able to ping the device, or otherwise detect that the device has stopped working.
+--
+
+Does the data format contain cryptographic components--such as encryption or signatures, or custom complex authentication?::
++
+--
+This question eliminates targets that would require custom extensions. Initially, we want to avoid the more complex and sophisticated parts of fuzzing. Formats that include a cryptographic component, but are not available as licensed Pits can be challenging to create.
+--
+
+When we select a fuzzing target, our goal is to find something that is not very difficult to fuzz, yet will provide a good payout based on the number or type of issues found.
+
+=== Developing Fuzzers
+
+Having an appropriate fuzzing model is crucial to achieving good results.
+Peach Fuzzer has many off-the-shelf fuzzing models (Pits) that eliminate
+development time. Individual Pits and groups of themed Pits are available from Peach Fuzzer, LLC.
+
+If you have custom extensions or need to fuzz a proprietary item, such as a custom file format or protocol, you'll need to develop the custom portion of the fuzzing
+model. Peach Fuzzer includes the components needed to build a fuzzing definition, as well as documentation to extend Peach where custom components are needed.
+
+For information on developing fuzzing definitions, see the following sections:
+
+* xref:PeachPit[Pit Files]
+* xref:AgentsMonitors[Monitoring the Test Environment]
+* xref:TestConfig[Test]
+* xref:DebuggingPitFiles[Debugging Pit Files]
+* xref:TutorialDumbFuzzing[Dumb File Fuzzing Tutorial]
+* xref:TutorialFileFuzzing[File Fuzzing Tutorial]
+
+For information on Peach components, see xref:ReferenceSection_Intro[Reference].
+
+For information on building custom components, see xref:Extending[Extending Peach].
+
+// NOTE: For information about securing a securing a Peach Developer's License, contact sales@PeachFuzzer.com.
+
+
+=== Secure Development Lifecycle
+
+A robust secure development lifecycle (SDL) program should include requirements for fuzzing. Using the Microsoft SDL as an example, fuzzing typically integrates into the validation phase. After the first iteration with fuzzing is integrated, the project team should decide if fuzzing can be started earlier on the next revision of the deliverable. *Fuzzers are most effective when the target is reasonably stable and fully featured.* If the target is unstable or not usable, basic stability issues limit the ability to identify security issues. For example, if the data formats or features are in flux, the amount of human effort to maintain the fuzzers will increase. That, in turn, can lower the return on investment.
+
+As a team gains experience with fuzzing, they become better equipped to identify the best time to start fuzzing. Typically, more mature products can fuzz earlier in the development cycle than newer products.
+
+=== Deciding How Long to Fuzz
+
+The best way to measure how long to fuzz is by counting iterations. An iteration is a single test performed by the fuzzer. The number of iterations required to fully test a target vary based on the data format complexity and quality of the target. In a perfect world, you would fuzz until you stop finding issues by hitting a plateau. In reality, projects have ship dates and limited resources. Setting a bar to reach for each cycle is a good method to use. For more information, see xref:Fuzzing_ExitCriteria[When to Stop Fuzzing].
+
+// end

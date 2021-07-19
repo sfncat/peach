@@ -1,0 +1,176 @@
+<<<
+[[Monitors_Android]]
+== Android Monitor
+
+*Monitor Categories*: *Automation*, *Fault detection*
+
+The _Android_ monitor examines both targeted Android applications and the state of the
+Android OS. Peach supports Android OS versions 4.0 to 5.1, inclusively.
+
+Two expected use cases are:
+
+* Maintaining state while fuzzing native code
+* Launching and monitoring Android Java applications.
+
+The _Android_ monitor can start or restart the device at the following times:
+
+* The start of a fuzzing run
+* The start of each test iteration
+* The start of an iteration that immediately follows a fault
+* When called from the state model
+
+The Android monitor watches the message logs and the device, and can generate faults for the following conditions:
+
+* A logging message matches the fault search criteria, Peach logs a fault.
+* A logging message matches the fault search criteria, Peach logs a fault and stops fuzzing.
+* A physical device becomes non-responsive.
+* A virtual device becomes non-responsive or lost.
+
+After detecting a fault, the monitor collects data from the device log files and crash dumps.
+
+Additionally, the monitor logs exceptions, and updates fault bucket information. For bucketing,
+Peach uses the text from the fault to determine the major bucket level. The minor bucket level
+is not used. The risk evaluation looks for error, fatal error, or unknown.
+
+The _Android_ monitor uses the Android Debugging Bridge (adb) to communicate with a device. This
+monitor can target both emulated and physical devices. The _Android_ monitor requires
+http://developer.android.com/sdk/index.html[Android Platform Tools] and either an emulator or a
+physical Android device. The configuration for a physical device follows. For a configuration using
+a virtual device, see the xref:Monitors_AndroidEmulator[Android Emulator Monitor].
+
+image::{images}/Common/Monitors/Android.png[scalewidth="75%"]
+
+[NOTE]
+======================
+Connecting to a physical device requires the device serial number. You can obtain this from a
+connected device by using the following adb command: "adb{nbsp}devices". The result is a list of
+devices that adb found. The information for each device consists of two parts: the device
+number and the connection status between adb and the device. The list includes physical and
+virtual devices.
+
+For more information about debugging Android devices, see the following:
+
+* http://developer.android.com/tools/help/adb.html[Android Debug Bridge].
+* http://www.howtogeek.com/125769/how-to-install-and-use-abd-the-android-debug-bridge-utility/[How To Install and Use ADB, the Android Debug Bridge Utility]
+
+======================
+
+=== Parameters
+
+_Required:_
+
+ApplicationName:: Name of the Android application.
+
+_Optional:_
+
+ActivityName:: Name of the application activity, defaults to "".
+AdbPath:: Directory path to adb, defaults to "".
+ClearAppData:: Removes the application data and cache every iteration, defaults to false.
+ClearAppDataOnFault:: Removes the application data and cache on faulting iterations, defaults to false.
+CommandTimeout:: Sets the maximum number of seconds to wait for the adb command to complete, defaults to 10 seconds.
+ConnectTimeout:: Sets the maximum number of seconds to wait to establish an adb connection, defaults to 5 seconds.
+DeviceMonitor:: Identifies the Android monitor that supplies the device serial number, defaults to "". Used when monitoring a virtual device.
+DeviceSerial:: The serial number of the device to monitor, defaults to "". Used when monitoring a physical device.
+FaultRegex:: Specifies a regular expression; when matched from a log entry, triggers a fault. The default pattern
+is '(\^E/ActivityMonitor)|(^E/AndroidRuntime)|(^F/.*)'.
+FaultWaitTime:: Sets the time period, in milliseconds, to wait when checking for a fault, defaults to 0 ms.
+IgnoreRegex:: Specifies a regular expression; when matched, the monitor ignores potential false positive faults, defaults to "".
+MustStopRegex:: Specifies a regular expression; when a match occurs, the monitor triggers a fault and stops fuzzing, defaults to "".
+ReadyTimeout:: Sets the maximum number of seconds to wait for the device to reach readiness--able to respond to inputs, defaults to 600 seconds.
+RebootEveryN:: Specifies the number of iterations between successive device reboots, defaults to 0.
+RebootOnFault:: Reboots the device when a fault occurs, defaults to false.
+RestartEveryIteration:: Restarts the application every iteration, defaults to false.
+StartOnCall:: Starts the application when notified by the state machine. The string value used here must match the Call Action statement of the state model. The default string is "".
+WaitForReadyOnCall:: Waits for the device to be ready when notified by the state machine. The string used here must match the corresponding Call Action statement of the state model. the default string is "".
+
+TIP: The DeviceMonitor and the DeviceSerial parameters are mutually exclusive. Use DeviceSerial to provide the serial number of a physical device. Use DeviceMonitor when using the Android Emulator, as the Emulator will provide the serial number of the virtual device.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Basic Usage with a Physical Device  +
+====================
+
+This parameter example is from a setup that the BadBehaviorActivity, sending random taps to generate different types of exceptions and crashes. The setup is for a physical Android device.
+
++Android Monitor (App) Parameters+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter        |Value
+|ApplicationName  |`com.android.development`
+|ActivityName     |`.BadBehaviorActivity`
+|AdbPath          |`C:\adt-bundle-windows-x86_64-20131030\sdk\platform-tools`
+|DeviceSerial     |`emulator-5554`
+|==========================================================
+
+====================
+
+
+.Basic Usage with a Virtual Device +
+====================
+
+This parameter example is from a setup that the BadBehaviorActivity, sending random taps to generate different types of exceptions and crashes. The setup is for a virtual Android device, and uses the Android monitor, as well as the Android Emulator monitor.
+
+If you want to run the Android emulator, set your AdbPath to the directory containing the adb (Android Debug Bridge)
+platform-tools directory and point the EmulatorPath in the Android Emulator Monitor to the adb tools directory.
+
+The Avd parameter in the Android Emulator Monitor must also be the name of a valid AVD (Android Virtual Device).
+Use the following steps to create a new AVD:
+
+. Open the 'android.bat' file located in the adb SDK tools directory.
+. From the GUI that opens, click on 'Tools' in the menu bar, then 'Manage AVDs...'.
+. From the window that opens, click 'New...' and create a new AVD.
+
+_Android Emulator (Emu) Monitor Parameters_
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter        |Value
+|Avd              |`Nexus4`
+|EmulatorPath     |`C:\adt-bundle-windows-x86_64-20131030\sdk\tools`
+|==========================================================
+
+_Android Monitor (App) Parameters_
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter        |Value
+|ApplicationName  |`com.android.development`
+|ActivityName     |`.BadBehaviorActivity`
+|AdbPath          |`C:\adt-bundle-windows-x86_64-20131030\sdk\platform-tools`
+|DeviceMonitor    |`Emu`
+|==========================================================
+
+====================
+
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+
+.Basic Usage Example +
+======================
+This example runs the BadBehaviorActivity, sending random taps to generate different types of exceptions and crashes.
+
+To run the Android emulator, set your AdbPath to the directory containing the adb (Android Debug Bridge) platform-tools directory and point the EmulatorPath to the adb tools directory.
+
+The Avd parameter must also be the name of a valid AVD (Android Virtual Device). To create a new AVD:
+
+. Open the 'android.bat' file located in the adb SDK tools directory.
+. From the GUI that opens, click on 'Tools' in the menu bar, then 'Manage AVDs...'.
+. From the window that opens, click 'New...' and create a new AVD.
+
+[source,xml]
+----
+include::Android_Example.xml[]
+----
+
+Output for this example.
+
+----
+include::Android_Example.log[]
+----
+======================
+
+endif::peachug[]

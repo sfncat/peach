@@ -1,0 +1,28 @@
+:toc!:
+= checksums.EthernetChecksumFixup =
+
+This CRC-32 fixup uses a checksum key of 0x04C11DB7 as required by Ethernet.  You can read more about link:Fixups.html[fixups here].
+
+*NOTE:* The link:Number.html[Number] data element MUST be signed as the python CRC code can produce negative numbers.
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Number name="CRC" size="32" signed="true" endian="little">
+     <Fixup class="checksums.EthernetChecksumFixup">
+        <Param name="ref" value="Data"/>
+     </Fixup>
+  </Number>
+  <Blob name="Data"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- Must be +checksums.EthernetChecksumFixup+
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param] - name = 'ref'; value = '<name of referenced link:DataModel.html[DataModel] or link:Block.html[Block]>'.

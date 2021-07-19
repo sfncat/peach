@@ -1,0 +1,38 @@
+:toc!:
+== Agent ==
+
+The Agent element is a top level element that allows the definition of one or more agent and monitor configurations.  Agents are special Peach instances that run locally or remotely that host monitors.  Monitors can perform tasks such as attaching a debugger to a process, capturing network traffic, etc.
+
+[source,xml]
+----
+<Agent name="LocalAgent" location="http://127.0.0.1:9000">
+
+  <Monitor class="debugger.WindowsDebugEngine">
+    <Param name="CommandLine" value="CrashableServer.exe 127.0.0.1 4242" />
+  </Monitor>
+  <Monitor class="process.PageHeap">
+    <Param name="Executable" value="notepad.exe" />
+  </Monitor>
+
+</Agent>
+----
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the agent configuration [required]
+ * link:location.html[location] -- URL of Agent [required]
+ * link:password.html[password] -- Password for agent [optional]
+
+_Valid Child-Elements:_
+
+ * link:Monitor.html[Monitor]
+
+== Platform Specific Agents ==
+
+When different Agents are needed on different plaforms these details can be specified within the Test node.
+
+ * link:Test.html[Test]
+
+== Security Considerations ==
+
+When a local agent is started with +peach.py -a+ it exposes a number of potential issues to the local network, the most significant of which is unauthenticated remote code execution. Do not run a local agent on untrusted networks.

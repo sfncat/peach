@@ -1,0 +1,28 @@
+<<<
+[[Mutators_ArrayNumericalEdgeCasesMutator]]
+== ArrayEdgeCase
+
+This mutator produces test cases in which the size of an array expands or contracts to have item counts near certain numerical edge cases. An algorithm helps in producing a distribution with focal points at numerical edge cases:
+
+* Where an array index transitions from 0 to 8 bits, from 8 to 16 bits, 16 to 32 bits, and from 32 to 64 bits.
+* Where numeric values are interpreted differently for signed and unsigned integer types.
+
+This mutator focuses on integer issues that lead to memory corruption.
+
+NOTE: Currently this mutator limits the number of items in an array to 65K.
+
+=== Supported Elements
+
+This mutator supports any array element. Array elements are those that have the _occurs_, _minOccurs_, or _maxOccurs_ attribute.
+
+ * xref:occurs[occurs] attribute
+ * xref:minOccurs[minOccurs] attribute
+ * xref:maxOccurs[maxOccurs] attribute
+
+=== Hints
+
+This mutator does not support hints.
+
+NOTE: A previous version of this mutator supported a hint. An update to the underlying algorithm removed the need for a hint.
+
+// end

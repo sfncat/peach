@@ -1,0 +1,30 @@
+[[Preface]]
+== Preface
+
+This document is one of two books that together form the official documentation of
+{product} {version}. This documentation set is written by the {product} team, and
+represents a concerted effort to fully document all of the {product} features.
+
+This book, Peach Fuzzer Professional User Guide, focuses on activities encountered in
+day-to-day usage of Peach. The organization of this book is predominantly task-driven.
+The second book, Peach Fuzzer Professional Developer Guide, focuses on developer needs
+such as advanced configurations, building custom fuzzing definitions, and extending
+the various areas of Peach.
+
+As a User Guide, this book provides support for the user in daily issues that can otherwise
+impede tasks associated with fuzzing. It is not theoretical in nature. Nor is it designed
+to tackle advanced configurations, such as those used to fuzz embedded hardware or
+kernel drivers.
+
+The primary audience for this guide is a daily user who is not a developer.
+The user is also not knowledgeable about XML.
+
+Peach Fuzzer has been in active development through three major revisions since 2004. Until 2014,
+no complete documentation existed. This is the first edition of the User Guide, bearing witness
+that documenting Peach is an on-going effort. The majority of effort focuses on documenting the
+most common uses of {product}.
+
+include::01_WhatIsPeach.adoc[]
+include::02_Additional_Resources.adoc[]
+
+// end

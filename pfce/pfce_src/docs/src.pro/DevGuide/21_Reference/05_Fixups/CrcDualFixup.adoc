@@ -1,0 +1,95 @@
+<<<
+[[Fixups_CrcDualFixup]]
+== CrcDual
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher, test works
+// List Parent element types
+// Number, String
+
+// Updated:
+// 2/21/14: Mick
+// expanded description
+// Added parent types
+// Added full example
+
+The _CrcDual_ produces a CRC using data from two elements.
+It is defined in ISO 3309 and can be found in the Open source CRCTool Library.
+This is used when fuzzing protocols that perform the CRC checksum on two elements.
+
+=== Parent Elements
+
+xref:Number[Number]
+xref:String[String]
+
+=== Parameters
+
+xref:ref[ref1]:: Reference to first input element used in the CRC calculation.
+xref:ref[ref2]:: Reference to second element used in the CRC calculation.
+type:: Type of CRC to run [CRC32, CRC16, CRC_CCITT]. Defaults to CRC32.
+
+=== Examples
+
+.Basic Usage Example
+======================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Packet">
+    <Number name="SrcPort"  size="16" endian="big" value="1234"/>
+    <Number name="DestPort" size="16" endian="big" value="1235"/>
+    <Number name="Length"   size="16" endian="big">
+      <Relation type="size" of="Packet"/>
+    </Number>
+    <Number name="checksum" size="16">
+      <Fixup class="CrcDualFixup">
+        <Param name="ref1" value="SrcPort" />
+        <Param name="ref2" value="DestPort" />
+        <Param name="type" value="CRC16" />
+      </Fixup>
+    </Number>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" />
+  </Test>
+</Peach>
+----
+
+Output from this example
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 65340.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 E2 54                            ???????T
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+======================

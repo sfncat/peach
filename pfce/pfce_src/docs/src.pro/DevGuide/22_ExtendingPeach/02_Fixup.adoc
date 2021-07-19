@@ -1,0 +1,122 @@
+[[Extend_Fixup]]
+=== Fixup
+
+A fixup computes a value based on one or more data elements. Since the value is
+based on other elements, each fixup tracks whenever a referenced element changes so it  can recompute its value. For example, the Crc32 fixup needs to know whenever the referenced element changes, so that a new CRC can be computed.
+
+Each fixup implementation needs to implement a single function: fixupImpl().
+This function returns the result of the fixup computation.
+
+Since fixups compute their value from other elements, each fixup must register its dependent elements with the fuzzing engine.
+The tracking of dependent elements is important so that the fixup will recompute its value when any of its dependent elements are mutated.
+The common convention for specifying dependent elements to a fixup is to use a 'ref' parameter.
+
+Each Fixup implementation must tell the base Fixup class which parameters refer to data elements.
+This accomplished by passing the appropriate parameter names to the base fixup constructor.
+Inside of fixupImpl(), the resolved data element references are obtained through the dictionary 'this.elements'.
+The key to this dictionary is the name of the parameter (eg: 'ref') and the value is the appropriate data element.
+
+.Fixup that references a dependent element
+==========================
+Consider a custom fixup that needs to MD5 an element named 'DateHeader'.
+
+First, use a 'ref' param in the pit to tell the fixup the specific element to target.
+
+[source,xml]
+----
+<Fixup class="DateMd5">
+  <Param name="ref" value="DateHeader" />
+</Fixup>
+----
+
+Second, obtain the target element in the fixupImpl().
+
+[source,java]
+----
+protected override Variant fixupImpl()
+{
+  // Find the element specified in the 'ref' parameter
+  var dateHeaderElement = this.elements["ref"];
+  // Compute the MD5 of said element's value
+  return MD5(dateHeaderElement.Value);
+}
+----
+==========================
+
+It is important to maintain the element type information when returning results from a fixup.
+The data element type returned by the fixup should match the data element type of the resulting field; the only exception is a string that can be the resulting field when the fixup element inputs a number.
+
+If the fixup evaluates to an integer, an int type should be returned.  Similarly, if the fixup evaluates to a string, a string type should be returned. This allows Peach to perform proper byte encoding when creating the final value for a data element.
+
+Because the Crc fixup returns its value in an unsigned integer type, Peach outputs the bytes in the endianness defined on the parent data element.
+
+
+==== Examples
+
+.Single data element
+==========================
+This is an example of a fixup with a single data element reference.
+
+[source,java]
+----
+[Fixup("CustomFixupOne", true)]
+[Parameter("ref", typeof(string), "Reference to data element")]
+[Serializable]
+public class CustomFixupOne : Fixup
+{
+	public CustomFixupThree(DataElement parent, Dictionary<string, Variant> args)
+		: base(parent, args, "ref")
+	{
+	}
+}
+----
+==========================
+
+.Multi-data element
+==========================
+This is an example of a fixup with three data element references.
+
+[source,java]
+----
+[Fixup("CustomFixupThree", true)]
+[Parameter("refOne", typeof(string), "Reference to first data element")]
+[Parameter("refTwo", typeof(string), "Reference to second data element")]
+[Parameter("refThree", typeof(string), "Reference to third data element")]
+[Serializable]
+public class CustomFixupThree : Fixup
+{
+	public CustomFixupThree(DataElement parent, Dictionary<string, Variant> args)
+		: base(parent, args, "refOne", "refTwo", "refThree")
+	{
+	}
+}
+----
+==========================
+
+.fixupImpl function
+==========================
+This is an example of the fixupImpl function of a Crc fixup.
+
+[source,java]
+----
+protected override Variant fixupImpl()
+{
+	// Get the element we need to compute the CRC of
+	var elem = this.elements["ref"];
+	// Get the stream of data for the target element
+	var data = elem.Value;
+
+	// Ensure we are at the beginning of the data
+	data.Seek(0, System.IO.SeekOrigin.Begin);
+
+	// Initialize the CRCTool
+	CRCTool crcTool = new CRCTool();
+	crcTool.Init(CRCTool.CRCCode.CRC32);
+
+	// Return the CRC of data as a uint
+	return new Variant((uint)crcTool.crctablefast(data));
+}
+----
+==========================
+
+// end

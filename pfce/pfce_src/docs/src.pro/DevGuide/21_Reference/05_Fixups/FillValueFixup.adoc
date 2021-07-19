@@ -1,0 +1,102 @@
+<<<
+[[Fixups_FillValueFixup]]
+== FillValue
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Show example of output
+// Give full pit to run using hex publisher
+// List Parent element types
+// Blob
+// Updated:
+// - 02/18/2014: Jordyn
+// Added full examples
+// Expanded description
+// listed parent elements types
+
+// Updated:
+// - 02/21/2014: Mick
+// Parent elements changed to match format
+
+The _FillValue_ is used to fill a data element with sequential numbers. The first number of the sequence is the value of the start parameter, and the end of the sequence is the value of the stop parameter. 
+
+If the range specified by the start and stop parameters is less than the size of the referenced element, the sequence repeats after reaching the last value in the range. 
+
+This fixup is used when fuzzing the IPsec protocol, as the required padding in the encrypted portion of the data requires padding that is sequential numbers.
+
+=== Parent Elements
+
+xref:Number[Number]
+xref:Blob[Blob]
+xref:Padding[Padding]
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the data element that receives the sequence of values.
+start:: Inclusive start fill value.
+stop:: Inclusive stop fill value.
+
+=== Examples
+
+.Basic Usage Example
+=====================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" length="17">
+      <Fixup class="FillValue">
+        <Param name="ref" value="Data"/>
+        <Param name="start" value="0"/>
+        <Param name="stop" value="10"/>
+      </Fixup>
+    </Blob>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 57241.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(26 bytes)
+00000000   53 74 61 72 74 00 01 02  03 04 05 06 07 08 09 0A   Start??????????? <1>
+00000010   00 01 02 03 04 05 53 74  6F 70                     ??????Stop
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+<1> The FillValue fixup adds sequential numbers from 0 to 10 then repeats until the size of the element is filled.
+
+=====================

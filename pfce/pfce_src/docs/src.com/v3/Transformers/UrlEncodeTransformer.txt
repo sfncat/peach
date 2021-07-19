@@ -1,0 +1,16 @@
+:toc!:
+== UrlEncodeTransformer
+
+The _UrlEncodeTransformer_ will produce a url encoded value of the provide value in the parent data model.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<String name="TransformMe" value="http://www.peachfuzzer.com?hello=aaaaa" >
+		<Transformer class="UrlEncode" />
+	</String>
+</DataModel>
+----
+

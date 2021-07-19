@@ -1,0 +1,12 @@
+[Unit]
+Description=Peach Agent
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/peach
+ExecStart=/opt/peach/peachagent
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

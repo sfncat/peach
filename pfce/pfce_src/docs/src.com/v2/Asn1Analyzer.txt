@@ -1,0 +1,23 @@
+:toc!:
+= ASN.1 Analyzer =
+
+The ASN.1 Analyzer will convert an ASN.1 encoded binary into Peach DOM.  This works fairly well, but I have run into a couple issues with the Python ASN.1 library.
+
+In a couple cases the Binary -> Peach -> Binary was not 100% the same, I found there were some constructs that show up correctly when iterating through the them using the python library.  SO, YMMV.
+
+Currently the ASN.1 Analyzer only works at run time attached to a Data Element.
+
+[source,xml]
+----
+<DataModel name="Asn1Example">
+  <Blob analyzer="asn1.Asn1Analyzer" />
+</DataModel>
+
+...
+
+<Action ...>
+  <DataModel name="Asn1Example" />
+  <Data fileName="example.asn1" />
+</Action>
+----
+

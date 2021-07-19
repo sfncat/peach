@@ -1,0 +1,35 @@
+:toc!:
+== Field ==
+
+The Field element specifies data to replace the default value for an  data element in the DataModel.
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the DataModel element [required]
+ * link:value.html[value] -- The value to set
+ * link:valueType.html[valueType] -- The format in which the default value is expressed. (i.e hex, string, or literal)
+
+=== Examples ===
+
+.Data used to overwrite _Good Afternoon World!_ with _Hello World!_
+[source,xml]
+----
+<DataModel name="TheDataModel">
+  <Block name="Block1">
+    <String name="Key" value="Output: " />
+    <String name="Value" value="Good Afternoon World!"/>
+  </Block>
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="output">
+      <DataModel ref="TheDataModel" />
+      <Data name="SampleData">
+        <Field name="Block1.Value" value="Hello World!" />
+      </Data>
+    </Action>
+  </State>
+</StateModel>
+----

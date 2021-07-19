@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+
+bld(
+	features = 'c cshlib mono',
+	source = 'sqlite3.c',
+	target = 'sqlite3',
+	vnum = '0',
+)

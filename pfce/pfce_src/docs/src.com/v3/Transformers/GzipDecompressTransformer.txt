@@ -1,0 +1,16 @@
+:toc!:
+== GzipDecompressTransformer
+
+The _GzipDecompressTransformer_ performs a gzip decompression on the value in the parent data model.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1"> 
+	<Blob name="TransformMe" value="1F 8B 08 00 00 00 00 00 04 00 EC BD 07 60 1C 49 96 25 26 2F 6D CA 7B 7F 4A F5 4A D7 E0 74 A1 08 80 60 13 24 D8 90 40 10 EC C1 88 CD E6 92 EC 1D 69 47 23 29 AB 2A 81 CA 65 56 65 5D 66 16 40 CC ED 9D BC F7 DE 7B EF BD F7 DE 7B EF BD F7 BA 3B 9D 4E 27 F7 DF FF 3F 5C 66 64 01 6C F6 CE 4A DA C9 9E 21 80 AA C8 1F 3F 7E 7C 1F 3F 22 9A 79 5D 2C DF 2E F2 55 99 67 4D 1E FE F5 FF 04 00 00 FF FF 32 B6 7E 40 1C 00 00 00" valueType="hex">
+		<Transformer class="GzipDecompress" />
+	</Blob>
+</DataModel> 
+----
+

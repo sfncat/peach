@@ -1,0 +1,16 @@
+<<<
+[[Mutators_BlobExpandZero]]
+== BlobExpandZero
+
+This mutator produces test cases in which a random number of contiguous null bytes are inserted in a xref:Blob[Blob]. The location where the insertion starts is randomly-determined as is the number of inserted bytes. The number of inserted bytes range from 1 to 255.
+
+=== Supported Elements
+
+ * xref:Blob[Blob]
+
+=== Hints
+
+BlobExpandZero-N:: Standard deviation of the number of bytes to change.
+BlobMutator-N:: Standard deviation of the number of bytes to change. The value of this Hint affects other Blob mutators.
+
+// end

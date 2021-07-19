@@ -1,0 +1,37 @@
+:toc!:
+== valueType Attribute ==
+
+The _valueType_ attribute specifies what type of data is contained in the _value_ attribute.
+Currently there are only three valid values: +string+, +hex+, and +literal+.
+
+== string ==
+
+Indicates the value provided is a string value.  String values will be converted to the data elements type.  For example, the _Number_ element expects numerical values while _String_ and _Blob_ will take any values.
+
+== hex ==
+
+Causes the value specified to be treated as a stream of hex bytes.  Peach is fairly good about figuring out different types of hex strings, e.g. "+0x00 0x00+" or "+\x00 \x00+" or "+00 00 00 00 00+" etc.
+
+*NOTE: The hex values must be EVEN numbered!*
+
+For example this is WRONG: "+0x000+" and this is CORRECT: "+0x0000+"
+
+== literal ==
+
+Specify a python statement that evaluates to the wanted value.  For example: 
+
+{{{
+1 + 2 + 3
+}}}
+
+or
+
+{{{
+0x90 << 5
+}}}
+
+or 
+
+{{{
+'hello world'.upper()
+}}}

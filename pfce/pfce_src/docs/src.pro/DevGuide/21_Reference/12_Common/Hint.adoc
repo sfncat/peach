@@ -1,0 +1,31 @@
+
+// Reviewed:
+//  - 03/3/2014: Lynn: Format and wording changes.
+
+[[Hint]]
+== Hint
+
+Hints are a xref:Mutators[Mutator] extension; they can be attached to data elements to provide the Peach engine more information about parsed data (including how to treat it). For example, when a xref:String[String] contains a number, only the numerical tests contained within the string mutator would execute. 
+
+[source,xml]
+----
+<String value="250">
+   <Hint name="NumericalVarianceMutator-N" value="100" />
+</String>
+----
+
+
+_Available Hints_:
+
+ * ArrayVarianceMutator-N
+ * BitFlipperMutator-N
+ * DWORDSliderMutator
+ * FiniteRandomNumbersMutator-N
+ * NumericalEdgeCaseMutator-N
+ * NumericalVarianceMutator-N
+ * SizedDataNumericalEdgeCasesMutator-N
+ * SizedDataVaranceMutator-N
+ * SizedNumericalEdgeCasesMutator-N
+ * SizedVaranceMutator-N
+ * type
+ * ValidValues 

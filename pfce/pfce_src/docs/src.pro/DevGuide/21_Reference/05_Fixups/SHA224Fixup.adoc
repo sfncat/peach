@@ -1,0 +1,92 @@
+<<<
+[[Fixups_SHA224Fixup]]
+== Sha224
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher, test works
+// List Parent element types
+// Blob
+
+// Updated:
+// - 02/18/2014: Mick
+// Added full examples
+
+Performs an SHA-224 hash of value of the reference element value and places the result in the parent element. This is used when fuzzing protocols that hash data with SHA-224.
+
+The SHA224 algorithm is defined in US Federal Information Processing Standard (FIPS) PUB 180-4 and is implemented in .Net Framework Implementation - System.Security.Cryptography.
+
+=== Parent Elements
+
+xref:String[String]
+xref:Blob[Blob]
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the input data element used in the hash calculation.
+
+=== Examples
+
+.Basic Sha224 Example
+==========================
+[source,xml]
+----
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="Packet">
+		<Block name="Header">
+			<Number name="SrcPort"  size="16" endian="big" value="1234"/>
+			<Number name="DestPort" size="16" endian="big" value="1235"/>
+			<Number name="Length"   size="16" endian="big">
+				<Relation type="size" of="Packet"/>
+			</Number>
+		</Block>
+		<Blob name="Checksum">
+			<Fixup class="SHA224Fixup">
+				<Param name="ref" value="Header" />
+			</Fixup>
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="Packet" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 54740.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(34 bytes)
+00000000   04 D2 04 D3 00 22 C3 B5  EB 17 A9 4E DE EE 74 69   ?????"?????N??ti
+00000010   DD 51 F3 E0 83 0B BD 39  BA 98 EB E7 A7 DC ED F2   ?Q?????9????????
+00000020   1A A3                                              ??
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

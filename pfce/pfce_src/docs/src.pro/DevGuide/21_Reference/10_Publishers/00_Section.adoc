@@ -1,0 +1,220 @@
+[[Publisher]]
+=== Publishers
+
+Publishers are the I/O interfaces Peach uses to send and receive data.
+
+Publishers support both stream and call based operations.
+
+When the fuzzer is running, all xref:Action[Actions] (except xref:Action_changeState[changeState] and xref:Action_slurp[slurp]) use a publisher to perform the action.
+
+Different publishers support a different set of Action types.  For example, the xref:Publishers_File[File] publisher supports input for reading from a file, output for writing to a file, but does not support xref:Action_accept[accept] or xref:Action_call[call]. This differs from the xref:Publishers_Com[COM] publisher which supports xref:Action_call[call], but not xref:Action_input[input], xref:Action_output[output], or xref:Action_accept[accept].
+
+All fuzzing definitions must use at least one Publisher and (optionally) can use multiple Publishers.  When using multiple Publishers, each Action must specify which Publisher it is referencing by including the Publisher's +name+ attribute in the Action's +publisher+ attribute. If the +publisher+ attribute is missing, Peach
+performs the Action using the first Publisher defined in the Test.
+
+==== Network Publishers
+
+When fuzzing network protocols, publishers typically uses the protocol that encompasses (operates one layer below) the target protocol. For example, when fuzzing the HTTP protocol, use the xref:Publishers_Tcp[TCP] publisher.  When fuzzing TCP, use either the xref:Publishers_RawV4[RawV4] or xref:Publishers_RawV6[RawV6] publisher. When fuzzing IPv4 and IPv6, use the xref:Publishers_RawEther[RawEther] publisher.
+
+//////////////////////////////////
+
+==== Custom Publishers
+
+Peach supports the creation of custom Publishers. We recommend that you review some of the existing Publishers' code before you create your own so you can understand how to implement a Publisher.
+
+More information on creating a customer publisher can be found in the xref:ExtendingPeach_CustomPublisher[Create a Custom Publisher] chapter.
+
+//////////////////////////////////
+
+==== Publishers
+
+ * xref:Publishers_AndroidMonkey[AndroidMonkey]
+ * xref:Publishers_CAN[CAN]
+ * xref:Publishers_Com[Com]
+ * xref:Publishers_Console[Console]
+ * xref:Publishers_ConsoleHex[ConsoleHex]
+ * xref:Publishers_File[File]
+ * xref:Publishers_FilePerIteration[FilePerIteration]
+ * xref:Publishers_Http[Http]
+ * xref:Publishers_I2C[I2C]
+ * xref:Publishers_RawEther[RawEther]
+ * xref:Publishers_RawIPv4[RawIPv4]
+ * xref:Publishers_RawV4[RawV4]
+ * xref:Publishers_RawV6[RawV6]
+ * xref:Publishers_Remote[Remote]
+ * xref:Publishers_Rest[Rest]
+ * xref:Publishers_SerialPort[SerialPort]
+ * xref:Publishers_Ssl[SslClient]
+ * xref:Publishers_SslListener[SslListener]
+ * xref:Publishers_Tcp[TcpClient]
+ * xref:Publishers_TcpListener[TcpListener]
+ * xref:Publishers_Udp[Udp]
+ * xref:Publishers_Usb[Usb]
+ * xref:Publishers_WebApi[WebApi]
+ * xref:Publishers_WebService[WebService]
+ * xref:Publishers_WebSocket[WebSocket]
+ * xref:Publishers_Zip[Zip]
+
+NOTE: A full list of publishers and parameter information for any
+specific version can be found in the output of `peach --showenv`
+
+==== Syntax
+
+[source,xml]
+----
+<Test name="Default">
+  <!-- ... -->
+	<Publisher class="ConsoleHex">
+	  <Param name="BytesPerLine" value="32"/>
+	</Publisher>
+  <!-- ... -->
+</Test>
+----
+
+
+==== Examples
+
+.Multiple Publishers
+====================
+Many of the licensed Pits use a single publisher; and, some Pits use multiple publishers. Peach imposes no limit on the number of publishers to use in a Pit.
+
+For example, you might use multiple publishers to communicate with a network service that listens on multiple ports:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="Hello">
+		<Blob value="Hello Server"/>
+	</DataModel>
+
+	<DataModel name="Goodbye">
+		<Blob value="Goodbye Server"/>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="output" publisher="FirstPort">
+				<DataModel ref="Hello"/>
+			</Action>
+			<Action type="output" publisher="SecondPort">
+				<DataModel  ref="Goodbye"/>
+			</Action>
+		</State>
+	</StateModel>
+	<Agent name="TheAgent" />
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+		<StateModel ref="TheState"/>
+		<Publisher class="Tcp" name="FirstPort">
+			<Param name="Host" value="localhost"/>
+			<Param name="Port" value="12345"/>
+		</Publisher>
+		<Publisher class="Tcp" name="SecondPort">
+			<Param name="Host" value="localhost"/>
+			<Param name="Port" value="54321"/>
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+----
+$ peach -1 --debug TwoPublisher.xml
+
+[*] Test 'Default' starting with random seed 9324.
+Peach.Core.MutationStrategies.RandomStrategy Iteration: Switch iteration, setting controlIteration and controlRecordingIteration.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Updating action to original data model
+Peach.Core.Dom.Action Updating action to original data model
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher start()
+Peach.Core.Publishers.TcpClientPublisher open()
+Peach.Core.Publishers.TcpClientPublisher output(12 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   48 65 6C 6C 6F 20 53 65  72 76 65 72               Hello Server
+
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher start()
+Peach.Core.Publishers.TcpClientPublisher open()
+Peach.Core.Publishers.TcpClientPublisher output(14 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   47 6F 6F 64 62 79 65 20  53 65 72 76 65 72         Goodbye Server
+
+Peach.Core.Publishers.TcpClientPublisher close()
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 127.0.0.1:12345
+Peach.Core.Publishers.TcpClientPublisher Read 0 bytes from 127.0.0.1:12345, closing client connection.
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 127.0.0.1:12345
+Peach.Core.Publishers.TcpClientPublisher close()
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 127.0.0.1:54321
+Peach.Core.Publishers.TcpClientPublisher Read 0 bytes from 127.0.0.1:54321, closing client connection.
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 127.0.0.1:54321
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.TcpClientPublisher stop()
+Peach.Core.Publishers.TcpClientPublisher stop()
+
+[*] Test 'Default' finished.
+----
+====================
+
+:leveloffset: 2
+include::AndroidMonkey.adoc[]
+
+include::CAN.adoc[]
+
+include::Com.adoc[]
+
+include::Console.adoc[]
+
+include::ConsoleHex.adoc[]
+
+include::File.adoc[]
+
+include::FilePerIteration.adoc[]
+
+include::Http.adoc[]
+
+include::I2C.adoc[]
+
+include::RawEther.adoc[]
+
+include::RawIPv4.adoc[]
+
+include::RawV4.adoc[]
+
+include::RawV6.adoc[]
+
+include::Remote.adoc[]
+
+include::Rest.adoc[]
+
+include::Serial.adoc[]
+
+include::Ssl.adoc[]
+
+include::SslListener.adoc[]
+
+include::Tcp.adoc[]
+
+include::TcpListener.adoc[]
+
+include::Udp.adoc[]
+
+include::Usb.adoc[]
+
+include::WebApi.adoc[]
+
+include::WebService.adoc[]
+
+include::WebSocket.adoc[]
+
+include::Zip.adoc[]
+
+// end

@@ -1,0 +1,39 @@
+:toc!:
+= debugger.UnixDebugger =
+
+This monitor uses the cross-platform vtrace debugger module from vdb.  vtrace primarily uses the system ptrace facilities to perform debugging on UNIX machines including Linux, OS X, BSD, etc.
+
+The debugger interface does not currently support symbols or advanced crash analytics.
+
+[source,xml]
+----
+
+<Monitor class="debugger.UnixDebugger">
+  <Param name="Command" value="/sbin/mount" />
+  <Param name="Params" value="/dev/sda1 /mnt" />
+</Monitor>
+
+<Monitor class="debugger.UnixDebugger">
+  <Param name="ProcessName" value="firefox" />
+</Monitor>
+
+<Monitor class="debugger.UnixDebugger">
+  <Param name="Command" value="/sbin/mount" />
+  <Param name="Params" value="/dev/sda1 /mnt" />
+
+  <Param name="StartOnCall" value="ScoobySnacks" />
+</Monitor>
+
+----
+
+
+_Parameters:_
+
+ * Command -- Command to run
+ * Params -- Command parameters
+ * ProcessName -- Process name to attach to
+ * ScoobySnacks -- Optional parameter used to configure file fuzzing
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

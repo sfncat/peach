@@ -1,0 +1,142 @@
+[[valueType]]
+== ValueType Attribute
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// * Link to value attribute
+//  * Going to be a bunch of shared content between these two chapters
+// * Talk about string escaping
+// * Examples of python expressions
+// * Examples of types of HEX formats we support
+// * link to scripting examples/docs
+
+// * string, hex, literal
+// * literal - IP address
+
+The _valueType_ attribute specifies what type of data is contained in the _value_ attribute.
+Valid values are +string+, +hex+, and +literal+.
+
+
+//////// 
+RAB 1/29/2016
+
+Base description refined. 
+Need to incorporate more of what Mike and Seth have outlined above.
+Also need to get squared away on examples. Right now, they don't look right. 
+
+Here's new base description. Needs approval.
+
+The valueType attribute specifies how Peach interprets the data contained in the value attribute of a data element. The The valueType attribute is an enumeration with the following values: string, hex, and literal.
+
+//////// 
+
+string::
+	String is the default _valueType_. + 
+	The value provided is a string value.
+	String value is converted into the appropriate data element type.
+	The _Number_ element expects numerical values while _String_ and _Blob_ accept any values.
+
+hex::
+  The value specified as a stream of hex bytes. + 
+  Peach is fairly good about figuring out different types of hex strings like "+0x00 0x00+" or "+\x00 \x00+" or "+00 00 00 00 00+".
+
+literal::
+	Specify a python or ruby statement that evaluates to the wanted value. + 
+	The evaluation occurs only once when the Pit is parsed into an internal DOM tree.
+	
+WARNING: A literal should *not* be used in place of a xref:Relation[Relation] or a xref:Fixup[Fixup]. Literals are only to be used for quick one-time expressions.
+
+
+=== Examples
+
+.string
+==========================
+A numerical representation of value 65. 
+
+[source,xml]
+----
+   <Number valueType="string" value="65" /> 
+----
+
+Output
+[source,xml]
+----
+A
+----
+
+A string representation of value 65.
+
+[source,xml]
+----
+   <Number valueType="string" value="65" /> 
+----
+
+Output
+[source,xml]
+----
+ 65 
+----
+==========================
+
+.hex
+==========================
+
+A numerical representation of value 0x41. 
+
+[source,xml]
+----
+   <String valueType="hex" value="41" /> 
+----
+
+Output
+
+[source,xml]
+----
+A
+----
+
+A numerical representation of value 0x41. 
+
+[source,xml]
+----
+   <Number valueType="hex" value="41" /> 
+----
+
+
+Output
+
+[source,xml]
+----
+A
+----
+
+NOTE: The hex values must be EVEN numbered! This is WRONG: "+0x000+" and this is CORRECT: "+0x0000+"
+==========================
+
+.literal
+==========================
+[source,xml]
+----
+   <String valueType="literal" value="(1 + 2 + 3)**2" /> 
+----
+
+Output
+
+[source,xml]
+----
+36
+----
+
+[source,xml]
+----
+   <String valueType="literal" value="'hello world!'.upper()" /> 
+----
+
+Output
+
+[source,xml]
+----
+HELLO WORLD!
+----
+==========================

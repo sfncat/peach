@@ -1,0 +1,44 @@
+:toc!:
+== XmlAttribute ==
+
+Defines an attribute for an XML element.  Is only valid when parent is XmlElement.
+
+[source,xml]
+----
+<XmlElement name="example" elementName="Foo">
+  <XmlAttribute attributeName="Bar">
+    <String value="My Attribute!" />
+  </XmlAttribute>
+</XmlElement>
+----
+
+
+[source,xml]
+----
+<Foo Bar="My Attribute!"/>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [optional]
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur [optional]
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur [optional]
+ * link:isStatic.html[isStatic] -- This element should be treated as a token when parsing, defaults to False [optional]
+ * link:token.html[token] -- (Peach 2.3)This element should be treated as a token when parsing, defaults to False [optional]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]
+
+ * link:attributeName.html[attributeName] -- Name of XML element [required]
+ * link:ns.html[ns] -- XML namespace [optional]
+
+_Valid Child-Elements:_
+
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:String.html[String]
+ * link:Number.html[Number]
+ * link:Asn1Type.html[Asn1Type]
+ * link:Blob.html[Blob]
+ * link:Flags.html[Flags]
+ * link:Fixup.html[Fixup]
+ * link:Hint.html[Hint]

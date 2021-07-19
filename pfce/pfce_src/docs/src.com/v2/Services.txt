@@ -1,0 +1,20 @@
+:toc!:
+== Peach Services ==
+
+To support the development of Peach I offer commercial services billed at an hourly or project rate to provide the following services.
+
+Availability and lead time vary, please contact mike@dejavusecurity.com for more information, rates, and scheduling.
+
+All training is offered through my consulting company http://www.dejavusecurity.com[Deja vu Security].
+
+== Custom Fuzzer Development ==
+
+Don't have the time or technical ability to develop and use Peach?  Not to worry, you can hire a qualified member of the Peach development team to assist you or to develop it for you.
+
+== Fuzzer Review ==
+
+New to Peach and not sure you created a good fuzzer?  You can hire a member of the Peach development team to review your Pit file and any additional python extensions to verify the best possible coverage and provide suggestions on improvement.
+
+== Support ==
+
+Have you run into a bug or blocking problem and need more then just a mailing list to make sure you get past it fast?  Then your in luck, you can purchase a support case and a Peach developer will help you one-on-one to resolve the problem and patch Peach if needed.

@@ -1,0 +1,152 @@
+<<<
+[[Fixups_UnixTimeFixup]]
+== UnixTime
+
+The _FromFile_ is used to fill a BLOB data element with the contents of the specified file. The entire file is transferred, replacing the content of the BLOB.
+The fixup supports reading of raw or PEM-encoded data files.
+
+The main use case is to access cryptographic keys stored in files instead of exposing the key values in Pits or configuration files. In this use case, Peach pulls keys from .pem files in fuzzing cryptographic protocols.
+
+=== Parent Elements
+
+* xref:Number[Number] (Not using Format parameter)
+* xref:String[String] (When using Format parameter)
+
+=== Parameters
+
+Gmt::
+    Is time in GMT? Defaults to true.
+
+Format::
+    Format string to encode time with. Uses the Microsoft.NET format strings for Date and Time. When
+    specified the parent element must be a String. If no format is provided the parent must be a Number.
+    
+    * link:https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.110).aspx[Standard Date and Time Format Strings]
+    * link:https://msdn.microsoft.com/en-us/library/8kb3ddd4(v=vs.110).aspx[Custom Date and Time Format Strings]
+
+=== Examples
+
+.Simple Example w/o Format Parameter
+=====================
+
+Simple example of using the _UnixTime_ fixup with out the Format parameter.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach	xmlns="http://peachfuzzer.com/2012/Peach"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="TheDataModel">
+	<Number name="DateAndTime" size="32">
+		<Fixup class="UnixTime" />
+	</Number>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+Output from this example:
+
+----
+>peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.87:8888/
+
+[*] Test 'Default' starting with random seed 27871.
+2016-07-08 18:08:51.9607 Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach-pro\output\win_x64_debug\bin\Logs\example.xml_20160708180850\debug.log
+
+[R1,-,-] Performing iteration
+2016-07-08 18:08:52.1052 Peach.Core.Engine runTest: Performing control recording iteration.
+2016-07-08 18:08:52.1443 Peach.Core.Dom.StateModel Run(): Changing to state "initial".
+2016-07-08 18:08:52.1443 Peach.Core.Dom.Action Run(Action): Output
+2016-07-08 18:08:52.2744 Peach.Pro.Core.Publishers.ConsolePublisher start()
+2016-07-08 18:08:52.2744 Peach.Pro.Core.Publishers.ConsolePublisher open()
+2016-07-08 18:08:52.2784 Peach.Pro.Core.Publishers.ConsolePublisher output(4 bytes)
+00000000   A4 4E 80 57                                        .N.W
+2016-07-08 18:08:52.2784 Peach.Pro.Core.Publishers.ConsolePublisher close()
+2016-07-08 18:08:52.2784 Peach.Core.Engine runTest: context.config.singleIteration == true
+2016-07-08 18:08:52.2784 Peach.Pro.Core.Publishers.ConsolePublisher stop()
+2016-07-08 18:08:52.2944 Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+
+=====================
+
+.Simple Example with Format Parameter
+=====================
+
+Simple example of using the _UnixTime_ fixup with the Format parameter.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach	xmlns="http://peachfuzzer.com/2012/Peach"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="TheDataModel">
+	<String name="RFC1123Format" >
+		<Fixup class="UnixTime">
+			<Param name="Format" value="R" />
+		</Fixup>
+	</String>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+Output from this example:
+
+----
+>peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.87:8888/
+
+[*] Test 'Default' starting with random seed 40931.
+2016-07-08 18:10:55.0103 Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach-pro\output\win_x64_debug\bin\Logs\example.xml_20160708181053\debug.log
+
+[R1,-,-] Performing iteration
+2016-07-08 18:10:55.1412 Peach.Core.Engine runTest: Performing control recording iteration.
+2016-07-08 18:10:55.1692 Peach.Core.Dom.StateModel Run(): Changing to state "initial".
+2016-07-08 18:10:55.1692 Peach.Core.Dom.Action Run(Action): Output
+2016-07-08 18:10:55.2913 Peach.Pro.Core.Publishers.ConsolePublisher start()
+2016-07-08 18:10:55.2913 Peach.Pro.Core.Publishers.ConsolePublisher open()
+2016-07-08 18:10:55.2953 Peach.Pro.Core.Publishers.ConsolePublisher output(29 bytes)
+00000000   53 61 74 2C 20 30 39 20  4A 75 6C 20 32 30 31 36   Sat, 09 Jul 2016
+00000010   20 30 31 3A 31 30 3A 35  35 20 47 4D 54             01:10:55 GMT
+2016-07-08 18:10:55.2953 Peach.Pro.Core.Publishers.ConsolePublisher close()
+2016-07-08 18:10:55.3103 Peach.Core.Engine runTest: context.config.singleIteration == true
+2016-07-08 18:10:55.3103 Peach.Pro.Core.Publishers.ConsolePublisher stop()
+2016-07-08 18:10:55.3103 Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+
+=====================

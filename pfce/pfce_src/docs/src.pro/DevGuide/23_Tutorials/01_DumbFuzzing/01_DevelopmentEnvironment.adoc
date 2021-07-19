@@ -1,0 +1,23 @@
+[[TutorialDumbFuzzing_DevelopmentEnvironment]]
+== The Peach Development Environment
+
+Before we start building our Peach fuzzer let's first take a moment to talk about a normal Peach development environment.  Here is what a typical environment looks like:
+
+=== XML Editor
+
+A good XML editor is definitely a must.  A good free XML editor for Windows is http://www.microsoft.com/Express/[Microsoft Visual Studio Express] edition.  If you already have an XML editor that supports intelliSense via XML Schema, you're all set.
+
+=== Latest Peach
+
+Always stay up to date on the version of Peach to ensure you have the latest bug fixes.
+
+===  Debugger and support tools
+
+There are several support tools that make things work a lot nicer:
+
+ * On Windows, download the following for this lab:
+   - http://msdl.microsoft.com/download/symbols/debuggers/dbg_x86_6.8.4.0.msi[Microsoft Debugging Tools] (pick the latest version available)
+ * On OS X, download the following for this lab:
+   - https://connect.apple.com/cgi-bin/WebObjects/MemberSite.woa/wa/getSoftware?bundleID=20390[CrashWrangler] (Apple Developer Connection account required)
+
+// end

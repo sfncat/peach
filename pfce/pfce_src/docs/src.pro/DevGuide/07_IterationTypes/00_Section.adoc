@@ -1,0 +1,9 @@
+== Iteration Types
+
+Peach performs several different types of iterations during a fuzzing session. The following sections introduce each iteration type and describe when the iteration type is most effectively used.
+
+include::01_Record.adoc[]
+include::02_Control.adoc[]
+include::03_Fuzzing.adoc[]
+
+// end

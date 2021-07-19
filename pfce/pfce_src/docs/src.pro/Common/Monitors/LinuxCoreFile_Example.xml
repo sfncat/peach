@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <String name="TheString" value="Hello World!" />
+  </DataModel>
+
+  <StateModel name="State" initialState="Initial" >
+    <State name="Initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel"/>
+      </Action>
+      <Action type="close"/>
+      <Action type="call" method="ScoobySnacks" publisher="Peach.Agent"/>
+    </State>
+  </StateModel>
+
+  <Agent name="Local">
+    <Monitor class="LinuxCoreFile">
+      <Param name="Executable" value="CrashableServer" />
+    </Monitor>
+
+    <Monitor class="Process">
+      <Param name="Executable" value="CrashableServer" />
+      <Param name="Arguments" value="127.0.0.1 4244" />
+    </Monitor>
+  </Agent>
+
+ <Test name="Default">
+    <StateModel ref="State"/>
+    <Agent ref="Local" />
+
+    <Publisher class="Tcp">
+      <Param name="Host" value="127.0.0.1" />
+      <Param name="Port" value="4244" />
+    </Publisher>
+  </Test>
+</Peach>

@@ -1,0 +1,24 @@
+:toc!:
+== Memory Monitor
+
+The _Memory_ monitor checks the memory usage of a process and thows a fault if it has gone over the set limit.  This is usefull for detecting non-crashing extraneous memory usage.
+
+=== Parameters
+
+ * _Pid_ -- Process ID to monitor (optional)
+ * _ProcessName_ -- Name of process to monitor (optional)
+ * _MemoryLimit_ -- Fault when memory usage surpasses limit (optional, default 0 MB)
+ * _StopOnFault_ -- Stop fuzzing if a fault is triggered (optional, default false)
+
+=== Examples
+
+.Monitor memory via PID
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="Memory">
+		<Param name="Pid" value="2387" />
+		<Param name="MemoryLimit" value="1000" />
+	</Monitor>
+</Agent>
+----

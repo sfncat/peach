@@ -1,0 +1,6 @@
+:toc!:
+= isStatic (depricated in v2.3) =
+
+isStatic indicates a data element is a token that should be looked for when parsing incoming data.  In older versions of Peach (prior to 2.1) isStatic also denoted values that should not be changed during fuzzing (this is no longer the case).
+
+Starting with Peach 2.3 isStatic is replaced with link:token.html[token] which performs the same function but with a more obvious meaning.

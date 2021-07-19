@@ -1,0 +1,59 @@
+[[constraint]]
+== Constraint Attribute ==
+
+//////// 
+See rewrite 1/15/2016.
+
+The constraint attribute specifies a scripting expression that helps Peach identify 
+whether the data element has been properly consumed for incoming data. 
+
+The constraint expression evaluates to true (the incoming data was properly parsed into the data element) or false (an error has occurred). 
+
+////////
+
+// Re-write 1/15/2016
+
+The constraint attribute specifies a scripting expression that helps Peach identify 
+whether the parser has cracked incoming data correctly for the data element. Peach uses the constraint expression as a post-data-cracking validation filter. 
+
+If the constraint expression evaluates `true`, the data successfully loaded into the element. Otherwise, a cracking error occurred and Peach will report the details of the error.
+
+// End of re-write
+
+The constraint attribute does not affect how Peach mutates the value.
+
+NOTE: Constraints are only executed when parsing (cracking) data into a data element.
+
+TIP: Constraints are typically slower than using either xref:Choice[Choice] or the _token_ attribute.
+
+The following special variables are available to the expression:
+
+element:: The data element instance.
+value:: The value of the data cracked into the data element.  This value is cast to a string or to a byte array.
+
+
+
+=== Example ===
+
+// 1/18/2016 - RAB. Seth looking at finding better real-world examples.
+
+[source,xml]
+----
+<!-- Operate on number and check result -->
+<Number name="constrainedNum" size="32" constraint="int(value) & 0xfefe == 5" />
+----
+
+[source,xml]
+----
+<!-- Case insensitive equals -->
+<String constraint="value.lower() == 'peach'" />
+
+<!-- Value contains peach -->
+<String constraint="value.find('peach') != -1" />
+----
+
+[source,xml]
+----
+<!-- Length is less than 100 bytes -->
+<Blob constraint="len(value) < 100" />
+----

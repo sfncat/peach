@@ -1,0 +1,113 @@
+[[Test]]
+== Test
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+// * Include/exclude
+// * Mutator include/exclude
+//  * Mention you can only have one (include specific set or exclude a specific set, not both)
+// * Use of Publishers (including multiple publishers)
+// * Agents including platform tag (may just link off to that?)
+// * Logging
+// * Mutation strategy
+//  * With parameters (probably this should just be done in the strategy docs)
+// * All attributes for Test
+// * Link to configuration files
+// * State model reference
+// * Use of multiple tests in a pit file
+
+// Reviewed 04/07/2014: Lynn
+// Major edits
+
+The Test element defines the tests that Peach runs during a fuzzing session. Peach requires at least one Test element for fuzzing to occur.
+
+Test configures a specific fuzzing occurrence that combines a StateModel with a Publisher and other configuration options (such as including/excluding elements from being mutated, Agents, and fuzzing strategies).
+
+One pit can contain multiple Test elements; simply provide the test element names on the Peach command line.
+
+NOTE: If the command-line for launching Peach does not include a test name, Peach uses the Test element named "Default" for the fuzzing session.
+
+=== Syntax
+
+[source,xml]
+----
+<Test name="Default">
+
+  <!-- Optionally exclude some elements from mutation -->
+  <Exclude xpath="//Reserved" />
+  <Exclude xpath="//Magic" />
+
+  <!-- Optional agent references -->
+  <Agent ref="LocalWindowsAgent" platform="windows" />
+  <Agent ref="LocalOsxAgent" platform="osx" />
+  <Agent ref="LocalLinuxAgent" platform="linux" />
+
+  <Agent ref="RemoteAgent" />
+
+  <!-- Indicate which state model to use (required) -->
+  <StateModel ref="TheState" />
+
+  <!-- Configure the publisher to use (required) -->
+  <Publisher class="Tcp">
+     <Param name="Host" value="127.0.0.1" />
+     <Param name="Port" value="9001" />
+  </Publisher>
+
+  <!-- Use a different fuzzing strategy -->
+  <Strategy class="Random" />
+
+  <!-- Log output to disk -->
+</Test>
+----
+
+=== Attributes
+
+_Required:_
+
+xref:name[name]:: Name of the test, use "Default" for the default test.
+
+_Optional:_
+
+waitTime:: Time to wait between adjacent test cases--The default value is zero (0).
+faultWaitTime:: Time to wait for a fault to occur before starting next iteration. The default value is zero (0).
+controlIteration:: Specifies the number of test cases that run before Peach performs the next control iteration. The default value is 0, a special value that means Peach is not using control iterations.
+
+targetLifetime:: Specifies when the target restarts to a known, stable state. +
+* "session" indicates the original target is used throughout the entire fuzzing session. This is the default value.
+* "iteration" indicates the target restarts every iteration. This is common in file fuzzing.
+
+maxBackSearch::
++
+Sets the maximum number of iterations to include in the search to reproduce a fault. This attribute is used when _targetLifeTime_ is "session". The default value is 80.
++
+For example, if the default value is used, the search potentially re-runs the 80 iterations that precede the most recent fault.
+
+maxOutputSize::
++
+Sets the maximum size of data that Peach generates. This is on an Action by Action basis, meaning that if your StateModel contains two actions, each action can produce data up to maxOutputSize. The default value is unlimited.
++
+When using Publishers that have a maximum output size, such as UDP, it's recommended this attribute be used to set maximum size to correspond with this limit.
+
+nonDeterministicActions::
++
+If true, checks actions in the state model flow for exceptions. +
+If false, checks actions in the state model flow for exceptions and fully analyzes
+the state model for consistency. The value false specifies legacy behavior and is the
+default.
+
+=== Child Elements
+
+_Required:_
+
+ * xref:StateModel[StateModel]
+ * xref:Publisher[Publisher]
+
+_Optional:_
+
+ * xref:AgentsMonitors[Agent]
+ * xref:Test_Include[Include]
+ * xref:Test_Exclude[Exclude]
+ * xref:MutationStrategies[Strategy]
+ * xref:Logger[Logger]
+ * xref:Test_Mutators[Mutators]
+

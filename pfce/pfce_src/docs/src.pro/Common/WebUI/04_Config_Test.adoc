@@ -1,0 +1,21 @@
+
+[[Test_PitConfiguration]]
+==== Test
+
+In the Test section, Peach performs a test on the selected Pit configuration using settings provided for variables, agents, and monitors. Peach identifies the readiness of the Pit configuration for testing by tracking and reporting the progress of completing settings for the variables, agents, and monitors.
+
+image::{images}/Common/WebUI/AC_Test.png[]
+
+NOTE: The Test section runs a single test case without any fuzzing. +
+The test requires that the target device, service, or application be available for use.
+
+TIP: This screen issues a warning if the pit is not configured, but lets the user run the test.
+
+* Click the Begin Test button to run the test. +
+When the test completes, Peach reports whether the Pit configuration passes the test. If the configuration passes the test, the following message displays:
++
+image::{images}/Common/WebUI/AC_Test_Pass.png[]
+
+You can start a fuzzing job with your pit.
+
+// end

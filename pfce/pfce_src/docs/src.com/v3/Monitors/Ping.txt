@@ -1,0 +1,23 @@
+:toc!:
+== Ping Monitor
+
+The _Ping_ monitor will block until _Timeout_ is hit.  This monitor is useful for validating a target is still up and waiting for a target to restart.
+
+=== Parameters
+
+ * _Host_ -- Hostname or IP address
+ * _Timeout_ -- Timeout in milliseconds (optional, defaults to 1,000)
+ * _Data_ -- Data to send in ping packet (optional)
+ * _FaultOnSuccess_ -- Fault if ping is successful (optional, defaults to false)
+
+=== Examples
+
+.Ping Host
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="Ping">
+		<Param name="Host" value="www.google.com" />
+	</Monitor>
+</Agent>
+----

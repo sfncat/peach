@@ -1,0 +1,76 @@
+[[web_Body]]
+== Web Body
+
+The _Body_ element models the web api/HTTP request body.  Typically it is paired with a _Header_ element to define the 'Content-Type' of the request.  _Body_ elements can only be used with method verbs that allow request bodies such as 'POST' and 'PUT'. This element is only valid when used with a parent element of xref:Action_web[web]. _Body_ and _FormData_ elements cannot be used together.
+
+[source,xml]
+----
+<Action type="web" method="GET" url="http://www.google.com/users">
+    <Header name="ct" key="Content-Type" value="application/x-www-form-urlencoded"/>
+    <Body name="JsonBody">
+        <DataModel ref="JsonBody" />
+    </Body>
+</Action>
+----
+
+=== Attributes
+
+_Required:_
+
+xref:name[name]:: Name of parameter.
+
+_Optional:_
+
+None.
+
+=== Child Elements
+
+xref:DataModel[DataModel]:: Reference to a DataModel that acts as a source for fuzzed data.
+xref:Data[Data]:: Set of initial data to be cracked into the above DataModel before fuzzing.
+
+=== Examples
+
+.Simple Example
+===================================
+
+Example setting the Content-Type header field.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="NewUser">
+    <JsonObject>
+        <JsonString propertyName="user" value="jsmith"/>
+        <JsonString propertyName="name" value="John Smith" />
+    </JsonObject>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+    
+        <Action type="web" method="POST" url="http://www.example.com/users">
+            
+            <Header name="ct" key="Content-Type" value="application/json"/>
+            
+            <Body name="json">
+                <DataModel ref="NewUser" />
+            </Body>
+            
+            <Response />
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================

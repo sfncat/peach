@@ -1,0 +1,16 @@
+:toc!:
+== AsInt8Transformer
+
+The _AsInt8Transformer_ will transform the size of a number to an integer of 8 bits.   
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<Number name="TransformMe" size="32" value="41 42 43 44" valueType="hex">
+		<Transformer class="AsInt8"/>
+	</Number>
+</DataModel>
+----
+

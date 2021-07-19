@@ -1,0 +1,14 @@
+:toc!:
+== Mutation Strategies ==
+
+Traditionally Peach has fuzzed data models in a top-down sequential method.  While this guarantees that every data element will get fuzzed with every test case, with larger complex systems which can produce millions of test case variations this is non-optimal.  Additionally, it is recognized that a mechanism was needed to allow for easily changing how fuzzing is performed to allow for easier research into the best methods and strategies.
+
+Out of this was born pluggable mutation strategies.  By implementing a single class a user can fully control how Peach fuzzes a target including state transitions.
+
+Currently Peach ships with the following strategies:
+
+ * link:SequencialMutationStrategy.html[SequencialMutationStrategy] (Default before v2.3.5)
+ * link:RandomDeterministicMutationStrategy.html[RandomDeterministicMutationStrategy] (Default after v2.3.5)
+ * link:RandomMutationStrategy.html[RandomMutationStrategy]
+ * link:SingleRandomMutationStrategy.html[SingleRandomMutationStrategy]
+ * link:DoubleRandomMutationStrategy.html[DoubleRandomMutationStrategy]

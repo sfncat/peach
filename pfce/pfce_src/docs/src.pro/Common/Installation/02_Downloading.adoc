@@ -1,0 +1,78 @@
+[[Installation_Download]]
+=== Downloading
+
+The first step of the installation is to download the Peach Fuzzer distribution files from the Peach download site.
+Once the appropriate files have been downloaded,
+follow the instructions for your specific operating system found in the next section.
+
+xref:Installation_UserAccount[User Account Download]::
+  If you were assigned an account with a username/password, follow these instructions to sign in and download Peach Fuzzer.
+
+xref:Installation_UserAccount[Enterprise Download]::
+  If you were provided an enterprise license file, follow the instructions to sign in and download Peach Fuzzer.
+
+[[Installation_UserAccount]]
+==== User Account Download
+
+. When your Peach Fuzzer welcome email arrives, click the link to reset your initial password.
+. Navigate to https://portal.peachfuzzer.com with your preferred web browser.
+. At the login prompt under the Portal Login section,
+enter the new username/password that was recently reset and click `Sign In`.
++
+image::{images}/Common/Installation/Portal_Home.png[]
++
+NOTE: Contact support@peach.tech if you need your account password reset.
+
+. On the +Downloads+ page, select the Peach Fuzzer release version and operating system to install.
+.. Choose a release version from the items on the left side.
+.. Click the download icon on the right side after deciding which OS and architecture is needed.
++
+image::{images}/Common/Installation/Portal_Downloads.png[]
+
+. If your organization has multiple entitlements,
+you may need to select an Activation ID that corresponds to the license the download should be tied to.
+This selection page will not be displayed if there is only one entitlement for your organization.
+Contact licensing@peach.tech for more information if you are unsure which Activation ID to select.
+. After a few moments, an End User License Agreement acceptance page appears.
+Click +I ACCEPT+ to continue.
++
+image::{images}/Common/Installation/EULA_Acceptance.png[]
+
+. The download will begin.
+Depending on your network connection,
+this could take a few minutes.
+
+[[Installation_LicenseFile]]
+==== Enterprise Download
+
+NOTE: You need a copy of your Peach Fuzzer license on your system to perform the download.
+
+. Using a web browser, navigate to https://portal.peachfuzzer.com
++
+image::{images}/Common/Installation/Portal_Home_Enterprise.png[]
+
+.. Click the +Choose File+ button. The upload dialog display allows you to select the +Peach.license+ file.
++
+image::{images}/Common/Installation/LicenseUpload.png[]
+
+.. Navigate to the location of the license
+.. Select the license (`Peach.license`)
+.. Click `Open` to return to the download home page.
+
+. Upon returning to the Peach download home page, click `Sign In with License`.
+. On the +Downloads+ page, select the Peach Fuzzer release version and operating system to install.
+.. Choose a release version from the items on the left side.
+.. Click the download icon on the right side after deciding which OS and architecture is needed.
++
+image::{images}/Common/Installation/Portal_Downloads.png[]
+
+. After a few moments, an End User License Agreement acceptance page appears.
+Click +I ACCEPT+ to continue.
++
+image::{images}/Common/Installation/EULA_Acceptance.png[]
+
+. The download will begin.
+Depending on your network connection,
+this could take a few minutes.
+
+// end

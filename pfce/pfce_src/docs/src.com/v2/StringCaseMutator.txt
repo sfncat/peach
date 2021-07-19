@@ -1,0 +1,12 @@
+:toc!:
+== StringCaseMutator ==
+
+This mutator will change the case of a string three ways. First it will lower-case each character, then upper-case each character, and then randomly decide to upper-case or lower-case each character. For example, "Hello, World!" would be mutated in these ways:
+
+ * LowerCase -- "hello, world!"
+ * UpperCase -- "HELLO, WORLD!"
+ * RandomCase -- "heLLo, WOrLd!" (or any random combination of lower/upper)
+
+_Target Elements_
+
+ * link:String.html[String]

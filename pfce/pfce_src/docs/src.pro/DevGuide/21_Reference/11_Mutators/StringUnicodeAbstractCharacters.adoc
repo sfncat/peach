@@ -1,0 +1,18 @@
+<<<
+[[Mutators_StringUnicodeAbstractCharacters]]
+== StringUnicodeAbstractCharacters
+
+This mutator produces test cases for Unicode String elements by generating new strings and then populating the strings with a random set of Unicode abstract characters.
+The lengths of the generated strings form a distribution that centers on the current string length and ranges from 1 to 65k Unicode characters.
+
+This mutator requires String elements that have a Unicode encoding type: UTF-8, UTF-16, or UTF-32.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

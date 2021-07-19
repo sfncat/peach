@@ -1,0 +1,16 @@
+<<<
+[[Mutators_DoubleVariance]]
+== DoubleVariance
+
+This mutator produces test cases for Double and String elements. String elements are only supported when the default data they contain is a number. The test cases are produced using a Gaussian distribution with the current default value as the center of the distribution.
+
+=== Supported Elements
+
+ * xref:String[String]
+ * xref:Double[Double]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

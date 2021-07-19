@@ -1,0 +1,39 @@
+:toc!:
+= osx.CrashWrangler =
+
+This is the primary process monitor for OS X.  The monitor uses the Apple Crash Wrangler tool to detect crashes and perform basic crash analysis and bucketing.  The user must download and compile Crash Wrangler on *each* machine used, or it may fail to detect some bugs.
+
+[source,xml]
+----
+<!-- Configured for file fuzzing -->
+<Monitor class="osx.CrashWrangler">
+  <Param name="Command" value="/Applications/Safari/MacOs/Safari" />
+  <Param name="Arguments" value="fuzzed.bin" />
+  <Param name="ExecHandler" value="./exc_handler" />
+
+  <Param name="StartOnCall" value="ScoobySnacks" />
+</Monitor>
+
+<!-- Launch new process -->
+<Monitor class="osx.CrashWrangler">
+  <Param name="Command" value="/Applications/Safari/MacOs/Safari" />
+  <Param name="Arguments" value="fuzzed.bin" />
+  <Param name="ExecHandler" value="./exc_handler" />
+</Monitor>
+
+----
+
+
+_Parameters:_
+
+ * Command -- Command to launch
+ * Arguments -- Command line arguments to pass
+ * ExecHandler -- Crash Wrangler "exc_handler" program
+ * UseDebugMalloc -- Use debug malloc (this is slow, defaults to false)
+ * ExploitableReads -- Mark read a/v's as exploitable (defaults to false)
+ * StartOnCall -- Configure for file fuzzing (optional)
+ * NoCpuKill -- Don't monitor CPU usage to kill target (Peach 2.3.7)
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

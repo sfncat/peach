@@ -1,0 +1,124 @@
+:toc!:
+== Data ==
+
+Data elements are used to create and load default sets of data into data models.  There are currently three ways to load data, first is from a file, the second is via a python expression, and the third is by setting values field by field.
+
+The Data element is a valid top level element (child of <Peach>) when defining sets of data to be referenced later on.  It is also valid as a child of <link:Action.html[Action]> when used to both define data or reference an existing top level definition.
+
+[source,xml]
+----
+
+<DataModel name="MyDataModel">
+   <Block name="FooBlock">
+      <String name="Value" />
+   </Block>
+</DataModel>
+
+<Data name="HelloWorldDataSet">
+  <Field name="FooBlock.Value" value="Hello World!" />
+</Data>
+
+<Data name="LoadFromFile" fileName="sample.bin" />
+
+<Data name="LoadFromExpression" expression="myFuncGetData()" />
+
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [required]
+ * link:ref.html[ref] -- Reference to a data model to use as a template [optional]
+ * link:fileName.html[fileName] -- Name of file to load, or folder with files to cycle through [optional]
+ * expression -- Python expression that must return a binary string to load [optional]
+ * switchCount -- Number of iterations to perform per file (when multiple files are used) [optional]
+
+_Valid Child-Elements:_
+
+ * link:Field.html[Field]
+
+== Example of Settings Arrays ==
+
+*Note: Peach 2.3 Only*
+
+This is an example of how to populate arrays using link:Field.html[Field] elements in data sets.
+
+[source,xml]
+----
+<DataModel name="TheDataModel1">
+	<String name="Strings" maxOccurs="10" />
+</DataModel>
+<DataModel name="TheDataModel2">
+	<Block name="Array" maxOccurs="10">
+		<String name="String" />
+	</Block>
+</DataModel>
+<DataModel name="TheDataModel3">
+	<Block name="Array" maxOccurs="10">
+		<String name="String1" />
+		<String name="String2" />
+	</Block>
+</DataModel>
+<DataModel name="TheDataModel4">
+	<Block name="Array" maxOccurs="10">
+		<String name="Strings" maxOccurs="10" />
+	</Block>
+</DataModel>
+
+<StateModel name="TheState" initialState="Initial">
+	
+	<State name="Initial">
+		<Action type="output">
+			<DataModel ref="TheDataModel1"/>
+			<Data name="data">
+				<Field name="Strings[0]" value="1.0\n"/>
+				<Field name="Strings[1]" value="1.1\n"/>
+				<Field name="Strings[2]" value="1.2\n"/>
+			</Data>
+		</Action>
+		<Action type="output">
+			<DataModel ref="TheDataModel2"/>
+			<Data name="data">
+				<Field name="Array[0].String" value="2.0\n"/>
+				<Field name="Array[1].String" value="2.1\n"/>
+				<Field name="Array[2].String" value="2.2\n"/>
+			</Data>
+		</Action>
+		<Action type="output">
+			<DataModel ref="TheDataModel3"/>
+			<Data name="data">
+				<Field name="Array[0].String1" value="3.0.1\n"/>
+				<Field name="Array[0].String2" value="3.0.2\n"/>
+				<Field name="Array[1].String1" value="3.1.1\n"/>
+				<Field name="Array[1].String2" value="3.1.2\n"/>
+				<Field name="Array[2].String1" value="3.2.1\n"/>
+				<Field name="Array[2].String2" value="3.2.2\n"/>
+			</Data>
+		</Action>
+		<Action type="output">
+			<DataModel ref="TheDataModel4"/>
+			<Data name="data">
+				<Field name="Array[0].Strings[0]" value="4.0.1\n"/>
+				<Field name="Array[0].Strings[1]" value="4.0.2\n"/>
+				<Field name="Array[1].Strings[0]" value="4.1.1\n"/>
+				<Field name="Array[1].Strings[1]" value="4.1.2\n"/>
+				<Field name="Array[2].Strings[0]" value="4.2.1\n"/>
+				<Field name="Array[2].Strings[1]" value="4.2.2\n"/>
+			</Data>
+		</Action>
+	</State>
+	
+</StateModel>
+----
+
+
+*TIP: Removing unused array*
+
+So what if you have an array with minOccurs="0" and you want to specify it has zero elements?  Just set the array indexer to -1 as in the following example:
+
+[source,xml]
+----
+
+<Field name="Array[-1]" value="" />
+----
+

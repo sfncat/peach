@@ -1,0 +1,67 @@
+[[InstallOnOSX]]
+=== macOS
+
+To install on macOS, follow the installation steps provided below.  Installation will require installing the Mono .NET runtime, then Peach.
+To enable support for the xref:Monitors_CrashWrangler[CrashWrangler] monitor,
+install CrashWrangler and Xcode.
+Note that installing CrashWrangler is optional;
+it is only needed when running the target locally.
+
+[NOTE]
+====
+Peach Fuzzer, LLC,
+recommends using Mono .NET runtime version 4.8.1 from the mono project.
+
+Peach will not run with Mono version 5.0 or newer due to incompatibilities with our Python runtime.
+If you have Mono 5.0 installed, you must downgrade to 4.8.1.
+
+Peach will not run with version 4.4 of the Mono runtime as there are known
+handle leaks which can cause Peach to run out of memory during long fuzzing runs.
+If you have Mono 4.4 installed, you can either upgrade to 4.6+ or downgrade to 4.2.
+====
+
+. Install the https://download.mono-project.com/archive/4.8.1/macos-10-universal/[Mono package].
+
+. Unzip the Peach distribution to an appropriate folder.
+The file is a zip file with the extension `.zip`.
+Use the filename that begins with `peach-pro` and contains the appropriate architecture for your system,
+such as +peach-pro-{BUILDTAG}-osx_release.zip+.
+
+. Install CrashWrangler.
++
+CrashWrangler *MUST* be compiled on each macOS machine.
+Peach includes the CrashWrangler source files in the peach distribution.
+Here are instructions to install and compile CrashWrangler from the peach zip.
+
+.. Ensure XCode is installed.
+.. Open `Terminal.app`.
+.. Navigate to the folder where you extracted +peach-pro-{BUILDTAG}-osx_release.zip+.
+.. Finish installing CrashWrangler using the following commands.
++
+----
+# Navigate to the folder containing CrashWrangler distribution
+cd CrashWrangler
+
+# Extract CrashWrangler sources
+unzip 52607_crashwrangler.zip
+
+# Navigate to the folder containing the extracted CrashWrangler sources
+cd crashwrangler
+
+# Compile CrashWrangler
+$ make
+
+# Ensure installation directory exists
+sudo mkdir -p /usr/local/bin
+
+# Install CrashWrangler
+sudo cp exc_handler /usr/local/bin
+
+# Navigate to the folder containing peach
+cd ../../
+
+# Verify CrashWrangler can run
+exc_handler
+----
+
+// end

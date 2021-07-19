@@ -1,0 +1,146 @@
+[[AgentsMonitors]]
+== Monitoring The Fuzzing Environment
+
+Monitoring the fuzzing environment to detect faults, collect interesting information and control the environment is a crucial step in building or configuring a Peach pit. xref:Agent[Agents] and xref:Monitors[Monitors] provide the means to accomplish this.
+
+* Agents are processes, local or remote, that host Monitors.
+* Monitors provide the logic to detect faults, collect information, or control the environment.
+
+To detect a fault, attach a debugger to a process to monitor it for exceptions. Or ping a device to verify it's active.
+
+The following sections describe how agents and monitors work. Detailed descriptions of each monitor are located in the xref:Monitors[monitors] section of the documentations.
+
+Remote channels are used for both remote agents and remote publishers. Remote channels have two uses:
+
+* Install Peach on the remote device. Remote agents and remote publishers can run and exchange data with the controlling Peach process.
+
+* Install a small remote agent on the target machine that can receive and send communications to Peach. This implementation is necessary when it is not possible for Peach to run on the target machine. The remote agent implementation allows Peach to detect crashes more intelligently, thereby increasing the usefulness of fuzzing.
+
+Remote publishers run publishers on a remote machine. This is useful when running OS specific publishers (such as xref:Publishers_Com[Com], which only runs on Windows).
+
+One reason to remote publish is when Peach runs on a local machine that is much faster than the remote target; by using remote publishers, all fuzzing can be done on the local machine and the results sent to the target to be output. Another reason to remote publish is if you fuzz a system that expects to communicate with two different machines.
+By having one publisher speaking from the main machine and another from the remote machine you can trick the target application into thinking it was talking to two different systems
+
+When fuzzing a virtual machine as a remote target, you may want to run a remote Agent on the target to monitor the internal state and a local Agent on the target to monitor the external state and to verify that the target is still alive. The local agent has the ability to start the virtual machine and the remote agent can run monitors from within the virtual machine once it has fully started.
+
+Your current target may require OS-specific monitors.  If you define an agent for each platform, you can use platform-specific monitors and run the same pit on each of the platforms.
+
+Agents and monitors run in the order listed in a pit. The order can be very important when multiple agents are used to get the fuzzing target into a working state. An example of this is when one agent starts a virtual machine and the second agent is a remote agent that controls things inside of the virtual machine. If the remote agent tries to run before the first agent starts the virtual machine, the Pit configuration will fail.
+
+Shutting down monitors should occur in reverse order of their startup sequence. The shutdown sequence is important when you want to complete various actions before restarting a virtual machine.
+
+Agents automatically try to reconnect when they become disconnected. When a device (like a virtual machine) restarts when a fault occurs, the remote agent will reconnect once the virtual machine is running again.
+
+When the target opens fuzzing files from a command line, the target process must not open the file until fuzzing completes. To verify that fuzzing is complete, before we start the program, we use the monitor that starts the process and opens the file once we are done fuzzing; that is, fuzzed data file is on disk and has closed. Doing this causes the program to start and stop with every iteration, but it guarantees fuzzing is complete before the target process opens the fuzzed file.
+
+Monitors are agent child processors; monitors get the target into a working state and monitor the target system. They can execute scripts, run processes, and monitor for crashes.
+
+A variety of different monitors are supplied with Peach; select those you wish to use based on both the target platform and type of target. Is the target Windows software? Or Linux software? Or an embedded device? They each require different monitors. As an example, if I'm targeting an image-editing application, it's pointless to use a network sniffer.
+
+Detecting crashes is challenging and important. If you aren't properly monitoring the environment, you will miss crashes that occur in unexpected places. In Peach's automated fuzzing process, you will need a combination of monitors that set up the environment and monitors that watch for crashes. For remote targets, both local and remote monitors are necessary.
+
+When fuzzing remote devices, the more items that Peach monitors and the more ways that Peach automates the environment, the better the results will be. Peach can do very basic remote device monitoring (such as pinging a device with the Ping monitor) to make sure the device is still alive, or running a command on the box (via SSH) to check device system status.
+
+TIP: The Ping and SSH monitors are basic monitors. When targeting a remote device, use additional monitors whenever possible.
+
+Carefully select the monitors you use to fuzz because when a crash is detected, the monitor in use determines what and how information is logged. Running the target process inside of one of the debugger monitors (such as WindowsDebugger) places crashes into buckets, making it easier to identify crashes that are caused by unique bugs. When debugger monitors are unavailable, all crashes are logged in buckets based on which monitor detected the crashes, making it more difficult to identify unique crashes.
+
+=== Detecting Faults
+
+Faults result from Peach detecting interesting behavior such as an application crashing or entering an unexpected state. The places to look for faults are many; from making sure a program has not crashed, to using optical character recognition (OCR) on a screen for a specific dialog window.
+
+Peach has two ways to detect faults:
+
+* From Peach monitors that check for irregular behavior such as a program crashing or excessive memory usage.
+* With xref:Godel[Godel] state modeling, Peach can detect that an application enters an unexpected state such as a login successful state when the expected result is a failed login state.
+
+// Increasing the chance of fault detection
+You can improve the chances that Peach will uncover faults by having Peach monitor more areas and use an appropriate number of robust tools. For example, many applications contain proper error handling that hide memory leaks from Peach when dumb or very simple fuzzing is done. These memory leaks are vulnerabilities within an application that might not be discovered unless additional tools (such as memory debuggers) are used to monitor multiple areas of application-accessed memory.
+
+File fuzzing is performed by giving a valid sample file to Peach that produces a fuzzed version of the file. Depending on the target program, different sample files will touch different code paths. For complete code coverage and the best fuzzing results, use multiple sample files to touch all code paths of the target. Once you have a large number of sample files, the xref:Program_PeachMinset[minset] tool (included with Peach) can traverse all sample files and trace the code paths they exercise so that Peach does not use redundant samples.
+
+Sometimes visual cues (such as pop-ups or a blinking LED) are the only way to monitor a system for faults. Peach can be extended to monitor the test target using visual cues (such as  monitors that can use OCR on a screen and fault on a specific pop-up or when a specific LED on a board is lit) when no way exists within the system for Peach to detect the behaviors.
+
+One example is fuzzing an iPhone application. In some cases, gathering the actual debug data from the iPhone application is very difficult; yet, when the application crashes, a pop-up window displays and notifies the user that a crash occurred. Using the http://openvisionc.sourceforge.net/[Open Vision Control] library, you can detect crashes that Peach can reproduce using only visual screen monitoring.
+
+==== Memory debuggers
+
+A memory debugger monitors the memory at the boundary of each memory allocation to detect when a program attempts to access memory past what was allocated and forces the application to crash instead of allowing it to handle the error. The use of a memory debugger while fuzzing will greatly increase Peach's ability to detect and reproduce faults.
+
+//TODO
+
+All the memory debuggers make detecting faults much easier. There are many commonly used memory debuggers [including eFence, DUMA, Page Heap (Windows), and Guard Malloc (OS X)] and they are used in a variety of ways. Page Heap on Windows can be enabled via the GFlags tool for any Windows executable. Guard Malloc on OS X is a debug option in Xcode for both Mac and iOS apps running in the simulator. DUMA (a forked version of eFence) is a cross-platform library that needs to be linked into the target's code when it's compiled.
+
+//////////////////
+TODO
+
+ * Detect faults
+ * Instrument to increase chance of fault detection
+  * Memory debuggers
+   * E-Fence, DUMA, Page Heap, Debug Malloc (OS X)
+   * Talk about how they work
+   * Talk about some of the bugs they can find
+   * Talk about differences between them
+    * Windows, use after free
+  * Other things we can do to increase effectiveness
+s  * Mention code coverage of sample files
+ * Detecting LED lit
+ * OpenVision Look at iPhone screen
+ * Ping device
+ * Exception type
+ * Stops responding
+ *
+ Add OS level suggestions for monitors ie processes, services
+
+
+=== Instrumenting Environment
+
+// This is the idea of controlling the rube goldberg machine that is your fuzzing
+// configuration.
+
+TODO
+
+ * Control environment
+ * Simple to complex
+ * Mobile example
+ * Order of start up
+ * Agents inside of virtual machines
+ * Interacting with physical world (push button)
+
+//////////////////
+
+=== Instrumenting the Fuzzing Environment
+
+The first step in fuzzing is to send fuzzed data at a target. Peach doesn't need to stop here. Peach can orchestrate the entire environment. Controlling the fuzzing environment with Peach can be as simple as starting and stopping an application or as complex as automating external devices such as phones. The key to fully automating the Peach fuzzing environment is two-fold:
+
+* detect all irregular behavior
+* reset the environment to a known working state when needed
+
+When fully configured, Peach can start and stop the target process, monitor the target process and the environment of the target, and restart the process or the entire environment as needed.
+
+// Simple process
+Targeting a single process (such as MS Paint with fuzzed images) is an example of a very basic fuzzing environment. In order to control the target completely, Peach needs to open and close Paint and monitor Paint for crashes. You can supply this level of control to Peach by using two monitors: WindowsDebugger and PageHeap. WindowsDebugger opens and closes Paint with the fuzzed files and monitors the environment for crashes. PageHeap (a memory debugger) makes detecting crashes easier. With both monitors  configured, Peach can fuzz and monitor Paint indefinitely.
+
+// Complex example VM
+Fuzzing a target within a virtual machine (VM) is more complex. For virtual machine fuzzing, Peach is external to the VM and needs to start and stop the VM. Further, Peach needs to connect to two components within the VM: a remote agent and a publisher. Peach can monitor the environment by using a combination of local agents (to control the state of the VM) and remote agents (to monitor the environment inside of the VM).
+
+Before using the remote agents, the VM needs to be in a started state; in the pit, call the local agent first so the VM can start fully before attempting to talk to the agents inside of the VM. Once the VM is started, the remote agents can start to control the system within the VM. If the fuzzing target within the VM the Paint application, use both the WindowsDebugger and PageHeap monitors with the remote agent.
+
+The best way to use VMs with Peach (since rebooting a VM can be a slow process) is to get the VM into a good state and take a snapshot. Peach can use this snapshot to start the VM and to revert to the snapshot on fault, so the system is always in a known, good state. Having the system in a known, good state ensures reliable fault reproduction.
+
+Another complex example is mobile phone fuzzing. For mobile phone fuzzing, Peach must perform several actions:
+
+* send both touch input and data input to the phone
+* monitor the phone
+* simulate NFC bumps
+* spawn dynamic WIFI direct networks
+
+Not every mobile application uses all features of the phone, but to fuzz and control any application on a phone, Peach needs to talk to a mobile device on any and all media. In order to fuzz an application that uses NFC to transfer data between phones, Peach needs a configuration that supports the following:
+
+* opening the application on two phones
+* touching buttons to get the phones ready to send and receive NFC, and
+* transmitting the NFC.
+
+When fuzzing some battery-powered devices, the target can enter an unresponsive state. To restart the device to a known, good state, the power button on the device has to be pressed. This is not good from a software automation standpoint since Peach needs to continue to fuzz without human interaction. Peach can generate a manual reset (pushing the power button) by issuing commands to a device with arms attached to a servo motor, that in turn, responds to the commands by extending an arm to press the button.
+
+// end

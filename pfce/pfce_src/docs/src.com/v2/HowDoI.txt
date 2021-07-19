@@ -1,0 +1,1180 @@
+:toc2:
+== Examples ==
+
+The following examples are for Peach v2.3 and can also be found in the "samples" folder.
+
+== Hello World ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington" description="Hello World Example">
+
+	<!--
+
+	This is a very simple Hello World example.
+	
+	Syntax:
+	
+	  python peach.py samples\HelloWorld.xml
+	  
+	Output:
+	
+	  This example will display all each test case to the console, you should see lots of test data
+	  scroll along.  This example should only take a couple minutes to complete.
+	
+	Authors:
+	  Michael Eddington (mike@phed.org)
+	
+	$Id: HelloWorld.xml 1768 2009-06-18 04:32:33Z meddingt $
+	
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+	<!-- Create a simple data template containing a single string -->
+	<DataModel name="HelloWorldTemplate">
+		<String value="Hello World!" />
+	</DataModel>
+	
+	<StateModel name="State" initialState="State1" >
+		<State name="State1"  >
+			<Action type="output" >
+				<DataModel ref="HelloWorldTemplate"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="HelloWorldTest">
+		<StateModel ref="State"/>
+		<!-- Display test cases to the console -->
+		<Publisher class="stdout.Stdout" />
+	</Test>
+
+	<!-- Configure a single run -->
+	<Run name="DefaultRun" description="Stdout HelloWorld Run">
+
+		<Test ref="HelloWorldTest" />
+
+	</Run>
+
+</Peach>
+<!-- end -->
+----
+
+
+== ASN.1 ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington" description="HTTP Protocol">
+
+	<!--
+
+	This is an example of defining ASN.1 encoded data for fuzzing an ASN.1 encoded
+	protocol.
+	
+	Note: This fuzzer will respect the ASN.1 encoding standards and not attempt to
+	      fuzz the ASN.1 decoder in the target.
+	
+	Authors:
+	  Michael Eddington (mike@phed.org)
+	
+	$Id: ASN.1_Example.xml 1762 2009-06-11 23:46:24Z meddingt $
+	
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+
+	<!-- A template contianing some ASN.1 BER encoded data -->
+	<DataModel name="Asn1Ber">
+
+		<!-- define a ber encoded string -->
+		<String type="char" value="Hello World!">
+			<Transformer class="asn1.BerEncodeOctetString" />
+		</String>
+
+		<!-- define a ber encoded integer -->
+		<Number size="16" signed="true">
+			<Transformer class="asn1.BerEncodeInteger" />
+		</Number>
+
+	</DataModel>
+
+
+	<!-- A template contianing some ASN.1 DER encoded data -->
+	<DataModel name="Asn1Der">
+
+		<!-- define a ber encoded string -->
+		<String type="char" value="Hello World!">
+			<Transformer class="asn1.DerEncodeOctetString" />
+		</String>
+
+		<!-- define a ber encoded integer -->
+		<Number size="16" signed="true">
+			<Transformer class="asn1.DerEncodeInteger" />
+		</Number>
+
+	</DataModel>
+
+
+	<!-- A template contianing some ASN.1 CER encoded data -->
+	<DataModel name="Asn1Ber">
+
+		<!-- define a ber encoded string -->
+		<String type="char" value="Hello World!">
+			<Transformer class="asn1.CerEncodeOctetString" />
+		</String>
+
+		<!-- define a ber encoded integer -->
+		<Number size="16" signed="true">
+			<Transformer class="asn1.CerEncodeInteger" />
+		</Number>
+
+	</DataModel>
+
+</Peach>
+<!-- end -->
+----
+
+
+== Debugger on Windows ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington">
+
+	<!--
+		
+		Example of the WindowsDebugger monitor.  This example will launch a 
+		program with an attached debugger and log stack traces on faults.  The
+		included example program will fault on test 47.
+		
+		Syntax:
+		
+		  python peach.py -a
+		  
+		  python peach.py samples\Debugger.xml
+		
+		Output:
+		
+		  You will see the tests scroll along.  Once test 47 has occured you can check
+		  the c:\peach\logfiles folder for a log of this test that will include a Debugger.txt
+		  faul output.
+		
+		Authors:
+		
+		  Michael Eddington (mike@phed.org)
+		
+		$Id: Debugger.xml 807 2008-03-25 08:34:38Z meddingt $
+		
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+	<DataModel name="TestTemplate">
+		<String name="TheString" value="Hello World!" />
+	</DataModel>
+
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			<!-- <Action type="connect" /> -->
+			
+			<Action name="SendValue1" type="output">
+				<DataModel ref="TestTemplate" />
+			</Action>
+			
+			<Action name="SendValue2" type="output">
+				<DataModel ref="TestTemplate" />
+			</Action>
+			
+			<!-- <Action type="close" /> -->
+		</State>
+	</StateModel>
+
+	<Agent name="LocalAgent">
+		<Monitor class="debugger.WindowsDebugEngine">
+			<Param name="CommandLine" value="C:\Peach\samples\CrashableServer\x64\release\CrashableServer.exe 127.0.0.1 4242" />
+		</Monitor>
+	</Agent>
+
+	<Test name="TheTest">
+		<Agent ref="LocalAgent" />
+
+		<StateModel ref="State"/>
+		<Publisher class="tcp.Tcp">
+			<Param name="host" value="127.0.0.1" />
+			<Param name="port" value="4242" />
+		</Publisher>
+	</Test>
+
+<Run name="DefaultRun">
+	<Test ref="TheTest" />
+
+	<Logger class="logger.Filesystem">
+		<Param name="path" value="c:\peach\logtest" />
+	</Logger>
+</Run>
+
+</Peach>
+<!-- end -->
+----
+
+
+== Debugger on UNIX ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington">
+
+	<!--
+		
+		Example of the WindowsDebugger monitor.  This example will launch a 
+		program with an attached debugger and log stack traces on faults.  The
+		included example program will fault on test 47.
+		
+		Syntax:
+		
+		  python peach.py -a
+		  
+		  python peach.py samples\Debugger.xml
+		
+		Output:
+		
+		  You will see the tests scroll along.  Once test 47 has occured you can check
+		  the c:\peach\logfiles folder for a log of this test that will include a Debugger.txt
+		  faul output.
+		
+		Authors:
+		
+		  Michael Eddington (mike@phed.org)
+		
+		$Id: Debugger.xml 807 2008-03-25 08:34:38Z meddingt $
+		
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+	<DataModel name="TestTemplate">
+		<String name="TheString" value="Hello World!" />
+	</DataModel>
+
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			<Action name="SendValue1" type="output">
+				<DataModel ref="TestTemplate" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="LocalAgent" location="http://127.0.0.1:9000">
+		<Monitor class="debugger.UnixDebugger">
+			<Param name="Command"
+		value="/Volumes/Untitled/peach/samples/UnixCrashServer/unixcrash" />
+			<Param name="Params" value="" />
+		</Monitor>
+	</Agent>
+
+	<Test name="TheTest">
+		<Agent ref="LocalAgent" />
+
+		<StateModel ref="State"/>
+		<Publisher class="tcp.Tcp">
+			<Param name="host" value="127.0.0.1" />
+			<Param name="port" value="4242" />
+		</Publisher>
+		<Mutator class="string.StringTokenMutator" /> 
+	</Test>
+
+<Run name="DefaultRun">
+	<Test ref="TheTest" />
+
+	<Logger class="logger.Filesystem">
+		<Param name="path" value="logtest" />
+	</Logger>
+</Run>
+
+</Peach>
+<!-- end -->
+----
+
+
+== File Fuzzing ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington">
+	
+	<!--
+		
+		Example of the WindowsDebugger monitor.  This example will launch a 
+		program with an attached debugger and log stack traces on faults.  The
+		included example program will fault on test 47.
+		
+		Syntax:
+		
+		python peach.py -a
+		
+		python peach.py samples\Debugger.xml
+		
+		Output:
+		
+		You will see the tests scroll along.  Once test 47 has occured you can check
+		the c:\peach\logfiles folder for a log of this test that will include a Debugger.txt
+		faul output.
+		
+		Authors:
+		
+		Michael Eddington (mike@phed.org)
+		
+		$Id: Debugger.xml 807 2008-03-25 08:34:38Z meddingt $
+		
+	-->
+	
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+	
+	<!-- Define our file format DDL -->
+	<DataModel name="TestTemplate">
+		<String value="Hello World!" />
+	</DataModel>
+	
+	<!-- Define a simple state machine that will write the file and 
+		then launch a program using the FileWriterLauncher publisher -->
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			<!-- Write out contents of file -->
+			<Action name="WriteFile" type="output">
+				<DataModel ref="TestTemplate" />
+			</Action>
+			
+			<!-- Close file -->
+			<Action type="close" />
+			
+			<!-- Launch the file consumer -->
+			<Action type="call" method="ScoobySnacks"/>
+			
+		</State>
+	</StateModel>
+	
+	<!-- Setup a local agent that will monitor for faults -->
+	<Agent name="LocalAgent">
+		<Monitor class="debugger.WindowsDebugEngine">
+			
+			<!-- The command line to run.  Notice the filename provided matched up 
+				to what is provided below in the Publisher configuration -->
+			<Param name="CommandLine" value="c:\windows\system32\notepad.exe fuzzfile.bin" />
+			
+			<!-- This parameter will cause the debugger to wait for an action-call in
+				the state model with a method="ScoobySnacks" before running
+				program.
+				
+				Note: You will also need to add a parameter to the publisher called
+				    "debugger" and set it to "true"!
+				-->
+			<Param name="StartOnCall" value="ScoobySnacks" />
+			
+		</Monitor>
+		
+		<!-- Enable heap debugging on our process as well. -->
+ 		<Monitor class="process.PageHeap">
+			<Param name="Executable" value="notepad.exe"/>
+		</Monitor>
+	</Agent>
+	
+	<Test name="TheTest">
+		<Agent ref="LocalAgent" />
+		
+		<StateModel ref="State"/>
+		
+		<!-- Configure our publisher with correct filename to write too -->
+		<Publisher class="file.FileWriterLauncher">
+			<Param name="fileName" value="fuzzfile.bin" />
+			<Param name="debugger" value="true"/>
+		</Publisher>
+	</Test>
+	
+	<Run name="DefaultRun">
+		<Test ref="TheTest" />
+		
+		<!-- Configure a logger to store collected information -->
+		<Logger class="logger.Filesystem">
+			<Param name="path" value="c:\peach\logtest" />
+		</Logger>
+	</Run>
+	
+</Peach>
+<!-- end -->
+----
+
+
+== File Fuzzing GUI Application ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington">
+	
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+	
+	<!-- Define our file format DDL -->
+	<DataModel name="FileData">
+		<String value="Hello World!" />
+	</DataModel>
+	
+	<!-- Define a simple state machine that will write the file and 
+		then launch a program using the FileWriterLauncher publisher -->
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			<Action type="open" />
+			
+			<!-- Write out contents of file -->
+			<Action name="WriteFile" type="output">
+				<DataModel ref="FileData" />
+			</Action>
+			
+			<!-- Close file -->
+			<Action type="close" />
+			
+			<!-- Launch the file consumer -->
+			<Action type="call" method="notepad.exe"/>
+		</State>
+	</StateModel>
+	
+	<!-- Setup a local agent that will monitor for faults -->
+	<Agent name="LocalAgent">
+		<Monitor class="debugger.WindowsDebugEngine">
+			
+			<!-- The command line to run.  Notice the filename provided matched up 
+				to what is provided below in the Publisher configuration -->
+			<Param name="CommandLine" value="c:\windows\system32\notepad.exe fuzzedfile.txt" />
+			
+			<!-- This parameter will cause the debugger to wait for an action-call in
+				the state model with a method="notepad.exe" before running
+				program.  -->
+			<Param name="StartOnCall" value="notepad.exe" />
+			
+		</Monitor>
+		
+		<!-- Enable heap debugging on our process as well. -->
+		<Monitor class="process.PageHeap">
+			<Param name="Executable" value="notepad.exe"/>
+		</Monitor>
+	</Agent>
+	
+	<Test name="TheTest">
+		<Agent ref="LocalAgent" />
+		
+		<StateModel ref="State"/>
+		
+		<!-- Configure our publisher with correct filename to write too -->
+		<Publisher class="file.FileWriterLauncherGui">
+			<Param name="fileName" value="fuzzedfile.txt" />
+			<Param name="windowName" value="Notepad" />
+			<Param name="debugger" value="true"/>
+		</Publisher>
+	</Test>
+	
+	<Run name="DefaultRun">
+		<Test ref="TheTest" />
+		<Logger class="logger.Filesystem">
+			<Param name="path" value="c:\peach\logtest" />
+		</Logger>
+	</Run>
+	
+</Peach>
+<!-- end -->
+----
+
+
+==  ==
+
+[source,xml]
+----
+}}}
+
+== Generate All Fuzzed Files ==
+
+{{{#code xml
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington" description="Hello World Example">
+
+	<!--
+
+	Example of using the FilePerIteration publisher
+	
+	Syntax:
+	
+	  python peach.py samples\FilePerIteration.xml
+	  
+	Output:
+	
+	  Lots and lots of "FilePer-%d.txt files.
+	
+	Authors:
+	  Michael Eddington (mike@phed.org)
+	
+	$Id: HelloWorld.xml 807 2008-03-25 08:34:38Z meddingt $
+	
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+	<!-- Create a simple data template containing a single string -->
+	<DataModel name="HelloWorldTemplate">
+		
+		<String value="Hello World!" />
+		
+	</DataModel>
+	
+	<StateModel name="State" initialState="State1">
+		<State name="State1">
+			<Action type="output">
+				<DataModel ref="HelloWorldTemplate"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="HelloWorldTest">
+		<StateModel ref="State"/>
+		<Publisher class="file.FilePerIteration">
+			<Param name="fileName" value="FilePer-%d.txt"/>
+		</Publisher>
+	</Test>
+
+	<!-- Configure a single run -->
+	<Run name="DefaultRun" description="Stdout HelloWorld Run">
+		<Test ref="HelloWorldTest" />
+	</Run>
+
+</Peach>
+<!-- end -->
+----
+
+
+== Relation: Size ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington" description="Examples of size relation">
+
+	<!--
+
+	Demonstraits the "size" data relation.
+	
+	Syntax:
+	
+      python peach.py samples\RelationSize.xml 
+	  
+	Output:
+	
+	  TODO
+	
+	Authors:
+	  Michael Eddington (mike@phed.org)
+	
+	$Id: RelationSize.xml 1762 2009-06-11 23:46:24Z meddingt $
+	
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+	<!-- Create a simple data template containing a single string -->
+	<DataModel name="RelationSizeTemplate">
+
+		<String isStatic="true" value="Length of following string is: " />
+		<String isStatic="true">
+			<Relation type="size" of="HelloWorld" />
+		</String>
+		<String isStatic="true" value="\n" />
+		<String name="HelloWorld" isStatic="true" value="Hello World!" />
+
+	</DataModel>
+	
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="RelationCountTemplate" />
+			</Action>
+		</State>
+	</StateModel>
+	
+	<!-- Out tests set will contain this single test -->
+	<Test name="RelationSizeTests">
+		<StateModel ref="State" />
+
+		<!-- Display test cases to the console -->
+		<Publisher class="stdout.Stdout" />
+	</Test>
+
+	<!-- Configure a single run -->
+	<Run name="RelationSizeRun" description="Stdout HelloWorld Run">
+
+		<!-- The set of tests to run -->
+		<Test ref="RelationSizeTests" />
+
+	</Run>
+</Peach>
+<!-- end -->
+----
+
+
+== Relation: Count ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington" description="Example of count relations">
+
+	<!--
+
+	Demonstraits the "count" data relation.
+	
+	Syntax:
+	
+      python peach.py samples\RelationCount.xml
+	  
+	Output:
+	
+	  TODO
+	
+	Authors:
+	  Michael Eddington (mike@phed.org)
+	
+	$Id: RelationCount.xml 1762 2009-06-11 23:46:24Z meddingt $
+	
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+	<!-- Create a simple data template containing a single string -->
+	<DataModel name="RelationCountTemplate">
+
+		<String isStatic="true" value="Count of hello worlds is " />
+		<String isStatic="true">
+			<Relation type="count" of="HelloWorld" />
+		</String>
+		<String isStatic="true" value="\n" />
+		<String name="HelloWorld" minOccurs="5" maxOccurs="10" isStatic="true" value="Hello World! " />
+
+	</DataModel>
+
+	<StateModel name="TheState" initialState="FirstState">
+		<State name="FirstState">
+			<Action type="output">
+				<DataModel ref="RelationCountTemplate" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<!-- Out tests set will contain this single test -->
+	<Test name="RelationCountTest">
+		<StateModel ref="TheState"/>
+		<!-- Display test cases to the console -->
+		<Publisher class="stdout.Stdout" />
+	</Test>
+
+	<!-- Configure a single run -->
+	<Run name="DefaultRun" description="Stdout HelloWorld Run">
+
+		<!-- The set of tests to run -->
+		<Test ref="RelationCountTest" />
+
+	</Run>
+
+</Peach>
+<!-- end -->
+----
+
+
+== Network ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington" description="Hello World Example">
+
+	<!--
+		
+		Example of the Network monitor.  This example requires two machines.
+		
+		The included example program will fault on test 47.
+		
+		Configure:
+		
+		Change 192.168.1.195 to IP of second machine.
+		
+		Syntax:
+		
+		2nd machine: python peach.py -a
+		1st machine:  python peach.py samples\Debugger.xml
+		
+		Output:
+		
+		You will see the tests scroll along.  Once test 47 has occured you can check
+		the c:\peach\logfiles folder for a log of this test that will include a Debugger.txt
+		and Network.pcap faul output.
+		
+		Authors:
+		
+		Michael Eddington (mike@phed.org)
+		
+		$Id: Network.xml 1762 2009-06-11 23:46:24Z meddingt $
+		
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+	<DataModel name="HttpRequest">
+		<String value="Hello World!" />
+	</DataModel>
+	
+	<StateModel name="TheStateModel" initialState="TheState">
+		<State name="TheState">
+			<Action type="output">
+				<DataModel ref="HttpRequest" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="LocalAgent" location="http://127.0.0.1:9000">
+
+		<Monitor name="Debugger" class="debugger.WindowsDebugger">
+			<Param name="Command" value="C:\Peach\samples\CrashableServer\release\CrashableServer.exe"/>
+			<Param name="Params" value="192.168.1.195"/>
+		</Monitor>
+
+		<Monitor name="Network" class="network.PcapMonitor">
+			<Param name="filter" value="tcp"/>
+		</Monitor>
+	</Agent>
+
+	<Test name="HttpRequestTest" description="HTTP Request GET Test">
+		<Agent ref="LocalAgent" />
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="tcp.Tcp">
+			<Param name="host" value="192.168.1.195" />
+			<Param name="port" value="4242" />
+		</Publisher>
+	</Test>
+
+	<Run name="DefaultRun" description="HTTP Request Run">
+		<Test ref="HttpRequestTest" />
+
+		<Logger class="logger.Filesystem">
+			<Param name="path" value="c:\peach\logtest" />
+		</Logger>
+	</Run>
+
+</Peach>
+<!-- end -->
+----
+
+
+
+== Network Server ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington">
+	
+	<!--
+		
+		Server side of the remote include example.
+		
+		Authors:
+		Michael Eddington (mike@phed.org)
+		
+		$Id: Server-Example.xml 1762 2009-06-11 23:46:24Z meddingt $
+		
+	-->
+	
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+	
+	<DataModel name="HelloWorldTemplate">
+		<String isStatic="true" value="Hello from phed.org!" />
+	</DataModel>
+	
+	<StateModel name="State" initialState="State1">
+		<State name="State1">
+			<!-- Wait for incoming connection -->
+			<Action type="accept" />
+			
+			<Action type="output">
+				<DataModel ref="HelloWorldTemplate"/>
+			</Action>
+		</State>
+	</StateModel>
+	
+	<Test name="TheTest">
+		<StateModel ref="TestState" />
+		
+		<Publisher class="tcp.TcpListener">
+			<Param name="host" value="127.0.0.1"/>
+			<Param name="port" value="9001"/>
+		</Publisher>
+	</Test>
+
+	<Run name="DefaultRun">
+		<Test ref="TheTest" />
+	</Run>
+</Peach>
+<!-- end -->
+----
+
+
+
+== Remote Include ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington">
+	
+	<!--
+		
+		Example of including a remote Peach DDL file.
+		
+		Syntax:
+		
+		python peach.py samples\RemoteInclude.xml
+		
+		Output:
+		
+		Will display "Hello from phed.org!"
+		
+		Authors:
+		Michael Eddington (mike@phed.org)
+		
+		$Id: RemoteInclude.xml 1762 2009-06-11 23:46:24Z meddingt $
+		
+	-->
+	
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+	
+	<!-- Include a file from a web-site -->
+	<Include ns="example" src="http://phed.org/Peach/Example.xml" />
+
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="example:HelloWorldTemplate" />
+			</Action>
+		</State>
+	</StateModel>
+	
+	<Test name="RemoteIncludeTest">
+		<!-- Reference our remote template using a namespace prefix -->
+		<StateModel ref="State" />
+		
+		<Publisher class="stdout.Stdout" />
+	</Test>
+	
+	<Run name="DefaultRun" description="Stdout HelloWorld Run">
+		<Test ref="RemoteIncludeTest" />
+	</Run>
+	
+</Peach>
+<!-- end -->
+----
+
+
+
+== Remote Publisher ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington">
+	
+	<!--
+		
+		Example of the WindowsDebugger monitor.  This example will launch a 
+		program with an attached debugger and log stack traces on faults.  The
+		included example program will fault on test 47.
+		
+		Syntax:
+		
+		python peach.py -a
+		
+		python peach.py samples\Debugger.xml
+		
+		Output:
+		
+		You will see the tests scroll along.  Once test 47 has occured you can check
+		the c:\peach\logfiles folder for a log of this test that will include a Debugger.txt
+		faul output.
+		
+		Authors:
+		
+		Michael Eddington (mike@phed.org)
+		
+		$Id: Debugger.xml 807 2008-03-25 08:34:38Z meddingt $
+		
+	-->
+	
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+	
+	<DataModel name="TestTemplate">
+		<String name="TheString" value="Hello World!" />
+	</DataModel>
+	
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+			<Action name="SendValue1" type="output">
+				<DataModel ref="TestTemplate" />
+			</Action>
+		</State>
+	</StateModel>
+	
+	<Agent name="RemoteAgent" location="http://192.168.1.190:9000"> 
+		<!-- This agent will get our remote publisher -->
+		
+		<!-- Load up our target -->
+		<Monitor class="debugger.WindowsDebugEngine">
+			<Param name="CommandLine" value="C:\Peach\samples\CrashableServer\release\CrashableServer.exe 192.168.1.190 4242" />
+		</Monitor>
+	</Agent>
+	
+	<Test name="TheTest">
+ 	<Agent ref="LocalAgent" />
+		<Agent ref="RemoteAgent" />
+		
+		<StateModel ref="State"/>
+		<Publisher class="remote.RemotePublisher">
+			<Param name="agent" value="RemoteAgent" />
+			<Param name="name" value="pub1" />
+			<Param name="class" value="tcp.Tcp"/>
+			<Param name="host" value="192.168.1.190" />
+			<Param name="port" value="4242" />
+		</Publisher>
+	</Test>
+	
+	<Run name="DefaultRun">
+		<Test ref="TheTest" />
+		
+		<Logger class="logger.Filesystem">
+			<Param name="path" value="c:\peach\logtest" />
+		</Logger>
+	</Run>
+	
+</Peach>
+<!-- end -->
+----
+
+
+
+== HTTP ==
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://phed.org/2008/Peach ../peach.xsd" version="1.0"
+	author="Michael Eddington" description="Hello World Example">
+
+	<!--
+	
+	A simple HTTP fuzzer example.  This example is by no means complete.
+	
+    Features Shown:
+	
+	  - Template references
+	  - Size relation ship
+	  - Data sets
+	  - Multiple test's in a test block
+	  - Network communication
+	
+	Syntax:
+	
+      python Peach\peach.py samples\HelloWorld.xml HelloWorldRun
+	  
+	Output:
+	
+	  This example will display all each test case to the console, you should see lots of test data
+	  scroll along.  This example should only take a couple minutes to complete.
+	
+	Authors:
+	  Michael Eddington (mike@phed.org)
+	
+	$Id: HTTP.xml 1762 2009-06-11 23:46:24Z meddingt $
+	
+	-->
+
+	<!-- Import defaults for Peach instance -->
+	<Include ns="default" src="file:defaults.xml" />
+
+	<DataModel name="Header">
+		<String name="Header" />
+		<String value=": " />
+		<String name="Value" />
+		<String value="\r\n" />
+	</DataModel>
+
+	<!-- Create a simple data template containing a single string -->
+	<DataModel name="HttpRequest">
+
+		<!-- The HTTP request line: GET http://foo.com HTTP/1.0 -->
+		<Block name="RequestLine">
+
+			<!-- Defaults can be optionally specified via the
+			     value attribute -->
+			<String name="Method"/>
+			<String value=" " type="char"/>
+			<String name="RequestUri"/>
+			<String value=" "/>
+			<String name="HttpVersion"/>
+			<String value="\r\n"/>
+		</Block>
+
+		<!-- This block uses the Header block as a base
+				and overrides one field -->
+		<Block name="HeaderHost" ref="Header">
+			<String name="Header" value="Host" isStatic="true"/>
+		</Block>
+
+		<!-- This block uses the Header block as a base
+				and overrides two fields -->
+		<Block name="HeaderContentLength" ref="Header">
+			<String name="Header" value="Content-Length" isStatic="true"/>
+			<String name="Value">
+				<!-- Indicate a relation between this field
+						and the "Body" field. -->
+				<Relation type="size" of="Body"/>
+			</String>
+		</Block>
+
+		<String value="\r\n"/>
+
+		<Blob name="Body" minOccurs="0" maxOccurs="1"/>
+
+	</DataModel>
+
+	<!-- This creates a set of default values for a template.  They will
+	     override any default values specified in the template -->
+	<Data name="HttpGet" DataModel="Request">
+
+		<Field name="RequestLine.Method" value="GET" />
+		<Field name="RequestLine.RequestUri" value="http://google.com" />
+		<Field name="RequestLine.HttpVersion" value="HTTP/1.1" />
+		<Field name="HeaderHost.Value" value="http://google.com" />
+		<Field name="Body" value="" />
+
+	</Data>
+
+	<!-- Uses the data from HttpGet as a base -->
+	<Data name="HttpOptions" DataModel="Request" ref="HttpGet">
+
+		<Field name="RequestLine.Method" value="OPTIONS" />
+		<Field name="RequestLine.RequestUri" value="*" />
+		<Field name="HeaderHost.Value" value="" />
+
+	</Data>
+
+	<!-- Uses the data from HttpGet as a base -->
+	<Data name="HttpPost" DataModel="Request" ref="HttpGet">
+
+		<Field name="RequestLine.Method" value="POST" />
+		<Field name="Body" value="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" />
+
+	</Data>
+
+	<StateModel name="State1" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="HttpRequest" />
+				<Data ref="HttpGet" />
+			</Action>
+		</State>
+	</StateModel>
+	
+	<StateModel name="State2" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="HttpRequest" />
+				<Data ref="HttpOptions" />
+			</Action>
+		</State>
+	</StateModel>
+	
+	
+	<!-- Create a simple test to run -->
+	<Test name="HttpGetRequestTest" description="HTTP Request GET Test">
+		<StateModel ref="State1"/>
+		
+		<!-- Target a local web server on port 80 -->
+		<Publisher class="tcp.Tcp">
+			<Param name="host" value="127.0.0.1" />
+			<Param name="port" value="80" />
+		</Publisher>
+	</Test>
+
+	<Test name="HttpOptionsRequestTest" description="HTTP Request OPTIONS Test">
+		<StateModel ref="State2"/>
+		
+		<!-- Target a local web server on port 80 -->
+		<Publisher class="tcp.Tcp">
+			<Param name="host" value="127.0.0.1" />
+			<Param name="port" value="80" />
+		</Publisher>
+	</Test>
+
+	<!-- Configure a single run -->
+	<Run name="DefaultRun" description="HTTP Request Run">
+
+		<!-- The set of tests to run -->
+		<Test ref="HttpGetRequestTest" />
+		<Test ref="HttpOptionsRequestTest" />
+
+	</Run>
+
+</Peach>
+<!-- end -->
+----
+

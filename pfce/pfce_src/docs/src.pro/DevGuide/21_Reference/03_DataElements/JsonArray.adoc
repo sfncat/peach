@@ -1,0 +1,157 @@
+<<<
+[[JsonArray]]
+== JsonArray
+
+_JsonArray_ is used to represent a JSON array.
+It's similar in operation to xref:Sequence[Sequence].
+
+A _JsonArray_ element is used to construct an array with all its elements predefined.
+A _JsonArray_ is able to contain multiple data types at once.
+Unlike regular arrays in Peach,
+the size of the array is determined by the number of elements within the array.
+
+=== Syntax
+
+[source,xml]
+----
+<JsonObject>
+    <JsonArray propertyName="items">
+      <JsonString name="name" value="Peach Toy" />
+      <JsonInteger name="stock" value="10" />
+    </JsonArray>
+</JsonObject>
+
+<JsonArray>
+  <JsonString name="name" value="Peach Toy" />
+  <JsonInteger name="stock" value="10" />
+</JsonArray>
+----
+
+=== Attributes
+
+_Required:_
+
+There are no required attributes.
+
+_Optional:_
+
+xref:name[name]:: Name of the sequence.
+
+isNull:: Set default value of this element to null (defaults to false)
+type:: Type controls the output encoding allowing both traditional json and also binary json (bson). Supported values: 'json' or 'bson'. Defaults to 'json'.
+
+xref:mutable[mutable]:: Is data element changeable (should it be mutated), defaults to false.
+
+=== Child Elements
+
+xref:Analyzers[Analyzer]:: Analyze current element post cracking, can dynamically change model.
+xref:Fixup[Fixup]:: Dynamic transformations such as checksums and CRCs.
+xref:Hint[Hint]:: Provide information to mutators.
+
+xref:JsonArray[JsonArray]:: JSON array
+xref:JsonBool[JsonBool]:: JSON boolean
+xref:JsonBlob[JsonBlob]:: JSON BLOB
+xref:JsonDouble[JsonDouble]:: JSON double/float
+xref:JsonInteger[JsonInteger]:: JSON integer
+xref:JsonObject[JsonObject]:: JSON object
+xref:JsonString[JsonString]:: JSON string
+
+xref:Placement[Placement]:: Relocate an element after it has been cracked.
+xref:Transformer[Transformer]:: Static transformations such as compression or encoding.
+
+=== Mutators
+
+The following mutators will operate on this element type:
+
+_Specific to this element type_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]:: This mutator will grow and shrink an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]:: This mutator will randomize the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]:: This mutator will reverse the order of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]:: This mutator will grow and shrink an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator will duplicate data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator will remove data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator will swap data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator will combine data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator will cause the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator will cause the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator will change both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator will change both sides of the relation (data and value) to match numerical variances of the current size.
+
+
+=== Examples
+
+.Simple Example
+==========================
+Simple example of a JSON array with two elements.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+	<DataModel name="SequenceExample">
+        <JsonObject>
+            <JsonArray propertyName="items">
+              <JsonString name="name" value="Peach Toy" />
+              <JsonInteger name="stock" value="10" />
+            </JsonArray>
+        </JsonObject>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="SequenceExample"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent" />
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex"/>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.57:8888/
+
+[*] Test 'Default' starting with random seed 23959.
+Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach\Logs\example.xml_20160223175744\debug.log
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "Initial".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Pro.Core.Publishers.ConsolePublisher start()
+Peach.Pro.Core.Publishers.ConsolePublisher open()
+Peach.Pro.Core.Publishers.ConsolePublisher output(26 bytes)
+00000000   7B 22 69 74 65 6D 73 22  3A 5B 22 50 65 61 63 68   {"items":["Peach
+00000010   20 54 6F 79 22 2C 31 30  5D 7D                      Toy",10]}
+Peach.Pro.Core.Publishers.ConsolePublisher close()
+Peach.Core.Agent.AgentManager DetectedFault: TheAgent
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Pro.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+==========================
+
+// end

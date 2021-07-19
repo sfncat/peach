@@ -1,0 +1,16 @@
+:toc!:
+== Ipv6StringToOctetTransformer
+
+The _Ipv6StringToOctetTransformer_ will produce the octet bytes of an Internet Protocol version 6 string.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<String name="TransformMe" value="fe80::4090:3894:4a88:a6f">
+		<Transformer class="Ipv6StringToOctet" />
+	</String>
+</DataModel> 
+----
+

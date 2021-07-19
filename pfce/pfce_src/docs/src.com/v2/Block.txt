@@ -1,0 +1,111 @@
+:toc!:
+== Block ==
+
+The Block element is a child element of DataModel or Block.  Blocks are used to group one or more other data elements such as link:Number.html[Number] or link:String.html[String].  link:Block.html[Block]s and link:DataModel.html[DataModel]s are very similar, the only difference is their location.  Both Block and DataModel elements can be used as the "template" for other Blocks or DataModels.
+
+[source,xml]
+----
+<Block name="HelloWorld">
+  <String value="Hello world!" />
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [required]
+ * link:ref.html[ref] -- Reference to a data model to use as a template [optional]
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur [optional]
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur [optional]
+ * link:length.html[length] -- Specify length of this block [optional]
+ * link:lengthType.html[lengthType] -- Type of length, how length is specified [optional]
+ * link:pointer.html[pointer] -- (Peach 2.3) Is this a pointer to a structure (true|false), default is false [optional]
+ * link:pointerDepth.html[pointerDepth] -- (Peach 2.3) How many levels of pointers (e.g. void** p is 2), default is 1 [optional]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]
+
+_Valid Child-Elements:_
+
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:String.html[String]
+ * link:Number.html[Number]
+ * link:XmlElement.html[XmlElement]
+ * link:XmlAttribute.html[XmlAttribute]
+ * link:Asn1Type.html[Asn1Type]
+ * link:Blob.html[Blob]
+ * link:Flags.html[Flags]
+ * link:Fixup.html[Fixup]
+ * link:Relation.html[Relation]
+ * link:Transformer.html[Transformer]
+
+If a reference (ref attribute) is supplied the contents of the reference are copied to create the base of the new Block.  Any child elements in the Block will override elements that already existed with the same name.
+
+[source,xml]
+----
+<DataModel name="Template">
+  <String name="Key" />
+  <String value=": " token="true" />
+  <String name="Value" />
+  <String value="\r\n" token="true" />
+</DataModel>
+
+<DataModel name="OtherModel">
+  <String value="Hello World!" />
+
+  <Block name="Customized" ref="Template">
+    <String name="Key" value="Content-Length" />
+    <String name="Value">
+      <Relation type="size" of="HttpBody" />
+    </String>
+  </Block>
+</DataModel>
+----
+
+
+When parsed into a data model, Customized will look like the combination of both data models.
+
+[source,xml]
+----
+<DataModel name="OtherModel">
+  <String value="Hello World!" />
+
+  <Block name="Customized" ref="Template">
+    <String name="Key" value="Content-Length" />
+    <String value=": " token="true" />
+    <String name="Value">
+      <Relation type="size" of="HttpBody" />
+    </String>
+    <String value="\r\n" token="true" />
+  </Block>
+
+</DataModel>
+----
+
+
+Other examples of Blocks are as follows:
+
+[source,xml]
+----
+<Block>
+  <Block>
+    <Block>
+      <String value="1" />
+    </Block>
+    
+    <Block>
+      <String value="2" />
+    </Block>
+
+    <String value="3" />
+  </Block>
+  <String value="4" />
+</Block>
+----
+
+
+Will produce the following output:
+
+----
+1234
+----
+

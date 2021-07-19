@@ -1,0 +1,102 @@
+= Docs Readme
+
+== Workflow
+
+. Start +preview+ tool
+. Start browser with LivePreview enabled
+. Edit documents in editor of choice
+. Verify correct formatting of documents
+
+NOTE: When editing an adoc file, verify the content AFTER the adoc to make sure it's still correctly formatted.
+
+== preview
+
+The preview tool will rebuild the dev and user gude when adoc files are changed.
+
+The Preview script requires:
+
+. Ruby (recent version)
+. Ruby bundle gem:  +gem install bundle+
+. LiveReload browser extension
+.. Configured to "Allow access to file URLs"
+
+Other dependencies are isntalled when the +preview+ script is run.
+
+Usage:
+
+. Start preview 
++
+----
+cd docs
+preview
+----
+
+. Load user guide or dev guide into browser
+. Enable LivePreview for files
+
+== Best Practices
+
+=== One sentance per line
+
+When authoring a pararaph, place each sentance on it's on line.
+
+Do this:
+
+----
+Marry had a little lamb.
+It's coat was bright as snow.
+----
+
+Not this:
+
+----
+Marry had a little lamb. It's coat was bright as snow.
+----
+
+
+=== Newline between include:: statements
+
+Always place a newline inbetween includes.  
+This will prevent accidental formatting issues between both files.
+
+Do this:
+
+----
+ include::01_Wizard.adoc[]
+
+ include::02_Config_Variables.adoc[]
+ 
+ include::03_Config_Monitors.adoc[]
+
+ include::04_Config_Tuning.adoc[]
+
+ include::05_Config_Test.adoc[]
+
+ include::06_Job.adoc[]
+----
+
+Not this:
+
+----
+ include::01_Wizard.adoc[]
+ include::02_Config_Variables.adoc[]
+ include::03_Config_Monitors.adoc[]
+ include::04_Config_Tuning.adoc[]
+ include::05_Config_Test.adoc[]
+ include::06_Job.adoc[]
+----
+
+Instead place a newline between each include like this:
+
+
+=== End all adoc files with an end comment
+
+End all files with:
+
+----
+
+// end
+----
+
+This will help prevent formatting issues between included files.
+

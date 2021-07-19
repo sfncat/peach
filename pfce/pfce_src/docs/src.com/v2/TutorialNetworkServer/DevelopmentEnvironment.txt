@@ -1,0 +1,31 @@
+:toc!:
+link:../TutorialNetworkServer.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:CreateDataModel.html[Next >>]
+
+''''
+
+== The Peach Development Environment ==
+
+Before we start building our Peach fuzzer lets first take a moment to talk about a normal Peach development environment.  Here is what a typical environment looks like:
+
+== XML Editor ==
+
+A good XML is definitely a must.  A good free XML editor for Windows is http://www.microsoft.com/Express/[Microsoft Visual Studio Express] edition.  If you already have an XML editor that supports intellisense via XML Schema your all set.
+
+== Latest Peach ==
+
+Always stay up to date on the version of Peach you are using to get the latest bug fixes.
+
+==  Debugger and support tools ==
+
+There are several support tools that make things work alot nicer.  On Windows you will want the following for this lab:
+
+ * http://www.microsoft.com/whdc/Devtools/Debugging/default.mspx[Microsoft Debugging Tools]
+ * http://msecdbg.codeplex.com/[Bang-Exploitable] a WinDbg plug-in
+
+== Network Protocol Analyzer ==
+
+Additionally, when dealing with network protocols a good sniffer/analyzer is needed.  I recommend the open source http://www.wireshark.org/[Wireshark] application.
+
+''''
+
+link:../TutorialNetworkServer.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:CreateDataModel.html[Next >>]

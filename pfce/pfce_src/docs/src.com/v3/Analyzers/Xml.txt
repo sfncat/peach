@@ -1,0 +1,14 @@
+:toc!:
+== Xml Analyzer
+
+The XML Analyzer will consume an XML document or fragment and convert that into a tree structure of link:../XmlElement.html[XmlElement] and link:../XmlAttribute.html[XmlAttribute] elements.  This analyzer can be attached to a data element.
+
+.Example
+[source,xml]
+----
+<!-- String containing XML -->
+<String>
+	<Analyzer class="Xml" />
+</String>
+----
+

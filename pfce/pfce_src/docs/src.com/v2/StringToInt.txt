@@ -1,0 +1,18 @@
+:toc!:
+= type.StringToInt =
+
+Transforms a string into an integer (atoi). You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="type.StringToInt"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +type.StringToInt+, +StringToInt+

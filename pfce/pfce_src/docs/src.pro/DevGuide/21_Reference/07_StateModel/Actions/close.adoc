@@ -1,0 +1,255 @@
+<<<
+[[Action_close]]
+== close
+
+// 01/30/2014: Seth & Mike: Outlined
+//  * Implicit operation
+//   * what triggers it?
+//   * when would we call it directly?
+//     * close file before launching target
+//     * early terminate tcp connection
+//  * Examples
+
+// 02/12/2014: Mick
+//  Added description of what Close does
+//  talked about using it explicitly
+//  Added attribute descriptions
+//  Added an example
+
+// 02/28/2014: Mike: Ready for tech writer
+//  Updating content
+//  Updating and extending examples
+//  Updating formatting
+//  Adding links
+
+// 03/04/2014: Lynn: 
+//  Edited text 
+
+The _close_ Action causes the associated publisher to close its resource.
+
+* For the xref:Publishers_File[File Publisher], this action closes the file handle.
+* For the xref:Publishers_Tcp[TCP Publisher], this action closes the network connection.
+
+Close is an implicit action that occurs by default at the end of each iteration. 
+
+The only time you need to explicitly call the _close_ action is when the default behavior needs to be changed. For example, during file fuzzing, the target application is launched after closing:
+
+. the xref:Action_output[_output_] Action initiates writing the data
+. the _close_ Action closes the target
+. the target application subsequently launches using the xref:Action_call[_call_] Action
+
+.Default Order of Actions
+****
+The following is the default order in which Actions are performed when fuzzing:
+
+. start - Implicit, once per session
+. open - Implicit, once per iteration
+. Explicit actions (such as accept, input, and output)
+. close - Implicit, once per iteration
+. stop - Implicit, once per session
+****
+
+=== Syntax
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+  <State name="InitialState"> 
+
+    <Action type="output">
+      <DataModel ref="FileHeader"/> 
+    </Action>
+
+    <Action type="close" />
+    
+    <Action type="call" method="LaunchTarget" publisher="Peach.Agent" />
+
+  </State>
+</StateModel>
+----
+
+=== Attributes
+
+_Required:_
+
+type:: Action type, must be set to "close"
+
+_Optional:_
+
+name:: Name used to identify the action
+publisher:: Name of the publisher that this action should be called on
+xref:Action_when[when]:: Only perform action if the expression provided evaluates to true
+xref:Action_onStart[onStart]:: Expression to run on start of an action.
+xref:Action_onComplete[onComplete]:: Expression to run on completion of an action
+
+=== Child Elements
+
+No child elements are supported by this element.
+
+=== Examples
+
+.Implicit Use of _close_ Action
+==========================
+This is an example of the default implicit behavior of _close_.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+  <DataModel name="TestTemplate">
+    <String value="Hello World!" />
+  </DataModel>
+  
+  <StateModel name="State" initialState="Initial">
+    <State name="Initial">
+      
+      <Action type="output">
+        <DataModel ref="TestTemplate" />
+      </Action>
+      
+    </State>
+  </StateModel>
+  
+  <Test name="Default">
+    <StateModel ref="State"/>
+    
+    <Publisher class="File">
+      <Param name="FileName" value="fuzzed.txt" />
+    </Publisher>
+  </Test>
+  
+</Peach>
+<!-- end -->
+----
+
+When run the following output is generated.
+
+----
+> peach -1 --debug C:\temp\example.xml
+
+[*] Test 'Default' starting with random seed 18872.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()                                   <1>
+Peach.Core.Publishers.FilePublisher output(12 bytes)
+Peach.Core.Publishers.FilePublisher close()                                  <2>
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Implicit xref:Action_open[_open_] Action occurring at start of iteration
+<2> Implicit _close_ Action occurring prior to end of iteration
+==========================
+
+.Explicit Use of _close_ Action
+==========================
+This is an example of needed to call _close_ in a different order than the default order.
+When file fuzzing, the file data is written using an _xref:Action_output[output]_, then the file is closed using a _close_ action.
+And finally the target is launched using a _xref:Action_call[call]_ action with the special Publisher name of _Peach.Agent_.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+  <DataModel name="TestTemplate">
+    <String value="Hello World!" />
+  </DataModel>
+  
+  <StateModel name="State" initialState="Initial">
+    <State name="Initial">
+      
+      <Action type="output">
+        <DataModel ref="TestTemplate" />
+      </Action>
+      
+      <!-- Close file -->
+      <Action type="close" />
+      
+      <!-- Launch the file consumer -->
+      <Action type="call" method="ScoobySnacks" publisher="Peach.Agent"/>
+      
+    </State>
+  </StateModel>
+  
+  <Agent name="LocalAgent">
+    <Monitor class="WindowsDebugger">
+      <Param name="Executable" value="c:\windows\system32\notepad.exe />
+      <Param name="Arguments" value="fuzzfile.bin" />
+      <Param name="StartOnCall" value="ScoobySnacks" />
+    </Monitor>
+    <Monitor class="PageHeap">
+      <Param name="Executable" value="notepad.exe"/>
+    </Monitor>
+  </Agent>
+  
+  <Test name="Default">
+    <Agent ref="LocalAgent" />
+    <StateModel ref="State"/>
+    
+    <Publisher class="File">
+      <Param name="FileName" value="fuzzfile.bin" />
+    </Publisher>
+  </Test>
+  
+</Peach>
+<!-- end -->
+----
+
+When run the following output is generated.
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 14756.
+Peach.Core.Agent.Agent StartMonitor: Monitor WindowsDebugger
+Peach.Core.Agent.Agent StartMonitor: Monitor_1 PageHeap
+Peach.Core.Agent.Agent SessionStarting: Monitor
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid SessionStarting
+Peach.Core.Agent.Agent SessionStarting: Monitor_1
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()                                   <1>
+Peach.Core.Publishers.FilePublisher output(12 bytes)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close                                       <2>
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Call
+Peach.Core.Agent.AgentManager Message: Action.Call => ScoobySnacks
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid Cpu is idle, stopping process.
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid DetectedFault()
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid DetectedFault() - No fault detected
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.FilePublisher stop()
+Peach.Core.Agent.Agent SessionFinished: Monitor_1
+Peach.Core.Agent.Agent SessionFinished: Monitor
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid SessionFinished
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _FinishDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _FinishDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+
+[*] Test 'Default' finished.
+----
+<1> Implicit _xref:Action_open[open]_ Action
+<2> Explicit _close_ Action occurring prior to call Action
+==========================

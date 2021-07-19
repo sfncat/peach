@@ -1,0 +1,67 @@
+:toc!:
+= file.FileWriterLauncher =
+
+This publisher allows writing a file and then launching a process.  The publisher will wait for the process to exit before moving to the next test iteration.
+
+[source,xml]
+----
+<Publisher class="file.FileWriterLauncher">
+  <Param name="fileName" value="peach.bin" />
+</Publisher>
+----
+
+
+_Parameters:_
+
+ * fileName -- Name of file to write [required]
+
+_Supported Actions:_
+
+ * link:output.html[output]
+ * link:close.html[close]
+ * link:call.html[call]
+
+_Example:_
+
+[source,xml]
+----
+<DataModel name="TestTemplate">
+    <String value="Hello World!" />
+</DataModel>
+
+<!-- A template to hold the filename -->
+<DataModel name="FileName">
+    <String isStatic="true" value="fuzzfile.bin" />
+</DataModel>
+
+<!-- Define a simple state machine that will write the file and 
+    then launch a program using the FileWriterLauncher publisher -->
+<StateMachine name="State" initialState="Initial">
+    <State name="Initial">
+        <!-- Write out contents of file -->
+        <Action name="WriteFile" type="output">
+            <DataModel ref="TestTemplate" />
+        </Action>
+        
+        <!-- Close file -->
+        <Action type="close" />
+        
+        <!-- Launch the file consumer -->
+        <Action type="call" method="c:\windows\system32\notepad.exe">
+            <Param type="in" name="filename">
+                <DataModel ref="FileName"/>
+            </Param>
+        </Action>
+    </State>
+</StateModel>
+
+<Test name="TheTest">
+    <StateMachine ref="State"/>
+    
+    <!-- Configure our publisher with correct filename to write too -->
+    <Publisher class="file.FileWriterLauncher">
+        <Param name="fileName" value="fuzzfile.bin" />
+    </Publisher>
+</Test>
+----
+

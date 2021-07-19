@@ -1,0 +1,113 @@
+<<<
+[[Publishers_CAN]]
+== CAN Publisher
+
+Use the _CAN_ Publisher to read and write bytes directly to and from a CAN bus.
+
+_CAN_ is designed to interface with the TotalPhase Komodo CAN SOLO or DUO (USB) Host Adapter.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="CAN">
+  <Param name="ID" value="5"/>
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+ID:: The CAN identifier used for for transmission and reception
+
+_Optional:_
+
+RTR:: Is the frame requesting the transmission of a specific identifier.  This parameter only effects output and does not effect input.
+ExtendedFrame:: Should extended frame format be used.  This parameter only effects output and does not effect input.
+SerialNumber:: Serial number of Komodo CAN Interface to use.  If omitted the first available interface will be used.
+Bitrate:: Controls the bitrate used for transmission and reception of CAN frames. Defaults to 125000 bps.
+Timeout:: How long to wait in milliseconds for incoming data to arrive. Defaults to 3000 ms.
+SendTimeout:: How long to wait in milliseconds for outgoing data to send. Defaults to 3000 ms.
+
+=== Actions
+
+xref:Action_start[start]:: Open and initialize the Komodo device.
+xref:Action_stop[stop]:: Close and clean up the Komodo device.
+xref:Action_open[open]:: Enable the CAN port on the Komodo device.
+xref:Action_close[close]:: Disable the CAN port on the Komodo device.
+xref:Action_output[output]:: Data sent via output is written to the CAN bus.
+xref:Action_input[input]:: Data received via input is read from the CAN bus.
+
+=== Examples
+
+.Read ADC from TotalPhase CAN Activity Board Pro
+==============
+[source,xml]
+----
+<Peach>
+  <StateModel name='SM' initialState='Initial'>
+    <State name='Initial'>
+      <!-- Send query to ADC -->
+      <Action type='output'>
+        <DataModel name='DM' />
+      </Action>
+
+      <!-- Read response -->
+      <Action type='input'>
+        <DataModel name='DM'>
+          <Blob length='3' />
+        </DataModel>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name='Default'>
+    <StateModel ref='SM' />
+    <Publisher class='CAN'>
+      <Param name='ID' value='66' />
+      <Param name='RTR' value='true' />
+    </Publisher>
+  </Test>
+</Peach>
+----
+==============
+
+.Write LCD on TotalPhase CAN Activity Board Pro
+==============
+[source,xml]
+----
+<Peach>
+  <DataModel name='DM'>
+    <Number name='index' size='8' />
+    <String name='value' length='4' />
+  </DataModel>
+
+  <StateModel name='SM' initialState='Initial'>
+    <State name='Initial'>
+      <Action type='output'>
+        <DataModel ref='DM' />
+        <Data>
+          <Field name='index' value='0' />
+          <Field name='value' value='abcd' />
+        </Data>
+      </Action>
+      <Action type='output'>
+        <DataModel ref='DM' />
+        <Data>
+          <Field name='index' value='1' />
+          <Field name='value' value='efgh' />
+        </Data>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name='Default'>
+    <StateModel ref='SM' />
+    <Publisher class='CAN'>
+      <Param name='ID' value='322' />
+    </Publisher>
+  </Test>
+</Peach>
+----
+==============

@@ -1,0 +1,8 @@
+:toc!:
+link:../.html[<< Previouse] | link:../.html[Up] | link:../.html[Next >>]
+----
+= Foo! =
+
+----
+
+link:../.html[<< Previouse] | link:../.html[Up] | link:../.html[Next >>]

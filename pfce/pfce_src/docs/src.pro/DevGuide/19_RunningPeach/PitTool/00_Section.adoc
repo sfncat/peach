@@ -1,0 +1,65 @@
+[[Program_PitTool]]
+== Pit Tool
+
+`PitTool` is provided as an additional set of utilities useful for developing Peach pits.
+
+=== Syntax
+
+----
+Usage:
+  PitTool.exe <command> [options]
+
+Commands:
+  analyzer                   Run a Peach analyzer.
+  compile                    Validate and compile pit into .meta.json and .ninja files.
+  crack                      Crack a sample file.
+  help                       Show help for commands.
+  makexsd                    Generate a peach.xsd file.
+  ninja                      Create a sample ninja database.
+
+General Options:
+  -h, --help                 Display this help and exit
+  -V, --version              Display version information and exit
+  -v, --verbose              Increase verbosity, can use multiple times
+      --plugins=VALUE        Specify the plugins path
+      --pits=VALUE           Specify the PitLibraryPath.
+----
+
+=== Commands
+
+xref:PitTool_Analyzer[analyzer]::
+	Run a Peach analyzer.
+
+xref:PitTool_Compile[compile]::
+	Validate and compile pit into .meta.json and .ninja files.
+
+xref:PitTool_Crack[crack]::
+	Crack a sample file.
+
+xref:PitTool_Makexsd[makexsd]::
+	Generate a peach.xsd file.
+
+xref:PitTool_Ninja[ninja]::
+	Create a sample ninja database.
+
+:leveloffset: 1
+<<<
+include::Analyzer.adoc[]
+
+:leveloffset: 1
+<<<
+include::Compile.adoc[]
+
+:leveloffset: 1
+<<<
+include::Crack.adoc[]
+
+:leveloffset: 1
+<<<
+include::Makexsd.adoc[]
+
+:leveloffset: 1
+<<<
+include::../../../Common/RunningPeach/Ninja.adoc[]
+
+// end

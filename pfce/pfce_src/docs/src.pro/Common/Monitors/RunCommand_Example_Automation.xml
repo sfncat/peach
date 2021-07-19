@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String value="Hello World!" />
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent">
+		<Monitor class="RunCommand">
+			<Param name="Command" value="python"/>
+			<Param name="Arguments" value="clear_state.py" />
+			<Param name="WorkingDirectory" value="C:\MyScripts" />
+			<Param name="When" value="OnIterationStartAfterFault" />
+		</Monitor>
+	</Agent>
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+		<StateModel ref="TheStateModel" />
+		<Publisher class="ConsoleHex"/>
+	</Test>
+</Peach>

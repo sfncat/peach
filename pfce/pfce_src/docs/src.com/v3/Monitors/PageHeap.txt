@@ -1,0 +1,21 @@
+:toc!:
+== PageHeap Monitor (Windows)
+
+The _PageHeap_ monitor will enable page heap debugging options for an executable.
+
+=== Parameters
+
+ * _Executable_ -- Executable name (no path)
+ * _WinDbgPath_ -- Path to windbg install (optional, will attempt to locate)
+
+=== Examples
+
+.Enable for Notepad
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="PageHeap">
+		<Param name="Executable" value="notepad.exe" />
+	</Monitor>
+</Agent>
+----

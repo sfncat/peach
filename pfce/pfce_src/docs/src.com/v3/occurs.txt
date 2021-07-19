@@ -1,0 +1,22 @@
+:toc!:
+== Occurs Attribute ==
+
+A combination of link:minOccurs.html[minOccurs] and link:maxOccurs.html[maxOccurs]. This attribute creates exactly that number of the data element it is specified for. Internally Peach will treat this element as an array.
+
+=== Examples ===
+
+[source,xml]
+----
+
+<Block name="OccursBlock" occurs="5">
+  <String name="occurs" value="A"/>
+</Block>
+----
+
+
+Will produce the output:  
+
+
+---- 
+AAAAA
+----

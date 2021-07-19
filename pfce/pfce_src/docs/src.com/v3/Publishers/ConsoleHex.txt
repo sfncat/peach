@@ -1,0 +1,58 @@
+:toc!:
+== ConsoleHex Publisher
+
+The _ConsoleHex_ publisher will output data to standard out.  The data will be displayed in pretty hex format.
+
+=== Parameters
+
+ * _BytesPerLine_ -- Number of bytes per row of text (optional, defaults to 16)
+
+=== Actions
+
+ * link:../Action.html#\_output[_output_] -- Data to be displayed
+ 
+=== Examples
+
+.Display data to console
+[source,xml]
+----
+<DataModel name="Data">
+   <!-- ... -->
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="output">
+      <DataModel ref="Data" />
+    </Action>
+  </State>
+</StateModel>
+
+<Test name="Default">
+  <!-- ... -->
+  <Publisher class="ConsoleHex" />
+</Test>
+----
+
+.Display data with custom bytes per line
+[source,xml]
+----
+<DataModel name="Data">
+   <Blob/>
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="input">
+      <DataModel ref="Data" />
+    </Action>
+  </State>
+</StateModel>
+
+<Test name="Default">
+  <!-- ... -->
+  <Publisher class="ConsoleHex">
+    <Param name="BytesPerLine" value="8" />
+  </Publisher>
+</Test>
+----

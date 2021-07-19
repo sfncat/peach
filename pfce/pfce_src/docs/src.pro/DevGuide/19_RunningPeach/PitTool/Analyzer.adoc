@@ -1,0 +1,31 @@
+[[PitTool_Analyzer]]
+== Pit Tool - Analyzer
+
+Run a Peach analyzer.
+
+=== Syntax
+
+----
+PitTool.exe analyzer <analyzer> [options]
+----
+
+=== Analyzers
+
+xref:Analyzers_Asn1[Asn1]::
+  Converts ASN.1 data in Blobs into a full data model.
+xref:Analyzers_Json[Json]::
+  Generate a data model based on a JSON document.
+xref:Analyzers_Postman[Postman (beta)]::
+  Convert Postman API collection to Peach Pit.
+xref:Analyzers_Regex[Regex]::
+  Break up a string using a regex.
+  Each group will become strings.
+  The group name will be used as the element name.
+xref:Analyzers_StringToken[StringToken]::
+  Generate a data model by tokenizing a text document.
+xref:Analyzers_Swagger[Swagger (beta)]::
+  Convert Swagger API definition to Peach Pit.
+xref:Analyzers_Xml[Xml]::
+  Generate a data model based on an XML document.
+
+// end

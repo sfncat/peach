@@ -1,0 +1,24 @@
+<<<
+[[Mutators_ArrayVarianceMutator]]
+== ArrayVarianceMutator
+
+This mutator produces test cases in which the array expands or contracts to produce sizes that are in a distribution with the center of the distribution the current count of the array. For example, if an array contains 100 elements, this mutator produces test cases in which the array has grown to larger sizes and smaller sizes with the sizes clustered around 100.
+
+NOTE: Currently this mutator limits the number of items in an array to 65K.
+
+
+=== Supported Elements
+
+This mutator supports any array element. Array elements are those that have the _occurs_, _minOccurs_, or _maxOccurs_ attributes set.
+
+ * xref:occurs[occurs] attribute
+ * xref:minOccurs[minOccurs] attribute
+ * xref:maxOccurs[maxOccurs] attribute
+
+=== Hints
+
+This mutator does not support hints.
+
+NOTE: A previous version of this mutator supported a hint. An update to the underlying algorithm removed the need for a hint.
+
+// end

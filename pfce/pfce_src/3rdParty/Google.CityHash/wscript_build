@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+
+bld(
+	features = 'cs',
+	name = 'Google.CityHash.dll',
+	source = bld.path.ant_glob('**/*.cs'),
+	platform = 'AnyCPU',
+)

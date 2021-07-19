@@ -1,0 +1,28 @@
+:toc!:
+== CanaKitRelay Monitor
+
+The _CanaKitRelay_ monitor controls a set of relays capable of turning on/off AC and DC lines.  This is very handy for turning devices on and off during a fuzzing run.  Any device with an AC or DC power line can be controlled by wiring it through a realy.
+
+http://www.canakit.com/catalog/product/view/id/627/s/4-port-usb-relay-controller[Cana Kit 4-Port USB Relay COntroller]
+
+=== Parameters
+
+ * _SerialPort_ -- Serial port for the board (e.g. COM2)
+ * _RelayNumber_ -- Relay to trigger (1..4)
+ * _ResetEveryIteration_ -- Reset power on every iteration (optional, default is false)
+ * _OnOffPause_ -- Pause in milliseconds between off/on (optional, default is 1/2 second)
+ * _ResetOnStart_ -- Reset device on start (optional, defaults to false)
+ * _ReverseSwitch_ -- Switches the order of the on off commands for when the NC port is used for power (optional, default false)
+ 
+=== Examples
+
+.Reset power on relay 1
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="CanaKitRelay">
+		<Param name="SerialPort" value="COM2" />
+		<Param name="RelayNumber" value="1" />
+	</Monitor>
+</Agent>
+----

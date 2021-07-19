@@ -1,0 +1,12 @@
+:toc!:
+== ArrayRandomizeOrderMutator ==
+
+This mutator will randomize the order of an array. The default number of permutations that it produces is 50.
+
+_Target Elements_
+
+ * link:../occurs.html[Array]
+
+_Hints_
+
+ * ArrayRandomizeOrderMutator-N -- Set number of random permutations produced for this array.

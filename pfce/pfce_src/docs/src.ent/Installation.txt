@@ -1,0 +1,357 @@
+= Peach Farm Installation and Operations Guide
+
+:author:        Deja vu Security
+:email:         peach@dejavusecurity.com
+
+
+== Prerequisites
+=== MongoDB Installation
+
+Download MongoDB 2.2.2 appropriate for your system here:
+http://www.mongodb.org/downloads
+
+There is no installer, copy the folder inside the archive file to a preferred location and rename to Mongo (assuming C:\Program Files\Mongo)
+
+Create the folder path on the system drive "data\db", this is where MongoDB will store its database files.
+
+Create a log file in a desired location, name it mongo.txt, MongoDB will use it to store its logs (assuming C:\data\mongo.txt)
+
+Execute the following command line to install MongoDB as a Windows Service:
+----
+C:\Program Files\Mongo\bin\mongod.exe -install -logpath C:\data\mongo.txt
+----
+
+Configure firewall to allow MongoDB's default TCP port of 27017.
+Confirm that MongoDB is started and set to start automatically.
+
+Optional: Install a database tool that can test the connection.
+RazorSQL: http://www.razorsql.com/download.html (many platforms, more general)
+MongoVUE: http://www.mongovue.com/downloads/ (Windows only, more specific to Mongo)
+
+=== RabbitMQ Installation
+
+Install Erlang OTP R15B03-1:
+http://www.erlang.org/download_release/16
+
+Install Rabbit MQ 3.0.4:
+http://www.rabbitmq.com/releases/rabbitmq-server/v3.0.4/
+
+Configure the machine's firewall to allow RabbitMQ's default TCP port of 5672.
+
+Confirm that RabbitMQ is started and set to start automatically on machine start.
+
+Optional: Download and install a RabbitMQ management/monitoring solution:
+http://www.rabbitmq.com/how.html#management
+
+=== MySql Installation
+
+NOTE: MySql is only necessary for Peach Farm Reporting, which collects statistics and generates PDF reports for jobs.
+If this functionality is not needed, please skip this step.
+
+Install MySql Community 5.6.14.0
+http://downloads.mysql.com/archives/installer/
+
+=== .NET Framework 4.0 Installation
+ 
+==== Windows
+
+Microsoft .NET Framework 4.0 is required for all Peach Farm services.
+http://www.microsoft.com/en-us/download/details.aspx?id=17851
+
+CAUTION: Confirm before downloading the .NET Framework that it is version 4.0 and not 4.0 (Client Profile)
+
+==== Linux
+
+Mono Framework 2.10.x
+http://www.go-mono.com/mono-downloads/download.html
+
+==== Mac OSX
+
+Mono Framework 3.2.x
+http://www.go-mono.com/mono-downloads/download.html
+
+== Peach Farm Controller Installation
+
+Copy controller.config.template to controller.config
+
+All configuration of the server is done via the config file instead of command line arguments. Ensure that the config file is placed in the same folder as "pf_controller.exe"
+
+.Example configuration file:
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <configSections>
+    <section name="peachfarm.controller" type="PeachFarm.Controller.Configuration.ServerSection, pf_controller" allowLocation="true" allowDefinition="Everywhere" />
+    <section name="nlog" type="NLog.Config.ConfigSectionHandler, NLog"/>
+  </configSections>
+  <peach.controller>
+    <MongoDb connectionString="mongodb://10.0.1.23/?safe=true" />			# <1>
+    <RabbitMq hostName="10.0.1.23" port="-1" userName="guest" password="guest" />	# <2>
+    <NodeExpirationRules lateMinutes="5" expiredMinutes="30" />				# <3>
+  </peach.controller>
+  <nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd"				# <4>	
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- make sure to set 'Copy To Output Directory' option for this file -->
+    <!-- go to http://nlog-project.org/wiki/Configuration_file for more information -->
+
+    <targets>
+      <target name="console" xsi:type="Console" layout="${message}"/>
+      <target name="eventlog" xsi:type="EventLog" source="PeachFarm" log="PeachFarmController"/>
+    </targets>
+
+    <rules>
+      <logger minlevel="Debug" writeTo="console"/>
+      <logger minlevel="Info" writeTo="eventlog" />
+    </rules>
+  </nlog>
+</configuration>
+----
+
+<1> MongoDb: connectionString host name should be reachable by all clients, use an absolute address rather than localhost.
+<2> RabbitMq: hostname, port, username, and password are used by the server to log in to RabbitMQ. Port="-1", username="guest", and password="guest" are default values.
+<3> NodeExpirationRules: how many minutes should elapse between Node heartbeats before the Controller marks it Late (lateMinutes) or Expired (expiredMinutes)
+<4> Nlog: This section is for configuring logging. Please see the NLog configuration documentation for more information:
+http://nlog-project.org/wiki/Configuration_file
+
+Run pf_controller.exe with no command line arguments. A successful start should display the message:
+----
+] Peach Farm - Controller
+] Version: 1.0.0.0
+] Copyright (c) Deja vu Security
+
+Peach Farm Controller (10.0.1.69) waiting for messages
+----
+
+NOTE: the value inside the parentheses denotes the name of the Controller, copy it and save it for the Client installation
+
+Optional: The Peach Farm Controller can be installed as a Windows Service. 
+
+Use installutil.exe included in the Windows SDK to install pf_controller.exe as a service (Administrator privileges required):
+installutil pf_controller.exe
+http://www.microsoft.com/download/en/details.aspx?id=8279 
+
+Optional: If the Peach Farm Controller is installed as a service on the same machine as MongoDB and/or RabbitMQ, dependencies may be set using the Service Control tool to ensure that these services are started before Peach Farm Controller (Administrator privileges required):
+sc.exe config "Peach Farm Controller" depend= "Mongo DB"
+sc.exe config "Peach Farm Controller" depend= "RabbitMQ"
+http://technet.microsoft.com/en-us/library/cc754599(v=ws.10).aspx
+
+Peach Farm Controller Error Reporting
+Available levels:
+Trace - very detailed logs, which may include high-volume information such as protocol payloads. This log level is typically only enabled during development
+Debug - debugging information, less detailed than trace, typically not enabled in production environment.
+Info - information messages, which are normally enabled in production environment
+Warn - warning messages, typically for non-critical issues, which can be recovered or which are temporary failures
+Error - error messages
+Fatal - very serious errors
+
+.Rules
+[options="header",cols="<,>"]
+|===
+|Condition
+|Severity
+
+|Initial MongoDB connection test (service will stop)
+|Fatal	   
+
+|Initial RabbitMQ connection test (service will stop)
+|Fatal	   
+
+|Unhandled exceptions (service will stop)
+|Fatal
+
+|Client goes online
+|Info
+	   
+|Client status is Late
+|Info	   
+
+|Client status is Expired
+|Warn	   
+
+|Client status is Error
+|Warn
+   
+|Client is stopped gracefully
+|Info
+   
+|Receives heartbeat from Client
+|Debug	   
+
+|Can't get latest message from RabbitMQ (will retry)	
+|Error	   
+
+|Received a message
+|Trace	   
+
+|Completed processing a message
+|Trace	   
+
+|Encountered an exception while processing a message	
+|Error	   
+
+|Received a message of unknown type
+|Error	   
+
+|Sent a message
+|Trace	 
+|===
+
+Fatal errors will stop Peach Farm Controller. With the default packaged configuration, when running as a Windows Service, all logs marked Info, Warn, Error, and Fatal will be recorded in the "PeachFarmController" Event Log. When running as a Command Line tool, all logs marked Debug, Info, Warn, Error, and Fatal will be output to the screen. These options may be changed in pf_controller.exe.config.
+
+== Peach Farm Node Installation ==
+
+Before installing the PeachFarm Node, ensure that Peach is installed and functioning on each node machine.
+The PeachFarm archive contains an executable called "pf_node.exe", which is the client application for receiving Start and Stop messages for Peach.
+
+== Configure Peach Farm Node ==
+
+Copy node.config.template to node.config then open the file in your preferred text editor.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8" ?>
+<peachfarm.node>
+	<!--<Node nameOverride="10.0.1.39" />-->	# <1>
+	<Controller ipAddress="10.0.1.39" />		# <2>
+	<RabbitMq hostName="10.0.1.39"			# <3>
+		port="-1"
+		userName="guest"
+		password="guest" 
+		useSSL="false" />
+	<Tags>						# <4>
+		<add name="Windows" />
+		<add name="x64" />
+	</Tags>
+</peachfarm.node>
+----
+
+<1> Node nameOverride (optional): Uncomment this line to override the automatic naming for the Node.
+By default when the Node starts it chooses the best available IP Address for reaching the Controller as its name.
+This configuration attribute allows you to override the name with a name of your choosing.
+<2> Controller ipAddress (required): This should be the same as the name chosen for the Controller.
+<3> RabbitMq (required): As with Controller configuration, these values should point to the same instance of RabbitMQ
+<4> Tags (optional, recommended): Add tags to the collection to identify the capabilities or restrictions of your Node.
+These can be specified from the Admin tool to select a group of Nodes based on tag. Some suggested tags are OS name,
+processor architecture, target application, etc. 
+
+After configuring node.config, run the executable "pf_node.exe" with no parameters. This executable can also be installed
+as a Windows Service or as a Mono Service for platforms that support that feature (Ubuntu yes, OSX no).
+
+To confirm that the Node is running correctly, the following message should appear within the console:
+] Peach Farm - Node
+] Copyright (c) Deja vu Security
+
+Waiting for messages
+
+If the Peach Farm Controller is running, it will create log entries when Nodes change online/offline status. Use the log files to confirm that the Node is running and communicating with the Server.
+Refer to the Admin Tool User Guide for issuing commands and confirming that the Peach Farm network is established and functional.
+
+== Peach Farm Reporting Installation ==
+
+The Peach Farm Reporting service is for metrics collection and PDF report generation. This service is supported only within Windows.
+
+===== Peach Farm Reporting Configuration
+
+Edit PeachFarm.Reporting.Service.exe.config
+
+[source,xml]
+----
+<?xml version="1.0"?>
+<configuration>
+	<configSections>
+		<section name="peachfarm.reporting" type="PeachFarm.Reporting.Configuration.ReportGeneratorSection, PeachFarm.Reporting" allowLocation="true" allowDefinition="Everywhere"/>
+		<section name="nlog" type="NLog.Config.ConfigSectionHandler, NLog"/>
+	</configSections>
+	<connectionStrings>
+		<add name="PeachFarm.Rporting.Reports.Properties.Settings.peachfarmreporting"
+			connectionString="server=dejaapps;							# <1>
+				port=3307;
+				database=peachfarmreporting;
+				User Id=apps;
+				password=dejaapps"
+			providerName="MySql.Data.MySqlClient" />
+	</connectionStrings>
+	<peachfarm.reporting>
+		<Controller ipAddress="10.0.1.39"/>								# <2>
+		<RabbitMq hostName="10.0.1.39" port="-1" userName="guest" password="guest" useSSL="false"/>	# <3>
+		<MongoDb connectionString="mongodb://10.0.1.39/?safe=true"/>					# <4>
+		<Monitor baseURL="http://dejaapps/pfmonitor/"/>							# <5>
+	</peachfarm.reporting>
+	<system.data>
+		<DbProviderFactories>
+			<add name="MySQL Data Provider"
+		  invariant="MySql.Data.MySqlClient"
+		  description=".Net Framework Data Provider for MySQL"
+		  type="MySql.Data.MySqlClient.MySqlClientFactory, MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d" />
+		</DbProviderFactories>
+	</system.data>
+	<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd"						# <6>
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+		<!-- make sure to set 'Copy To Output Directory' option for this file -->
+		<!-- go to http://nlog-project.org/wiki/Configuration_file for more information -->
+
+		<targets>
+			<target name="console" xsi:type="Console" layout="${message}"/>
+			<target name="eventlog" xsi:type="EventLog" source="PeachFarm" log="PeachFarmReporting" layout="${longdate}|${level:uppercase=true}|${logger}${newline}${message}"/>
+		</targets>
+
+		<rules>
+			<logger minlevel="Trace" maxlevel="Info" writeTo="console"/>
+			<logger minlevel="Warn" writeTo="eventlog" />
+		</rules>
+	</nlog>
+<startup><supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0"/></startup></configuration>
+----
+
+<1> Change the MySql connectionString to match those of your MySql installation.
+<2> Controller ipAddress: Change this to match the name of the Controller, as in the configuration of other Peach Farm components
+<3> RabbitMq: Again, as in other configurations, point this to the Rabbit MQ server.
+<4> MongoDb: Also common to other configurations, this should point to the Mongo DB server being used with Peach Farm
+<5> Monitor baseURL: This should point to the web address for the Peach Farm Monitor website.
+This is used by the PDF reporting engine to properly address links.
+<6> Nlog: This section is for configuring logging. Please see the NLog configuration documentation for more information:
+http://nlog-project.org/wiki/Configuration_file
+
+The executable "PeachFarm.Reporting.Service.exe" should be installed as a Windows Service. More than one can be run
+to distribute reporting requests in high volume situations.
+
+==== Peach Farm Monitor Web Site Installation
+
+Before continuing, confirm that the target machine is running Windows and has IIS installed.
+
+Run the included PeachFarmMonitor.msi
+
+image::pfm-1.png[]
+
+Click Next to continue.
+
+image::pfm-2.png[]
+
+Read the license agreement, print it if you wish, check the acceptance box, and click Next to continue.
+
+image::pfm-3.png[]
+
+Enter the IP addresses for your installed instances of the Peach Farm Controller, RabbitMQ, and MongoDB.
+
+NOTE: Do NOT use 127.0.0.1 or "localhost", use the actual reachable IP addresses as the Peach Farm Monitor will need these to function.
+
+Click Next to continue.
+
+image::pfm-4.png[]
+
+Click Install to continue. Elevated permissions will be required.
+
+image::pfm-5.png[]
+
+This shows the progress of the installation.
+
+image::pfm-6.png[]
+
+Installation complete. Click Finish to close the setup wizard.
+
+Finally, navigate to http://<servername>/pfmonitor to confirm that the web site is running properly.
+
+

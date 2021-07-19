@@ -1,0 +1,46 @@
+:toc!:
+== Monitors ==
+
+The following monitors ship with Peach:
+
+*Debuggers*
+
+ * WindowsAppVerifier
+ * WindowsDebugEngine
+ * WindowsDebugger
+ * UnixGdb
+
+*Gui*
+
+ * PopupWatcher
+
+*Memory*
+
+ * link:Memory.html[Memory]
+
+*Network*
+
+ * PcapMonitor
+ * PingMonitor
+
+*Power*
+
+ * NetworkedPower
+
+*Process*
+
+ * PageHeap
+ * link:Process.html[Process]
+
+*socketmon*
+
+ * SocketMonitor
+
+*Test*
+
+ * TestFault
+ * TestStopOnFirst
+
+*Virtual Machine*
+
+ * link:Vmware.html[Vmware]

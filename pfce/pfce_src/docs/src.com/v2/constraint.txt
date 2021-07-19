@@ -1,0 +1,11 @@
+:toc!:
+== constraint Attribute ==
+
+This attribute allows you to specify a python expression that must evaluate to true in order for the data parser to consider the data element to have properly parsed/consumed some incoming data.  This attribute is ONLY used for parsing/cracking incoming data and does NOT affect how the value is mutated.
+
+== Example ==
+
+----
+<Number constraint="int(value) & 0xfefe == 5" />
+----
+

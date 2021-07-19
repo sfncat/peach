@@ -1,0 +1,26 @@
+:toc!:
+= checksums.SHA384Fixup =
+
+This fixup implements the SHA384 checksum algorithm. You can read more about link:Fixups.html[fixups here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Number name="CRC" size="32" signed="false" endian="little">
+     <Fixup class="checksums.SHA384Fixup">
+        <Param name="ref" value="Data"/>
+     </Fixup>
+  </Number>
+  <Blob name="Data"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- Must be +checksums.SHA384Fixup+
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param] - name = 'ref'; value = '<name of referenced link:DataModel.html[DataModel] or link:Block.html[Block]>'.

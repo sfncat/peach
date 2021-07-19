@@ -1,0 +1,17 @@
+<<<
+[[Mutators_StringUnicodePrivateUseArea]]
+== StringUnicodePrivateUseArea
+
+This mutator produces test cases for Unicode String elements by generating new strings and populating the strings with randomly-selected values from characters U+E000 – U+F8FF of Unicode plane 0 (private use area of the BMP). The lengths of the generated strings form a distribution that centers on the length of the current string and ranges from 1 to 65K (ushort max) Unicode characters.
+
+This mutator requires String elements that have a Unicode encoding type: UTF-8, UTF-16, or UTF-32.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support any hints.
+
+// end

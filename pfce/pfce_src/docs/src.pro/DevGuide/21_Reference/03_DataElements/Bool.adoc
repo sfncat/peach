@@ -1,0 +1,140 @@
+<<<
+[[Bool]]
+== Bool
+
+The _Bool_ element defines a Boolean value (values 0 or 1) that represents either true or false. The intended use of _Bool_ is in JSON strings, where the values `true` and `false` are assigned to variables upon parsing with the JSON analyzer.
+
+When not used in JSON strings, _Bool_ is a one-bit number with a value of 0 or 1.
+
+The Bool element is a child element of xref:DataModel[DataModel], xref:Block[Block], xref:Sequence[Sequence] or xref:Choice[Choice].
+
+=== Syntax
+
+[source,xml]
+----
+<Bool name="Boolean" value="1"/>
+----
+
+=== Attributes
+
+_Required:_
+
+No required attributes.
+
+_Optional:_
+
+xref:name[name]::
+	Name of the boolean value.
+xref:value[value]::
+	The default value to assign to the boolean.
+	Valid options are integer values 0 or 1.
+xref:constraint[constraint]::
+	A constraint in the form of a python expression.
+	Used during data cracking.
+xref:mutable[mutable]::
+	Is data element changeable (should it be mutated during fuzzing), defaults to true.
+	Valid options true and false.
+xref:minOccurs[minOccurs]::
+	The minimum number of times this number must occur.
+	Defaults to 1.
+	Valid options are a positive integer value.
+xref:maxOccurs[maxOccurs]::
+	The maximum number of times this number can occur.
+	Defaults to 1.
+	Valid options are a positive integer value.
+xref:occurs[occurs]::
+	The actual number of times this number occurs.
+	Defaults to 1.
+
+
+=== Child Elements
+
+xref:Hint[Hint]:: Provide information to mutators.
+xref:Placement[Placement]:: Relocate an element after it has been cracked.
+
+=== Mutators
+
+The following mutators will operate on this element type:
+
+_Enabled when element is marked as an array_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]:: This mutator will grow and shrink an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]:: This mutator will randomize the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]:: This mutator will reverse the order of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]:: This mutator will grow and shrink an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementBitFlipper[DataElementBitFlipper]:: This mutator will produce test cases by flipping bits in the output value.
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator will duplicate data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator will remove data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator will swap data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator will combine data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator will cause the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator will cause the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator will change both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator will change both sides of the relation (data and value) to match numerical variances of the current size.
+
+=== Examples
+
+.Size
+==========================
+Produce Json string with a boolean value of true.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+	<DataModel name="BoolExample">
+		<Json>
+			<Bool name="bool" value="1"/>
+		</Json>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="BoolExample"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent" />
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex"/>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug BoolExample1.xml
+
+[*] Test 'Default' starting with random seed 28925.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "Initial".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(13 bytes)
+00000000   7B 22 62 6F 6F 6C 22 3A  74 72 75 65 7D            {"bool":true}
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

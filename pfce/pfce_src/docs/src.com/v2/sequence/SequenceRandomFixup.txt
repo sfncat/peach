@@ -1,0 +1,26 @@
+:toc!:
+= sequence.SequenceRandomFixup =
+
+This fixup allows a field to emit a random value without adding additional test cases. This is useful for sequence numbers common in network protocols. You can read more about link:Fixups.html[fixups here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Number name="CRC" size="32" signed="false" endian="little">
+     <Fixup class="sequence.SequenceRandomFixup">
+        <Param name="ref" value="Data"/>
+     </Fixup>
+  </Number>
+  <Blob name="Data"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- Must be +sequence.SequenceRandomFixup+
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param] - name = 'ref'; value = '<name of referenced link:DataModel.html[DataModel] or link:Block.html[Block]>'.

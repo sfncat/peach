@@ -1,0 +1,39 @@
+[[occurs]]
+== Occurs Attribute
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// * How is it different than minOccurs/maxOccurs
+// * When to use
+// * occurs vs. relation count-of
+// * Example
+// * Mutation difference between array non array
+// * link to min/maxoccurs
+// * link to count-of
+// * Don't do occurs=1 unless you really get it
+// * link to discussion of arrays in book
+// * 
+
+// - 03/28/2014 Lynn: Miscellaneous edits
+
+_occurs_ is a combination of xref:minOccurs[minOccurs] and xref:maxOccurs[maxOccurs]. 
+
+The _occurs_ value (for the specified data element) is the exact number of element occurrences. Peach treats _occurs_ as an array.
+
+=== Example
+
+The following block is an array that occurs a fixed number of times.     
+
+[source,xml]
+----
+<Block name="OccursBlock" occurs="5">
+  <String name="occurs" value="A"/>
+</Block>
+----
+
+Produces the output:  
+
+---- 
+AAAAA
+----

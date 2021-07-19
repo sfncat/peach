@@ -1,0 +1,72 @@
+[[Extend_Monitor]]
+=== Monitor
+
+Custom monitors must implement the following functions:
+
+ * StopMonitor()
+ * SessionStarting()
+ * SessionFinished()
+ * IterationStarting()
+ * IterationFinished()
+ * DetectedFault()
+ * GetMonitorData()
+ * MustStop()
+ * Message()
+
+The SessionStarting and SessionFinished functions are called once per fuzzing session.
+These functions are responsible for any initialization and cleanup required by the monitor.
+Monitors can run remotely and multiple monitors can be defined in a Peach pit.
+It is possible that calling SessionStarting on the first monitor
+triggers some behavior on the target that allows subsequent monitors to be able to start without error.
+This means things like parameter validation and initialization should occur in the SessionStarting function
+as opposed to the monitor's constructor.
+
+The IterationStarting and IterationFinished functions are called once per fuzzing iteration.
+All per-iteration logic is implemented in these functions.
+Monitors that perform per-iteration process control will start and stop the target process in these functions.
+Most importantly, any per-iteration state must be reset in calls to IterationFinished().
+The current fuzzing iteration is driven by the Peach engine, and monitors must not use past iterations to make any
+assumptions about future iterations.
+
+The Message function is used to signal monitors at specific places in the StateModel execution.
+This functionality is primarily used for state synchronization.
+It allows the monitor to pause the execution of the StateModel at a specific point until some desired event happens.
+For example, a custom monitor could use the Message function to wait until a proprietary embedded device
+has rebooted and is ready to accept input data.
+
+It is important to note that call actions on the "Peach.Agent" publisher result in
+the Message function being called on every monitor. Each monitor must filter for
+their desired messages, ignoring all unexpected message calls by returning null.
+
+The DetectedFault and GetMonitorData functions are used to report faults back to
+Peach. At the end of each iteration, the Peach engine calls DetectedFault() on
+every monitor. If any monitor reports that a fault occurred, Peach calls
+GetMonitorData() on every monitor. The GetMonitorData function returns a Fault record, and the type of the record can be either Fault or Data.
+
+
+
+Fault Detection:
+
+ * Return true from DetectedFault().
+ * Any monitor that detects a fault causes Peach to call ALL monitors to return monitor data.
+ * GetMonitorData() returns applicable data.
+ * Returned fault can be +fault+ or +data+.
+ ** Debugger stack trace is +fault+.
+ ** Network packet capture is +data+.
+ ** Log file is +data+.
+ * Faults can include a hash for bucketing information.
+
+Monitor best practices:
+
+ * Indicate errors with SoftExceptions().
+ * Keep monitors simple.
+ * Prefer multiple small monitors.
+ * Agent/Monitor order within a pit is honored by Peach.
+ ** Starting functions are called in order.
+ ** Finished functions are called in reverse order.
+ * Avoid one large complicated monitor.
+ * Remember monitors can run in remote agents.
+ * Maintain cross platform compatibility.
+ ** Windows Peach with Linux Agent.
+
+// end

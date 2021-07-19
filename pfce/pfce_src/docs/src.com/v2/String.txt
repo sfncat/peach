@@ -1,0 +1,37 @@
+:toc!:
+== String ==
+
+The String element defines a single or double byte string.  The String element is a child element of DataModel or Block.
+
+To indicate this is a numerical string use the link:NumericalString.html[NumericalString] hint.
+
+[source,xml]
+----
+<String value="Hello World!" />
+
+<String value="Null terminated string" nullTerminated="true" />
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [optional]
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur [optional]
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur [optional]
+ * link:isStatic.html[isStatic] -- This element should be treated as a token when parsing, defaults to False [DEPRECATED] [optional]
+ * link:token.html[token] -- (Peach 2.3)This element should be treated as a token when parsing, defaults to False [optional]
+
+ * link:length.html[length] -- Length in characters of the string [optional]
+ * link:nullTerminated.html[nullTerminated] -- Is this string null terminated (true/false) [optional]
+ * link:padCharacter.html[padCharacter] -- Character to pad string with to _length_ (default is 0x00) [optional]
+ * link:pointer.html[pointer] -- (Peach 2.3) Is this a pointer to a structure (true|false), default is false [optional]
+ * link:pointerDepth.html[pointerDepth] -- (Peach 2.3) How many levels of pointers (e.g. void** p is 2), default is 1 [optional]
+ * link:constraint.html[constraint] -- (Peach 2.3) A constraint in the form of a python expression.  Used during data cracking [optional]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]
+
+_Valid Child-Elements:_
+
+ * link:Fixup.html[Fixup]
+ * link:Relation.html[Relation]
+ * link:Transformers.html[Transformer]
+ * link:Hint.html[Hint]

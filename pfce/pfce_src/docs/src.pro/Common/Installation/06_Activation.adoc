@@ -1,0 +1,96 @@
+[[License_Activation]]
+=== License Activation
+
+The list below contains links to the steps for activating the different types of Peach Fuzzer licenses.
+
+Usage Based (Online Synchronization)::
+The most common method for activating a usage based license.
+A Cloud License Server will be automatically provisioned and managed for you.
+However, Peach Fuzzer will require a persistent connection to the Internet.
+
+Usage Based (Offline Synchronization)::
+Users who wish to use Peach Fuzzer in an offline without having access to the Internet can deploy a
+Local License Server onsite to provide offline activation and synchronization of licensing information.
+
+Node Locked::
+The license is tied to the physical machine running Peach Fuzzer.
+No license server is required and internet connectivity is only needed for activation.
+
+Enterprise::
+No activation is required for enterprise customers.
+
+[[ActivateOnline]]
+==== Usage Based (Online Synchronization)
+
+A Cloud License Server provides functionality for serving and monitoring a counted pool of licenses for Peach Fuzzer.
+A persistent connection to the Internet is required so that usage data can be uploaded to the Cloud License Server while a Peach Fuzzer job is running.
+Peach Fuzzer will automatically activate the first time it is run.
+
+NOTE: If a proxy server is required to connect to the Internet, it must be configured as described below. 
+
+===== Windows Proxy configuration
+
+On Windows, the system proxy setting is the correct way to configure the proxy peach will use to connect to the licensing server.
+
+Windows 10:: The system proxy settings are configured at Settings > Network & Internet > Proxy.
+From there you will be able to enter the IP and Port of the proxy server.
+
+Windows 8:: The system proxy settings are configured at PC Settings > Network Proxy.
+From there you will be able to enter the IP and Port of the proxy server.
+
+Windows 7:: The system proxy settings are configured through the Internet Settings dialog.
+Open the Internet Options window located at Control Panel > Network and Internet > Internet Options. +
+1. Click the "Connections" tab at the top of the Internet Options window. +
+2. Click the "LAN Settings" button at the bottom of the window. +
+3. Click the "Advanced" button under Proxy Server will allow you to change advanced settings and enable a manual proxy server.
+
+===== Linux Proxy Configuration
+
+The proxy configuration on Linux is controlled via two environment variables +http_proxy+ and +https_proxy+.
+Ensure both variables are set prior to starting Peach Fuzzer.
+
+[source]
+----
+export http_proxy=http://xxxxx
+export https_proxy=https://xxxxx
+----
+
+[[ActivateOffline]]
+==== Usage Based (Offline Synchronization)
+
+The Local License Server provides functionality for serving and monitoring a counted pool of licenses for Peach Fuzzer.
+Users who wish to use Peach Fuzzer without having access to the Internet can deploy a
+Local License Server onsite to provide offline activation and synchronization of licensing
+information.
+
+The instructions for installing and activating a Local License Server can be found on the https://portal.peachfuzzer.com[Peach Portal] by navigating to the "Licensing" tab and clicking the "Local License Server" button for the desired license.
+
+image::{images}/Common/Installation/Portal_LLS_Button.png[]
+
+[[ActivateNodeLock]]
+==== Node Locked
+
+No license server is required, as node locked licenses are tied to an individual machine.
+Peach Fuzzer will automatically activate the first time it is run.
+
+If your license has changed and you want Peach Fuzzer refresh its license, run the following command:
+
+[source]
+----
+peach --activate
+----
+
+If you wish to move your license to a new machine, you must first deactivate the existing instance by running the following command:
+
+[source]
+----
+peach --deactivate
+----
+
+NOTE: Peach Fuzzer requires an internet connection in order to perform activation and deactivation.  Once activated, no further internet connectivity is required.
+
+[[ActivateEnterprise]]
+==== Enterprise
+
+No activation is required for enterprise customers.
+The enterprise license is automatically embedded in the Peach Fuzzer download.

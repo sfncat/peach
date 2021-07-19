@@ -1,0 +1,211 @@
+<<<
+[[Publishers_Udp]]
+== Udp Publisher
+
+// Reviewed:
+//  - 02/13/2014: Seth & Adam: Outlined
+// Params are good
+// give full pit to run for example
+// Examples: - Udp "listener" w/srcport and interface
+//           - Udp "connect" w/host and port
+//           - Multicast example
+
+
+The _Udp_ publisher sends and receives UDP packets. 
+
+The underlying stack correctly pads out the UDP packet on output and strips the UDP padding on input. 
+Because of the padding and stripping, a slight difference occurs between the lengths of an incoming packet 
+and the corresponding outgoing packet. This has no effect on the actual data sent; the integrity of the 
+actual data remains intact.
+
+Each _Udp_ output action results in a single packet being sent. Each _Udp_ input action receives a single packet.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="Udp">
+	<Param name="Host" value="127.0.0.1" />
+	<Param name="Port" value="8000" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Host:: Host or IP address or remote host
+
+_Optional:_
+
+Port:: Destination port number, only optional when first packet is sent by target.
+SrcPort:: Source port
+Interface:: IP of interface to bind to
+Timeout:: How long to wait in milliseconds for data/connection. Defaults to 3,000.
+MaxMTU:: Maximum allowable MTU property value. Defaults to 131,070.
+MinMTU:: Minimum allowable MTU property value. Defaults to 1,280.
+
+=== Actions
+
+xref:Action_output[output]:: Send a single UDP packet to remote host.
+xref:Action_input[input]:: Receive a single UDP packet from remote host.
+xref:Action_getProperty[getProperty]::
++
+Get a property value.
++
+This publisher supports two properties:
++
+[horizontal]
+LastRecvAddr;; The last receive address
+Port;; Get the +Port+ parameter.
+MTU;; Get the +MTU+ of the interface
+SrcPort;; Get the +SrcPort+ parameter.
+
+xref:Action_setProperty[setProperty]::
++
+Set a property value.
++
+This publisher supports two properties:
++
+[horizontal]
+Port;; Change the +Port+ parameter.
+MTU;; Change the +MTU+ parameter.
+SrcPort;; Change the +SrcPort+ parameter.
+
+=== Examples
+
+.Connect Example
+================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String name="value" length="4" />
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+				<Data>
+					<Field name="value" value="mike" />
+				</Data>
+			</Action>
+
+			<!-- receive 4 bytes -->
+			<Action type="input">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent"/>
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+		<StateModel ref="TheState"/>
+		<Publisher class="Udp">
+			<Param name="Host" value="127.0.0.1" />
+			<Param name="Port" value="8000" />
+		</Publisher>
+
+	</Test>
+</Peach>
+----
+================
+
+.Listener
+================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String name="value" length="4" />
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="open"/>
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+				<Data>
+					<Field name="value" value="mike" />
+				</Data>
+			</Action>
+
+			<!-- receive 4 bytes -->
+			<Action type="input">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+			<Action type="close"/>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent"/>
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+		<StateModel ref="TheState"/>
+		<Publisher class="Udp">
+			<Param name="Host" value="127.0.0.1" />
+			<Param name="Interface" value="127.0.0.1" />
+			<Param name="SrcPort" value="8000" />
+			<Param name="Port" value="8001" />
+		</Publisher>
+
+	</Test>
+</Peach>
+----
+================
+
+.Multicast
+================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String name="value" length="4" />
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="open"/>
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+				<Data>
+					<Field name="value" value="mike" />
+				</Data>
+			</Action>
+
+			<!-- receive 4 bytes -->
+			<Action type="input">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+			<Action type="close"/>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent"/>
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+		<StateModel ref="TheState"/>
+    <Publisher class="Udp" name="ListenPublisher">
+      <Param name="Host" value="224.0.0.1"/>
+      <Param name="Port" value="8000"/>
+      <Param name="SrcPort" value="8001"/>
+      <Param name="Interface" value="127.0.0.1"/>
+    </Publisher>
+	</Test>
+</Peach>
+----
+================

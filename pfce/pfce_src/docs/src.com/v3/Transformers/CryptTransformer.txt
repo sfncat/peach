@@ -1,0 +1,16 @@
+:toc!:
+== CryptTransformer
+
+The _CryptTransformer_ will perform a Unix crypt operation on the given value using the first two bytes as the salt.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<String name="TransformMe" value="12superdoopersecret" >
+		<Transformer class="Crypt" />
+	</String>
+</DataModel>
+----
+

@@ -1,0 +1,8 @@
+:toc!:
+== UnicodeBadUtf8Mutator ==
+
+This mutator will generate a large list of bad UTF-8 strings that are useful for fuzzing.
+
+_Target Elements_
+
+ * link:String.html[String]

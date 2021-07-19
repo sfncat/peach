@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+
+deps = [
+	'Peach.Core.dll',
+	'System.dll',
+	'System.Core.dll',
+]
+
+pkgs = [
+	'NLog',
+]
+
+bld(
+	name='PeachMinset.exe',
+	features = 'cs paket',
+	use = deps,
+	use_packages = pkgs,
+	source = bld.path.ant_glob('**/*.cs'),
+	paket_settings = dict(
+		frameworks = ['net45'],
+	),
+)

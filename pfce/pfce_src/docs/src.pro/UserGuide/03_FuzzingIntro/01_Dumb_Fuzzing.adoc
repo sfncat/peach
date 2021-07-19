@@ -1,0 +1,21 @@
+=== Dumb Fuzzing
+
+Several types of fuzzing technology exist; one of the most common technologies is dumb fuzzing. Dumb fuzzers are a class of fuzzers that operate with limited or no information or understanding of the target or data being consumed.
+
+Dumb fuzzers are popular because they take very little effort to get running and can produce good results with certain targets. Since they lack any knowledge of the data being consumed, they have limited practical use.
+
+The most common mutation performed by dumb fuzzers is bit flipping. Bit flipping selects a part of data to change and modifies it in a simple manner. One might make a single change, or multiple changes depending on the fuzzer. The resulting data is then sent to the data consumer to see if it causes the data consumer to misbehave (such as crash).
+
+// You can build a dumb fuzzer with Peach. For an example, see the xref:TutorialDumbFuzzing[dumb file fuzzing tutorial.]
+
+Dumb fuzzing makes a great starting point when first fuzzing as it is the easiest method to use. However, in many cases, dumb fuzzing does not work. One example is the use of checksums in the data format. Checksums validate integrity of the data during transmission or storage. Any change to the data will result in a checksum that does not match. This is shown in the following image:
+
+image::{images}/DevGuide/FuzzingIntro/crc_missmatch.png[]
+
+The highlighted FF in the data stream is a byte that was changed during fuzzing. The new checksum value does not match the one that already exists in the file. If the checksum is validated by the data consumer, it could be rejected early on, limiting the number of faults that can be found.
+
+Smart fuzzers allow updating the data to correct for things like checksums, encryption, encoding, and compression so that the data passes through the initial system checks and is process by the data consumer.
+
+Peach makes it easy to shift from dumb fuzzing into smart fuzzing.
+
+// end

@@ -1,0 +1,46 @@
+:toc!:
+== XmlElement ==
+
+Defines an XML element the basic building block of XML documents.  This is used to fuzz the content of an XML document, but not the XML parser.  All the output produced from XmlElement and XmlAttribute will be well formed.
+
+NOTE: The XmlElement/XmlAttribute elements do not support cracking of data. 
+  If you need to crack XML content into XmlElement/XmlAttribute, use an
+  link:Analyzers/Xml.html[XmlAnalyzer] attached to a String element.
+
+[source,xml]
+----
+<XmlElement name="example" elementName="Foo">
+  <XmlElement elementName="Bar">
+    <String value="Hello World!" />
+</XmlElement>
+----
+
+[source,xml]
+----
+<Foo><Bar>Hello World!</Bar></Foo>
+----
+
+=== Attributes
+
+ * link:name.html[name] -- Name of the data model [optional]
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur [optional]
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur [optional]
+ * link:isStatic.html[isStatic] -- This element should be treated as a token when parsing, defaults to False [optional]
+ * link:token.html[token] -- (Peach 2.3)This element should be treated as a token when parsing, defaults to False [optional]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]
+
+ * link:elementName.html[elementName] -- Name of XML element [required]
+ * link:ns.html[ns] -- XML namespace [optional]
+
+=== Valid Child-Elements
+
+ * link:XmlElement.html[XmlElement]
+ * link:XmlAttribute.html[XmlAttribute]
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:String.html[String]
+ * link:Number.html[Number]
+ * link:Blob.html[Blob]
+ * link:Flags.html[Flags]
+ * link:Fixup.html[Fixup]
+ * link:Hint.html[Hint]

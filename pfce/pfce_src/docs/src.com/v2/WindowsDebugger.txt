@@ -1,0 +1,31 @@
+:toc!:
+= debugger.WindowsDebugger =
+
+*Note: This monitor is depricated and will be removed in Peach 2.3*
+
+This monitor uses the very basic Windows debugging APIs to detect faults that occur in the application.  The information returned is limited to a basic stack trace with no symbol use.  When possible please use one of the other debugger modules.
+
+[source,xml]
+----
+<!-- Launch process -->
+<Monitor class="debugger.WindowsDebugger">
+  <Param name="Command" value="c:\windows\system32\notepad.exe" />
+</Monitor>
+
+<!-- Attach to process -->
+<Monitor class="debugger.WindowsDebugger">
+  <Param name="ProcessName" value="explorer.exe" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+One of the following two parameters is required:
+
+ * Command -- Command line to execute
+ * ProcessName -- Name of process to attach to
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

@@ -1,0 +1,53 @@
+:toc!:
+== TcpListener Publisher
+
+The _TcpListener_ publisher is able to listen for incoming connections on a TCP port.
+
+=== Parameters
+
+ * _Interface_ -- IP of interface to bind to
+ * _Port_ -- Destination port number
+ * _Timeout_ -- How long to wait in milliseconds for data once a connection has been established (optional, default 3,000)
+ * _AcceptTimeout_ -- How long to wait in milliseconds for a new connection (optional, default 3,000)
+
+=== Actions
+
+ * link:../Action.html#\_accept[_accept_] -- Wait for incoming connection
+ * link:../Action.html#\_output[_output_] -- Send data to remote host
+ * link:../Action.html#\_input[_input_] -- Receive data from remote host
+
+=== Examples
+
+.Sending and receiving data
+[source,xml]
+----
+<DataModel name="TheDataModel">
+   <String name="value" length="4" />
+</DataModel>
+
+<StateModel name="TheState">
+	<State name="initial">
+		<Action type="accept" />
+		
+		<Action type="output">
+			<DataModel ref="TheDataModel"/>
+			<Data>
+				<Field name="value" value="mike" />
+			</Data>
+		</Action>
+
+		<!-- receive 4 bytes -->
+		<Action type="input">
+			<DataModel ref="TheDataModel"/>
+		</Action>
+	</State>
+</StateModel>
+
+<Test name="Default">
+    <!-- ... -->
+	<Publisher class="TcpListener">
+		<Param name="Interface" value="127.0.0.1" />
+		<Param name="Port" value="8080" />
+	</Publisher>
+</Test>
+----

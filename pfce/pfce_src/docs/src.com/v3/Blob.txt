@@ -1,0 +1,50 @@
+:toc!:
+== Blob ==
+
+The Blob element is a child element of link:DataModel.html[DataModel] or link:Block.html[Block]. Blobs are typically used to represent data that we lack type definition or format for.
+
+[source,xml]
+----
+<Blob name="Unknown1" valueType="hex" value="01 06 22 03"/>
+----
+
+
+=== Attributes: ===
+
+All attributes are optional unless noted. 
+
+ * link:name.html[name] -- Name of the blob. [Required]
+ * link:value.html[value] -- The default value contained within the blob.
+ * link:length.html[length] -- The size, in bytes, of the blob.
+ * link:ref.html[ref] -- Reference to a data model to use as a template for the blob 
+ * link:valueType.html[valueType] -- The format in which the default value is expressed: hex, string, or literal, defaults to 'string'. 
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this blob must occur. Defaults to 1. 
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this blob can occur Defaults to 1. 
+ * link:token.html[token] -- This element should be treated as a token when parsing, defaults to False 
+ * link:lengthType.html[lengthType] -- Type of length, how length is specified 
+ * link:constraint.html[constraint] -- A constraint in the form of an expression.  Used during data cracking.
+ * link:mutable.html[mutable] -- Is the blob changeable (should it be fuzzed), defaults to true. 
+
+=== Valid Child-Elements: ===
+
+ * link:Analyzers.html[Anayzers]
+
+=== Examples: ===
+
+A simple blob. Data of any type or length will crack into this blob. 
+
+[source,xml]
+----
+
+<Blob name="Unknown1" />
+----
+
+
+A blob with a default value. 
+
+[source,xml]
+----
+
+<Blob name="Unknown1" valueType="hex" value="AA BB CC DD" />
+----
+

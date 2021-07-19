@@ -1,0 +1,113 @@
+<<<
+[[Monitors_Ping]]
+== Ping Monitor
+
+*Monitor Category*: *Fault detection*
+
+The _Ping_ monitor verifies whether a device is functioning by sending a packet to a target location,
+and waiting for a response from the device.
+_Ping_ continues to monitor until either a _Timeout_ occurs or a response from the target device reaches the _Ping_ monitor.
+Ping runs at the end of each iteration.
+
+image::{images}/Common/Monitors/Ping.png[scalewidth="50%"]
+
+In the first scenario (left),
+Ping successfully interacts with the test target.
+
+. At the end of each iteration, the Ping monitor sends a message to the test target.
+. In this case, the target receives the message and sends a response.
+. The monitor waits a specified time period for a response.
+In this case,
+the response within the time period,
+and gives the "OK" response.
+The Ping Monitor resets for the sequence to repeat at the end of the next iteration.
+
+In the second scenario (right),
+the test target is non-responsive.
+
+. At the end of the iteration, the Ping monitor sends a message to the test target.
+. (2B) In this case, the target is non-responsive or no longer exists. No response is sent.
+. (3B) The monitor waits a specified time period for a response.
+In this case, a timeout occurs.
+The Ping monitor issues a fault and collects data around the fault.
+Ping resets for the next iteration.
+
+_Ping_ can validate that a target is still up or is waiting to restart.
+This is useful when fuzzing embedded devices that crash surreptitiously.
+
+Additionally,
+by using the 'FaultOnSuccess' parameter,
+_Ping_ can help you to verify whether or not a new device at a specific address becomes available,
+or that a non-functioning device starts to function.
+For example,
+if you are fuzzing a device that programmatically turns other computers on,
+you can use _Ping_ with 'FaultOnSuccess' set to `true` to determine whether the computers are off (an uninteresting result) or on (an interesting result).
+
+[NOTE]
+====
+When running under Unix, the following restrictions apply:
+
+* Root privileges are required
+* 'Data' parameter is limited to 72 bytes
+====
+
+=== Parameters
+
+_Required:_
+
+Host::
+Host name or IP address to ping.
+
+_Optional:_
+
+Data::
+Data to send in the ping packet payload.
+If this value is left blank,
+the OS will use default data to send.
+
+FaultOnSuccess::
+Fault if ping is successful, defaults to `false`.
+
+Timeout::
+Timeout value expressed in milliseconds, defaults to `1000`.
+
+
+=== Examples
+
+ifdef::peachug[]
+
+.Ping Host
+====================
+
+This parameter example is from a setup that pings the Peach Fuzzer, LLC, website.
+
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Host         |`www.peachfuzzer.com`
+|Timeout      |`10000`
+|==========================================================
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Ping Host
+==============
+[source,xml]
+----
+include::Ping_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::Ping_Example.log[]
+----
+==============
+
+endif::peachug[]
+
+// end

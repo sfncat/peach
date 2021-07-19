@@ -1,0 +1,84 @@
+:toc!:
+== Process Monitor
+
+The _Process_ monitor controls a process during a fuzzing run.  It has a number of features:
+
+ * Restart a process when it dies
+ * Log a fault if a process exits early
+ * Restart a process on every iteration
+ * Terminate a process is the cpu usage is low
+ * Interact with StateModel to allow waiting for process exit
+ * Interact with StateModel to allow for delayed starting of a process
+
+=== Parameters
+
+ * _Executable_ -- Executable to launch
+ * _Arguments_ -- Command line arguments (optional)
+ * _RestartOnEachTest_ -- Restart process on each iteration (optional, defaults to false)
+ * _FaultOnEarlyExit_ -- Trigger fault if process exits (optional, defaults to false)
+ * _NoCpuKill_ -- Disable process killing when CPU usage nears zero (optional, defaults to false)
+ * _StartOnCall_ -- Start process on a call action from the StateModel (this value and the method value must match), (optional)
+ * _WaitForExitOnCall_ -- Wait for process to exit on state model call (this value and the method value must match), (optional)
+ * _WaitForExitTimeout_ -- Wait timeout value.  Triggers fault when timeout hit.  (optional, default disabled)
+
+=== Examples
+
+.Start process
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="Process">
+		<Param name="Executable" value="notepad.exe" />
+		<Param name="Arguments" value="README.txt" />
+	</Monitor>
+</Agent>
+----
+
+.Restart process on each test
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="Process">
+		<Param name="Executable" value="notepad.exe" />
+		<Param name="Arguments" value="README.txt" />
+		<Param name="RestartOnEachTest" value="true" />
+	</Monitor>
+</Agent>
+----
+
+.Start process from state model
+[source,xml]
+----
+<StateModel name="TheStateModel">
+	<State name="initial">
+		<Action type="call" method="ScoobySnacks" />
+	</State>
+</StateModel>
+
+<Agent name="Local">
+	<Monitor class="Process">
+		<Param name="Executable" value="notepad.exe" />
+		<Param name="Arguments" value="README.txt" />
+		<Param name="StartOnCall" value="ScoobySnacks" />
+	</Monitor>
+</Agent>
+----
+
+.Wait for process to exit in state model
+[source,xml]
+----
+<StateModel name="TheStateModel">
+	<State name="initial">
+		<!-- This action will block until process exits -->
+		<Action type="call" method="ScoobySnacks" />
+	</State>
+</StateModel>
+
+<Agent name="Local">
+	<Monitor class="Process">
+		<Param name="Executable" value="notepad.exe" />
+		<Param name="Arguments" value="README.txt" />
+		<Param name="WaitForExitOnCall" value="ScoobySnacks" />
+	</Monitor>
+</Agent>
+----

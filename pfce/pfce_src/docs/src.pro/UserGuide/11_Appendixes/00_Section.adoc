@@ -1,0 +1,6 @@
+== Appendixes
+
+include::01_UsingVirtualMachines.adoc[]
+include::02_SettingStaticIPv4Address.adoc[]
+
+// end

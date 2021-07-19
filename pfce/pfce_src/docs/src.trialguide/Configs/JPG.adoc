@@ -1,0 +1,95 @@
+:targetapp: ImageMagick 
+:protocol: JPG 
+:pitname: JPG 
+:configname: Example-JPG-Basic
+:advancedconfigname: Example-JPG-Advanced
+:seedval: 31328 
+:startcase: 370
+:stopcase: 415
+:targetexe: /var/targets/ImageMagick/bin/identify
+:runimage: {pitname}/run-test.png
+:advancedrunimage: {runimage} 
+
+// derp
+
+[[JPG]]
+=== {protocol}
+
+This configuration will test an application using {protocol}.
+ifdef::advancedconfigname[]
+It has two versions, a basic configuration and an advanced configuration.
+The basic configuration is compiled only with the Debug option.
+The advanced configuration is compiled with Address Sanitizer, Debug, and Optimization Level 1 options.
+endif::[]
+
+[[JPG-RunTest]]
+include::../Common/RunTest.adoc[]
+
+include::../Common/ConfigTest.adoc[]
+
+===== Configuring Variables
+
+The first thing you need to configure are the variables that control how {product} will test the application.
+ifdef::advancedconfigname[]
+Both the Basic and Advanced configuration will use the same variables with the same values.
+endif::[]
+Follow these steps to create a working configuration on your trial instance:
+
+. Click *Configure Variables*.
+. Configure your variables as appropriate for your application.  The following
+should be used for {targetapp} running on the trial instance:
+.. Fuzzed Data File: leave the default of *fuzzed.png*
+.. Seed File: leave the default of *{asterisk}.png*
+.. Sample Path: leave the default of *{2H}PitLibraryPath##/_Common/Samples/Image*
+.. Under *Advanced Configuration*, leave all the defaults as they are acceptable for {targetapp}.
+.. Under System Defines, do NOT change any of the values present.  These values normally do not require changing.
+. Once all the settings have the desired values, click *Save*.
++
+image::{images}/{pitname}/variables.png[]
+
+include::../Common/AddAgent.adoc[]
+
+:configtype: basic
+:compileroptions: Debug enabled
+:gdb:
+:startonexit:
+:args: ##FuzzedFile## 
+:syslog!:
+
+include::../Common/ConfigMonitors.adoc[]
+
+:configtype: advanced
+:compileroptions: Debug, Address Sanitizer (ASan), and Optimization level 1
+:asanwarn:
+:gdb!:
+:process:
+:targetexe: /var/targets/advanced/ImageMagick/bin/identify
+:delaystarthack!:
+
+include::../Common/ConfigMonitors.adoc[]
+
+:pcap!:
+:process!:
+:configtype!:
+:asanwarn!:
+:compileroptions!:
+:args!:
+:syslog!:
+:startonexit!:
+
+include::../Common/TestConfig.adoc[]
+Follow the steps under <<JPG-RunTest, Running the test>> to start testing the application.
+
+:protocol!: 
+:pitname!: 
+:targetapp!: 
+:configname!:
+:advancedconfigname!:
+:seedval!:
+:stopcase!:
+:targetexe!: 
+:advancedtargetexe!: 
+:runimage!:
+:advancedrunimage!:
+:args!:
+// end

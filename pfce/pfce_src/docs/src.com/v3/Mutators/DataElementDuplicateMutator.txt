@@ -1,0 +1,13 @@
+:toc!:
+== DataElementDuplicateMutator ==
+
+This mutator will duplicate a node's value from 2x - 50x.
+
+_Target Elements_
+
+ * link:../DataModel.html[DataModel]
+ * link:../Blob.html[Blob]
+ * link:../Number.html[Number]
+ * link:../String.html[String]
+ * link:../Choice.html[Choice]
+ * link:../Block.html[Block]

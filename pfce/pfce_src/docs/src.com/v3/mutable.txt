@@ -1,0 +1,21 @@
+:toc!:
+== Mutable Attribute ==
+
+Mutable is used to define if this element, block, or datatype should be fuzzed. The default value is true.
+
+NOTE: Even when an element is marked as non-mutable it will still be modified as the fuzzer fuzzes the other elements.  Marking an element as non-mutable will only disable the mutators that would have operated on that element.
+
+TIP: It is our experience that marking elements as non-mutable leads to missing faults.  We recommend not using this attribute unless you really know what your doing and know that the marked alements have already been fuzzed.
+
+=== Examples ===
+
+[source,xml]
+----
+<DataModel name="Header">
+  <Number name="ReservedForFutureuse" size="8" mutable="false" />
+  <Number size="8" />
+  <Number size="8" />
+  <Number size="8" />
+<DataModel>
+----
+

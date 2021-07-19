@@ -1,0 +1,56 @@
+:toc!:
+== Mutation Strategies ==
+
+Traditionally Peach has fuzzed DataModels in a top-down sequential method.  While this guarantees that every data element will get fuzzed with every test case, this is not optimal for larger complex systems which can produce millions of test case variations.  Additionally, it is recognized that a mechanism was needed to allow for easily changing how fuzzing is performed to allow for easier research into the best methods and strategies.
+
+Out of this was born pluggable mutation strategies.  By implementing a single class a user can fully control how Peach fuzzes a target including state transitions.
+
+Peach comes with three strategies by default.
+
+
+=== Random
+
+The random strategy will run forever.  This strategy will select up to _MaxFieldsToMutate_ elements to mutate at a time.  For each selected element one of it's corresponding mutators is selected at random. Peach derives the randomness of these selections from randomly generated seed number. An identical test run can be repeated by passing the same *seed* value as a Peach command line option with the _--seed_ command line option.  This is useful for replaying fuzzing iterations to reproduce a previous Fault.
+
+This strategy is most useful for larger data models or for use after performing a sequential fuzzing run.
+
+==== Parameters
+
+ * _MaxFieldsToMutate_ -- Maximum fields to mutate at once. default="6"
+ * _SwitchCount_ -- Number of iterations to perform before switching link:Data.html[Data] sets. default="200"
+
+===== Examples =====
+
+[source,xml]
+----
+<Test name="Default">
+	<StateModel ref="TheStateModel"/>
+    
+	<Publisher name="writer" class="File">
+		<Param name="FileName" value="fuzzed.tmp"/>
+	</Publisher>
+
+	<Strategy class="Random">
+		<Param name="MaxFieldsToMutate" value="15" />
+		<Param name="SwitchCount" value="100" />
+	</Strategy>
+</Test>
+----
+
+=== Sequential
+
+Peach will fuzz each element in the DataModel in order one at a time. Peach will start from the top of the DataModel and apply all valid mutation to each data element until all possible mutations have been exhausted.  There is a finite number of fuzzing iterations with this strategy.  The seed for this strategy is not configurable and is always 31337.
+
+===== Examples =====
+
+[source,xml]
+----
+<Test name="Default">
+  <!-- ... -->
+  <Strategy class="Sequential" />
+</Test>
+----
+
+=== RandomDeterministic (default)
+
+This fuzzing strategy is deterministic (has a start and end).  It is similar to the Sequential strategy except the order of mutations has been shuffled. There is still a finite number of iterations and if run to completion will run every iteration that is generation with the Sequential strategy.  Similarly to the Random strategy the seed value can be used to repeat a previous test run with identical fuzzing.

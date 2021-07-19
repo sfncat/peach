@@ -1,0 +1,33 @@
+:toc!:
+== String Token Analyzer ==
+
+The String Token Analyzer will create a tokenized tree from a string based on punctuation used.  For example the string "?key=value&key2=value" would create a tree like the following:
+
+----
+              +---[key]
+              |
+       [?]---[=]
+       |      |
+       |      +---[value]
+Root --+
+       |      +---[key2]
+       |      |
+       [&]---[=]   
+              |
+              +---[value2]
+----
+
+
+This allows Peach to perform mutations that can expose bugs in parsers for this type of string.
+
+Currently the String Token Analyzer only works at runtime when attached to a data element.
+
+[source,xml]
+----
+<DataModel name="Example">
+  <String value="long string with tokens in it">
+	<Analyzer class="StringToken" />
+  </String>
+</DataModel>
+----
+

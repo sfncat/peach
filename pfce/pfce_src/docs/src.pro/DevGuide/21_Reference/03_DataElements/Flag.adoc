@@ -1,0 +1,172 @@
+<<<
+[[Flag]]
+== Flag
+
+// Reviewed:
+//  - 03/06/2014: Lynn
+//   Added child elements and corrected spelling in other comments
+
+The Flag element defines a specific bit field in a Flags container.
+
+See also parent element xref:Flags[Flags].
+
+=== Syntax
+
+[source,xml]
+----
+<Flags name="options" size="16">
+  <Flag name="compression" position="0" size="1" />
+  <Flag name="compressionType" position="1" size="3" />
+  <Flag name="opcode" position="10" size="2" value="5" />
+</Flags>
+----
+
+=== Attributes
+
+_Required:_
+
+xref:size[size]:: Size in bits
+position:: Location of the flag. _Position_ identifies the location of the first bit of a flag. The value is a zero-based index.
+
+_Optional:_
+
+xref:name[name]:: Name of the element.
+xref:value[value]:: The default value contained within the element.
+xref:valueType[valueType]:: The format in which the default value is expressed. (i.e. hex, string, or literal).
+xref:token[token]:: Is data element a token? Default is false.
+xref:mutable[mutable]:: Is data element changeable (should it be mutated), defaults to true.
+
+=== Child Elements
+
+xref:Analyzers[Analyzer]:: Analyzes the current element post cracking; can dynamically change model.
+xref:Fixup[Fixup]:: Performs dynamic transformations such as checksums and CRCs.
+xref:Hint[Hint]:: Provides information to mutators.
+xref:Placement[Placement]:: Relocates an element after it has been cracked.
+xref:Relation[Relation]:: Identifies a type of relationship with another data element, such as count.
+xref:Transformer[Transformer]:: Static transformations such as compression or encoding.
+
+=== Mutators
+
+The following mutators operate on this element type:
+
+
+_Enabled when element is marked as an array_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]:: This mutator grows and shrinks an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]:: This mutator randomizes the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]:: This mutator reverses the order of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]:: This mutator grows and shrinks an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementBitFlipper[DataElementBitFlipper]:: This mutator produces test cases by flipping bits in the output value.
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator combines data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator causes the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator causes the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator changes both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator changes both sides of the relation (data and value) to match numerical variances of the current size.
+
+_Specific to this element type_
+
+xref:Mutators_ExtraValues[ExtraValues]:: This mutator provides extra test case values on a per-data element basis.
+xref:Mutators_NumberEdgeCase[NumberEdgeCase]:: This mutator produces numerical edge cases for integer values.
+xref:Mutators_NumberRandom[NumberRandom]:: This mutator produces random values from the available numerical space.
+xref:Mutators_NumberVariance[NumberVariance]:: This mutator produces values near the current value of a number.
+
+
+=== Examples
+
+.Example of Flags
+=================================
+
+This example shows a real-world example of a flag set by modeling a TCP packet (without options). This example also shows using relations with the xref:Flag[Flag] element.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TcpPacket">
+		<Block name="Header">
+			<Number name="SrcPort" size="16" endian="big" value="1234"/>
+			<Number name="DestPort" size="16" endian="big" value="1234"/>
+			<Number name="SequenceNumber" size="32" endian="big" valueType="hex" value="0043a577"/>
+			<Number name="AcknowledgmentNumber" size="32" endian="big" value="0"/>
+
+			<Flags name="ControlBits" size="16" endian="big">
+				<Flag name="Offset" position="0" size="4" valueType="hex">
+					<Relation type="size" of="Header" expressionGet="size * 4" expressionSet="size / 4"/>
+				</Flag>
+				<Flag name="Reserved" position="4" size="3"/>
+				<Flag name="NS" position="7" size="1"/>
+				<Flag name="CWR" position="8" size="1"/>
+				<Flag name="ECE" position="9" size="1"/>
+				<Flag name="URG" position="10" size="1"/>
+				<Flag name="ACK" position="11" size="1"/>
+				<Flag name="PSH" position="12" size="1"/>
+				<Flag name="RST" position="13" size="1"/>
+				<Flag name="SYN" position="14" size="1"/>
+				<Flag name="FIN" position="15" size="1"/>
+			</Flags>
+
+			<Number name="WindowSize" size="16" endian="big" valueType="hex" value="aaaa"/>
+			<Number name="CheckSum" size="16" endian="big">
+				<Fixup class="TCPChecksumFixup">
+					<Param name="ref" value="TcpPacket" />
+					<Param name="src" value="127.0.0.1" />
+					<Param name="dst" value="127.0.0.1" />
+				</Fixup>
+			</Number>
+			<Number name="UrgentPointer" size="16" endian="big"/>
+		</Block>
+
+		<Blob name="TcpPayload" value="this is a packet.\n"/>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TcpPacket" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel" />
+
+		<Publisher class="ConsoleHex"/>	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 17543.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(38 bytes)
+00000000   04 D2 04 D2 00 43 A5 77  00 00 00 00 50 00 AA AA   ?????C?w????P???
+00000010   1D F6 00 00 74 68 69 73  20 69 73 20 61 20 70 61   ????this is a pa
+00000020   63 6B 65 74 2E 0A                                  cket.?
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+=================================

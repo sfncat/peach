@@ -1,0 +1,10 @@
+:toc!:
+== General Configuration ==
+
+The first part of a Peach Pit file is the general configuration. This is where other 
+Peach Pit files are included for referencing external models, default attributes are set, python module paths are configured, and custom code is imported.
+
+ * link:Include.html[Include] -- The Include element will import other Peach Pit files into a namespace of your choice to allow re-using existing data models and data sets.
+ * link:Defaults.html[Defaults] -- Used to set default attributes, such as endianness, for Data Elements.
+ * link:PythonPath.html[PythonPath] -- Specify additional search paths for python modules.  By default the local directory is included.
+ * link:Import.html[Import] -- Import custom modules or python code.  Used when writing custom extensions for Peach

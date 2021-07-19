@@ -1,0 +1,14 @@
+:toc!:
+== Tutorial: Dumb File Fuzzing with Fuzz Bang
+
+Welcome to the dumb fuzzing tutorial, part of the Peach Quickstart.  In this tutorial we are going to fuzz mplayer using the Peach Fuzz Bang application.  This is a graphical application to get started fuzzing fast.  We will use a collection of PNG image files (seed files) with our fuzzing. 
+
+link:fuzzbang.png[]
+
+=== Tutorial Outline
+
+ . link:TutorialDumbFuzzingFuzzBang/ConfigureTarget.html[Configure general options]
+ . link:TutorialDumbFuzzingFuzzBang/ConfigureDebugger.html[Configure the debugger/target information]
+ . link:TutorialDumbFuzzingFuzzBang/Run.html[Running the fuzzer]
+
+link:TutorialDumbFuzzingFuzzBang/ConfigureTarget.html[Start >>]

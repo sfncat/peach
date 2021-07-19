@@ -1,0 +1,62 @@
+:toc!:
+link:CreateDataModel.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:ConfigurePublisher.html[Next >>]
+
+''''
+
+== Create State Model ==
+
+Now that you have created the data models we can create the state model.  For file fuzzing the state model is very simple.  All we want to do is write out the file and launch the target process.  We will do this using three actions:
+
+ * output -- Write the file
+ * close -- Close the file
+ * call -- Launch the application
+
+Go ahead and locate the state model in the +wav.xml+ file called _TheState_.  We will expand on this state model to include our three actions as follows:
+
+[source,xml]
+----
+<!-- This is our simple wave state model -->
+<StateModel name="TheState" initialState="Initial">
+	<State name="Initial">
+		
+		<!-- Write out our wave file -->
+		<Action type="output">
+			<DataModel ref="Wav"/>
+			<!-- This is our sample file to read in -->
+			<Data name="data" fileName="sample.wav"/>
+		</Action>
+		
+		<Action type="close"/>
+		
+		<!-- Launch the target process -->
+		<Action type="call" method="mplayer.exe">
+			<Param name="wav file" type="in">
+				<DataModel ref="Param"/>
+				<Data name="filename">
+					<!-- Name of fuzzed output file -->
+					<Field name="Value" value="fuzzed.wav"/>
+				</Data>
+			</Param>
+		</Action>
+	</State>
+</StateModel>
+----
+
+
+Read more about: link:../StateModel.html[StateModel], link:../State.html[State], link:../Action.html[Action], link:../DataModel.html[DataModel], link:../Data.html[Data], link:../Field.html[Field]
+
+Now we are missing just one more thing.  You will notice that in the _call_ action we are referencing a datamodel called _Param_ which does not yet exist.  This data model will hold the parameter we need to pass to mplayer specifying the name of the fuzzed file we generate.  It should contain a single link:../String.html[String] called _Value_.  Put this data model prior to the state model.
+
+[source,xml]
+----
+<DataModel name="Param">
+	<String name="Value" isStatic="true" />
+</DataModel>
+----
+
+
+Sweet!  We are all set!
+
+''''
+
+link:CreateDataModel.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:ConfigurePublisher.html[Next >>]

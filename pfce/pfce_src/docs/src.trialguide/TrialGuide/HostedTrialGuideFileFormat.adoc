@@ -1,0 +1,7 @@
+:hosted:
+:PNG:
+:JPG:
+
+include::./TrialGuide.adoc[]
+
+// end

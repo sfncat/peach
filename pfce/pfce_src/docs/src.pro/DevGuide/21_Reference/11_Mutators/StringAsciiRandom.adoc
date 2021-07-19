@@ -1,0 +1,17 @@
+<<<
+[[Mutators_StringAsciiRandom]]
+== StringAsciiRandom
+
+This mutator produces test cases by generating random ASCII strings. Characters that comprise the strings use the 7-bit ASCII collating sequence, values 0x00 - 0x7F.
+
+The lengths of the generated strings form a distribution that centers on the length of the current string and ranges from 0 to 65K characters.
+
+=== Supported Elements
+
+* xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

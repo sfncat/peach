@@ -1,0 +1,214 @@
+<<<
+[[Action_changeState]]
+== changeState
+
+// 01/30/2014: Seth & Mike: Outlined
+//   * What does it do
+//   * Why would you change states?
+//   * Link to state model docs about when to have multiple states
+//   * Examples
+//   * WHEN!
+//   * Update attributes
+
+// 02/12/2014: Mick
+//   Added description of what Statemodel does
+//   Added link to "when" page
+//   Added attribute descriptions
+//   Added an example
+
+The _changeState_ Action transitions to a different state within the xref:StateModel[StateModel]. 
+The _changeState_ Action typically includes the xref:Action_when[when] attribute to identify when to switch states based on received data.
+
+_changeState_ is useful for network protocols that select response data based on an input code.
+The test target usually progresses sequentially through the StateModel, often removing the need to change states if the path of events are predefined.
+
+=== Syntax
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+  <State name="InitialState">
+  
+    <Action type="input">
+      <DataModel ref="InputModel" /> 
+    </Action> 
+
+    <Action type="changeState" ref="State2" 
+      when="self.dataModel.find('Value').InternalValue == 'FOO' />
+      
+  </State>
+
+  <State name="State2">
+    <Action type="output">
+      <DataModel ref="OutputModel" /> 
+    </Action> 
+  </State>
+</StateModel>
+----
+
+=== Attributes
+
+_Required:_
+
+type:: Action type, must be set to "changeState"
+
+_Optional:_
+
+name:: Name used to identify the action
+ref:: Name of the State to transition to in StateModel
+xref:Action_when[when]:: Perform action if the provided expression evaluates to true
+xref:Action_onStart[onStart]:: Evaluate expression at start of an action
+xref:Action_onComplete[onComplete]:: Evaluate expression upon completion of an action
+
+=== Child Elements
+
+None.
+
+=== Examples
+
+.Action changeState Example
+==========================
+The following example changes behavior based on input received from the target client.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Ping">
+    <Choice>
+      <String name="PingPingStr" value="PINGPING" token="true" />
+      <String name="PingStr" value="PING" token="true"/>
+    </Choice>
+  </DataModel>
+
+  <DataModel name="Pong">
+    <String value="PONG" />
+  </DataModel>
+
+  <DataModel name="PongPong">
+    <String value="PONGPONG" />
+  </DataModel>
+
+  <StateModel name="TheStateModel" initialState="InitialState">
+    <State name="InitialState"> 
+    
+      <Action type="accept" />
+
+      <Action type="input"> 
+        <DataModel ref="Ping"/> 
+      </Action>
+      
+      <!-- Switch states only when input was PINGPING -->
+      <Action type="changeState" ref="PongPongBack" 
+        when="state.actions[1].dataModel.find('PingPingStr') != None" />
+
+      <Action type="output"> 
+        <DataModel ref="Pong"/> 
+      </Action>
+      
+    </State>
+    
+    <!-- This state is only reached when input was PINGPING -->
+    <State name="PongPongBack">
+    
+      <Action type="output">
+        <DataModel ref="PongPong"/>
+      </Action>
+      
+    </State>
+    
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheStateModel"/>
+    <Publisher class="TcpListener">
+      <Param name="Interface" value="0.0.0.0" />
+      <Param name="Port" value="31337" />
+      <Param name="AcceptTimeout" value="10000" />
+      <Param name="Timeout" value="10000" />
+    </Publisher>
+
+    <Logger class="File" >
+      <Param name="Path" value="logs"/>
+      </Logger>
+  </Test>
+</Peach>
+----
+==========================
+
+.Looping Based on Input
+==========================
+The following example loops through received input until the string "PING' is found.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Ping">
+    <Choice>
+      <String name="PingPingStr" value="PINGPING" token="true" />
+      <String name="PingStr" value="PING" token="true"/>
+    </Choice>
+  </DataModel>
+
+  <DataModel name="Pong">
+    <String value="PONG" />
+  </DataModel>
+
+  <StateModel name="TheStateModel" initialState="InitialState">
+    <State name="InitialState"> 
+    
+      <Action type="accept" />
+      
+      <Action type="checkState" ref="ReceiveInput" />
+      
+    </State>
+    
+    <State name="ReceiveInput">
+
+      <Action type="input"> 
+        <DataModel ref="Ping"/> 
+      </Action>
+      
+      <!-- Switch states only when input was PINGPING -->
+      <Action type="changeState" ref="PongPongBack" 
+        when="state.actions[0].dataModel.find('PingPingStr') != None" />
+
+      <!-- Run this state again -->
+      <Action type="changeState" ref="ReceiveInput" /> 
+      
+    </State>
+    
+    <!-- This state is only reached when input was PINGPING -->
+    <State name="SendOutput">
+    
+      <Action type="output">
+        <DataModel ref="Pong"/>
+      </Action>
+      
+    </State>
+    
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheStateModel"/>
+    <Publisher class="TcpListener">
+      <Param name="Interface" value="0.0.0.0" />
+      <Param name="Port" value="31337" />
+      <Param name="AcceptTimeout" value="10000" />
+      <Param name="Timeout" value="10000" />
+    </Publisher>
+
+    <Logger class="File" >
+      <Param name="Path" value="logs"/>
+      </Logger>
+  </Test>
+</Peach>
+----
+==========================

@@ -1,0 +1,32 @@
+:toc!:
+== Data Modeling ==
+
+Peach Pit files contain at least one data model, and possibly more.  Data models 
+describe data including type information, relation ships (size, count, offsets), and 
+other information that allows the fuzzer to perform "smart" mutations.
+
+Data models can be reused and references from other data models allowing complex data 
+definitions to be broken up into readable portions.
+
+*Data Modeling Elements:*
+
+ * link:DataModel.html[DataModel]
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:String.html[String]
+ * link:Number.html[Number]
+ * link:Blob.html[Blob] (byte array)
+ * link:Flags.html[Flags]/link:Flag.html[Flag]
+ * link:XmlElement.html[XmlElement]
+ * link:XmlAttribute.html[XmlAttribute]
+ * link:Asn1Type.html[Asn1Type]
+
+''''
+
+ * link:Custom.html[Custom]
+
+''''
+
+ * link:Fixup.html[Fixup]
+ * link:Transformers.html[Transformers]
+ * link:Relation.html[Relation]

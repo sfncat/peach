@@ -1,0 +1,18 @@
+:toc!:
+= encode.Utf16Be =
+
+Encodes output as a UTF-16BE (big endian) string. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="encode.Utf16Be"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +encode.Utf16Be+, +Utf16+

@@ -1,0 +1,67 @@
+:toc!:
+= debugger.WindowsAppVerifier =
+
+*Note:* Deprecated in Peach 2.3
+
+This monitor is a wrapper around Microsofts Application Verifier.  Application Verifier will automatically attach a debugger and watch for a number of security related issues when provided an executable name.
+
+*NOTE:* Application verifier must be installed and is a free download from Microsoft.
+
+The main usage for this monitor is file fuzzing.
+
+[source,xml]
+----
+<Monitor class="debugger.WindowsAppVerifier">
+  <Param name="Application" value="notepad.exe" />
+</Monitor>
+
+<!-- Enable only Heaps check -->
+<Monitor class="debugger.WindowsAppVerifier">
+  <Param name="Application" value="notepad.exe" />
+  <Param name="Checks" value="Heaps" />
+</Monitor>
+
+<!-- Enable Heaps and COM check -->
+<Monitor class="debugger.WindowsAppVerifier">
+  <Param name="Application" value="notepad.exe" />
+  <Param name="Checks" value="Heaps,COM" />
+</Monitor>
+
+<!-- Disable Heaps stop 000000A -->
+<Monitor class="debugger.WindowsAppVerifier">
+  <Param name="Application" value="notepad.exe" />
+  <Param name="Stops" value="Heaps:10" />
+</Monitor>
+
+<!-- Disable Heaps stop A, B, and C.  Also COM Stop 1035 -->
+<Monitor class="debugger.WindowsAppVerifier">
+  <Param name="Application" value="notepad.exe" />
+  <Param name="Stops" value="Heaps:10,11,12;COM:1035" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * Application -- Executable name without path [required]
+ * Checks -- Specify which App Verifier checks to enable, comma separated list [optional]
+ * Stops -- Disable specific stops by check [optional]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]
+
+
+*Checks*
+
+By default the following list of checks are enabled:
+
+ * COM: Checks that applications and components use COM correctly.
+ * Exceptions: Detects first chance access violation exceptions.
+ * Handles: Checks for handle errors.  Can cause access violations when errors are found.
+ * Heaps: Checks for heap errors.
+ * Locks: Checks for errors in lock usage.
+ * Memory: Checks usage of virtual memory APIs.
+ * RPC: Checks that applications and components use RPC correctly.
+ * Threadpool: Checks for dirty threadpool thread and other threadpool related issues.
+ * TLS: Checks that applications and components use TLS (thread local storage) APIs correctly.

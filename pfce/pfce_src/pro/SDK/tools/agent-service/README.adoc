@@ -1,0 +1,19 @@
+
+= Peach Agent as service under Systemd
+
+Core features:
+
+* Allows peachagent to run as a service on a linux server
+
+== Configuration
+
+. Assumes that peachagent is in /opt/peach on your linux server. 
+.. Modify the WorkingDirectory and ExecStart to include the proper path to peachagent if necessary
+
+== Installation
+. Copy peachagent.service into /etc/systemd/system/ (do NOT create a symlink here to the file)
+. sudo systemctl enable peachagent.service
+. sudo systemctl daemon-reload
+. sudo systemctl start peachagent
+
+peachagent will now automatically start on boot and can be managed with systemctl

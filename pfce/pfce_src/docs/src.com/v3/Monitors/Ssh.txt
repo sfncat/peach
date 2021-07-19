@@ -1,0 +1,33 @@
+:toc!:
+== Ssh Monitor
+
+The _Ssh_ monitor connects to a remote host over SSH. The monitor supports password, keyboard, and private key authentication methods. The monitor runs a given command on the remote system. A regular expression can be applied to the result of the command to determine if a Fault has occurred.
+
+The Monitor holds a persistent connection open to the system over the course of the fuzzing run. 
+
+=== Parameters
+
+ * _Host_ -- Host to ssh too
+ * _Username_ -- Username for ssh
+ * _Command_ -- Command to check for fault 
+ * _Password_ -- Password for ssh account (optional, default is "")
+ * _KeyPath_ -- Path to ssh key (optional, default is "")
+ * _CheckValue_ -- Regex to match command response (optional, default is "")
+ * _FaultOnMatch_ -- Trigger a fault if the regex matches (optional, defaults to true)
+ 
+=== Examples
+
+.Example
+[source,xml]
+----
+<Agent name="LocalAgent">
+	<Monitor class="Ssh">
+		<Param name="Host" value="my.target.com" />
+		<Param name="Username" value="tester" />
+		<Param name="Password" value="Password!" />
+		<Param name="Command" value="ls /var/cores/*.core" />
+		<Param name="CheckValue" value="target.*?.core" />
+		<Param name="FaultOnMatch" value="true" />
+	</Monitor>
+</Agent>
+----

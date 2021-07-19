@@ -1,0 +1,55 @@
+:toc!:
+= file.FilePerIteration =
+
+This publisher will create a new file for writing each test iteration.
+
+[source,xml]
+----
+<Publisher class="file.FilePerIteration">
+  <Param name="fileName" value="peach-%d.bin" />
+</Publisher>
+
+<!-- If you are using a sample file, or set of files you can
+     include the filename into the output files name using
+     ##FILEBASE##. -->
+<Publisher class="file.FilePerIteration">
+  <Param name="fileName" value="fuzzed_##FILEBASE##_%d.bin" />
+</Publisher>
+----
+
+
+_Parameters:_
+
+ * fileName -- Filename template which must include "%d" once.  The file # will replace the %d in the filename. [required]
+
+_Supported Actions:_
+
+ * link:open.html[open]
+ * link:output.html[output]
+ * link:close.html[close]
+
+_Example:_
+
+[source,xml]
+----
+<!-- Create a simple data template containing a single string -->
+<DataModel name="HelloWorldTemplate">
+    <String value="Hello World!" />    
+</DataModel>
+
+<StateModel name="State" initialState="State1">
+    <State name="State1">
+        <Action type="output">
+            <DataModel ref="HelloWorldTemplate"/>
+        </Action>
+    </State>
+</StateModel>
+
+<Test name="HelloWorldTest">
+    <StateModel ref="State"/>
+    <Publisher class="file.FilePerIteration">
+        <Param name="fileName" value="FilePer-%d.txt"/>
+    </Publisher>
+</Test>
+----
+

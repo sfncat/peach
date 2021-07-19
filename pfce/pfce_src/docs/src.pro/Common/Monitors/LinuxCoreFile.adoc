@@ -1,0 +1,140 @@
+<<<
+[[Monitors_LinuxCoreFile]]
+== LinuxCoreFile Monitor (Linux)
+
+*Monitor Categories*: *Data collection*, *Fault detection*
+
+[IMPORTANT]
+====
+The `gdb` debugger and xref:Monitors_Gdb[Gdb Monitor] are the preferred tools to detect crashes and to collect core files on Linux.
+
+This monitor runs only on Linux systems.
+Use this monitor when `gdb` is not an option,
+such as when anti-debugging mechanisms are used on the test target.
+====
+
+The _LinuxCoreFile_ monitor detects when a process crashes and collects the resulting core file.
+The monitoring scope includes all processes by default, but can focus on a single executable.
+
+This monitor runs for the entire fuzzing session and uses the Linux crash recording facility.
+When a crash occurs,
+the _LinuxCoreFile_ monitor pulls the logging information and available core files,
+and sets the bucketing information.
+The major bucket is based on the name of the crashed executable,
+and the minor bucket is a constant value based on the string "CORE".
+
+At the end of the session,
+_LinuxCoreFile_ restores the saved state and removes the logging folder.
+
+Because the _LinuxCoreFile_ monitor registers a custom core file handler with the Linux kernel,
+only one instance of the monitor is allowed to run on a host at any given time.
+
+.*Setup Requirements*
+This monitor has the following setup requirements:
+
+* _LinuxCoreFile_ requires root or equivalent privileges to run.
+The _LinuxCoreFile_ monitor registers a script with the kernel to catch core dumps of faulting processes.
+
+* Core files must be enabled.
+If the maximum core file size in the system is zero, no core files are created.
+You can enable core file generation using the following process:
+
+. Find the current core file hard and soft limits in use by the operating system.
+The hard limit is an absolute maximum that,
+once set,
+cannot be increased during a session.
+The soft limit is the current maximum file size that you can adjust up to the value of the hard limit.
+If the hard limit or the soft limit is set to zero,
+core files are disabled.
++
+** You can display the core file hard limit using the following command:
++
+----
+ulimit -Hc
+----
++
+** You can display the current core file soft limit using the following command:
++
+----
+ulimit -Sc
+----
+
+. Set the core file hard limit using the following command.
+You can specify `unlimited` or a numeric value that represents the number of 512-byte blocks to allow in a core file:
++
+----
+ulimit -Hc unlimited
+----
+
+. Set the core file soft limit using the following command.
+You can specify any value less than or equal to the hard limit.
++
+----
+ulimit -Sc unlimited
+----
++
+The hard and soft limits can be added to `/etc/sysctl.conf`.
+Then, whenever this file loads, appropriate core file limits are specified.
+
+* `gdb` must be installed to analyze the resulting core files.
+For information on installing `gdb`, see the xref:Monitors_Gdb[Gdb Monitor].
+
+=== Parameters
+
+_Required:_
+
+None.
+
+_Optional:_
+
+Executable::
+Target executable process,
+used to filter crashes,
+defaults to all processes.
+
+LogFolder::
+Folder with log files,
+defaults to `/var/peachcrash`.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Catch crashes from Movie Player +
+====================
+
+This parameter example is from a setup that monitors a movie player in Linux.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Executable   |`mplayer`
+|==========================================================
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Basic Usage
+==============
+This example produces a fault on the first iteration to show how the LinuxCoreFile monitor works.
+
+[source,xml]
+----
+include::LinuxCoreFile_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::LinuxCoreFile_Example.log[]
+----
+
+<1> When the program crashes, a core dump is produced and captured by the LinuxCoreFile monitor.
+<2> The core dump is saved in the fault record and then removed from its original location.
+
+==============
+
+endif::peachug[]

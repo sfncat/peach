@@ -1,0 +1,130 @@
+[[StateModeling]]
+== State Modeling
+
+Once the data model is complete, modeling shifts to describe the flow of that data to the target system. In {product} this is called _state modeling_. State models can range from very simple to very complex. 
+
+TIP: Use the minimal amount of state model complexity needed for successful testing. 
+
+State models consist of three elements:
+
+xref:StateModel[StateModel]::
++
+--
+Top level element that defines a complete state model. The _StateModel_ element defines the entry state to start the execution. 
+--
+
+xref:State[State]::
++
+--
+A child of _StateModel_ that defines a specific state that occurs. The _StateModel_ element defines the entry, or _initial_ state. Execution of a state model begins with the initial state. If the initial state does not trigger other states into occurring using the xref:Action_changeState[changeState action], then the initial state also ends the execution.
+--
+
+xref:Action[Action]::
++
+--
+Action elements perform an action on a publisher (I/O adapter), agent/monitor, or data model. A State consists of one or more Action elements executed in order. Examples of actions include: sending output, receiving input, and changing to another state. +
+
+Scripting expressions can be used to indicate whether an action is performed by specifying the _when_ attribute. Actions also support executing scripting expressions before an action begins and after an action completes.
+--
+
+NOTE: Many fuzzing tasks can be accomplished using a single xref:State[State] with a series of xref:Action[Actions].
+
+.File State Model
+====================
+This example shows a typical pattern for fuzzing files that are consumed by a target application. The state model produces a fuzzed output file that, in turn, loads into a target application running under a debugger monitor. The debugging monitor is used to trigger faults when the target program crashes.
+
+This example is configured for Windows and requires an installed copy of Windows Debugger.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<!-- TODO: Define a full data model. -->
+	<DataModel name="DumbFuzzerModel">
+		<Blob />
+	</DataModel>
+
+	<!-- Define a simple state machine that will write the file
+	     and then launch a program. -->
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<!-- Write out contents of file -->
+			<Action type="output">
+				<DataModel ref="DumbFuzzerModel" />
+
+				<!-- Provide a sample set using files from the samples_png folder.
+				     this folder is located in your Peach folder. The
+					 ##Peach.Pwd## provides the path to the peach folder. -->
+				<Data fileName="##Peach.Pwd##\samples_png" />
+			</Action>
+
+			<!-- We must close the file before launching our
+			     target process. -->
+			<Action type="close" />
+
+			<!-- Launch the target. This call will send a message to our agent and
+			     monitors. The WindowsDebugger monitor is configured to listen
+				 for this message and launch our target when received. Notice that
+				 the StartOnCall parameter for the monitor matches our method
+				 attribute. The publisher attribute of Peach.Agent tells Peach
+				 to send this call action out to all agents. -->
+			<Action type="call" method="ScoobySnacks" publisher="Peach.Agent"/>
+
+		</State>
+	</StateModel>
+
+	<!-- Setup a local agent that will monitor for faults -->
+	<Agent name="LocalAgent">
+		<Monitor class="WindowsDebugger">
+
+			<!-- The command line to run.  Notice the filename provided matched up
+				to what is provided below in the Publisher configuration -->
+			<Param name="Executable" value="c:\windows\system32\mspaint.exe" />
+			<Param name="Arguments" value="fuzzed.png" />
+
+			<!-- If needed, uncomment this line and provide the path to windbg.exe -->
+			<!-- By default peach will try and locate the program in the default locations -->
+			<!--<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />-->
+
+			<!-- This parameter will cause the debugger to wait for an action-call in
+				the state model with a method="ScoobySnacks" before running
+				program.
+				-->
+			<Param name="StartOnCall" value="ScoobySnacks" />
+
+		</Monitor>
+	</Agent>
+
+	<Test name="Default">
+
+		<Agent ref="LocalAgent" />
+		<StateModel ref="State"/>
+
+		<!-- Configure a publisher to write our file -->
+		<Publisher class="File">
+			<Param name="FileName" value="fuzzed.png" />
+		</Publisher>
+
+	</Test>
+
+</Peach>
+----
+
+Run the following command line from the command-line interface. You should see mspaint.exe open and close over and over.
+
+----
+> peach example.xml
+----
+====================
+
+// TODO * State bags
+//  * Context object
+//  * when/on handlers
+//  * Responding to commands that come out of order
+//
+//  * Publishers and I/O interfaces
+

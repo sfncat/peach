@@ -1,0 +1,26 @@
+:toc!:
+== Blob ==
+The Blob element is a child element of DataModel or Block. Blobs are typically used to represent opaque data that we lack type definition for.
+
+[source,xml]
+----
+
+<Blob name="Unknown1" valueType="hex" value="01 06 22 03"/>
+----
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model
+ * link:ref.html[ref] -- Reference to a data model to use as a template [optional]
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this blob must occur
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this blob can occur
+ * link:isStatic.html[isStatic] -- This element should be treated as a token when parsing, defaults to False [DEPRECATED] [optional]
+ * link:token.html[token] -- (Peach 2.3)This element should be treated as a token when parsing, defaults to False [optional]
+ * link:value.html[value] -- The default value contained within the Blob
+ * link:valueType.html[valueType] -- The format in which the default value is expressed. (i.e hex, string, or literal), defaults to 'string'.
+ * link:length.html[length] -- The size, in bytes, of the blob.
+ * link:lengthType.html[lengthType] -- Type of length, how length is specified [optional]
+ * link:pointer.html[pointer] -- (Peach 2.3) Is this a pointer to a structure (true|false), default is false [optional]
+ * link:pointerDepth.html[pointerDepth] -- (Peach 2.3) How many levels of pointers (e.g. void** p is 2), default is 1 [optional]
+ * link:constraint.html[constraint] -- (Peach 2.3) A constraint in the form of a python expression.  Used during data cracking [optional]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]

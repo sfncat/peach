@@ -1,0 +1,127 @@
+<<<
+[[Monitors_IpPower9258]]
+== IpPower9258 Monitor
+
+*Monitor Category*: *Automation*
+
+The _IpPower9258_ monitor controls an IP Power 9258 Network Power Controller (IP9258).
+The IP9258 consists of four three-prong outlets that support electrical loads of 6 amps at 110 or 240 VAC.
+Communications between Peach and the IP9258 uses Ethernet cabling.
+This monitor allows devices plugged into the IP Power 9258 switch to be powered on/off during fuzzing.
+
+Each _IpPower9258_ monitor switches an individual outlet.
+Use one monitor per outlet to control multiple outlets concurrently.
+The monitor can toggle power on an outlet at the following points in time:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* During the detection of a fault
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+image::{images}/Common/Monitors/IpPower9258.png[scalewidth="75%"]
+
+TIP: Peach also supports power distribution units that can be
+controlled using SNMPv1. For APC PDUs use the
+xref:Monitors_ApcPower[APC Power Monitor], and for others try the
+xref:Monitors_SnmpPower[SNMP Power Monitor]. To control power to a
+device by wiring through a relay, Peach provides the
+xref:Monitors_CanaKitRelay[CanaKit 4-Port USB Relay Monitor].
+
+=== Parameters
+
+_Required:_
+
+Host::
+Host or IP address (can include HTTP interface port e.g. :8080)
+
+Port::
+Port/Outlet to reset (1, 2, 3, 4)
+
+User::
+Username to be used when connecting to the IP Power 9258 device.
+
+Password::
+Password to be used when connecting to the IP Power 9258 device.
+
+_Optional:_
+
+StartOnCall::
+Toggle power when the specified call is received from the state model.
+This value is used only when the 'When' parameter is set to `OnCall`.
+
+PowerOnOffPause::
+Pause in milliseconds between power off/power on, default is `500`.
+
+PowerOffOnEnd::
+Power off when the fuzzing session completes, default is `false`.
+
+When::
+Specify one of the following values to determine when a port should be toggled:
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"When" Setting              |Description
+|DetectFault                 |
+Toggle power when checking for a fault.
+This occurs after OnIterationEnd.
+|OnStart                     |
+Toggle power when the fuzzing session starts.
+This occurs once per session.
+|OnEnd                       |
+Toggle power when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Toggle power at the start of each iteration.
+|OnIterationEnd              |
+Toggle power at the end of each iteration.
+|OnFault                     |
+Toggle power when any monitor detects a fault.
+This is the default setting.
+|OnIterationStartAfterFault  |
+Toggle power at the start of an iteration that immediately follows a fault detection.
+|OnCall                      |
+Toggle power when the call specified by the 'StartOnCall' parameter is received from the state model.
+|==========================================================
++
+.When Choices for Performing an Action
+image::{images}/Common/Monitors/Timings_SSH.png[scalewidth="75%"]
+
+
+
+=== Examples
+ifdef::peachug[]
+
+.Catch crashes from Movie Player +
+====================
+
+This parameter example is from a setup that controls port 1 of a IP Power 9258 Network Power Controller.
+After a fault is detected,
+the monitor toggles the power on port 1.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter            |Value
+|Host                 |`192.168.1.1:8080`
+|Port                 |`1`
+|User                 |`peach`
+|Password             |`power`
+|==========================================================
+
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Reset power on port 1
+========================
+[source,xml]
+----
+include::IpPower9258_Example.xml[]
+----
+========================
+
+endif::peachug[]

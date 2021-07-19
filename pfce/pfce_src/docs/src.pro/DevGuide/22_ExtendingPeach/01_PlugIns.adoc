@@ -1,0 +1,150 @@
+[[Extend_Plugins]]
+=== Peach Plug-ins
+
+If your target has something in its data model that Peach does not support
+(like a custom checksum algorithm or a custom data format),
+you may need to extend Peach's functionality by using Peach plugins.
+
+Peach plugins are either C# class libraries or python files that implement C# classes.
+Custom Peach plugins should be placed in the +Plugins+ subdirectory of the Peach installation folder.
+When Peach starts it scans all +.dll+ and +.py+ files in the folder looking for plugins.
+
+To see a list of all detected plugins and their parameters, run `peach --showenv`.
+
+All Peach plugins take a C# dictionary as a construction argument.
+This argument dictionary is populated with the Param elements names and values defined in the Peach Pit.
+
+Peach plugins use ParameterAttribute to define all of their supported configuration arguments (name, type, description, and optional default value).
+
+ * The name and type specified in the ParameterAttribute must match a public property on the plugin class.
+ * If the name parameter happens to be a C# reserved keyword, prefix the associated class property with an underscore.
+
+ * The default value is always given as a string, regardless of the type of the parameter.
+
+NOTE: If the default value is omitted from the ParameterAttribute, Peach treats the parameter as required.
+
+ParameterParser.Parse() uses the arguments dictionary to automatically populate all plugin properties.
+
+ * When populating the properties, type conversion converts the string specified in the pit to the concrete type defined in the plugin.
+ * When performing automatic type conversion, the ParameterParser supports System.Enum as well as any type that implements IConvertible.
+
+This method uses reflection to:
+
+ * Enforce missing required parameters.
+ * Initialize optional parameters from default values.
+ * Convert types from string to a concrete type.
+ * Validate all type conversions
+ ** -100 is valid int.
+ ** -100 is not a valid byte.
+
+General Peach plugin best practices:
+
+ * Use stream operations whenever possible.
+ * Avoid using large arrays of contiguous data.
+ * Validate parameter types in the plugin constructors.
+ * Provide useful error messages.
+ * Throw PeachException() when non-recoverable errors occur such as:
+ ** A parameter is out of range.
+ ** A user lacks appropriate permissions.
+ * Throw SoftException when recoverable errors occur such as:
+ ** A file is in use.
+ ** An error occurs when starting a process.
+ ** A socket connection is refused.
+
+==== Examples
+
+.Transformer
+==========================
+This example shows the arguments in the JsEncode transformer constructor.
+
+[source,java]
+----
+[Transformer("JsEncode")]
+public class JsEncode : Transformer
+{
+	public JsEncode(Dictionary<string, Variant> args)
+		: base(args)
+	{
+	}
+}
+----
+==========================
+
+.Fixup
+==========================
+This example shows the class definition for a custom fixup called "MyFixup".
+
+[source,java]
+----
+[Fixup("MyFixup", true)]
+public class MyFixup : Peach.Core.Fixup
+{
+}
+----
+==========================
+
+.ParameterAttribute
+==========================
+This example shows the ParameterAttribute usage.
+
+[source,java]
+----
+[Transformer("MyTransformer")]
+[Parameter("level", typeof(int), "Specifies the level, default: 9", "9")]
+[Parameter("class", typeof(string), "Specifies the class, required!")]
+public class MyTransformer : Transformer
+{
+	// Type matches typeof(int) in ParameterAttribute
+	public int level { get; set; }
+
+	// Name is '_class' since 'class' is a C# keyword
+	public string _class { get; set; }
+
+	public MyTransformer(Dictionary<string, Variant> args)
+		: base(args)
+	{
+	}
+}
+----
+==========================
+
+.Transformer
+==========================
+This example shows the class definition for a custom transformer called "MyTransformer".
+
+[source,java]
+----
+[Transformer("MyTransformer", true)]
+public class MyTransformer : Peach.Core.Transformer
+{
+}
+----
+==========================
+
+.Publisher
+==========================
+This example shows the class definition for a custom publisher called "MyPublisher".
+
+[source,java]
+----
+[Publisher("MyPublisher", true)]
+public class MyPublisher : Peach.Core.Publisher
+{
+}
+----
+==========================
+
+.Monitor
+==========================
+This example shows the class definition for a custom monitor called "MyMonitor".
+
+[source,java]
+----
+[Monitor("MyMonitor", true)]
+public class MyMonitor : Peach.Core.Monitor
+{
+}
+----
+==========================
+
+// end

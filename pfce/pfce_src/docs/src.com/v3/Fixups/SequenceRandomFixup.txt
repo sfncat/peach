@@ -1,0 +1,23 @@
+:toc!:
+== SequenceRandomFixup
+
+The _SequenceRandomFixup_ will produce a random integer each iteration.  This is usefull when a field must be a unique value every iteration.
+
+NOTE: This fixup does not protect against duplicate values occuring.
+
+NOTE: This fixup uses a random number source should not be used in cryptographic operations if security is an issue.
+
+=== Parameters
+
+None
+ 
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <Number name="UniqueValue" size="16">
+    <Fixup class="SequenceRandomFixup" />
+  </Number>
+</Block>
+----

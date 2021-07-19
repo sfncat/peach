@@ -1,0 +1,170 @@
+<<<
+[[Transformers_Aes128Transformer]]
+== Aes128
+
+// Reviewed:
+//  - 02/19/2014: Seth & Adam: Outlined
+// TODO:
+// Verify parameters expand parameter description
+// Full pit example using hex console
+// expand  general description
+// Identify direction / action supported for (Input/Output/Call/setProperty/getProperty)
+// Test both input / output
+
+// Updated:
+// 2/20/14: Mick
+// verified params
+// added supported actions
+// expanded description
+// added full example
+
+[horizontal]
+Type:: Cryptography
+
+_Aes128_ transforms the parent xref:DataModel[DataModel] by encrypting the data using AES (Rijndael) with the provided Key and Initialization Vector. 
+
+The xref:Transformer[Transformer] can bidirectionally encrypt and decrypt data.
+
+=== Parameters
+
+_Required:_
+
+Key:: User provided symmetric key that is used to encrypt the value. Must be a hex string representation of a 16 byte key.
+IV:: User provided initialization vector that is used as the first block for the AES128 operation. Must be a hex string representation of an 16 byte value.
+
+_Optional:_
+
+None.
+
+=== Actions Supported
+
+xref:Action_input[input]:: On input, this transformer decrypts the incoming data.
+xref:Action_output[output]:: On output, this transformer encrypts the outgoing data.
+
+=== Examples
+
+.Simple Encrypt and Decrypt Example
+==========================
+This example uses Aes128 on an inline value, writes the transformed value to a file, and reads the value from the file to the console.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ex1">
+		<String name="TransformMe" value="supersupersecret" >
+			<Transformer class="Aes128">
+				<Param name="Key" value="ae1234567890aeaffeda214354647586"/>
+				<Param name="IV" value="aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae"/>
+			</Transformer>
+		</String>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<!-- Encrypted Output -->
+			<Action type="output" publisher="ConsolePub">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<!-- Write Encrypted Output to File -->
+			<Action type="output" publisher="FilePubWrite">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<Action type="close" publisher="FilePubWrite" />
+
+			<!-- Read and decrypt encrypted file and slurp output to console -->
+			<Action type="input" publisher="FilePubRead" >
+				<DataModel name="InputModel" ref="Ex1" />
+			</Action>
+
+			<Action type="slurp" valueXpath="//InputModel//TransformMe" setXpath="//OutputModel//StringValue" />
+
+			<Action type="output" publisher="ConsolePub">
+				<DataModel name="OutputModel">
+					<String name="StringValue" />
+				</DataModel>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" name="ConsolePub"/>
+
+		<Publisher class="File" name="FilePubWrite">
+			<Param name="FileName" value="encrypted.bin" />
+		</Publisher>
+
+		<Publisher class="File" name="FilePubRead">
+			<Param name="FileName" value="encrypted.bin" />
+			<Param name="Overwrite" value="false" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 7617.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(16 bytes)
+00000000   22 8D 4A 8B 30 1F 4D 6B  1A 31 24 3D B7 ED 97 E5   "?J?0?Mk?1$=????
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher output(16 bytes)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Input
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher input()
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'InputModel' Bytes: 0/16, Bits: 0/128
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'InputModel' Size: <null>, Bytes : 0/16, Bits: 0/128
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'InputModel.TransformMe' Bytes: 0/16, Bits : 0/128
+Peach.Core.Cracker.DataCracker getSize: -----> String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 128
+Peach.Core.Cracker.DataCracker Crack: String 'InputModel.TransformMe' Size: 128, Bytes: 0/16, Bits: 0/128
+Peach.Core.Dom.DataElement String 'InputModel.TransformMe' value is: supersupersecret
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Slurp
+Peach.Core.Dom.Action Slurp, setting OutputModel.StringValue from InputModel.TransformMe
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(16 bytes)
+00000000   73 75 70 65 72 73 75 70  65 72 73 65 63 72 65 74   supersupersecret
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

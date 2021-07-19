@@ -1,0 +1,80 @@
+<<<
+[[Monitors_CleanupFolder]]
+== CleanupFolder Monitor
+
+*Monitor Category*: *Automation*
+
+The _CleanupFolder_ monitor provides automated cleanup of files created during a
+fuzzing session. This monitor purges files produced during an iteration before
+the start of the following iteration. CleanupFolder acts upon a specified directory,
+and does not affect any files or directories that predate the fuzzing session.
+
+. The directory, +clean2+, initially contains a single file.
++
+image::{images}/Common/Monitors/CleanupFolder_PreFuzz.png[scalewidth="75%"]
+. Before each iteration, the CleanupFolder monitor deletes from the specified folder
+all files that were generated in the previous fuzzing iteration.
+. During each iteration, the File publisher creates a fuzzed file.
+
+. The following image shows the output from a file fuzzing session that uses _CleanupFolder_ on the +clean2+ directory. The session duration is 5 iterations.
++
+image::{images}/Common/Monitors/CleanupFolder_Cleaned.png[scalewidth="75%"]
+
+. The following image shows the +clean2+ directory with output from a file fuzzing session that does _not_ use _CleanupFolder_, but is otherwise identical to the pit used for the previous diagram. Files generated in the fuzzing session are highlighted.
++
+image::{images}/Common/Monitors/CleanupFolder_NotCleaned.png[scalewidth="75%"]
+
+NOTE: The FilePerIteration publisher, that generates a new filename for each fuzzed file, produced the fuzzed output files for both of the previous images.
+
+=== Parameters
+
+_Required:_
+
+Folder:: Folder to clean.
+
+_Optional:_
+
+None.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Remove contents of a folder +
+
+==============================
+This parameter example is from a setup that uses the CleanupFolder monitor to remove a fuzzed file created by the File publisher.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Folder       |`C:\clean2`
+|==========================================================
+
+==============================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Remove contents of a folder +
+
+==============================
+Run this example from the folder specified using the _folder_ parameter.
+
+During each iteration, the file +fuzzed.txt+ is created by the File publisher. At the end of each iteration, +fuzzed.txt+ is deleted by the CleanupFolder monitor.
+
+[source,xml]
+----
+include::CleanupFolder_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::CleanupFolder_Example.log[]
+----
+==============================
+
+endif::peachug[]

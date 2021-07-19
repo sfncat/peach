@@ -1,0 +1,106 @@
+:toc!:
+== SQL Stored Procedure Fuzzing ==
+
+== First Install MySQL v5.1+ ==
+
+*Configure with:*
+
+[source,sql]
+----
+create table if not exists testtable (
+   msg varchar(255)
+);
+
+delimiter //
+CREATE PROCEDURE testproc(IN parameter1 VARCHAR(255))
+BEGIN
+   insert into testtable (msg) values (parameter1);
+END;
+//
+----
+
+
+== Create an ODBC DSN ==
+
+Created an ODBC DSN called "TestMySql" that connects to your MySQL instance and correct database.
+
+== Update PIT ==
+
+Update this pit with correct DSN, user, and password.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://phed.org/2008/Peach"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://phed.org/2008/Peach /peach/peach.xsd">
+
+       <Include ns="default" src="file:defaults.xml"/>
+       <Include ns="pt" src="file:PeachTypes.xml"/>
+
+       <DataModel name="TheDataModel">
+               <String value="Peachy"/>
+       </DataModel>
+
+       <StateModel name="TheState" initialState="Initial">
+
+               <State name="Initial">
+                       <Action type="call" method="call testproc(?)">
+                               <Param name="p1" type="in">
+                                       <DataModel ref="TheDataModel"/>
+                               </Param>
+                       </Action>
+               </State>
+       </StateModel>
+
+       <Test name="TheTest">
+               <StateModel ref="TheState"/>
+
+               <Publisher class="sql.Odbc">
+                       <Param name="dsn" value="TestMySql/root/password"/>
+               </Publisher>
+       </Test>
+
+       <Run name="DefaultRun">
+               <Test ref="TheTest"/>
+       </Run>
+</Peach>
+----
+
+
+== Run! ==
+
+----
+C:\peach>peach -1 test.xml
+
+] Peach 2.3 MS Runtime
+] Copyright (c) Michael Eddington
+
+[*] Performing single iteration
+Warning: Run 'DefaultRun' does not have logging configured!
+[*] Starting run "DefaultRun"
+[-] Test: "TheTest" (None)
+[1:?:?] Running test with mutator N/A
+-- Completed our iteration range, exiting
+[-] Test "TheTest" completed
+[*] Run "DefaultRun" completed
+C:\peach>
+----
+
+
+My MySQL table looked like this:
+
+----
+mysql> select * from testtable;
++-------------+
+| msg         |
++-------------+
+| Peachy      |
++-------------+
+2 rows in set (0.00 sec)
+----
+
+
+== Next Steps ==
+
+From here you would want to configure and agent to attach a debugger to your SQL server executable and monitor for crashes.  Good targets are native stored procedures exposed by Microsoft SQL Server, IBM DB2, etc.  Fuzzing pure SQL stored procedures, such as in this example, is likely not a good use of your time ;)

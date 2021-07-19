@@ -1,0 +1,179 @@
+:toc!:
+link:ConfigurePublisher.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:OptimizeTesting.html[Next >>]
+
+''''
+
+== Agent and Monitor ==
+
+Now we are ready to configure our agent and monitors.  Agents are special Peach processes that can be run locally or remote.  These processes host one or more monitors that can perform such actions as attaching debuggers, watching memory consumption, etc.  For this tutorial we are going to configure Microsoft WinDbg to monitor +mplayer.exe+ for exceptions and other common issues.  Additionally we will enable the HEAP debugging for the target process.
+
+== Configure the Agent and Monitor ==
+
+First lets locate the commented out +<Agent>+ element in the template file, it will look something like this:
+
+[source,xml]
+----
+<!-- TODO: Configure agent/monitors
+	<Agent name="LocalAgent" location="http://127.0.0.1:9000">
+	<Monitor class="test.TestStopOnFirst" />
+	</Agent>
+-->
+----
+
+
+We are going to uncomment this section and remove the "location" attribute.  When no "location" attribute is present, Peach will automatically start a local Peach Agent.  Additionally we will configure two monitors, a debugger and PageHeap.
+
+[source,xml]
+----
+<Agent name="LocalAgent">
+   <Monitor class="debugger.WindowsDebugEngine">
+
+        <!-- The command line to run.  Notice the filename provided matched up 
+             to what is provided below in the Publisher configuration -->
+        <Param name="CommandLine" value="mplayer.exe fuzzed.wav" />
+
+        <!-- This parameter will cause the debugger to wait for an action-call in
+             the state model with a method="ScoobySnacks" before running
+             program.
+
+             Note: You will also need to add a parameter to the publisher called
+                   "debugger" and set it to "true"!
+        -->
+        <Param name="StartOnCall" value="ScoobySnacks" />
+
+    </Monitor>
+
+    <!-- Enable heap debugging on our process as well. -->
+    <Monitor class="process.PageHeap">
+        <Param name="Executable" value="mplayer.exe"/>
+    </Monitor>
+</Agent>
+----
+
+
+== Configure State Model ==
+
+Our current State Model looks like this:
+
+[source,xml]
+----
+<!-- This is our simple wave state model -->
+<StateModel name="TheState" initialState="Initial">
+        <State name="Initial">
+                
+                <!-- Write out our wave file -->
+                <Action type="output">
+                        <DataModel ref="Wav"/>
+                        <!-- This is our sample file to read in -->
+                        <Data name="data" fileName="sample.wav"/>
+                </Action>
+                
+                <Action type="close"/>
+                
+                <!-- Launch the target process -->
+                <Action type="call" method="mplayer.exe">
+                        <Param name="wav file" type="in">
+                                <DataModel ref="Param"/>
+                                <Data name="filename">
+                                        <!-- Name of fuzzed output file -->
+                                        <Field name="Value" value="fuzzed.wav"/>
+                                </Data>
+                        </Param>
+                </Action>
+        </State>
+</StateModel>
+----
+
+
+We will change this state model to now look like the following.  You will notice we are matching up the "StartOnCall" parameter with the "call" action in the state model.
+
+[source,xml]
+----
+<!-- This is our simple wave state model -->
+<StateModel name="TheState" initialState="Initial">
+        <State name="Initial">
+                
+                <!-- Write out our wave file -->
+                <Action type="output">
+                        <DataModel ref="Wav"/>
+                        <!-- This is our sample file to read in -->
+                        <Data name="data" fileName="sample.wav"/>
+                </Action>
+                
+                <Action type="close"/>
+                
+                <!-- Launch the target process -->
+                <Action type="call" method="ScoobySnacks" />
+        </State>
+</StateModel>
+----
+
+
+== Configure Test ==
+
+Okay, now we just need to enable the agent for our test.  Head down to the +<Test>+ element, specifically we are looking to uncomment this line, and add a new parameter to the Publisher indicating a debugger has been configured.
+
+[source,xml]
+----
+<!-- <Agent ref="LocalAgent"/> -->
+----
+
+
+Leaving us with this:
+
+[source,xml]
+----
+<Test name="TheTest">
+    <Agent ref="LocalAgent"/>
+    <StateModel ref="TheState"/>
+    
+    <Publisher class="file.FileWriterLauncher">
+        <Param name="fileName" value="fuzzed.wav"/>
+        <Param name="debugger" value="true"/>
+    </Publisher>
+</Test>
+----
+
+
+== Configure Logging ==
+
+Now that we are using monitors that can detect faults we will want to configure a logging mechanism to capture the results of our fuzzer run.
+
+Todo this add the following to the +<Run>+ element at the bottom of our XML file:
+
+[source,xml]
+----
+<Logger class="logger.Filesystem">
+    <Param name="path" value="logs" />
+</Logger>
+----
+
+
+So it looks like this:
+
+[source,xml]
+----
+<Run name="DefaultRun">
+    
+    <Test ref="TheTest" />
+
+    <Logger class="logger.Filesystem">
+        <Param name="path" value="logs" />
+    </Logger>
+    
+</Run>
+----
+
+
+== Running Fuzzer ==
+
+----
+peach.py wav.xml
+----
+
+
+
+
+''''
+
+link:ConfigurePublisher.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:OptimizeTesting.html[Next >>]

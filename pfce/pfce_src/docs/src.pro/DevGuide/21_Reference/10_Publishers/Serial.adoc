@@ -1,0 +1,78 @@
+<<<
+[[Publishers_SerialPort]]
+== SerialPort Publisher
+
+The _SerialPort_ publisher allows Peach to communicate with a device using a serial port and serial transmissions.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="SerialPort">
+    <Param name="PortName" value="/dev/ttyUSB0"/>
+    <Param name="Baudrate" value="115200"/>
+    <Param name="DataBits" value="8"/>
+    <Param name="Parity" value="None"/>
+    <Param name="StopBits" value="One"/>
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+PortName:: Serial port device name
+Baudrate:: Serial baud rate. The transmission rate that accounts for data bits and more: start bit, stop bits, parity bits, and commands.
+Parity:: The parity-checking protocol.
+DataBits:: Standard length of data bits per byte.
+StopBits:: The standard number of stop bits per byte.
+
+_Optional:_
+
+Handshake:: The handshaking protocol for serial port data transmission. The default value is none.
+Timeout:: Maximum waiting period, specified in milliseconds, between transmissions. The default value is 3,000.
+
+=== Actions
+
+xref:Action_open[open]:: Open the device
+xref:Action_input[input]:: Receive data
+xref:Action_output[output]:: Send data
+
+=== Examples
+
+.Sending and receiving data
+===========================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+  <DataModel name="DataModel">
+    <Blob name="Hello" value="Hello Serial Device!\n"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="Initial">
+    <State name="Initial">
+      <Action type="open"/>
+      <Action type="output">
+        <DataModel ref="DataModel"/>
+      </Action>
+      <Action type="input">
+        <DataModel ref="DataModel"/>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="SerialPort">
+      <Param name="PortName" value="/dev/ttyUSB0"/>
+      <Param name="Baudrate" value="115200"/>
+      <Param name="DataBits" value="8"/>
+      <Param name="Parity" value="None"/>
+      <Param name="StopBits" value="One"/>
+    </Publisher>  </Test>
+</Peach>
+----
+===========================

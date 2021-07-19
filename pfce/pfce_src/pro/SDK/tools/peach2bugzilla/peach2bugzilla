@@ -1,0 +1,361 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2016 Peach Fuzzer, LLC
+
+#
+# Configuration settings
+#
+
+# Base URL to utalize. Must include the rest path prefix
+BZ_URL = "http://192.168.48.161/rest.cgi"
+
+# Bugzilla API Key
+BZ_API_KEY = 'aJWoKxUq1e6CoSb6J8pXBeIGMtGVHKCRRNiMcViv'
+
+# Custom field to hold peach bucket information (text field)
+BZ_PEACH_BUCKET_FIELD = "cf_peach"
+
+# Enable use of custom field
+BZ_BUCKET_MINOR = True
+
+# This is the template for the create new bug rest call. This
+# is where any custom fields can be set and defaults changed.
+BZ_NEW_BUG_TEMPLATE = {
+  "product" : "TestProduct",
+  "component" : "TestComponent",
+  "version" : "unspecified",
+  "op_sys" : "All",
+#  "priority" : "P1",
+  "rep_platform" : "All",
+}
+
+# Enable/disable debug messages
+DEBUG = False
+
+#
+# DO NOT EDIT BELOW THIS LINE!!!
+#
+
+try:
+    import requests
+except:
+    print "Error, the 'requests' module is missing."
+    print "  http://docs.python-requests.org/en/master/user/install"
+    exit(1)
+
+import argparse
+import os, sys, time
+import json, os, copy
+import base64, urllib
+
+requests.packages.urllib3.disable_warnings()
+
+class Peach2Bugzilla:
+    
+    def __init__(self, args):
+        self.args = args
+        self.PeachUrl = args.url[0]
+        self.Quiet = args.quiet
+    
+    def _print(self, msg):
+        if self.Quiet:
+            return
+        
+        print msg
+    
+    def _debug(self, msg):
+        
+        if not DEBUG:
+            return
+        
+        print msg
+    
+    def _getLatestJob(self):
+        response = requests.get(self.PeachUrl + "/p/jobs?dryrun=false")
+        response.raise_for_status()
+        jobs = response.json()
+        
+        return jobs[-1]
+    
+    def _getFaults(self, faultsUrl):
+        response = requests.get(self.PeachUrl + faultsUrl)
+        response.raise_for_status()
+        faults = response.json()
+        
+        return faults
+    
+    def _getFault(self, faultUrl):
+        response = requests.get(self.PeachUrl + faultUrl)
+        response.raise_for_status()
+        fault = response.json()
+        
+        return fault
+    
+    def _getFaultAsset(self, faultAssetUrl):
+        response = requests.get(self.PeachUrl + faultAssetUrl)
+        response.raise_for_status()
+        return response.content
+    
+    def _getPit(self, pitUrl):
+        response = requests.get(self.PeachUrl + pitUrl)
+        response.raise_for_status()
+        return response.json()
+    
+    def _bzJsonRequestGet(self, url):
+        self._debug(">> _bzJsonRequestGet: %s" % url)
+        
+        response = requests.get(BZ_URL + url,
+            headers={
+                'Content-Type':'application/json',
+                'X-BUGZILLA-API-KEY': BZ_API_KEY})
+        
+        try:
+            data = response.json()
+            response.raise_for_status()
+            
+            return data
+        except:
+            self._debug("_bzJsonRequestGet: %s" % response)
+        
+        response.raise_for_status()
+        return None
+    
+    def _bzBucketCheck(self, bucket):
+        '''Check for existing issue with bucket id.  Returns None or bug id.
+        '''
+        
+        self._debug(">> _bzBucketCheck(%s)" % bucket)
+        
+        if not BZ_PEACH_BUCKET_FIELD:
+            self._debug("<< _bzBucketCheck: not BZ_PEACH_BUCKET_FIELD")
+            return False
+        
+        search = self._bzJsonRequestGet('/bug?' + urllib.urlencode({BZ_PEACH_BUCKET_FIELD:bucket}))
+
+        self._debug("<< _bzBucketCheck: total: %d" % len(search["bugs"]))
+        if len(search["bugs"]) > 0:
+            return search["bugs"][0]
+        
+        return None
+    
+    def _bzCreateIssue(self, issue):
+        response = requests.post(BZ_URL + "/bug?" + urllib.urlencode({'api_key':BZ_API_KEY}),
+            json=issue,
+            headers={
+                'Content-Type':'application/json',
+                'X-BUGZILLA-API-KEY': BZ_API_KEY})
+        
+        response.raise_for_status()
+        
+        try:
+            result = response.json()
+            return result["id"]
+        except:
+            self._debug("_bzCreateIssue: %s" % response)
+        
+        return None
+    
+    def _bzAttachFileToIssue(self, issue, name, data):
+        
+        payload = {
+            "ids":[ int(issue) ],
+            "summary": name,
+            "file_name": name,
+            "data": base64.b64encode(data),
+            "content_type": 'application/octet-stream',
+        }
+        
+        response = requests.post(BZ_URL + "/bug/%s/attachment?api_key=%s" % (issue, BZ_API_KEY),
+            json=payload,
+            headers={
+                'Content-Type':'application/json',
+                'X-BUGZILLA-API-KEY': BZ_API_KEY})
+        
+        response.raise_for_status()
+        
+        try:
+            result = response.json()
+            return result
+        except:
+            self._debug("_bzAttachFileToIssue: %s" % response)
+        
+        return None
+    
+    def _bzAddComment(self, issue, comment):
+        
+        response = requests.post(BZ_URL + "/bug/%s/comment?api_key=%s" % (issue, BZ_API_KEY),
+            json={"comment":comment},
+            headers={
+                'Content-Type':'application/json',
+                'X-BUGZILLA-API-KEY': BZ_API_KEY})
+        
+        response.raise_for_status()
+        
+        return None
+    
+    def _bzReOpenIssue(self, issue):
+        
+        response = requests.put(BZ_URL + ("/bug/%s?" % issue) + urllib.urlencode({'api_key':BZ_API_KEY}),
+            json={'ids':[int(issue)], 'status':"CONFIRMED"},
+            headers={
+                'Content-Type':'application/json',
+                'X-BUGZILLA-API-KEY': BZ_API_KEY})
+        
+        response.raise_for_status()
+        
+        try:
+            result = response.json()
+            return True
+        except:
+            self._debug("_bzReOpenIssue: %s" % response)
+        
+        return None
+
+    def _exportFault(self, fault, pitName):
+        
+        bucket = fault["majorHash"]
+        if BZ_BUCKET_MINOR:
+            bucket = fault["minorHash"]
+        
+        if bucket in self.SeenBuckets:
+            return
+        
+        issue = self._bzBucketCheck(bucket)
+        if issue:
+            
+            if issue['status'] == 'RESOLVED':
+                self._bzReOpenIssue(issue['id'])
+                
+            issue = issue['id']
+            
+            self._print("    Adding reproduction comment")
+            
+            comment = u"""
+Issue reproduced by Peach Fuzzer
+
+         Pit: {0}
+   Test Case: {1}-{2}
+        Seed: {3}
+Reproducible: {4}
+      Source: {5}
+        Risk: {6}
+Major Bucket: {7}
+Minor Bucket: {8}
+""".format(
+    pitName,
+    fault["iterationStart"],
+    fault["iterationStop"],
+    fault["seed"],
+    fault["reproducible"],
+    fault["source"],
+    fault["exploitability"],
+    fault["majorHash"],
+    fault["minorHash"])
+
+            self._bzAddComment(issue, comment)
+            return
+            # todo add comment
+        
+        self._print("    Creating new Bugzilla issue")
+
+                
+        desc = u"""
+Issue identified by Peach Fuzzer
+
+         Pit: {0}
+   Test Case: {1}-{2}
+        Seed: {3}
+Reproducible: {4}
+      Source: {5}
+        Risk: {6}
+Major Bucket: {7}
+Minor Bucket: {8}
+
+{9}
+
+""".format(
+    pitName,
+    fault["iterationStart"],
+    fault["iterationStop"],
+    fault["seed"],
+    fault["reproducible"],
+    fault["source"],
+    fault["exploitability"],
+    fault["majorHash"],
+    fault["minorHash"],
+    fault["description"][0:2048]
+    )
+        
+        issue = copy.deepcopy(BZ_NEW_BUG_TEMPLATE)
+        
+        issue['summary'] = u"%s: %s" % (bucket, fault["title"])
+        issue['description'] = desc
+       
+        if BZ_PEACH_BUCKET_FIELD:
+            issue[BZ_PEACH_BUCKET_FIELD] = bucket
+        
+        issueUrl = self._bzCreateIssue(issue)
+        
+        # 3. Attach files
+        
+        for asset in fault["files"]:
+            
+            if asset["fullName"].startswith("Initial\\") or asset["fullName"].startswith("Initial/"):
+                continue
+            
+            try:
+                self._print(u"    - Adding file %s" % asset["name"])
+            except:
+                self._print(u"    - Adding file with unicode name...")
+            
+            data = self._getFaultAsset(asset["fileUrl"])
+            self._bzAttachFileToIssue(issueUrl, asset["name"], data)
+    
+        
+    def peach2Bugzilla(self):
+        
+        job = self._getLatestJob()
+        faultsUrl = job["faultsUrl"]
+        faultCount = int(job["faultCount"])
+        pitName = job["name"]
+
+        if faultCount == 0:
+            self._print(" - No faults found, exiting")
+            return 0
+        
+        self._print(" - %d faults found for processing" % faultCount)
+        
+        faults = self._getFaults(faultsUrl)
+        
+        self.SeenBuckets = []
+        for fault in faults:
+            faultDetails = self._getFault(fault["faultUrl"])
+            
+            self._print("  - Fault: %d" % faultDetails["iteration"])
+            
+            self._exportFault(faultDetails, pitName)
+            #return 0
+
+if __name__ == '__main__':
+    
+    print ""
+    print "| Peach to Bugzilla v0.1"
+    print "| Copyright (c) Peach Fuzzer, LLC"
+    print ""
+    
+    parser = argparse.ArgumentParser(
+        prog='peach2bugzilla',
+        description='Export faults from Peach to Bugzilla.')
+    
+    parser.add_argument('-q', '--quiet', metavar='QUIET', type=bool,
+                        help="Don't display console messages")
+    
+    parser.add_argument('-u', '--url', metavar='PEACH_URL',
+                        type=str, nargs='+', required=True,
+                        help='URL for accessing Peach REST API')
+    
+    args = parser.parse_args()
+    app = Peach2Bugzilla(args)
+    exit(app.peach2Bugzilla())
+
+# end

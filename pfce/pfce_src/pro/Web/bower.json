@@ -1,0 +1,44 @@
+{
+  "name": "peach",
+  "description": "Peach",
+  "homepage": "http://peachfuzzer.com/",
+  "private": true,
+  "authors": [
+    "Peach Fuzzer, LLC"
+  ],
+  "main": "index.html",
+  "license": "proprietary",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "dependencies": {
+    "angular": "1.3",
+    "angular-bootstrap": "~0.14.3",
+    "angular-breadcrumb": "~0.4.0",
+    "angular-chart.js": "~0.7.0",
+    "angular-loading-bar": "~0.8.0",
+    "angular-messages": "1.3",
+    "angular-mocks": "1.3",
+    "angular-sanitize": "1.3",
+    "angular-smart-table": "~2.1",
+    "angular-ui-router": "~0.2.13",
+    "angular-ui-select": "0.11.1",
+    "angular-visjs": "~4.0.0",
+    "bootstrap": "~3.3.1",
+    "fontawesome": "~4.5.0",
+    "jquery": "2.1",
+    "lodash": "~4.3",
+    "moment": "~2.10",
+    "ngstorage": "~0.3.4",
+    "pithy": "*"
+  },
+  "version": "1.0.0",
+  "repository": {
+    "url": "git@github:dejavu/peach-pro.git",
+    "type": "git"
+  },
+  "author": "Peach Fuzzer, LLC"
+}

@@ -1,0 +1,17 @@
+<<<
+[[Mutators_StringStatic]]
+== StringStatic
+
+This mutator produces test cases for String elements by accessing an internal list of strings that have caused or that might cause a data consumer to misbehave.
+
+The strings in the list include special filenames, characters, numbers, and other strings. Currently, the list produces 1667 unique test cases.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

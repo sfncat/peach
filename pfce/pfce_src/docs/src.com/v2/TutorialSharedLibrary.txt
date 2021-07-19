@@ -1,0 +1,128 @@
+:toc!:
+== Shared Library Fuzzing ==
+
+This is an advanced tutorial.  It is expected the reader is already familiar with Peach.
+
+Fuzzing shared libraries is not the most common of tasks, but is a useful tool to have available.  Many times methods exposed by scripting languages such as JavaScript, PHP, etc are simply methods exposed by a shared library (DLL for you windows peeps).
+
+Sadly most fuzzers do not support fuzzing shared libraries directly, so typically one was stuck dusting off something like SPIKE, or some other framework and writing some custom code to drive everything.  Things can get even more complicated if the exposed methods you are fuzzing take complex types comprised of structures with pointers to other structures, etc.
+
+Enter Peach.  Peach has always been capable of loading shared libraries and making function calls, however not until version 2.3 has Peach supported complex structure types and pointers.
+
+Lets take a look at a few samples to get an idea of how easy this is with Peach.
+
+Use Case #1 -- Non-complex data types
+
+Out first example will emulate the follow code:
+
+[source,c]
+----
+mydll.Initialize();
+mydll.DoCoolThings( char* s );
+----
+
+
+First we will need to create a quick data model for our "s" parameter:
+
+[source,xml]
+----
+<DataModel name="s">
+  <String value="Hello World!" />
+</DataModel>
+----
+
+
+Next is the state model that will have the method calls:
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="State1">
+  <State name="State1">
+    <Action type="call" method="Initialize" />
+    <Action type="call" method="DoCoolThings">
+      <Param name="s" type="in">
+        <DataModel ref="s" />
+      </Param>
+    </Action>
+  </State>
+</StateModel>
+----
+
+
+And finally we will need to configure a publisher:
+
+[source,xml]
+----
+<Publisher class="dll.Dll">
+  <Param name="library" value="mydll.dll" />
+</Publisher>
+----
+
+
+And that's it!
+
+Use Case #2 -- Complex data types
+
+Now, lets change to the definition of DoCoolThings to this:
+
+[source,C]
+----
+struct otherstruct
+{
+  int a;
+  int b;
+};
+
+struct mystruct
+{
+  struct otherstruct * val;
+};
+
+
+mydll.DoCoolThings( struct mystruct *s);
+----
+
+
+First we will need data models:
+
+[source,xml]
+----
+<DataModel name="otherstruct">
+  <Number name="a" size="32" value="0" />
+  <Number name="b" size="32" value="0" />
+</DataModel>
+
+<DataModel name="mystruct" pointer="true">
+  <Block ref="otherstruct" pointer="true" />
+</DataModel>
+----
+
+
+Next we need the sate model:
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="State1">
+  <State name="State1">
+    <Action type="call" method="Initialize" />
+    <Action type="call" method="DoCoolThings">
+      <Param name="s" type="in">
+        <DataModel ref="mystruct" />
+      </Param>
+    </Action>
+  </State>
+</StateModel>
+----
+
+
+And finally we will need to configure a publisher:
+
+[source,xml]
+----
+<Publisher class="dll.Dll">
+  <Param name="library" value="mydll.dll" />
+</Publisher>
+----
+
+
+And there you go. Easy! I hope this was a good introduction to fuzzing shared libraries with Peach.

@@ -1,0 +1,39 @@
+:toc!:
+== Com Publisher
+
+The _Com_ Publisher allows calling methods and properties on COM objects
+
+NOTE: This Publisher only runs on Windows.  To use this Publisher Peach.Core.ComContainer.exe must be running in a seperate command prompt while the Peach is running.
+
+=== Parameters
+
+ * _clsid_ -- COM CLSID
+
+=== Actions
+
+ * link:../Action.html#\_call[_call_] -- Call a method
+ * link:../Action.html#\_getproperty[_getProperty_] -- Get a property value
+ * link:../Action.html#\_setproperty[_setProperty_] -- Set a property value
+
+=== Examples
+
+.Calling a method
+[source,xml]
+----
+<StateModel name="TheState">
+	<State name="initial">
+		<Action type="call" method="DoCoolThings">
+			<Param name="Name">
+				<DataModel ref="NameDataModel"/>
+			</Param>
+		</Action>
+	</State>
+</StateModel>
+
+<Test name="Default">
+    <!-- ... -->
+	<Publisher class="COM">
+		<Param name="clsid" value="{d20ea4e1-3957-11d2-a40b-0c5020524153}" />
+	</Publisher>
+</Test>
+----

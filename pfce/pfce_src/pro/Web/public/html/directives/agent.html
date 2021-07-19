@@ -1,0 +1,114 @@
+﻿<ng-form name="form">
+	<uib-accordion-group is-open="isOpen">
+		<uib-accordion-heading>
+			<span>
+				<i class="fa"
+					 ng-class="{'fa-chevron-down': isOpen, 'fa-chevron-right': !isOpen}">
+				</i>
+				&nbsp;
+				{{vm.Header}}
+				<span class="btn-group btn-group-xs pull-right">
+					<button type="button"
+									class="btn btn-xs btn-info"
+									ng-click="vm.OnMoveUp($event)"
+									ng-disabled="!vm.CanMoveUp"
+									uib-tooltip="Move Agent Up"
+									tooltip-append-to-body="true">
+						<i class="fa fa-chevron-up">
+						</i>
+					</button>
+					<button type="button"
+									class="btn btn-xs btn-info"
+									ng-click="vm.OnMoveDown($event)"
+									ng-disabled="!vm.CanMoveDown"
+									uib-tooltip="Move Agent Down"
+									tooltip-append-to-body="true">
+						<i class="fa fa-chevron-down">
+						</i>
+					</button>
+					<button type="button"
+									class="btn btn-xs btn-danger"
+									ng-click="vm.OnRemove($event)"
+									uib-tooltip="Remove Agent">
+						<i class="fa fa-remove">
+						</i>
+					</button>
+				</span>
+			</span>
+		</uib-accordion-heading>
+		<div class="form-group"
+				 ng-class="{'has-error': form.name.$invalid}">
+			<label class="col-sm-3 control-label">
+				Name
+			</label>
+			<div class="col-sm-6">
+				<input name="name"
+							 autocomplete="off"
+							 type="text"
+							 ng-model="agent.name"
+							 ng-required="true"
+							 class="form-control"
+							 peach:unique-channel="agent.name" />
+				<span class="help-text">
+					Friendly name for your agent
+				</span>
+				<span class="help-block"
+							ng-messages="form.name.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<div class="form-group"
+				 ng-class="{'has-error': form.location.$invalid}">
+			<label class="col-sm-3 control-label">
+				Location
+			</label>
+			<div class="col-sm-6">
+				<input name="location"
+							 autocomplete="off"
+							 type="text"
+							 placeholder="local://"
+							 ng-model="agent.agentUrl"
+							 class="form-control"
+							 peach:unique-channel="agent.agentUrl"
+							 peach:unique-default="local://"
+							 peach:unique-ignore="^local://" />
+				<span class="help-text">
+					URL for the agent. 
+					Leave blank for a local agent.
+					For remote agents use the <code>tcp</code> scheme.
+					The default agent port is <code>9001</code>.
+					Example: <code>tcp://192.168.48.2:9001</code>
+				</span>
+				<span class="help-block"
+							ng-messages="form.location.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+
+		<div class="alert alert-warning"
+				 ng-show="vm.ShowMissingMonitors">
+			<strong>Warning!</strong>
+			At least one monitor is advised.
+		</div>
+
+		<div class="clearfix"
+				 style="margin-bottom: 10px">
+			<div class="pull-right">
+				<button class="btn btn-xs btn-info"
+								ng-click="vm.AddMonitor()">
+					<i class="fa fa-plus"></i>
+					Add Monitor &nbsp;
+				</button>
+			</div>
+		</div>
+		<uib-accordion ng-repeat="monitor in agent.monitors track by $index">
+			<peach:monitor monitors="agent.monitors"
+										 monitor="monitor"
+										 agent-index="agentIndex"
+										 monitor-index="$index">
+			</peach:monitor>
+		</uib-accordion>
+	</uib-accordion-group>
+</ng-form>

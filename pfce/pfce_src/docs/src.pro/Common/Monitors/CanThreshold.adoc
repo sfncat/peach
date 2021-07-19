@@ -1,0 +1,112 @@
+<<<
+[[Monitors_CanThreshold]]
+== CAN Threshold Monitor
+
+*Monitor Category*: *Fault detection*
+
+The _CAN Threshold_ monitor triggers a fault when a CAN signal is outside a specified threshold. 
+The threshold is provided as a python expression that must evaluate to bool true or false.
+
+This is one of several ways to monitor a CAN target during fuzzing to determin if testing has adversely affected the target.
+
+The CAN frames being sent can share the same driver and channel as the fuzzing, or use a different driver/channel.
+
+=== Parameters
+
+_Required:_
+
+CanDriver:: Driver to use. Defaults to 'Vector XL'.
+CanChannel:: Channel number
+CanBitrate:: Set the bitrate for CAN packet reception (default 500,000)
+Id:: CAN Frame ID field in hex to expect
+SignalEndian:: Endianness of signal (if needed). Defaults to `little`.  Options are `little` or `big`.
+SignalOffset:: Bit offset to signal start
+SignalSize:: Length of signal field in bits
+SignalType::
+Data type of signal. 
+This is used to convert signal data into a usable type in the python threshold expression.
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|Signal Types | 
+|Int          | SignalSize can be any value 32 or lower
+|Float        | SignalSize must be 32 or 64
+|Long         | SignalSize between 33 and 64
+|String       | Interpreted as UTF-8
+|Binary       | SignalSize must be factor of 8
+|==========================================================
+
+Expression::
+Stateless threshold expression used to determin if the signal value is within spec.
+Expression results are cached for speed, and must not be statefull.
+The threshold expression is specified as a Python 2 expression. 
+The provided expression must evaluate to a bool true/false. 
+Python expressions are single line code statements.
+The following is an example of a code snippet that verifies a signal value is between 10 and 20 inclusive:
+`signal >= 10 and signal <= 20`
++
+The Python expressions have access to the following local variables:
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|Local Variables | Description
+|id              | CAN Frame ID as a python int
+|logger          | Logging interface output stored in debug.log in run folder and test output. logger.Debug(msg)
+|signal          | Signal value decoded based on provided type
+|==========================================================
+
+
+_Optional:_
+
+No optional parameters.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Expect frame every half second +
+
+==============================
+This parameter example is from a setup that uses the CAN Threshold Monitor
+to fault if a signal in the CAN frame with id 0x7DE is not between 10 and 100.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter     |Value
+| CanDriver    | `Vector XL`
+| CanChannel   | `1`
+| CanBitrate   | (default)
+| Id           | `0x07DE`
+| SignalEndian | (default)
+| SignalOffset | `0`
+| SignalSize   | `8`
+| SignalType   | `int`
+| Expression   | `signal > 10 and signal < 100`
+|==========================================================
+
+==============================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Expect frame every half second +
+
+==============================
+This parameter example is from a setup that uses the CAN Threshold Monitor
+to fault if a signal in the CAN frame with id 0x7DE is not between 10 and 100.
+
+[source,xml]
+----
+include::CanTiming_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::CanTiming_Example.log[]
+----
+==============================
+
+endif::peachug[]

@@ -1,0 +1,40 @@
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// Formatting:
+// * Formatting needs a rework, the current stuff works only for individual pages for web
+
+// Need the following tutorials:
+// * Dumb fuzzing with fuzz bang
+//  * PNG
+// * Dumb fuzzing with command line
+//  * PNG
+// * Smart file fuzzing
+//  * WAV
+// * Smart fuzzing network protocol
+//  * mysql protocol
+
+// Wish list for future work:
+// * Mobile device fuzzing
+// * Embedded (i2c) fuzzing
+// * Client network fuzzing
+// * COM fuzzing
+// * Web services fuzzing
+// * Web Socket (move wav or png to browser)
+
+== Tutorials
+
+The following tutorials provide information on how to get started fuzzing with Peach.
+
+ * Beginner: xref:TutorialDumbFuzzing[Dumb File Fuzzing (command line)]
+ * Beginner: xref:TutorialFileFuzzing[File Fuzzing]
+// * Beginner: xref:TutorialNetworkServer[Network server Fuzzing]
+
+:leveloffset: 1
+<<<
+include::01_DumbFuzzing/00_Section.adoc[]
+:leveloffset: 1
+<<<
+include::02_FileFuzzing/00_Section.adoc[]
+
+// end

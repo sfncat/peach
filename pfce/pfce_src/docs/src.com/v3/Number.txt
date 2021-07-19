@@ -1,0 +1,123 @@
+:toc!:
+== Number ==
+
+The Number element defines a binary number of lengths 8, 16, 24, 32, or 64 bits.  The Number element is a child element of link:DataModel.html[DataModel], link:Block.html[Block], or link:Choice.html[Choice].
+
+
+=== Attributes: ===
+
+ * link:name.html[name] -- [Required] Name of the number.
+ * link:size.html[size] -- [Required] Size of number in bits.  Valid options are 1 through 64. 
+ * link:value.html[value] -- The default value to assign to the number.
+ * link:valueType.html[valueType] -- The representation of the value.  Valid options are string and hex. [Optional]
+ * link:token.html[token] -- This element is treated as a token when parsing, defaults to False Valid options true and false.
+ * link:endian.html[endian] -- Byte order of the number, defaults to little. Valid options are big, little, and network. Network is the same as big.
+ * link:signed.html[signed] --  The number is signed or unsigned, defaults to true. Valid options are true and false. 
+ * link:constraint.html[constraint] -- A constraint in the form of a python expression.  Used during data cracking. 
+ * link:mutable.html[mutable] -- Is data element changeable (should it be mutated during fuzzing), defaults to true. Valid options true and false.
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this number must occur. Defaults to 1. Valid options are a positive integer value.
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this number can occur. No default. Valid options are a positive integer value.
+
+=== Valid Child-Elements: ===
+
+ * link:Analyzers.html[Anayzers]
+ * link:Fixup.html[Fixup]
+ * link:Relation.html[Relation]
+ * link:Transformer.html[Transformer]
+ * link:Hint.html[Hint]
+
+=== Examples: ===
+
+A simple number example this will produce a 32 bit (4 byte) number with a default value of 5. 
+
+[source,xml]
+----
+<DataModel name="NumberExample1">
+ <Number name="Hi5" value="5" size="32"/>
+</DataModel>
+----
+
+
+To only use 16 bits (two byte) change the size to 16. 
+
+[source,xml]
+----
+<DataModel name="NumberExample2">
+ <Number name="Hi5" value="5" size="16"/>
+</DataModel>
+----
+
+
+
+==== Signed ====
+
+To indicate this is an unsigned data element set the signed attribute equal to "false". The default is true. 
+
+[source,xml]
+----
+<DataModel name="NumberExample3">
+ <Number name="Hi5" value="5" size="32" signed="false"/>
+</DataModel>
+----
+
+
+
+==== Value Type: ====
+
+The valueType defines how to interprete the value attribute. Valid options are string and hex. The default is string. 
+
+To assign a value of 1000 to Hi5.
+ 
+[source,xml]
+----
+<DataModel name="NumberExample4">
+ <Number name="Hi5" value="1000" valueType="string" size="16" signed="false" />
+</DataModel>
+----
+
+
+
+To assign a value of 43981 in hex. 
+
+[source,xml]
+----
+<DataModel name="NumberExample5">
+ <Number name="Hi5" value="AB CD" valueType="hex" size="16" signed="false" />
+</DataModel>
+----
+
+
+
+==== Endian ====
+
+To change the endianness of the number set the endian attribute. Endianness defines in which order the bytes are the least or most significant. 
+
+[source,xml]
+----
+<DataModel name="NumberExample6">
+ <Number name="Hi5" value="AB CD" valueType="hex" size="16" signed="false" endian="big" />
+</DataModel>
+----
+
+
+Will produce the bytes in the following order. 
+
+----
+ AB CD 
+----
+
+
+[source,xml]
+----
+<DataModel name="NumberExample7">
+ <Number name="Hi5" value="AB CD" valueType="hex" size="16" signed="false" endian="little" />
+</DataModel>
+----
+
+
+Will produce the bytes in the following order. 
+
+----
+ CD AB 
+----
+

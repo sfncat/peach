@@ -1,0 +1,28 @@
+
+:h: #
+:2h: ##
+=== Using variables
+
+{product} supports using variables for things such as parameters for monitors and values for other variables.
+All variables are surrounded by double hash marks e.g. *{2h}*.
+It is generally recommended to use variables whenever possible.
+
+Variables are defined under the *Variables* section of a configuration.
+
+image::{images}/variables-section.png[]
+
+A variable is referred to by its *Key* value in this section.
+For example, this shows a variable called `TargetPort` that has a value of *20000*.
+
+.The TargetPort variable is shown here.
+image::{images}/variable-name-example.png[]
+
+This variable could be used anywhere the Target Port is needed, such as an argument passed to the command of a process monitor or a PCAP expression on a Network Capture Monitor.
+To use the `TargetPort` variable elsewhere in the configuration, reference it as *{2h}TargetPort{2h}*.
+
+.The TargetPort variable is used here to set a Network Capture Monitor to capture all traffic for this configuration.  In this example, traffic to and from port 20000 will be captured.
+image::{images}/variable-use-example.png[]
+
+If the vale of a variable changes, it will automatically be applied everywhere the next time the configuration is run.
+
+// end

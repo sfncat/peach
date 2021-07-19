@@ -1,0 +1,59 @@
+
+<<<
+[[Ref_Workflow]]
+== Peach Workflow
+
+This section will walk through the internal workflow Peach follows when fuzzing. This is provided to give a deeper understanding of how Peach works and when you can expect various activities to occur.
+
+=== Highlevel Overview
+
+This is the 10,000 ft view of what occurs to perform a fuzzing. This disregards the UI and focus just on the internal workflow.
+
+. Parse the XML into a DOM (object model). This is when we create objects to represent elements in the pit such as DataModel, Test, Publisher, etc.  During this parse time any components of your DataModel such as data elements, fixups and transformers are likely to be called.
+. Run the requested Test. Here we start the fuzzing job which will:
+.. Find the specified Test
+.. Connect to all agents and start all monitors
+.. Initialize some internal context 
+.. Fuzzing loop
+... Identify mutations that will occur
+... Generate copy of DOM for use in this test case
+... Run StateModel applying mutations as needed
+.. As the state model executes it will run actions. Some actions such as start, stop, open, close, accept, input, output, call, set/getProperty are passed directly to the publisher to handle 
+. When job completed or is canceled generate the pdf report
+
+=== Agent, StateModel and Publisher Workflow
+
+This section covers what happens during the "Run StateModel applying mutations as needed" step from the prior section.
+
+Peach is for the most part synchronous in operation. The only asynchronous calls occur in the publishers themselves. For instance, a base publisher exists to deal with Stream objects which makes use of the async read/write methods. That async behavior is entirely contained in the publisher itself. All interactions between Agent, StateModel and Publishers are performed via synchronous blocking calls.
+
+The interaction between the action type 'input' may not appear this way as we offload the actual reading of bytes into the data cracker via the Publishers "WantBytes" call. So for the 'input' action you will see something like this if you are the publisher:
+
+----
+publisher.input()
+loop until data cracker done:
+   publisher.wantBytes(count)
+----
+
+Because some of the publishers have an async read or a worker thread handling a read loop you may see data coming in and displayed in Hex (with --debug) prior to the 'input' action occurring. In that case the publisher is buffering received data until it is needed.
+
+A fuzzing iteration would look like this:
+
+----
+agent.iterationStarting()
+
+stateModel.Run()           <1>
+   initialState.Run() 
+      Loop over actions: 
+         action.Run()
+
+agent.iterationFinished() 
+agent.detectedFaults() 
+if fault then 
+   agent.GetMonitorData()
+
+agent.mustStop()
+----
+<1> Once inside of stateModel.Run() the only agent interaction would be broadcasting the events when using action type call where publisher is +Peach.Agent+. In that case you will see an "agent.message(event)" occur.
+
+

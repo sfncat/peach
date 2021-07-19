@@ -1,0 +1,18 @@
+<<<
+[[Mutators_DoubleRandom]]
+== DoubleRandom
+
+This mutator produces test cases for Double and String elements. String elements are only supported when the default data they contain is a number. The test cases produced are random floating point numbers in the numerical space of the element. For a 32-bit floating point number, the values range from -3.402823E+38 to 3.4028234E+38. For String elements, the range of values is identical to that of a 64-bit floating point number, from -1.79769313486232E+308 to 1.7976931348623157E+308.
+
+For weighting purposes and for deterministic strategies where an estimate of the number of generated test cases is needed, this mutator reports that it generates 5,000 test cases. In actuality, the number of test cases can exceed 5000.
+
+=== Supported Elements
+
+ * xref:String[String]
+ * xref:Double[Double]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

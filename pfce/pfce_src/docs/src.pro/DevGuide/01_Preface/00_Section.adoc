@@ -1,0 +1,105 @@
+[[Preface]]
+== Preface
+
+This document is one of two books that together form the official documentation of {product}  {version}. This documentation set is written by the {product} team, and represents a concerted effort to document fully all of the {product} features.
+
+This book, the {product} Developer Guide, focuses on developer needs such as advanced configurations, building custom fuzzing definitions, and extending the various areas of Peach. Topics of interest include Modeling, Providing Sample Data, Running Peach, Tutorials, and Extending Peach. The reference section is comprehensive.
+
+The primary audience for this guide is a software developer who is familiar with C, Python, and XML. Also needed is intimate knowledge of the test target because that drives design decisions.
+
+Day-to-day activities are located in the {product} User Guide that focuses on running Peach with the Web user interface, reading fuzzing results, and setting up monitors from a set of recipes.
+
+Peach Fuzzer has been in active development through three major revisions since 2004. Until 2014, no complete documentation existed. The current Developer Guide and User Guide bear witness that documenting Peach is an on-going effort.
+
+=== What is {product}?
+
+{product} (Peach) is a fuzzer for data consumers. Peach is a smart fuzzer that operates by performing the following actions:
+
+* Understand the data structure and the flows of the test target
+* Create and feed malformed data to the test target
+* Monitor the test target to record interesting information when unintended or undesirable behavior occurs (monitors include debuggers and network packet sniffers)
+
+Peach is a versatile product and has been used to fuzz a wide range of products and devices:
+
+* web browsers (file consumers)
+* web servers (network servers)
+* mobile devices (such as Android iOS)
+* robots
+* SCADA systems
+* Semiconductor chips
+
+Because Peach can easily extend its interfacing and monitoring, it is the most adaptable fuzzer that exists.
+
+=== A Brief History of Peach
+
+Peach Fuzzer has been in active development since 2004. Since then it has gone through three major versions:
+
+*Peach v1*
+
+Peach v1 was written in 2004 during the PH-Neutral conference in Berlin Germany.
+Peach was the first fuzzer to take a more object-oriented approach.
+Because Peach was originally written in Python, this version required writing Python code to target and utilize.
+
+*Peach v2*
+
+Peach v2 was a complete redesign of Peach based on the lessons learned developing and using the first version.
+It introduced all of the core concepts still used in Peach today.
+
+Because Peach v2 was the first true modeling fuzzer available, it became widely used in the industry.
+This was the first Peach version to use the three M's approach to fuzzing: Model, Mutate, and Monitor.
+Peach v2 still required writing Python code to target and utilize.
+
+*Peach v3*
+
+Peach had outgrown Python as a language so Peach v3 was rewritten using the Microsoft .NET environment and the C# language.
+
+In Peach v3, the core concepts remain the same, but the internals were re-architected to allow for the next generation of features.
+The fuzzing definitions (Pits) are largely backwards compatible with the prior version.
+Peach v3 introduced Peach Farm, the tool set for scaling fuzzing and for controlling fuzzing server farms.
+
+Peach is currently developed and maintained by Peach Fuzzer, LLC, in Seattle, WA.
+
+=== Additional Resources
+
+More information about Peach is available on the Web:
+
+* http://peachfuzzer.com[Peach Fuzzer website]
+* http://www.peachfuzzer.com/products/peach-pits/[Current Pits and Pit Packs]
+* https://forums.peachfuzzer.com[Peach User Forums]
+* https://vimeo.com/148176046[Installing Peach Fuzzer Software video]
+
+=== Bug Reporting Guidelines
+
+Support for Peach Fuzzer is available in two ways:
+
+ * The Peach Forums site
+ * Using the Peach ticketing system to open a support ticket
+
+[[Peach_Forums]]
+==== Peach Forums
+
+There are two sets of forums for Peach, the community forums and the professional forums. Both forums are hosted at https://forums.peachfuzzer.com.
+
+{product} users should access the private forums to receive support for the commercial versions of Peach. Responses on the commercial forums are prioritized over the public community forums.
+
+To access the {product} forums, follow these steps:
+
+. Register an account on the forums site.
+. Send an email to support@peachfuzzer.com with your license email and forum username.
+. Your account will be granted access to the commercial forums within 24 business hours.
+
+Forums are monitored by the team at Peach Fuzzer, LLC; however, there is no guarantee of response time.
+
+==== Support Tickets
+
+You can open a support ticket by sending an email to _support@peachfuzzer.com_. You will receive an initial response within 24 business hours of opening the ticket. Peach support is available Monday through Friday. Peach support is not currently available on weekends or holidays.
+
+When opening a ticket, please provide the following information in your email:
+
+ * Operating system(s) in use by Peach and any agents
+ * Exact version of Peach being used. This is available from the console output and in the _status.txt_ log file
+ * Detailed description of the issue and expected behavior
+ * Console output using the _--trace_ argument
+ * (if possible) the full Pit file and configuration files
+
+// end

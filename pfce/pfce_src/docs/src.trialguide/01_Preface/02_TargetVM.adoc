@@ -1,0 +1,24 @@
+== Setting up your Client-led trial
+
+The Target VM ISO image contains various applications pre-installed.
+It also runs the Peach Agent so that you can easily configure the pits to run those applications on the VM.
+
+=== Prerequisites
+
+In order to run your trial of {product} you will first need to complete the following steps:
+
+. Install {product} on your local machine and activate your license.
+See the {product} Installation Guide for instructions on how to install on your platform.
+. Install software capable of running a Virtual Machine.
+VMWare Workstation and VirtualBox will both work, although you may use any VM software that is capable of creating a VM from an ISO on your platform.
+. Create a Virtual Machine from the TargetVM ISO you downloaded from Portal.
+. Configure networking with the Target VM so that your installed {product} instance can communicate with the VM by IP address and your Target VM can also communicate back to your installed {product} instance.
++
+NOTE: It is most likely that you will want to configure the networking mode of your VM software to `NAT` instead of `Bridged`. 
+. Note the IP address of the Virtual Machine as this will be required for configuring most of the pits.
+
+If you have any trouble installing {product}, creating the Target VM, or ensuring connectivity between the Target VM and {product}, please contact {supportemail} for assistance.
+
+NOTE:  If you need to connect to the Target VM, you can use ssh with the user name `peach` and the password `peach`.
+
+// end

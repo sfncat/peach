@@ -1,0 +1,22 @@
+:toc!:
+== Length Attribute ==
+
+Length attributes are typically specified in bytes or characters depending on the element in question.  This differs from link:v3/size.html[size] attributes which are typically specified in bits.
+
+_Byte array length in bytes:_
+
+[source,xml]
+----
+<Blob length="10" />
+----
+
+
+_String length in characters:_
+
+[source,xml]
+----
+<String length="5" />
+
+<String type="wchar" length="10" />
+----
+

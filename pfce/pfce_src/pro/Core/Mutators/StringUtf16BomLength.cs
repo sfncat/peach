@@ -1,0 +1,62 @@
+//
+// Copyright (c) Peach Fuzzer, LLC
+//
+
+using System.ComponentModel;
+using Peach.Core;
+using Peach.Core.Dom;
+
+namespace Peach.Pro.Core.Mutators
+{
+	/// <summary>
+	/// Uses StringLengthVariance and injects BOM characters randomly into the strings.
+	/// </summary>
+	[Mutator("StringUtf16BomLength")]
+	[Description("Uses StringLengthVariance and injects BOM characters randomly into the strings.")]
+	public class StringUtf16BomLength : Utility.StringBomLength
+	{
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		static byte[][] bom = new byte[][]
+		{
+			Encoding.Unicode.ByteOrderMark,
+			Encoding.BigEndianUnicode.ByteOrderMark,
+		};
+
+		public StringUtf16BomLength(DataElement obj)
+			: base(obj)
+		{
+		}
+
+		protected override NLog.Logger Logger
+		{
+			get
+			{
+				return logger;
+			}
+		}
+
+		protected override byte[][] BOM
+		{
+			get
+			{
+				return bom;
+			}
+		}
+
+		public new static bool supportedDataElement(DataElement obj)
+		{
+			var asStr = obj as Peach.Core.Dom.String;
+
+			// Make sure we are a mutable string and Peach.TypeTransform hint is not false
+			if (asStr == null || !asStr.isMutable || !getTypeTransformHint(asStr))
+				return false;
+
+			// Attach to all unicode strings
+			if (asStr.stringType != StringType.ascii)
+				return true;
+
+			return false;
+		}
+	}
+}

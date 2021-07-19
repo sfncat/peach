@@ -1,0 +1,31 @@
+:toc!:
+== Run ==
+
+The run element groups one or more test elements together into a run.  Optionally you can also configuring a logging system to capture the results of the run.
+
+The default run is the one named "DefaultRun".
+
+[source,xml]
+----
+<Run name="DefaultRun">
+
+  <!-- List one or more tests to run -->
+  <Test ref="TheTest" />
+
+  <!-- Optionally configure a logging system -->
+  <Logger class="logger.Filesystem">
+    <Param name="path" value="c:\peach\logtest" />
+  </Logger>
+
+</Run>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [required]
+
+_Valid Child-Elements:_
+
+ * link:Test.html[Test]
+ * link:Loggers.html[Logger]

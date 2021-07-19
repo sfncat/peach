@@ -1,0 +1,19 @@
+<<<
+[[Mutators_StringUtf8Invalid]]
+== StringUtf8Invalid
+
+This mutator produces test cases for UTF-8 and ASCII String elements by generating new strings and then populating the strings with randomly-selected values.
+
+The interesting part of this mutator flips the control bits of each generated character. The control bits manage the underlying storage for the byte sequence of the character. Each character ranges from 1 to 6 bytes. The codes for these characters are included in the Unicode space and are unremarkable.
+
+The lengths of the generated strings form a distribution that centers on the current string length and ranges from 1 to 65K Unicode characters.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

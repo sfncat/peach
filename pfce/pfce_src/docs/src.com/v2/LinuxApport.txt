@@ -1,0 +1,35 @@
+:toc!:
+= linux.LinuxApport =
+
+This is a BETA monitor that uses a modified version of the Ubuntu Apport to detect crashes and collect crash data.  This monitor will work on any recent version of the Linux kernel.
+
+NOTE: Create /var/crash and verify user has r/w access.
+NOTE: Peach Agent must be run as ROOT to configure peach-apport correctly!
+
+[source,xml]
+----
+
+<Monitor class="linux.LinuxApport">
+  <!-- Just the executable, *NO PATH* -->
+  <Param name="Executable" value="unixcrash" />
+
+  <!-- Full path to peach-apport program -->
+  <Param name="PeachApport" value="/home/dd/peach/tools/peach-apport/peach-apport" />
+</Monitor>
+
+<Monitor class="process.Process">
+  <Param name="Command" value="samples/UnixCrashServer/unixcrash" />
+</Monitor>
+
+----
+
+
+_Parameters:_
+
+ * Executable -- Name of process executable, no path! [required]
+ * PeachApport -- Full path to peach-apport program [required]
+ * LogFolder -- If different from default (/var/crash) [required]
+
+_Valid Child-Elements:_
+
+None.

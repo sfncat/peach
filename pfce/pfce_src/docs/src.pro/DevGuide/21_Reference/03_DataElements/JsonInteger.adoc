@@ -1,0 +1,171 @@
+<<<
+[[JsonInteger]]
+== JsonInteger
+
+The JsonInteger element defines a binary number of any arbitrary bit size from 1 to 64.
+Binary numbers are packed into a byte representation with a byte order of little-endian or big-endian.
+
+The Number element should not be used for character-based numbers, or ASCII numbers.
+Instead, use a xref:String[String] element.
+
+The Number element is a child element of
+xref:DataModel[DataModel],
+xref:Block[Block],
+or xref:Choice[Choice].
+
+NOTE: While Peach supports unaligned data structures, using unaligned data incurs a performance penalty. The penalty stems from bit slicing that occurs behind the scenes.
+
+TIP: In Peach, two attributes are commonly used to indicate size or length of an element,
+_size_ and _length_.
+The _size_ attribute always refers to the number of bits in an element.
+In contrast, the _length_ attribute refers to the number of bytes of an element.
+
+=== Syntax
+
+[source,xml]
+----
+<JsonObject>
+    <JsonInteger propertyName="Almonds" value="100" />
+</JsonObject>
+
+<JsonInteger value="100" />
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xref:name[name]::
+	Name of the number.
+isNull::
+    Is this elements value null. JSON output will be +null+ instead of value.
+type:: Type controls the output encoding allowing both traditional json and also binary json (bson). Supported values: 'json' or 'bson'. Defaults to 'json'.
+xref:value[value]::
+	The default value to assign to the number.
+xref:valueType[valueType]::
+	The representation of the value. Valid options are string and hex.
+xref:token[token]::
+	This element is treated as a token when parsing. Valid values are true and false, defaults to false.
+xref:mutable[mutable]::
+	Is data element changeable (should it be mutated during fuzzing). Valid values are true and false, defaults to true.
+
+=== Child Elements
+
+xref:Analyzers[Analyzer]::
+	Analyzes current element post cracking, can dynamically change model.
+xref:Fixup[Fixup]::
+	Performs dynamic transformations such as checksums and CRCs.
+xref:Hint[Hint]::
+	Provides information to mutators.
+xref:Placement[Placement]::
+	Relocates an element after it has been cracked.
+xref:Relation[Relation]::
+	Identifies a type of relationship with another data element (such as count).
+xref:Transformer[Transformer]::
+	Performs static transformations such as compression or encoding.
+
+=== Mutators
+
+The following mutators operate on this element type:
+
+_Used for all data elements_
+
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]::
+	This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]::
+	This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]::
+	This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]::
+	This mutator combines data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]::
+	This mutator causes the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]::
+	This mutator causes the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]::
+	This mutator changes both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]::
+	This mutator changes both sides of the relation (data and value) to match numerical variances of the current size.
+
+_Specific to this element type_
+
+xref:Mutators_ExtraValues[ExtraValues]::
+	This mutator provides extra test case values on a per-data element basis.
+xref:Mutators_NumberEdgeCase[NumberEdgeCase]::
+	This mutator produces numerical edge cases for integer values.
+xref:Mutators_NumberRandom[NumberRandom]::
+	This mutator produces random values from the available numerical space.
+xref:Mutators_NumberVariance[NumberVariance]::
+	This mutator produces values near the current value of a number.
+
+=== Examples
+
+.Use in a JsonObject
+==========================
+Produce a 32-bit (4-byte) number with a default value of 5.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="NumberExample1">
+        <JsonObject>
+            <JsonInteger propertyName="Almonds" value="100" />
+        </JsonObject>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="NumberExample1"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex"/>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug NumberExample1.xml
+
+
+[*] Web site running at: http://10.0.1.57:8888/
+
+[*] Test 'Default' starting with random seed 50669.
+Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach\Logs\example.xml_20160223173806\debug.log
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "Initial".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Pro.Core.Publishers.ConsolePublisher start()
+Peach.Pro.Core.Publishers.ConsolePublisher open()
+Peach.Pro.Core.Publishers.ConsolePublisher output(15 bytes)
+00000000   7B 22 41 6C 6D 6F 6E 64  73 22 3A 31 30 30 7D      {"Almonds":100}
+Peach.Pro.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Pro.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+
+==========================
+
+// end

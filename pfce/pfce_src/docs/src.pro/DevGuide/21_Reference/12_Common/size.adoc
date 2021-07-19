@@ -1,0 +1,34 @@
+[[size]]
+== Size Attribute ==
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// * Size always bits instead of bytes
+// * Non powers of 2 are okay
+// * Non aligned (8) sizes will be slow(er) (1 vs. 8)
+// * Maximum size of 64
+
+// * Elements:
+//  * Number
+//  * Flags
+//  * Flag
+
+// Examples:
+// * Number
+// * if you did 24bit little endian.... Seth says "It's crazy"
+
+The _size_ attribute speicifies the size of a data element in BITS. Size typically applies to xref:Number[Number] or bit xref:Flags[Flags] elements.
+
+// TODO
+
+=== Examples ===
+
+This example creates an 8-bit number with a default value of 42. 
+
+[source,xml]
+----
+<Number name="TheAnswer" size="8" value="42" />
+
+----
+

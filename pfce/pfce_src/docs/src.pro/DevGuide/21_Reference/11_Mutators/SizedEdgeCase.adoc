@@ -1,0 +1,21 @@
+<<<
+[[Mutators_SizedEdgeCase]]
+== SizedEdgeCase
+
+This mutator produces test cases for elements that are part of a size relationship. The SizedEdgeCase Mutator causes the data in a sized element to expand and, as needed, expands the physical size of the field to keep the relationship valid.
+
+The test cases are generated using a Gaussian distribution around numerical edge cases. Edge cases for integers are defined as boundaries between signed/unsigned representations and bit boundaries (0, 8, 16, 32, 64).
+
+Values used in the test cases never require more storage than the maximum size the size provider can handle. For example, values used for a signed 16-bit integer do not exceed 32,767.
+
+NOTE: This mutator is similar to the xref:Mutators_NumberEdgeCase[NumberEdgeCase] Mutator.
+
+=== Supported Elements
+
+Elements that are part of a size relationship: numbers and strings. String elements are only supported when the default data they contain is integer values.
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

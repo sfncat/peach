@@ -1,0 +1,530 @@
+:toc!:
+link:DevelopmentEnvironment.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:CreateStateModel.html[Next >>]
+
+''''
+
+== Creating Wave Data Models ==
+
+Now we are going to dive right in.  Lets start by making a copy of +template.xml+ (found in your Peach folder) to +wav.xml+.  This will hold all of the information about our WAV fuzzer.  You will also want a sample WAV file, grab link:../attachment:sample.wav.html[this one].
+
+Go ahead and load up +wav.xml+ into your XML editor.
+
+Now, you will want to check out the following two specifications to get an idea for the format of WAV:
+
+ . http://www.sonicspot.com/guide/wavefiles.html[Wave File Format]
+ . http://netghost.narod.ru/gff/vendspec/micriff/ms_riff.txt[RIFF File Specification (Microsoft)]
+
+If you glance through the wave file format you will notice that the wave file is composed of a file header followed by a number of chunks.  This is fairly common for file formats and also network packets.  Typically each chunk has the same format that follows some form of T-L-V or Type-Length-Value, in fact wave file chunks are just that, a type followed by length followed by data.  Each chunk type will define what there data looks like.
+
+Based on this basic information we can plan out our fuzzer.  We will have several top level "DataModel" elements that will be called:
+
+ * Chunk
+ * ChunkFmt
+ * ChunkData
+ * ChunkFact
+ * ChunkCue
+ * ChunkPlst
+ * ChunkList
+ * ChunkLabl
+ * ChunkLtxt
+ * ChunkNote
+ * ChunkSmpl
+ * ChunkInst
+ * Wav
+
+The DataModel called _Chunk_ will be a template for each of the following types of chunks and we will pull all of it together, and also define our header in the last DataModel called _Wav_.
+
+== Creating the Wav DataModel ==
+
+Okay, head over to your +wav.xml+ file and lets start writing some XML!  Locate the DataModel called _TheDataModel_ is should look something like this:
+
+[source,xml]
+----
+<!-- TODO: Create data model -->
+<DataModel name="TheDataModel">
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel]
+
+We are going to rename this _Wav_ and define the header for our wave file.  Looking at the specification I notice that the format for the wave header is:
+
+ * File magic: 4 character string, always "RIFF"
+ * Length of file: 32 bit unsigned integer
+ * Riff type: 4 character string, always "WAVE"
+
+We can define that in Peach using the following XML:
+
+[source,xml]
+----
+<!-- Defines the format of a WAV file -->
+<DataModel name="Wav">
+	<!-- wave header -->
+	<String value="RIFF" token="true" />
+	<Number size="32" signed="false"/>
+	<String value="WAVE" token="true"/>
+	
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../String.html[String], link:../Number.html[Number]
+
+Otherwise we will continue on and define the _Chunk_ DataModel.
+
+== Chunk DataModel ==
+
+The _Chunk_ data model should be the first data model in the Peach Pit file, so lets add it in above the _Wav_ data model as follows:
+
+[source,xml]
+----
+<!-- Defines the common wave chunk -->
+<DataModel name="Chunk">
+	
+</DataModel>
+
+<!-- Defines the format of a WAV file -->
+<DataModel name="Wav">
+	<!-- wave header -->
+	<String value="RIFF" token="true" />
+	<Number size="32" signed="false"/>
+	<String value="WAVE" token="true"/>
+	
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../String.html[String], link:../Number.html[Number]
+
+Notice that the _Chunk_ data model occurs before the _Wav_ data model.  This is important, we will later reference this data model and it must be defined before we use it.
+
+Looking at the specification we know that the wave chunk format is as follows:
+
+ * ID: 4 character string padded with spaces
+ * Size: 4 byte unsigned integer
+ * Data: bytes of data the size of Size
+
+We can model that in Peach using the following XML:
+
+[source,xml]
+----
+<!-- Defines the common wave chunk -->
+<DataModel name="Chunk">
+	<String name="ID" length="4" padCharacter=" " />
+	<Number name="Size" size="32" signed="false">
+		<Relation type="size" of="Data"/>
+	</Number>
+	<Blob name="Data" />
+	<Blob name="Pad" lengthType="calc" length="int((int(self.find('Size').getInternalValue()) % 2 == 0) and '0' or '1')" />
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../String.html[String], link:../Number.html[Number], link:../Relation.html[Relation], link:../Blob.html[Blob]
+
+Notice that we have created a size link:../Relation.html[relationship] between _Size_ and _Data_.  By doing this _Size_ will automatically get updated with the size of _Data_ when we produce data.  When we parse in a sample file to use as default values this will instruct the parser that it can find the size of _Data_ by looking at _Size_.
+
+Few, we had todo some silly stuff to get that pad byte.  Notice that the _lengthType_ of _calc_ allows us to supply a python expression that will be used to generate the length of our blob.  In this case we are going to have a size of zero when the _Size_ is even and 1 otherwise.
+
+Hopefully you will not have to add many python expressions into your fuzzers :)
+
+== Format Chunk ==
+
+Now we are going to define the details of the format chunk.  We will use the generic chunk we already defined as a template for this chunk.  That will allow us to only specify the specifics of this chunk and save on some typing.
+
+Looking at the wave specification we can tell that the format chunk is as follows:
+
+ * ID: Always 'fmt '
+ * Data:
+ ** Compression code: 16 bit unsigned int
+ ** Number of channels: 16 bit unsigned int
+ ** Sample rate: 32bit unsigned int
+ ** Average bytes per second: 32bit unsigned int
+ ** Block align: 16 bit unsigned int
+ ** Significant bits per sample: 16 bit unsigned int
+ ** Extra format bytes: 16 bit unsigned int
+
+The _ChunkFmt_ data model will be defined after _Chunk_ but before _Wav_:
+
+[source,xml]
+----
+<DataModel name="ChunkFmt" ref="Chunk">
+	<String name="ID" value="fmt " token="true"/>
+	<Block name="Data">
+		<Number name="CompressionCode" size="16" signed="false"/>
+		<Number name="NumberOfChannels" size="16" signed="false"/>
+		<Number name="SampleRate" size="32" signed="false"/>
+		<Number name="AverageBytesPerSecond" size="32" signed="false"/>
+		<Number name="BlockAlign" size="16" signed="false"/>
+		<Number name="SignificantBitsPerSample" size="16" signed="false"/>
+		<Number name="ExtraFormatBytes" size="16" signed="false"/>
+		<Blob name="ExtraData" />
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../String.html[String], link:../Number.html[Number], link:../Blob.html[Blob]
+
+Now, if you look at this you will notice a number of cool things.  First off if you check out the DataModel element you can see an attribute called _ref_ which has a value of _Chunk_.  This tells Peach to copy the _Chunk_ data model and make it the basis for our new data model called _ChunkFmt_.  This means that all the elements defined in _Chunk_ are in our new _ChunkFmt_ by default!  This is way cool and our first look at re-use in Peach.  Next you will notice we have two elements in our data model that have the same name as elements in the _Chunk_ model (ID and Data).  This will cause the old elements to be replaced with our new ones.  This allows us to override the old elements based on the needs of our format chunk type.
+
+Now, you might be asking why we needed to override ID?  This is a good question, we override ID here to specify the static string that it will always be when for this format chunk.  Later we will specify a sample wave file to use and the parser will need hints on how to select the correct chunk.  More on that later when we introduce the link:../Choice.html[Choice] element :)
+
+Otherwise I think things should largely make sense.
+
+== Data Chunk ==
+
+Next up is the data chunk.  This one is easy as the _Data_ portion of the packet has no structure.  We can define this chunk as follows:
+
+[source,xml]
+----
+<DataModel name="ChunkData" ref="Chunk">
+	<String name="ID" value="data" token="true"/>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../String.html[String]
+
+Easy!
+
+== Fact Chunk ==
+
+Okay, now we have the fact chunk.  This chunk is defined as follows:
+
+ * ID: "fact", string 4 chars
+ * Data:
+ ** Number of samples: 32 bit unsigned int
+ ** Unknown? Unknown trailing bytes
+
+Another easy one to define in XML:
+
+[source,xml]
+----
+<DataModel name="ChunkFact" ref="Chunk">
+	<String name="ID" value="fact" token="true"/>
+	<Block name="Data">
+		<Number size="32" signed="false"/>
+		<Blob/>
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../String.html[String], link:../Number.html[Number], link:../Blob.html[Blob]
+
+Notice that I was lazy and decided not to name the link:../Number.html[Number] or link:../Blob.html[Blob] here.  Peach does not require that all elements have names, only ones that are being referenced.
+
+== Wave List Chunk ==
+
+This chunk it a bit different.  The wave list chunk is comprised of silent chunk and data chunks alternating in a list.  So, before we can complete the wave list chunk we will need to define the silent chunk.  Lets do that now.
+
+The silent chunk of easy, it's just a 4 byte unsigned integer, the data model looks like this:
+
+[source,xml]
+----
+<DataModel name="ChunkSint" ref="Chunk">
+	<String name="ID" value="sInt" token="true"/>
+	<Block name="Data">
+		<Number size="32" signed="false"/>
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../String.html[String], link:../Number.html[Number]
+
+Now that that's out of the way we can get on with our wave list chunk.  The data portion is an array of silent and data chunks.  Here is how we do that:
+
+[source,xml]
+----
+<DataModel name="ChunkWavl" ref="Chunk">
+	<String name="ID" value="wavl" token="true"/>
+	<Block name="Data">
+		<Block name="ArrayOfChunks" maxOccurs="3000">
+			<Block ref="ChunkSint"/>
+			<Block ref="ChunkData" />
+		</Block>
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../String.html[String]
+
+This definition introduces the concept of arrays, or repeating elements.  Notice that we have a link:../Block.html[block] element that has an attribute _maxOccurs_.  This will tell Peach that this block may occur more then one, upto 3,000 times.  Also you will notice we are using the _ref_ attribute with the link:../Block.html[Block] element.  This is just like using it with the data model, but allows us to get re-use inside of the data model as well.
+
+That wasn't so hard!
+
+== Cue Chunk ==
+
+Now onto the cue chunk.  This chunk should be easy now that we know about the _maxOccurs_ attribute.  This chunk is also an array.  The array is comprised of the following:
+
+ * ID: 4 bytes
+ * Position: 4 byte unsigned integer
+ * Data Chunk ID: 4 byte RIFF ID
+ * Chunk start: 4 byte unsigned integer offset of data chunk
+ * Block start: 4 byte unsigned integer offset to sample of first channel
+ * Sample offset: 4 byte unsigned integer offset to sample byte of first channel
+
+We don't have to worry about the fact the last 3 numbers are offset's.  The data is already parsed in the wave list chunk, we just need to read them in.  So lets build the XML!
+
+[source,xml]
+----
+<DataModel name="ChunkCue" ref="Chunk">
+	<String name="ID" value="cue " token="true"/>
+	<Block name="Data">
+		<Block name="ArrayOfCues" maxOccurs="3000">
+			<String length="4" />
+			<Number size="32" signed="false"/>
+			<String length="4" />
+			<Number size="32" signed="false"/>
+			<Number size="32" signed="false"/>
+			<Number size="32" signed="false"/>
+		</Block>
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../String.html[String], link:../Number.html[Number]
+
+There shouldn't be any surprises here, we are just re-using the same stuff as before.  Once again I'm being a bit lazy and not giving everything a name.  This is okay, but it can be nice sometimes to use the names as documentation :)
+
+== Playlist Chunk ==
+
+Looking at this chunk I notice that _Data_ will be comprised of an array (again) but this time the count will be included before the array.  We will use a count-of relationship to model this.
+
+[source,xml]
+----
+<DataModel name="ChunkPlst" ref="Chunk">
+	<String name="ID" value="plst" token="true"/>
+	<Block name="Data">
+		<Number name="NumberOfSegments" size="32" signed="false">
+			<Relation type="count" of="ArrayOfSegments"/>
+		</Number>
+		<Block name="ArrayOfSegments" maxOccurs="3000">
+			<String length="4" />
+			<Number size="32" signed="false"/>
+			<Number size="32" signed="false"/>
+		</Block>
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../Number.html[Number], link:../String.html[String], link:../Relation.html[Relation]
+
+Notice in this XML that we setup a relationship between _NumberOfSegments_ and _ArrayOfSegments_ that will indicate the count.
+
+== Associated Data List Chunk ==
+
+This chunk is an array of label chunks, name chunks, and text chunks.  We will not know in what order they will appear so we will need to support them in any order.  This will actually be fairly easy, but first we need to define each of the tree chunks before we define our data list chunk.  Lets do that now.
+
+=== Label Chunk ===
+
+First up is the label chunk, in this the data portion contains a null terminated string an possible a single pad byte.
+
+[source,xml]
+----
+<DataModel name="ChunkLabl" ref="Chunk">
+	<String name="ID" value="labl" token="true"/>
+	<Block name="Data">
+		<Number size="32" signed="false"/>
+		<String nullTerminated="true" />
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../Number.html[Number], link:../String.html[String]
+
+We will automatically get the pad byte from the _Chunk_.
+
+=== Note Chunk ===
+
+Now onto the note chunk, it turns out this chunk is exactly the same as the label chunk!  So, we will just create an alias for it like this:
+
+[source,xml]
+----
+<DataModel name="ChunkNote" ref="ChunkLabl">
+	<String name="ID" value="note" token="true"/>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../String.html[String]
+
+Yup, that's it!  Nice and easy :)
+
+=== Labeled Text Chunk ===
+
+This one is also very similar to the note and label chunks but has several more numbers included in it.  I'll copy the data model for label and expand it like this:
+
+[source,xml]
+----
+<DataModel name="ChunkLtxt" ref="Chunk">
+	<String name="ID" value="ltxt" token="true"/>
+	<Block name="Data">
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="16" signed="false"/>
+		<Number size="16" signed="false"/>
+		<Number size="16" signed="false"/>
+		<Number size="16" signed="false"/>
+		<String nullTerminated="true" />
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../Number.html[Number], link:../String.html[String]
+
+As we can see it's very similar to the label chunk.
+
+=== Back to Associated Data List Chunk ===
+
+Okay, we are ready to combine all those chunks into an array.  IT will end up looking like this:
+
+[source,xml]
+----
+<DataModel name="ChunkList" ref="Chunk">
+	<String name="ID" value="list" token="true"/>
+	<Block name="Data">
+		<String value="adtl" token="true" />
+		<Choice maxOccurs="3000">
+			<Block ref="ChunkLabl"/>
+			<Block ref="ChunkNote"/>
+			<Block ref="ChunkLtxt"/>
+			<Block ref="Chunk"/>
+		</Choice>
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../Number.html[Number], link:../String.html[String], link:../Choice.html[Choice]
+
+Here we are introducing the link:../Choice.html[Choice] element.  This element will try each of the link:../Block.html[Block]s we specify looking for the best match.  You will notice at the end of the list is _Chunk_.  This is our catch-all.  The specification indicates there could be other types of blocks that will show up here.
+
+== Sampler Chunk ==
+
+The sampler chunk is similar to what we have already seem, it contains several numbers and then an array of some values.  We will define it as follows:
+
+[source,xml]
+----
+<DataModel name="ChunkSmpl" ref="Chunk">
+	<String name="ID" value="smpl" token="true"/>
+	<Block name="Data">
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Number size="32" signed="false"/>
+		<Block maxOccurs="3000">
+			<Number size="32" signed="false"/>
+			<Number size="32" signed="false"/>
+			<Number size="32" signed="false"/>
+			<Number size="32" signed="false"/>
+			<Number size="32" signed="false"/>
+			<Number size="32" signed="false"/>
+		</Block>
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../Number.html[Number], link:../String.html[String]
+
+Again, that was straight forward :)
+
+== Instrument Chunk ==
+
+Few, this is our last chunk to define and it's an easy one.  It's comprised of just seven (7) 8 bit numbers.  This will be super easy.
+
+[source,xml]
+----
+<DataModel name="ChunkInst" ref="Chunk">
+	<String name="ID" value="inst" token="true"/>
+	<Block name="Data">
+		<Number size="8"/>
+		<Number size="8"/>
+		<Number size="8"/>
+		<Number size="8"/>
+		<Number size="8"/>
+		<Number size="8"/>
+		<Number size="8"/>
+	</Block>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../Number.html[Number], link:../String.html[String]
+
+Notice that the numbers in this case are not unsigned.  The values they can have range from negative to positive.
+
+== Finishing the Wav Model ==
+
+Time to wrap this modeling up!  Lets head down to the _Wav_ chunk which last we touched it looked like this:
+
+[source,xml]
+----
+<!-- Defines the format of a WAV file -->
+<DataModel name="Wav">
+	<!-- wave header -->
+	<String value="RIFF" token="true" />
+	<Number size="32" signed="false"/>
+	<String value="WAVE" token="true"/>
+	
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Number.html[Number], link:../String.html[String]
+
+We are going to add in an array of chunks, however we don't know in what order all these chunks will occur in, so we will use our friend the link:../Choice.html[Choice] element to have Peach choose for us based on the input file.
+
+[source,xml]
+----
+<!-- Defines the format of a WAV file -->
+<DataModel name="Wav">
+	<!-- wave header -->
+	<String value="RIFF" token="true" />
+	<Number size="32" signed="false"/>
+	<String value="WAVE" token="true"/>
+	
+	<Choice maxOccurs="30000">
+		<Block ref="ChunkFmt"/>
+		<Block ref="ChunkData"/>
+		<Block ref="ChunkFact"/>
+		<Block ref="ChunkSint"/>
+		<Block ref="ChunkWavl"/>
+		<Block ref="ChunkCue"/>
+		<Block ref="ChunkPlst"/>
+		<Block ref="ChunkLtxt"/>
+		<Block ref="ChunkSmpl"/>
+		<Block ref="ChunkInst"/>
+		<Block ref="Chunk"/>
+	</Choice>
+</DataModel>
+----
+
+
+Read more about: link:../DataModel.html[DataModel], link:../Block.html[Block], link:../Number.html[Number], link:../String.html[String], link:../Choice.html[Choice]
+
+That wasn't so hard was it!
+
+== Next Steps ==
+
+All the hard work is over, but there is still stuff we need to do before we can run our fuzzer!
+
+
+''''
+
+link:DevelopmentEnvironment.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:CreateStateModel.html[Next >>]

@@ -1,0 +1,165 @@
+<<<
+[[Fixups_HMACFixup]]
+== Hmac
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher
+// List Parent element types
+// List enum for HMAC parameter
+// Expand length description
+// Example 1 length 0
+// Example 2 length set to 10
+
+// Updated:
+// - 02/18/2014: Jordyn
+// Added full examples
+// Expanded length description
+// Added enum list
+// Expanded description
+// Added parent elements
+
+// Updated:
+// - 02/21/2014: Mick
+// Parent elements changed to match format
+
+
+The _Hmac_ fixup hashes the _ref_ element's value using the one of the defined HMAC algorithms. This is used in fuzzing IPsec protocol implementations.
+
+=== Parent Elements
+
+xref:String[String]
+xref:Blob[Blob]
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the input data element used in the HMAC calculation.
+Key:: Key to use for HMAC.
+HMAC:: Hash algorithm to use (HMACSHA1 HMACMD5, HMACRIPEMD160, HMACSHA256, HMACSHA384, HMACSHA512, MACTripleDES).
+xref:length[Length]:: Length in bytes to return from HMAC, the default value is 0 and returns all bytes. Allows all or a portion of the calculated hash to be returned to the element.
+
+=== Examples
+
+.SHA-1 HMAC returning all bytes
+===============================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41">
+      <Fixup class="HMAC">
+        <Param name="ref" value="Data"/>
+        <Param name="Key" value="aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae"/>
+        <Param name="Hash" value="HMACSHA1"/>
+        <Param name="Length" value="0"/>
+      </Fixup>
+    </Blob>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>  </Test>
+</Peach>
+----
+
+Output from this example
+
+----
+>peach -1 --debug DocSample.xml
+
+[*] Test 'Default' starting with random seed 40206.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(29 bytes)
+00000000   53 74 61 72 74 43 A0 3C  5D 3C 68 39 53 B4 55 B5   StartC?<]<h9S?U?
+00000010   07 E1 74 60 37 E9 72 D4  52 53 74 6F 70            ??t`7?r?RStop
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+===============================
+
+.SHA-1 HMAC returning 10 bytes of output
+===============================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41">
+      <Fixup class="HMAC">
+        <Param name="ref" value="Data"/>
+        <Param name="Key" value="aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae"/>
+        <Param name="Hash" value="HMACSHA1"/>
+        <Param name="Length" value="10"/>
+      </Fixup>
+    </Blob>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>  </Test>
+</Peach>
+----
+
+Output from this example
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 27945.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(19 bytes)
+00000000   53 74 61 72 74 43 A0 3C  5D 3C 68 39 53 B4 55 53   StartC?<]<h9S?US <1>
+00000010   74 6F 70                                           top
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+<1> The output of the HMAC is truncated to 10 bytes
+
+===============================

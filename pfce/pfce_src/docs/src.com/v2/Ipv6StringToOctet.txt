@@ -1,0 +1,18 @@
+:toc!:
+= encode.Ipv6StringToOctet =
+
+Converts a colon notation IPv6 address into a 16-byte octet representation. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="encode.Ipv6StringToOctet"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +encode.Ipv6StringToOctet+, +Ipv6StringToOctet+

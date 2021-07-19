@@ -1,0 +1,14 @@
+:toc!:
+== Value Attribute ==
+
+All of the data element types in peach support the value attribute.  Values are used to specify a default value for a field when peach is not mutating it's contents. 
+
+=== Examples ===
+
+[source,xml]
+----
+<Number name="five" size="8" value="5" />
+
+<String name="five" value="five" /> 
+----
+

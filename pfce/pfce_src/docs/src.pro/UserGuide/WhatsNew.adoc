@@ -1,0 +1,41 @@
+:product: Peach Fuzzer Professional
+= {product}: What's New
+Peach Fuzzer, LLC
+v{BUILDTAG}
+:doctype: book
+:compat-mode:
+:experimental:
+:icons: font
+:listing-caption:
+:sectnums:
+:chapter-label:
+:toc: left
+:toc-start: 3
+:toclevels: 2
+:version: v{VER_MAJOR}.{VER_MINOR}
+:peachurl: http://peachfuzzer.com
+:forumurl: https://forums.peachfuzzer.com
+:peachweb: Peach Web Interface
+:peachcomd: Peach Command Line Interface
+:peachug: Peach User Guide
+ifdef::backend-pdf[]
+:pagenums:
+:source-highlighter: coderay
+include::../Common/Abstract.adoc[]
+endif::[]
+
+// This document is one of two books that together form the official
+// documentation for Peach Fuzzer Professional.
+//
+// The User Guide supports and guides the user through daily activities that
+// can otherwise impede tasks associated with fuzzing.
+//
+// It is not theoretical, nor designed to tackle advanced configurations.
+// The primary audience is a daily user, not a developer and not knowledgeable about XML.
+
+// NOTE: This book documents the commercial version of Peach
+
+<<<
+include::05_WhatsNew/00_Section.adoc[]
+
+// end

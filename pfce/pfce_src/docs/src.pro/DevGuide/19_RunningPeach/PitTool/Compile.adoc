@@ -1,0 +1,112 @@
+[[PitTool_Compile]]
+== Pit Tool - Compile
+
+The Pit compiler is used by Pit developers to provide the following features:
+
+* Validation of Pit files against the xref:PeachPit[Peach XML Schema].
+* Verification of xref:PitDefines[PitDefines] in +.xml.config+ files.
+* Lint checks to enfore basic rules for +.xml+ files.
+* Generation of +.meta.json+ files used for xref:WebUI_Config_Tuning[tuning mutations] in the Peach Web Interface.
+* Generation of +.ninja+ databases used by the xref:Mutators_SampleNinjaMutator[Sample Ninja mutator].
+
+=== Syntax
+
+----
+Usage:
+  PitTool.exe compile [options] <PitPath>
+
+Description:
+  Validate and compile pit into .meta.json and .ninja files.
+
+compile Options:
+      --no-verify            Don't verify PitDefines.
+      --no-lint              Don't perform lint checks.
+      --no-meta              Don't generate metadata used for tuning.
+      --no-ninja             Don't generate a sample ninja database.
+
+General Options:
+  -h, --help                 Display this help and exit
+  -V, --version              Display version information and exit
+  -v, --verbose              Increase verbosity, can use multiple times
+      --plugins=VALUE        Specify the plugins path
+      --pits=VALUE           Specify the PitLibraryPath.
+----
+
+=== Parameters
+
+PitPath:: The path to a PIT.xml.
+--no-verify:: Don't verify PitDefines.
+--no-lint:: Don't perform lint checks.
+--no-meta:: Don't generate metadata used for tuning.
+--no-ninja:: Don't generate a sample ninja database.
+
+=== Verify PitDefines
+
+This step enforces the following rules on each PitDefine:
+
+* A name is defined.
+* A description is defined.
+* A PitDefine is used by the Pit.
+
+=== PitLint Checks
+
+The following lint checks are provided to enforce basic rules on Pits:
+
+* The Pit must have an xml declaration.
+* The first xml element must be +<Peach>+.
+* +<Peach>+ must have an +xmlns+ attribute.
+* The +xmlns+ attribute must be equal to +http://peachfuzzer.com/2012/Peach+.
+* Only a single +<Test>+ element is allowed.
+* +<Test>+ element must have a +maxOutputSize+ attribute.
+* +<Test>+ element must have a +targetLifetime+ attribute.
+* +<Publisher>+ parameters must not be hard-coded, use a PitDefine (suppress with 'Allow_HardCodedParamValue')
+* The +class+ attribute of a +<Publisher>+ element must match the known Publisher plugins.
+* +<Publisher>+ must not be referenced with deprecated name.
+* All required parameters on a publisher must be configured.
+* +<StateModel>+ must not have unexpected call actions.
+* +<StateModel>+ must have a 'StartIterationEvent' call +<Action>+ at the start.
+* +<StateModel>+ must have a 'ExitIterationEvent' call +<Action>+ at the end.
+* +<Action>+ with a +when+ attribute must not contain +controlIteration+.
+* +<Action>+ with a +when+ attribute force +<Test>+ to have +nonDeterministicActions+ attribute set to +true+.
+* Elements with a +value+ attribute must not contain embedded newline.
+
+Some lint checks may be ignored by using an xml comment with the format:
+----
+<!-- PitLint: RULE -->
+----
+
+The following rules may be ignored:
+
+* Skip_StartIterationEvent
+* Allow_WhenNonDeterministicActions
+* Allow_WhenControlIteration
+* Allow_MissingParamValue=<ParamName>
+* Allow_HardCodedParamValue
+
+For example,
+the following can be used to ignore errors about the
++Timeout+ and +Filter+ params required by the +RawEther+ publisher.
+
+----
+<Publisher class='RawEther'>
+	<!-- Pit is send only, don't need to expose timeouts or filter -->
+	<!-- PitLint: Allow_MissingParamValue=Timeout -->
+	<!-- PitLint: Allow_MissingParamValue=Filter -->
+	<Param name='Interface' value='##Interface##'/>
+</Publisher>
+----
+
+=== Generate Tuning Metadata
+
+Peach offers the ability to tune the fuzzing process by allowing users to manually set a relative
+mutation weight on a field-by-field basis.
+To accomplish this task, +PitTool compile+ is used to generate metadata which includes the
+structure of the fields in a Pit.
+This metadata is used by the Peach Web Interface so that the tree of fields can be displayed and
+manipulated.
+
+=== Generate Sample Ninja Database
+
+For more information on the sample ninja database, see xref:PitTool_Ninja[PitTool - Ninja].
+
+// end

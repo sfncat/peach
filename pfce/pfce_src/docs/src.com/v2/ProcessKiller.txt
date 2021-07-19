@@ -1,0 +1,20 @@
+:toc!:
+= process.ProcessKiller =
+
+This monitor will watch for specific process and kill it.
+
+[source,xml]
+----
+<Monitor class="process.ProcessKiller ">
+  <Param name="ProcessNames" value="notepad.exe,pbrush.exe" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * ProcessNames -- Comma separated list of process names to kill [required]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

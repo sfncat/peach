@@ -1,0 +1,305 @@
+== Converting Pits from Peach V2.3
+
+Fuzzing definitions (pits) from Peach version 2.3 do not run "as-is" in the current
+version. The changes needed to enable these pits to run in the current version include
+a few global issues; advancements in methodology that translate to changes in the
+description language; and product improvements, bug fixes, and enhancements.
+
+Changing a pit to run in Peach version 3.x means that you can run the pit through
+the command-line interface. However, Peach version 3.x introduced a web-based UI
+that requires some additional work to have compatibility between a pit and the new
+web UI.
+
+The remainder of this section addresses the global changes, changes to individual
+commands, and how to set up a pit to run with the Peach web UI.
+
+=== Global Changes
+
+The global changes consist of the following items that you need to change for all version 2.3 pits:
+
+* The `<Peach>` element `xmlsns` and `xsi:schemaLocation` attribute values have changed.
+The simplest fix is to replace the v2.3 `<Peach>` element with the following:
++
+[source,xml]
+-----------------------------------
+<!-- Peach v3.x  -->
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+-----------------------------------
+
+* The `<Include>` element for `defaults.xml` is no longer used. Remove the include statement from the pit. An example of the statement to remove follows:
++
+[source,xml]
+-----------------------------------
+<!-- Peach v2.3  -->
+<Include ns="default" src="file:defaults.xml"/>
+-----------------------------------
+
+* The relationship `from` is no longer used. Remove all `from` relations. An example statement follows:
++
+[source,xml]
+-----------------------------------
+<!-- Peach v2.3  -->
+<Relation type="size" from="Length" />
+-----------------------------------
++
+Peach v2.3 provided `from` relations to boost performance by specifying both sides of a relationship using `of` and `from` parameters, as in the following example.
++
+[source,xml]
+-----------------------------------
+<!-- Peach v2.3  -->
+<Number name="Length" size="32" endian="network" signed="false">
+  <Relation type="size" of="Data" />
+</Number>
+<Blob name="Data">
+  <Relation type="size" from="Length" />
+</Blob>
+-----------------------------------
++
+Peach v3.x does not use the `from` parameter. The following example, written for Peach v3.x, provides identical functionality to the previous example.
++
+[source,xml]
+-----------------------------------
+<!-- Peach v3.x  -->
+<Number name="Length" size="32" endian="network" signed="false">
+  <Relation type="size" of="Data" />
+</Number>
+<Blob name="Data" />
+-----------------------------------
+
+* The `<Logger>` element is now part of the `<Test>` element. Move the Logger element block into the Test element block. For more information, see the next item.
+
+* The functionality of the `<Run>` element is now part of the `<Test>` element. Upon moving the Logger element block into the Test element block, remove the Run element block from the pit. An example follows.
++
+[source,xml]
+-----------------------------------
+<!--  Peach v2.3 Test and Run elements sample    -->
+<Test name="UdpResp">
+  <Agent ref="LocalAgent" />
+  <StateModel ref="UdpTransaction" />
+  <Publisher class="Udp">
+    <Param name="host" value="192.168.1.3" />
+    <Param name="port" value="53" />
+  </Publisher>
+</Test>
+
+<Run name="DefaultRun">
+  <Logger class="logger.Filesystem">
+    <Param name="Path" value="logs" />
+  </Logger>
+
+  <Test ref="UdpResp" />
+</Run>
+-----------------------------------
++
+In Peach v3.x, the Test element block identifies the Agent, StateModel (and, by implication, the DataModel), Publisher, and Logger for a fuzzing session. A v3.x Test element block follows. The block is functionally identical the previous example.
++
+[source,xml]
+-----------------------------------
+<!--  Peach v3.x Test element sample    -->
+  <Test name="Default">
+    <Agent ref="LocalAgent" />
+    <StateModel ref="UdpTransaction" />
+    <Publisher class="Udp">
+      <Param name="Host" value="192.168.1.3" />
+      <Param name="Port" value="53"/>
+    </Publisher>
+    <Logger class="logger.Filesystem">
+      <Param name="Path" value="logs" />
+    </Logger>
+</Test>
+-----------------------------------
++
+NOTE: In the example, the name for the Test element is `Default`. This is the default name for the Test element. At runtime, Peach v3.x automatically looks for and runs the default Test, unless you specify a Test name on the command line.
+
+* The parameter names for Monitors and Publishers now use CamelCasing. In the previous example, the parameter names `"Host"` and `"Port"` for the publisher have changed slightly due to CamelCasing. You can use the Peach DOM reference or the developer's guide to check parameters that fail validation. Use the following command to generate the DOM reference.
++
+-----------------------------------
+peach --showenv
+-----------------------------------
+
+* You can place the data and state model definitions in separate xml files to improve re-use of these definitions. Once defined, you can the pull these definitions into different pits to perform different tests on the same data and state models. Specify the file containing the models using the include xml element.
++
+The following example shows file fragments of a pit and definition files that contain the state and data models. Two include elements are used: 1) the main pit file includes the state model, and 2) the state model file includes the data model.
++
+[source,xml]
+-----------------------------------
+<!--  Peach v3.x Pit file   -->
+<Peach xmlns=http://peachfuzzer.com/2012/Peach
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation=http://peachfuzzer.com/2012/Peach peach.xsd>
+
+  <!--  Pull the StateModel into the pit.  -->
+  <Include ns="FTP" src="file:FTP_State.xml" />
+
+  <Test name="Default">
+    <StateModel ref="FTP:Client" />
+  </Test>
+</Peach>
+
+<!--  Peach v3.x StateModel definitions (FTP_State.xml)  -->
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <!--  Pull the DataModel into the StateModel.  -->
+  <Include ns="FTP" src="file:FTP_Data.xml" />
+
+  <StateModel name="Client" initialState="Initial">
+    <!-- FTP Client State Model -->
+  </StateModel>
+</Peach>
+-----------------------------------
+
+=== Changes to Individual xml Elements
+
+The following Peach v2.3 xml elements require changes when used with Peach v3.x.
+
+<Defaults>::
+The Defaults element contains default values for parameter definitions. If an
+individual element does not specify an optional parameter, Peach uses the value
+specified in this element block. Values for optional attributes and parameters
+are defined in this element.
++
+Note that the `Size` attribute of the number element is a required attribute
+that must be specified with each number instance.
+
+<Import>::
+This xml element has one attribute, import, that names the python file containing
+code. Note the `.py` postfix is not used.
++
+In v3.x, you must specify each python file you want to use. Wild card characters (*)
+are not supported.
++
+The from attribute is now a top-level element named <PythonPath> that specifies
+the search path for all python modules. Note that a trailing `\` or `/` for the
+path is not used. Use multiple <PythonPath> elements to tell Peach to search in
+more than one place.
+
+<DataModel>::
+Remove all `from` relation statements from all data model elements.
+
+<Flag>::
+A multiple-bit Flag that uses the value parameter accepts a value expressed as a hexadecimal integer or a sequence of hexadecimal digits.
+* A value expressed as a hexadecimal integer must fit into the bits allocated for the flag.
+* A value expressed as a sequence of hexadecimal digits must have sufficient length to span the number of bits in the flag.
+
+<Number>::
+_value_ Attribute +
+When specifying a value for a number, you can use an integer value, a hexadecimal integer value or a sequence of hexadecimal digits.
+A value expressed as a sequence of hexadecimal digits (where valueType="hex") must match lengthwise with the allocated size of the number or a validation error occurs.
+For example, initially setting a 64-bit number to one can be specified as seven digits of zeros and one digit of one:
++
+[source,xml]
+-----------------------------------
+<!-- Peach v3.x  -->
+<Number size="64" valueType="hex" value="00 00 00 00 00 00 00 01" />
+-----------------------------------
++
+For values expressed as hex integers prefix the value with `0x`.
++
+[source,xml]
+-----------------------------------
+<!-- Peach v3.x  -->
+<Number size="64" value="0x01" />
+-----------------------------------
++
+Size is a required attribute. You cannot use a default size specified in the Defaults element block for number elements.
+
+<StateModel>::
+No changes.
+
+<Test>::
+Now includes logger definitions, and performs the functionality of the v2.3 Run xml element.
+
+<Run>::
+This section is obsolete. Move the Logger into the test section.
+
+<Publisher>::
+RawIpv4:::
+* _Host_ and _Protocol_ are required parameters.
+* The _Protocol_ parameter is required and must have a valid value.
+** "17" is the value for UDP.
+** "6" is the value for TCP.
+* The _Host_ parameter is required and must have a valid value, specified as a hostname or an IP address.
+* The _Interface_ parameter now uses CamelCase with a capitalized first letter. This parameter is optional.
++
+NOTE: While the old publisher name is valid, the current name `RawIpv4` is the name used in the documentation and in log messages from the Peach engine.
+
+=== How to Make a Pit Usable by the Peach Web User Interface
+
+In order to use a Peach pit with the Web UI, each pit requires an associated
+configuration file. The configuration file contains all parameters considered
+configurable. Peach automatically loads the pit and the associated configuration
+file. The values contained in the configuration file are exposed in the web UI.
+
+Here are the steps to follow to make a Pit usable by the web UI. The information
+contained in this example is sufficient as a complete configuration file.
+
+
+. *Create a configuration file and give it a name.* +
+The name of the configuration file uses the following form:
++
+-----------------------------------
+Name.xml.config
+-----------------------------------
++
+`Name` is same as the base name of the pit. `xml` and `config` are literals.
+For example, the pit `XXX.xml` would have a configuration file named `XXX.xml.config`.
+
+. *Add parameter definitions for the pit.* +
+The target address and port are common values to define.
++
+[source,xml]
+-----------------------------------
+<Ipv4 key="TargetIPv4"
+      value="127.0.0.1"
+      name="Target IPv4 Address"
+      description="The IPv4 address of the target machine or device." />
+-----------------------------------
++
+NOTE: On Windows, run `ipconfig` and look for the 'IPv4 Address' field. +
+On Linux, run `ifconfig` and look for the 'inet addr' field. +
+On OS X, run `ifconfig` and look for the 'inet' field." />
++
+[source,xml]
+-----------------------------------
+<Range key="TargetPort"
+       value="21"
+       min="0"
+       max="65535"
+       name="Target Port"
+       description="The target or destination port to send the network packet." />
+-----------------------------------
++
+These values are ready for use in the pit as `##TargetIPv4##` and `##TargetPort##`. They can be used anywhere in the pit file. For example, the Publisher definition would be updated as follows:
++
+[source,xml]
+-----------------------------------
+<Publisher class="Udp">
+  <Param name="Host" value="##TargetIPv4##"/>
+  <Param name="Port" value="##TargetPort##"/>
+</Publisher>
+-----------------------------------
+
+. *Remove all agent element blocks from the PIT.* +
+You can specify the agent and the monitoring options using the web UI.
+ 
+. *Create a folder to hold the converted pits.* +
+Create a sub-folder in the pits folder, such as peach/pits/converted.
+
+. *Place the converted pits and associated configuration files in the newly created folder.* +
+For example, after placing, the XXX pit and configuration file in the converted folder, the file locations would be as follows:
++
+-----------------------------------
+peach/pits/converted/XXX.xml
+peach/pits/converted/XXX.xml.config
+-----------------------------------
++
+. *Your pit is ready to configure, test, and then use with the Peach web UI.*
++
+NOTE: If the need arises, using the command-line interface, you can manually override a configuration setting using the `-D` switch. An example follows:
+peach.exe XXX.xml -DTargetIPv4=10.0.0.1
+
+// end

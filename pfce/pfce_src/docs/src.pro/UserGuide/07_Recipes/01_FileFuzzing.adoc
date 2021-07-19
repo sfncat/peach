@@ -1,0 +1,112 @@
+[[Recipe_FileFuzzing]]
+=== Recipe: Monitoring a File Consumer (File Fuzzing)
+
+This recipe identifies the monitors and associated settings suitable for testing a
+file consumer. When fuzzing a file consumer, Peach creates malformed data files,
+and then has the file consumer open and access the data from the malformed files.
+
+TIP: Using one common approach, Peach can fuzz file consumers of all types, whether
+the file types are multimedia--sound, images, or video; documents--word processing,
+text, or presentation; or other types of files, such as archive or compressed data
+files.
+
+==== What is the fuzzing session workflow?
+
+The workflow that we want to follow in the test consists of the following steps:
+
+. Perform Fuzzing.
+.. Write a file to disk that contains fuzzed data.
+.. Run the target application.
+.. Wait for the target to consume the data file.
+.. Check for faults.
+.. If a fault occurs, collect data.
+. Repeat step 1.
+
+The monitoring setup for this recipe is simple because a single monitor, the Windows
+Debugger monitor, provides most of the functionality needed, including: fault detection,
+data collection, and automation.
+
+A second monitor, the PageHeap monitor, enables debug memory allocation settings for
+the target process. PageHeap can improve the likelihood that certain types of issues,
+such as buffer overflow, will cause the the target to crash. Using the debug memory
+allocation settings normally leads to finding more faults during testing.
+
+Here's a diagram of connections for the test configuration.
+
+image::{images}/UserGuide/Recipes/FileFuzzing.png[scale="60"]
+
+==== Setting up Monitors Using the Peach Web UI
+
+===== Starting Peach
+
+. Start a Windows command line session with administrative privileges. +
+Right-click on the command  prompt on the Windows menu to find the "As Administrator"
+setting. PageHeap requires administrative (heightened) privileges.
+. Launch Peach from the command line (type `peach` and press the Return key) to start the UI.
+. Select a pit (test definition) of a protocol supported by the network device, such as BMP, so that Peach can communicate with device protocol during fuzzing.
+* Give the pit a name and a description. Peach makes a configuration file of the selections you make, so that you can re-use the setup again.
+. From the configuration menu along the left edge of the window, select Monitoring.
+. Fill in a name for the agent. Since this agent resides within Peach, the default
+location `local` is appropriate.
+
+image::{images}/UserGuide/Recipes/FileFuzzing_Monitoring.png[scale="50"]
+
+===== Supplying Monitor Details
+
+Begin each monitor with a name or descriptive text. This helps identify one monitor from
+another.
+
+Next, fill in the critical parameters for each monitor. These parameters have callouts in
+the settings diagram of each monitor. Details for these parameters are given in the text
+that follows.
+
+NOTE: The order of the monitors listed in the agent is significant. Peach processes
+the monitors in the order listed (from top to bottom). For example, a blocking
+situation or incorrect test results might occur if the sequencing is incorrect. In fact,
+PageHeap sets some settings for the Windows Debugger, so you you need to declare the PageHeap monitor first.
+
+For this recipe, use the monitors in the order they are presented:
+
+* PageHeap (Fault Assist)
+* WinDebugger (WaitforBootOnStartAndFault)
+
+===== PageHeap Monitor (FaultAssist)
+
+The xref:Monitors_PageHeap[PageHeap Monitor] enables heap allocation monitoring for
+an executable through the Windows debugger. Peach sets and clears the parameters used for monitoring heap allocation at the beginning and end of the fuzzing session.
+
+image::{images}/UserGuide/Recipes/FileFuzzing_PageHeap.png[scale="50"]
+
+The *Executable* parameter identifies the application or executable file that is the fuzzing target. Specify the file name, with the file extension. The path is not needed nor wanted.
+
+===== Windows Debugger Monitor (FaultDataAndAutomation)
+
+The xref:Monitors_WindowsDebugger[Windows Debugger Monitor] controls a Windows
+debugger instance. This monitor launches an executable file, a process, a service, or
+a kernel driver with the debugger attached; or, this monitor can attach the debugger
+to a running executable, process, or service. This monitor can also attach the
+debugger to kernel-mode drivers, although that lies outside the scope of this documentation.
+
+image::{images}/UserGuide/Recipes/FileFuzzing_WinDebugger.png[scale="50"]
+
+The *Arguments* parameter identifies command-line arguments for the executable file. The value of this parameter provides command-line switches and data file names needed to launch the executable file.
+
+The *Executable* parameter identifies the application or executable file to launch
+via the debugger. If the executable has command-line arguments, specify these using
+the "Arguments" parameter.
+
+The *StartOnCall* parameter defers launching the target until the state model issues a
+call to the monitor to begin. Upon receiving the call, the debugger starts the process.
+
+==== Summary
+
+When fuzzing files on Windows, you need two monitors: PageHeap for heap allocation and the Windows Debugger that performs the vast majority of work. You also need to launch Peach
+from an administrative console. A snapshot of the agent setup follows:
+
+image::{images}/UserGuide/Recipes/FileFuzzing_AgentSummary.png[scale="50"]
+
+When ready, test the configuration. See xref:Test_PitConfiguration[Text Pit Configuration] for more information.
+
+Also, see xref:Start_Fuzzing[Fuzzing Session] for information on running a fuzzing job.
+
+// end

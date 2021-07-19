@@ -1,0 +1,99 @@
+<<<
+[[Transformers_MD5Transformer]]
+== Md5
+
+// Reviewed:
+//  - 02/19/2014: Seth & Adam: Outlined
+// TODO:
+// Verify parameters expand parameter description
+// Full pit example using hex console
+// expand  general description
+// Identify direction / actions supported for (Input/Output/Call/setProperty/getProperty)
+// See AES for format
+// Test output
+
+// Updated:
+// 2/19/14: Mick
+// verified params
+// added supported actions
+// expanded description
+// added full example
+
+[horizontal]
+Type:: Cryptography
+
+_MD5_ creates an MD5 hash of the value in the parent xref:DataModel[DataModel].
+
+This xref:Transformer[Transformer] can only be applied to outgoing data because hashes are one-way operations.
+
+=== Parameters
+
+None.
+
+=== Attributes
+
+None.
+
+=== Actions Supported
+
+xref:Action_output[output]:: On output, this transformer hashes the outgoing data.
+
+=== Examples
+
+.Simple Console Example
+==========================
+This example uses MD5 on an inline value and writes the transformed value to the console.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ex1">
+		<Block name="Main">
+			<String name="TransformMe" value="superdoopersecret">
+				<Transformer class="Md5" />
+			</String>
+		</Block>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<!-- Encrypted Output -->
+			<Action type="output" publisher="ConsolePub">
+				<DataModel ref="Ex1" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" name="ConsolePub"/>
+	</Test>
+</Peach>
+----
+
+
+Output from this example.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 58687.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(16 bytes)
+00000000   04 9B F0 86 41 46 4B 3F  3D 49 95 6D D0 81 12 BA   ????AFK?=I?m????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

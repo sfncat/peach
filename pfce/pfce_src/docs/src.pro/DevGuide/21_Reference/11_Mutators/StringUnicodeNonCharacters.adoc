@@ -1,0 +1,22 @@
+<<<
+[[Mutators_StringUnicodeNonCharacters]]
+== StringUnicodeNonCharacters
+
+This mutator produces test cases for Unicode String elements by generating new strings and then populating the strings with randomly-selected values from a set of Unicode code points that do not map to actual characters. The lengths of the generated strings form a distribution that centers on the length of the current string and ranges from 1 to 65K (ushort max) Unicode characters.
+
+This mutator requires String elements that have a Unicode encoding type: UTF-8, UTF-16, or UTF-32.
+
+The Unicode standard includes 60 non-character code points. The set of non-character code points is stable and mature. No new non-character code points will be defined. Non-character code points have either of the following characteristics:
+
+* code point values in the range of U+FDD0 – U+FDEF
+* code point values that end with FFFE or FFFF (U+FFFE, U+FFFF, U+1FFFE, U+1FFFF, . . . , U+10FFFe, U+10FFFF).
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

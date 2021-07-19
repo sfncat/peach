@@ -1,0 +1,218 @@
+<<<
+[[Monitors_Process]]
+== Process Monitor
+
+*Monitor Categories*: *Automation*, *Fault detection*
+
+The _Process_ monitor controls a process during a fuzzing run.
+This monitor provides automation by controlling when the process starts,
+restarts and ends,
+and whether the process should be killed.
+This monitor also provides fault detection for early exit and failure to exit.
+Finally,
+the _Process_ monitor provides data collection by copying messages from standard out and standard error.
+
+The _Process_ monitor provides the following functionality:
+
+ * Start a process at the session start.
+ * Start or restart a process on every iteration.
+ * Start a process in response to a call from the state model.
+ * Wait for a process to exit in response to a call from the state model.
+ * Restart a process when it exits.
+ * Terminates a process if the CPU usage is low.
+ * Logs a fault if a process exits early.
+ * Logs a fault if a process fails to exit.
+
+
+The _Process_ monitor initiates a fault when a process being monitored experiences the following conditions:
+
+* Early exit
+* Timeout while waiting for exit
+* link:https://github.com/google/sanitizers/wiki/AddressSanitizer[Address Sanitizer] detection
+
+=== Parameters
+
+_Required:_
+
+Executable::
+Executable to launch
+
+_Optional:_
+
+Arguments::
+Command line arguments
+
+FaultOnEarlyExit::
+Trigger fault if process exits, defaults to `false`.
+
+NoCpuKill::
+Disable process killing when the CPU usage nears zero, defaults to `false`.
+
+RestartOnEachTest::
+Restart process on every iteration.
+
+RestartAfterFault::
+If `true`, restarts the target when any monitor detects a fault.
+If `false`, restarts the target only if the process exits or crashes.
+This argument defaults to `true`.
+
+StartOnCall::
+Start process when the specified call is received from the state model.
+
+WaitForExitOnCall::
+Wait for process to exit when the specified call is received from the state model.
+
+WaitForExitTimeout::
+Wait timeout value, expressed in milliseconds.
+Triggers a fault when the timeout period expires.
+Defaults to `10000`.
+Use `-1` for infinite, no timeout.
+
+=== Examples
+
+ifdef::peachug[]
+
+The following parameter examples are from different uses of the _Process_ monitor.
+While not exhaustive,
+the examples provide a good base for comparing and contrasting parameter settings for the various uses of this monitor.
+
+.Start a Process at the Start of a Session
+====================
+
+The following parameter example is from a setup that starts a process at the beginning of a fuzzing session.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Executable   |`notepad.exe`
+|Arguments    |`fuzzed.txt`
+|==========================================================
+====================
+
+
+.Start a Process at the Start of each Iteration
+====================
+
+The following parameter example is from a setup that starts a process at the beginning of each test iteration.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter          |Value
+|Executable         |`notepad.exe`
+|Arguments          |`fuzzed.txt`
+|RestartOnEachTest  |`true`
+|==========================================================
+
+====================
+
+
+.Start a Process When Called from the State Model (Delayed Start)
+====================
+
+The following parameter example is from a setup that starts a process when called from the state model, amid a test iteration.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter     |Value
+|Executable    |`notepad.exe`
+|Arguments     |`fuzzed.txt`
+|StartOnCall   |`LaunchProgram`
+|==========================================================
+
+====================
+
+
+.Suspend Fuzzing Until a Process Closes
+====================
+
+The following parameter example is from a setup that interrupts fuzzing and waits for a process to close before resuming.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter          |Value
+|Executable         |`notepad.exe`
+|Arguments          |`fuzzed.txt`
+|WaitForExitOnCall  |`WaitForExit`
+|==========================================================
+
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+
+.Start Process
+=================
+[source,xml]
+----
+include::Process_Example_Start.xml[]
+----
+
+Output for this example.
+
+----
+include::Process_Example_Start.log[]
+----
+
+When running this example, notepad opens when the session starts and closes when the session finishes.
+
+=================
+
+.Restart Process on Each Test
+=================
+[source,xml]
+----
+include::Process_Example_Restart.xml[]
+----
+
+Output for this example.
+
+----
+include::Process_Example_Restart.log[]
+----
+
+When running this example, notepad repeatedly opens and closes.
+
+=================
+
+.Start Process From State Model
+=================
+[source,xml]
+----
+include::Process_Example_StartOnCall.xml[]
+----
+
+Output for this example.
+
+----
+include::Process_Example_StartOnCall.log[]
+----
+
+When running this example, notepad repeatedly opens and closes.
+
+=================
+
+.Wait for process to exit in state model
+=================
+For this example to complete, you must close notepad when it opens.
+
+[source,xml]
+----
+include::Process_Example_WaitForExitOnCall.xml[]
+----
+
+Output from this example
+
+----
+include::Process_Example_WaitForExitOnCall.log[]
+----
+
+Since notepad doesn't close automatically, remember to close notepad after each iteration.
+
+Use `WaitForExitOnCall` when you want to halt fuzzing until the process closes.
+
+=================
+
+endif::peachug[]

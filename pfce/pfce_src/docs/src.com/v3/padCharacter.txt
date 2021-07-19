@@ -1,0 +1,6 @@
+:toc!:
+== padCharacter Attribute ==
+
+When a link:String.html[String] data element has a length provided it will pad the value as needed to match the length.  _padCharacter_ attribute allows the user to specify which character to use when padding the value.  By default null (0x00) is used.
+
+NOTE: If the link:String.html[String] is a multibyte type then a multibyte _padCharacter_ is allowed.

@@ -1,0 +1,270 @@
+[[Relation]]
+== Relation
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// Expand a bit on what relations are
+// Expand examples
+// Show output as well with examples
+// Talk in depth on common stuff
+// Probably stick size-of/count-of/offset-of into separate files
+//
+
+// - 03/25/2014: Lynn: Major editing
+
+Peach allows data relationship modeling and provides three types of Relations: Size, Count and Offset.
+
+Each Relation element has two required attributes:
+
+type::  Declares the relationship type to model (Size, Count, Offset).
+of:: Names the first data element of the relationship in the data model.
+
+[[Relations_Size]]
+=== Size-of Relation
+
+// byte vs. bit
+// Do we support by char (bit, byte, char)
+// Numerical string
+// Unicode/wchar
+// Multiple relations on same elements
+
+The Size relationship type specifies that "X is the size of Y" where "X" is the parent element of the relation element; and "Y" is the first data element of the relationship, specified as the value of the _of_ attribute.
+
+The Number element, the parent element of "Relation", is the byte count of the relation element. Unicode characters may be multi-byte and the Number value reflects the additional size.
+
+In this example, the value of the number element indicates the size of the string element named _TheValue_ in bytes. 
+
+[source,xml]
+----
+<Number size="32" signed="false">
+  <Relation type="size" of="TheValue" />
+</Number>
+<String name="TheValue" />
+----
+
+*With expressionGet/expressionSet*
+
+Gets are applied during the cracking process and Sets are applied during the publishing process. 
+
+For the Size relation, expressionGet and expressionSet use the two variables, +self+ and +size+.  Self refers to the parent element and size is an integer. 
+
+The expressionGet and expressionSet operations should be mathematically inverse operations. The input value for expressionGet and the output value of expressionSet should be identical. 
+
+In this example, we provide two python expressions that allow us to modify the size when it is get or set:
+
+[source,xml]
+----
+<Number size="32" signed="false">
+  <Relation type="size" of="Value" expressionGet="size/2" expressionSet="size*2" />
+</Number>
+<String name="TheValue" />
+----
+
+expressionGet:: The result of this python expression is used internally to determine how many bytes the xref:String[String] _TheValue_ reads. If Peach picks up 10, it internally stores a 5 and in turn Peach will read 5 bytes into the string.
+
+expressionSet:: Produces a value for the publisher.  In the prior example, +size+ stored for _TheValue_ is "5" (length of _TheValue_), so the value which Peach outputs via a Publisher will be "5*2" or 10.
+
+[[Relations_Count]]
+=== Count-of Relation
+
+// * Only for arrays
+// * multiple relations on same elements
+// * size-of works, but not when inside the array (need to verify)
+// * expressionGet/Set
+
+The Count relationship type specifies that "X is the count of Y" where "X" is the parent element of the relation. "Y" is the relationship element; "Y" is specified as the value of _of_; and, "Y" is an array. The Count relationship only applies to arrays.
+
+The Number element is the byte count of the relationship array. 
+Because Count applies to arrays, specify either xref:minOccurs[minOccurs] or xref:maxOccurs[maxOccurs] after the String name.
+
+In this example the number indicates the count of the array _Strings_.
+
+[source,xml]
+----
+<Number size="32" signed="false">
+  <Relation type="count" of="Strings" />
+</Number>
+<String name="Strings" nullTerminated="true" maxOccurs="1024" />
+----
+
+
+*With expressionGet/expressionSet*
+
+Gets are applied during the cracking process and Sets are applied during the publishing process. 
+
+For the Count-of relation, expressionGet and expressionSet use the two variables, +self+ and +count+.  Self refers to the parent element and count is an integer. 
+
+The expressionGet and expressionSet operations should be mathematically inverse operations. The input value for expressionGet and the output value of expressionSet should be identical. 
+
+In this example, we provide two python expressions that allow us to modify the count when it is set or get. 
+
+[source,xml]
+----
+<Number name="CountIndicator" size="32" signed="false">
+  <Relation type="count" of="TheValue" expressionGet="count/2" expressionSet="count*2" />
+</Number>
+<String name="TheValue" nullTerminated="true" maxOccurs="1024" />
+----
+
+expressionGet:: This value is used internally and ends up determining how many items xref:String[String] expands to. Because of the +maxOccurs=1024+ restriction on recurring strings, the max value that Peach should encounter while trying to crack in the +CountIndicator+ element is 2048.
+
+expressionSet:: Sets the value that is produced.  In the prior example, +count+ is based on how many xref:String[String] elements are read.
+
+
+
+[[Relations_Offset]]
+=== Offset-of Relation
+
+// * Mention placement
+// * Default behavior relative=false
+// * expand descriptions
+// * show output with examples
+// * Placement
+
+The Offset relationship type specifies "X is the offset (in bytes) of Y."
+
+Offset relations allow modeling formats that require changing the offset and also outputting the offset of various elements.
+
+If there are no Relative attributes, Offset is measured from the beginning of the data model. If there is a Relative attribute, Offset is measured from the specified element. 
+
+Here we have a series of elements which are ASCII representations of numeric values of the offset sizes to various string elements below.
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset0" />
+	</String>
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset1" />
+	</String>
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset2" />
+	</String>
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset3" />
+	</String>
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset4" />
+	</String>
+	
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset5" />
+	</String>
+	
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset6" />
+	</String>
+	
+	<Block>
+		<Block name="Offset0">
+			<Block>
+				<String name="Offset1" value="CRAZY STRING!" />
+				<String value="aslkjalskdjas" />
+				<String value="aslkdjalskdjasdkjasdlkjasd" />
+			</Block>
+			<String name="Offset2" value="ALSKJDALKSJD" />
+			<Block>
+				<String name="Offset3" value="1" />
+				<String name="Offset4" value="" />
+				<String name="Offset5" value="1293812093" />
+			</Block>
+		</Block>
+	</Block>
+	
+	<String name="Offset6" value="aslkdjalskdjas" />
+	
+</DataModel>
+----
+
+*Relative Offset*
+
+A relative offset is the offset from the data element the relation is attached to.  
+
+If there is data that represents the distance (in bytes) to somewhere in target element, use the relative offset when you model your data. Peach automatically calculates the location so you know exact where it is. 
+
+In this example, when determining the offset of _StringData_, Peach adds or subtracts the position of _OffsetToString_ to its value as needed to determine the correct offset.
+
+[source,xml]
+----
+
+<!-- Other data elements precede -->
+
+<Number name="OffsetToString">
+   <Relation type="offset" of="StringData" relative="true" />
+</Number>
+
+<String name="StringData" nullTerminated="true"/>
+----
+
+*relativeTo Offset*
+
+Offsets can also relate to another element.  This is used when an element contains the offset to another element from the start of a structure.  
+
+If there is data that represents the distance (in bytes) to another target element, use relativeTo Offset when you model your data. Peach automatically calculates the location so you know exact where it is. This keeps the relationship intact when fuzzing.
+
+In the following example the offset of _StringData_ is calculated by adding the value of _OffsetToString_ to the position of _Structure_.
+
+[source,xml]
+----
+<Block name="Structure">
+   <!-- Other data elements precede -->
+
+   <Number name="OffsetToString">
+      <Relation type="offset" of="StringData" relative="true" relativeTo="Structure" />
+   </Number>
+
+   <String name="StringData" nullTerminated="true"/>
+</Structure>
+----
+
+
+*With expressionGet/expressionSet*
+
+Gets are applied during the cracking process and Sets are applied during the publishing process. 
+
+For the Offset relations, expressionGet and expressionSet use the two variables, +self+ and +offset+.  Self refers to the Parent element and offset is an integer. 
+
+Expression gets and sets should be each other's mathematical inverse. The Get input and Set output should be the same. 
+
+In this example we provide two python expressions that allow us to modify the offset when it is set or get. 
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+	<Number name="num" size="32">
+		<Relation type="offset" of="Offset0" expressionGet="offset / 2" expressionSet="offset * 2"/>
+	</Number>
+
+	<Blob/>
+
+	<String name="Target" value="CRAZY STRING!" />
+</DataModel>
+----
+
+expressionGet:: This value is used internally and determines the starting point of +Target+ when cracking. data.  In the preceding example, if the value of the number +num+ is 20, the string +Target+ will begin at 10 bytes from the beginning of the data model.
+
+expressionSet:: Sets the value that is produced.  In the preceding example, +offset+ is based on the distance in bytes from the start of the data model to the beginning of the string +Target+.
+
+*Offset Relation with Placement*
+
+In this model we use a typical pattern where an array of offsets gives us the location of another element. We use the xref:Placement[Placement] element to move the created _Data_ strings to after our block called _Chunks_.
+
+*NOTE:* Placement only works when parsing data into a DataModel.  See xref:Placement[Placement] for more information.
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+  <Block name="Chunks">
+    <Block name="ArrayOfChunks" maxOccurs="4">
+      <Number size="8" signed="false">
+        <Relation type="offset" of="Data"/>
+      </Number>
+      <String name="Data" length="6">
+        <Placement after="Chunks"/>
+      </String>
+    </Block>
+  </Block>
+</DataModel>
+----

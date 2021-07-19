@@ -1,0 +1,45 @@
+:toc!:
+== Frequently Asked Questions ==
+
+== General ==
+
+ * *Q: What platforms does Peach run on?*
+   A: Peach is developed on Windows XP/Vista but also runs on variouse Unix platforms and OS X. 
+
+ * *Q: What version of Python is required?*
+   A: Windows: ActiveState Python v2.7 (free), Unix: Python v2.7 
+
+ * *Q: Is there a Unix install guide?*
+   A: Yes! See the Peach 2 Tutorial document. 
+
+ * *Q: Can Peach fuzz files?*
+   A: Yes! Check out link:TutorialFileFuzzing.html[this tutorial].
+
+ * *Q: Can Peach fuzz network protocols?*
+   A: Yes! Peach is excelent at fuzzing even complex state based protocols. 
+
+ * *Q: Can Peach fuzz COM/DCOM?*
+   A: Yes! Peach supports both stream based fuzzing (files and sockets) and also call based fuzzing (COM/DCOM, RPC, etc). 
+
+ * *Q: How are Peach fuzzers created?*
+   A: Peach fuzzers are created by building a Peach XML document that contains a data model, state model, and test configuration. A GUI interface and documented XML Schema (XSD) are provided to make this easy. 
+
+ * *Q: I add <Number constraint="int(value) & 0xfefe == 5" /> to a data modeling, en I run peach.exe –t  my.xml.  But it always to report error “not well-formed (invalid token)”.*
+   A:  Need encode the & to &amp;amp;
+
+== Publisher: FileWriterLauncherGui ==
+
+ * *Q: I get an error when my method="c:\program files\...\app.exe"*
+   A: You will need to quote the path using &quot;'s like this: method="&quot;c:\program files\...\app.exe&quot;" 
+ * *Q: The application I'm testing displayed secondary dialog boxes when a file fails to load. How do I deal with that? *
+   A: Peach has a monitor called "gui.PopupWatcher" that can close dialog windows. You will need to pass two arguments. The first is CloseWindows=True and the second is WindowNames=My Dialog Name. This monitor can also trigger faults on certain dialogs. 
+
+== Peach Validation GUI ==
+
+ * *Q: I hit the "Load" button but nothing happens.*
+   A: There are two possibilities. 1) Your XML does not properly parse and the validation UI cannot load it. Try running it with Peach first. 2) You are using <Data fileName="xyz">. Add a fully qualified path to the file. This is a known bug. 
+
+== Agents and Monitors ==
+
+ * *Q: What versions of Windows Debugging Tools is compatable with WindowsDebugEngine?*
+   A: v6.8.4 is known to work, while v6.9.3 has had reported issues. 

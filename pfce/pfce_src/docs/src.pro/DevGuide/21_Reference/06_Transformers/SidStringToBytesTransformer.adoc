@@ -1,0 +1,171 @@
+<<<
+[[Transformers_SidStringToBytesTransformer]]
+== SidStringToBytes
+
+// Reviewed:
+//  - 02/19/2014: Seth & Adam: Outlined
+// TODO:
+// Verify parameters expand parameter description
+// Full pit example using hex console
+// expand  general description
+// Identify direction / actions supported for (Input/Output/Call/setProperty/getProperty)
+// See AES for format
+// Test output, input
+
+// Updated:
+// 2/19/14: Mick
+// verified params
+// added supported actions
+// expanded description
+// added full example
+
+[horizontal]
+Type:: Encoder/Decoder
+
+_SidStringToBytes_ produces the byte representation from a security identifier (sid) string.
+
+This xref:Transformer[Transformer] can bidirectionally encode data as well as decode data.
+
+=== Parameters
+
+None.
+
+=== Attributes
+
+None.
+
+=== Actions Supported
+
+xref:Action_input[input]:: On input, this transformer converts bytes to a sid string.
+xref:Action_output[output]:: On output, this transformer converts a sid string to bytes.
+
+=== Examples
+
+.Simple Console Example
+==========================
+This example uses the SidStringtoBytes transformer on an inline value and writes the transformed value to a file, reads the value from a file, and outputs it to the console.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ex1">
+		<String name="TransformMe" value="S-1-5-21-2127521184-1604012920-1887927527-1712781">
+			<Transformer class="SidStringToBytes" />
+		</String>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<!-- Byte Output -->
+			<Action type="output" publisher="ConsolePub">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<!-- Write Byte Output to File -->
+			<Action type="output" publisher="FilePubWrite">
+				<DataModel ref="Ex1" />
+				<Data>
+					<Field name="TransformMe" value="S-1-5-21-2127521184-1604012920-1887927527-1712781" />
+				</Data>
+			</Action>
+
+			<Action type="close" publisher="FilePubWrite" />
+
+			<!-- Read and encode binary file and slurp SID encoded string to output in console -->
+			<Action type="input" publisher="FilePubRead" >
+				<DataModel name="InputModel" ref="Ex1" />
+			</Action>
+
+			<Action type="slurp" valueXpath="//InputModel//TransformMe" setXpath="//OutputModel//StringValue" />
+
+			<Action type="output" publisher="ConsolePub">
+				<DataModel name="OutputModel">
+					<String name="StringValue" />
+				</DataModel>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" name="ConsolePub"/>
+
+		<Publisher class="File" name="FilePubWrite">
+			<Param name="FileName" value="encoded.bin" />
+		</Publisher>
+
+		<Publisher class="File" name="FilePubRead">
+			<Param name="FileName" value="encoded.bin" />
+			<Param name="Overwrite" value="false" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 32239.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(28 bytes)
+00000000   01 05 00 00 00 00 00 05  15 00 00 00 A0 65 CF 7E   ?????????????e?~
+00000010   78 4B 9B 5F E7 7C 87 70  8D 22 1A 00               xK?_?|?p?"??
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher output(28 bytes)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Input
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher input()
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'InputModel' Bytes: 0/28, Bits: 0/224
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'InputModel' Size: <null>, Bytes : 0/28, Bits: 0/224
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'InputModel.TransformMe' Bytes: 0/28, Bits : 0/224
+Peach.Core.Cracker.DataCracker getSize: -----> String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 224
+Peach.Core.Cracker.DataCracker Crack: String 'InputModel.TransformMe' Size: 392, Bytes: 0/49, Bits: 0/392
+Peach.Core.Dom.DataElement String 'InputModel.TransformMe' value is: S-1-5-21-2127521184-1604012920-1887927527-1712781
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Slurp
+Peach.Core.Dom.Action Slurp, setting OutputModel.StringValue from InputModel.TransformMe
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(49 bytes)
+00000000   53 2D 31 2D 35 2D 32 31  2D 32 31 32 37 35 32 31   S-1-5-21-2127521
+00000010   31 38 34 2D 31 36 30 34  30 31 32 39 32 30 2D 31   184-1604012920-1
+00000020   38 38 37 39 32 37 35 32  37 2D 31 37 31 32 37 38   887927527-171278
+00000030   31                                                 1
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

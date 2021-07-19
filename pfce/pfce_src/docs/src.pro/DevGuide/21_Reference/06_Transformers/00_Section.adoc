@@ -1,0 +1,121 @@
+[[Transformer]]
+== Transformers
+
+// - 03/27/2014 All transformer links are now in the table
+
+// - 03/31/2014 Lynn: Corrected transformer links
+
+Transformers perform static transforms or encoding on the parent element.
+
+Transformers most often occur in pairs, as encoding and decoding functions. The decoding function is the inverse of the encoding function. In this sense, they are
+bi-directional. Examples include ZIP compression, Base64 encoding, and HTML encoding.
+
+Some transformers lack a decoding function; they are unidirectional. For example,
+the MD5 transformer is a unidirectional transformer that creates a hash.
+
+Transformers are different than Fixups:
+
+ * Transformers operate on the parent data element.
+ * Fixups generate their outputs by using values from other data elements.
+
+=== Example
+
+[source,xml]
+----
+<DataModel name="Base64TLV">
+  <Number name="Type" size="8" signed="false" value="1" token="true" />
+  <Number name="Length" size="16" signed="false">
+    <Relation type="size" of="base64Block" />
+  </Number>
+
+  <Block name="base64Block">
+    <Transformer class="Base64Encode" />
+    <Blob name="Data" />
+  </Block>
+</DataModel>
+----
+
+The output of the above data model is `0x01<len(b64(Data))><b64(Data)>`.
+
+.Peach Transformers
+[options="header"]
+|===================================================
+|Transformer|Compress|Crypto|Encode
+|xref:Transformers_Aes128Transformer[Aes128]||X|
+|xref:Transformers_Base64DecodeTransformer[Base64Decode]|||X
+|xref:Transformers_Base64EncodeTransformer[Base64Encode]|||X
+|xref:Transformers_Bz2CompressTransformer[Bz2Compress]|X||
+|xref:Transformers_Bz2DecompressTransformer[Bz2Decompress]|X||
+|xref:Transformers_Des[Des]||X|
+|xref:Transformers_GzipCompressTransformer[GzipCompress]|X||
+|xref:Transformers_GzipDecompressTransformer[GzipDecompress]|X||
+|xref:Transformers_HexTransformer[Hex]|||X
+|xref:Transformers_HMACTransformer[HMAC]||X|
+|xref:Transformers_HtmlDecodeTransformer[HtmlDecode]|||X
+|xref:Transformers_HtmlEncodeTransformer[HtmlEncode]|||X
+|xref:Transformers_IntToHexTransformer[IntToHex]|||X
+|xref:Transformers_Ipv4StringToOctetTransformer[Ipv4StringToOctet]|||X
+|xref:Transformers_Ipv6StringToOctetTransformer[Ipv6StringToOctet]|||X
+|xref:Transformers_JsEncodeTransformer[JsEncode]|||X
+|xref:Transformers_MD5Transformer[MD5Crypt] ||X|
+|xref:Transformers_NetBiosEncodeTransformer[NetBiosEncode]|||X
+|xref:Transformers_Sha1Transformer[Sha1]||X|
+|xref:Transformers_Sha256Transformer[Sha256] ||X|
+|xref:Transformers_SidStringToBytesTransformer[SidStringToBytes]|||X
+|xref:Transformers_TripleDesTransformer[TripleDes]||X|
+|xref:Transformers_TruncateTransformer[Truncate]|||
+|xref:Transformers_UrlEncodeTransformer[UrlEncode]|||X
+|===================================================
+
+:leveloffset: 2
+include::Aes128Transformer.adoc[]
+
+include::Base64DecodeTransformer.adoc[]
+
+include::Base64EncodeTransformer.adoc[]
+
+include::Bz2CompressTransformer.adoc[]
+
+include::Bz2DecompressTransformer.adoc[]
+
+include::DesTransformer.adoc[]
+
+include::GzipCompressTransformer.adoc[]
+
+include::GzipDecompressTransformer.adoc[]
+
+include::HexTransformer.adoc[]
+
+include::HMACTransformer.adoc[]
+
+include::HtmlDecodeTransformer.adoc[]
+
+include::HtmlEncodeTransformer.adoc[]
+
+include::IntToHexTransformer.adoc[]
+
+include::Ipv4StringToOctetTransformer.adoc[]
+
+include::Ipv6StringToOctetTransformer.adoc[]
+
+include::JsEncodeTransformer.adoc[]
+
+include::MD5Transformer.adoc[]
+
+include::NetBiosDecodeTransformer.adoc[]
+
+include::NetBiosEncodeTransformer.adoc[]
+
+include::SHA1Transformer.adoc[]
+
+include::Sha256Transformer.adoc[]
+
+include::SidStringToBytesTransformer.adoc[]
+
+include::TripleDesTransformer.adoc[]
+
+include::TruncateTransformer.adoc[]
+
+include::UrlEncodeTransformer.adoc[]
+
+// end

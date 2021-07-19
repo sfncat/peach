@@ -1,0 +1,110 @@
+<<<
+[[Publishers_SslListener]]
+== SslListener Publisher
+
+// Updates:
+// 2/17/2014: Mick
+// added description
+// added params and actions
+// added example
+
+The _SslListner_ Publisher enables a pit to accept SSL connections over a TCP socket.
+
+_SslListner_ is used to fuzz protocol built inside an SSL encrypted channel, such as HTTPS.
+
+Since it is easy to confuse _Ssl_ and _SslListner_, here's the difference:
+
+* The _Ssl_ Publisher connects out(ward)
+* The _SslListner_ Publisher accepts (inward) connections
+
+The SslListener is similar to the TcpListener because both accept connections over a TCP port and block until a connection has been established.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="SslListener">
+	<Param name="Interface" value="0.0.0.0"/>
+	<Param name="Port" value="31337"/>
+	<Param name="Timeout" value="3000"/>
+	<Param name="AcceptTimeout" value="3000"/>
+	<Param name="ServerCertPath" value="cert.pfx" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Interface:: IP of interface to bind to. Use +0.0.0.0+ for all interfaces.
+Port:: Local port to listen on.
+ServerCertPath:: Path to server certificate file.
+
+_Optional:_
+
+AcceptTimeout:: How many milliseconds to wait for a connection. Defaults to 3000.
+CheckCertRevocation:: Check revocation of certificate. Defaults to false.
+ClientCertRequired:: Require client to authenticate via certificate. Defaults to false.
+ServerCertPass:: Password for cert file. Defaults to none.
+Timeout:: How many milliseconds to wait for data. Defaults to 3000.
+
+=== Actions
+
+xref:Action_start[start]:: Implicit Action to start the Publisher.
+xref:Action_stop[stop]:: Implicit Action to stop the Publisher.
+xref:Action_open[open]:: Open and initialize the SSL connection.
+xref:Action_close[close]:: Close and clean up the SSL connection.
+xref:Action_accept[accept]:: Block until an incoming SSL connection has been received.
+xref:Action_output[output]:: Data sent via output is written to the SSL stream.
+xref:Action_input[input]:: Data received via input is read from the SSL input buffer.
+
+=== Examples
+
+.Sending and receiving data
+===========================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="OutModel">
+		<Block name="Headers">
+			<String value="{" />
+			<String value="key1" />
+			<String value="," />
+			<String value="value1" />
+			<String value="}" />
+		</Block>	
+	</DataModel>
+
+	<DataModel name="InModel">
+		<String value="GET /testsslpage.html HTTP/1.0\r\n" />
+	</DataModel>
+
+	<StateModel name="State" initialState="First">
+		<State name="First">
+			<Action type="accept" />
+			<Action type="input">
+				<DataModel ref="InModel">
+			</Action>
+			<Action type="output">
+				<DataModel ref="OutModel">
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+    
+		<Publisher class="SslListener">
+			<Param name="Interface" value="0.0.0.0"/>
+			<Param name="Port" value="31337"/>
+			<Param name="Timeout" value="3000"/>
+			<Param name="AcceptTimeout" value="3000"/>
+			<Param name="ServerCertPath" value="cert.pfx" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+===========================

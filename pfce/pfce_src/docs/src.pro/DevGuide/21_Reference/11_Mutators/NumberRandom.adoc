@@ -1,0 +1,18 @@
+<<<
+[[Mutators_NumberRandom]]
+== NumberRandom
+
+This mutator produces test cases for Number and String elements. String elements are only supported when the default data they contain is an integer. The test cases produced are random integers in the numerical space of the element. For an unsigned 8-bit number that range is 0 to 255. For String elements, the range is that of a signed 64-bit integer, –9,223,372,036,854,775,808 to 9,223,372,036,854,775,807.
+
+For weighting purposes and for deterministic strategies where an estimate of the number of generated test cases is needed, this mutator reports that it generates 5,000 test cases. In actuality, the number of test cases can exceed 5000.
+
+=== Supported Elements
+
+ * xref:String[String]
+ * xref:Number[Number]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

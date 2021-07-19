@@ -1,0 +1,26 @@
+:toc!:
+== Param ==
+
+The Param element is a common child-element that provides a key-value pair to the parent element, typically used for configuration settings.
+
+[source,xml]
+----
+<Publisher class="Tcp">
+  <Param name="Host" value="127.0.0.1" />
+  <Param name="Port" value="80" />
+</Publisher>
+
+<Fixup class="Crc32Fixup">
+  <Param name="ref" value="MyDataStuff" />
+</Fixup>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of parameter [required]
+ * link:value.html[value] -- Value of parameter [required]
+
+_Valid Child-Elements:_
+
+This element has no valid child elements.

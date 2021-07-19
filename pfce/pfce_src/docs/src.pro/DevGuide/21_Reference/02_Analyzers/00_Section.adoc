@@ -1,0 +1,70 @@
+[[Analyzers]]
+=== Analyzers
+
+_Analyzers_ are classes that parse some form of data and build a Peach Document Object Model (DOM) or a partial _DataModel_.  Examples of data that can be easily parsed are XML and ASN.1.
+
+Using an _Analyzer_ can incredibly reduce the time needed to begin smart fuzzing since the time spent creating a precise _DataModel_ can be avoided.
+
+xref:Analyzers_Asn1[Asn1]:: Converts ASN.1 data in _Blobs_ into a full data model.
+xref:Analyzers_Binary[Binary]:: Breaks up unknown data when strings are found.
+xref:Analyzers_Json[JSON]:: Converts JSON data in a _String_ into a full data model.
+xref:Analyzers_Postman[Postman]:: Converts Postman API Catalog into Pit.
+xref:Analyzers_Regex[Regex]:: Use regular expressions to parse strings. Supports regular expression named groups.
+xref:Analyzers_StringToken[StringToken]:: Separates strings using a precedence based list of punctuation. The strings are used to form the resulting _DataModel_.
+xref:Analyzers_Swagger[Swagger]:: Converts Swagger API JSON into Pit.
+xref:Analyzers_Vcr[Vcr]:: Converts Vcr JSON cassette into Pit.
+xref:Analyzers_Xml[Xml]:: Converts XML contained in a _string_ element into a data model of _XmlElement_ and _XmlAttribute_ types.
+xref:Analyzers_WebRecordProxy[WebRecordProxy]:: Record HTTP requests and generate Peach Pit.
+xref:Analyzers_Zip[Zip]:: Converts zipped data in a _blob_ into a data model of _stream_ elements.
+
+:leveloffset: 2
+
+<<<
+
+include::Asn1.adoc[]
+
+<<<
+
+include::Binary.adoc[]
+
+<<<
+
+include::Bson.adoc[]
+
+<<<
+
+include::Json.adoc[]
+
+<<<
+
+include::Postman.adoc[]
+
+<<<
+
+include::Regex.adoc[]
+
+<<<
+
+include::StringToken.adoc[]
+
+<<<
+
+include::Swagger.adoc[]
+
+<<<
+
+include::Vcr.adoc[]
+
+<<<
+
+include::Xml.adoc[]
+
+<<
+
+include::WebRecordProxy.adoc[]
+
+<<<
+
+include::Zip.adoc[]
+
+// end

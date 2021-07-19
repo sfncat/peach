@@ -1,0 +1,167 @@
+<<<
+[[Monitors_NetworkCapture]]
+== NetworkCapture Monitor
+
+*Monitor Categories*: *Data collection*, *Fault detection*
+
+The _NetworkCapture_ monitor performs network captures during the fuzzing iteration.
+When a packet arrives,
+this monitor writes the content into a file,
+increments the received packet count,
+and waits for the next packet to arrive.
+If a filter is used,
+the captured packets and associated packet count are for packets that pass the filtering criteria.
+
+The captured data begins afresh for each iteration.
+If a fault occurs,
+the captured data is logged as a `.pcap` file and returned with the fault data.
+The `.pcap` file is compatible with Wireshark and `tcpdump`.
+A sample capture follows:
+
+image::{images}/Common/Monitors/NetworkCapture.png[scalewidth="75%"]
+
+Peach supports multiple _NetworkCapture_ monitors in the same pit,
+as well as simple and compound packet filters in a single monitor.
+A compound packet filter consists of more than one packet filter joined by AND or OR.
+
+[NOTE]
+==================================
+A packet filter is a boolean value applied to a packet.
+If the result of the operation is true,
+the packet is accepted.
+If the result is false,
+the packet is ignored.
+
+The main benefit of using filters is performance.
+Applying a filter to a packet produces a smaller dataset, resulting in faster processing time for each iteration. 
+
+Two strategies for developing effective filters:
+
+. Develop a filter that pinpoints the packets to process.
+. Develop a filter that prunes unwanted packets using negative logic.
+
+Generally,
+using one monitor with a complex filter is better than using two monitors with simpler filters.
+Using one monitor places all the packets in a single file with an order of arrival.
+Using multiple monitors makes correlating arrival more difficult because each monitor has its own file to keep the processed packets.
+
+For information on filter strings,
+see the following:
+
+* http://www.infosecwriters.com/text_resources/pdf/JStebelton_BPF.pdf[Berkely Packet Filters - The Basics]
+* http://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump man page]
+
+==================================
+
+=== Parameters
+
+_Required:_
+
+Device::
+Device name or port where the packet capture takes place.
+
+[NOTE]
+====
+The Peach command line option `--showdevices` causes Peach to generate a list of all available network interfaces.
+
+* On Windows platforms, the `ipconfig` utility lists the network devices.
+* On Unix platforms, the `ifconfig` utility lists the network devices.
+====
+
+_Optional:_
+
+Filter::
+PCAP style filter string.
+If present,
+the filter restricts capture to packets that match the filter string.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Show the network devices from `ipconfig`
+====================
+
+This example uses `ipconfig` from the Windows command line to list the available network devices on the
+system.
+The device names follow:
+
+* Local Area Connection
+* Wi-Fi
+* Ethernet
+* VMware Network Adapter VMnet1
+* VMware Network Adapter VMnet8
+
+Type the following command and press ENTER.
+
+-----------------------------------------------------------------
+include::NetworkCapture_ipconfig.log[]
+-----------------------------------------------------------------
+
+====================
+
+.Capture output to CrashableServer on port 4244
+====================
+
+This parameter example is from a setup that captures all network traffic using the NetworkCapture monitor when a fault occurs.
+When running the fuzzing definition for this example,
+a crash occurs after a few iterations.
+When Peach logs the fault,
+a `.pcap` file is created inside the fault record.
+
+*NetworkCapture monitor settings*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Device       |`Local Area Connection`
+|Filter       |`port 4244`
+|==========================================================
+
+The setup for this example uses a second monitor,
+the xref:Monitors_WindowsDebugger[Windows Debugger] monitor,
+to launch the `CrashableServer` executable,
+normally located in the Peach directory.
+The following table lists the parameters for that monitor.
+
+*Windows Debugger monitor settings*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Executable   |`CrashableServer.exe`
+|Arguments    |`127.0.0.1 4244`
+|==========================================================
+
+
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+
+.Capture output to CrashableServer on port 4244
+==================
+This example runs `CrashableServer.exe` and capture all network traffic using the NetworkCapture monitor when a fault occurs.
+
+To run this example,
+point to the `CrashableServer` location (normally the Peach directory).
+
+[source,xml]
+----
+include::NetworkCapture_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::NetworkCapture_Example.log[]
+----
+
+Running this example for a few iterations will produce a crash.
+When Peach is logging the fault,
+a `.pcap` file is created inside the fault record.
+
+==================
+
+endif::peachug[]

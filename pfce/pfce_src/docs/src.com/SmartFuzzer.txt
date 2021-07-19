@@ -1,0 +1,10 @@
+:toc!:
+== Smart Fuzzer ==
+
+Smart fuzzers refer to fuzzers that have additional information about the data and state they are fuzzing.  Typically the base line for a smart fuzzer is to understand the type information in the data that is being mutated.  Peach takes this further by modeling the following:
+
+ * Type information
+ * Basic relationships such as size, and count
+ * Checksum and other types of data validation
+ * Static transformations such as ZIP, and Base64
+ * Basic state modeling

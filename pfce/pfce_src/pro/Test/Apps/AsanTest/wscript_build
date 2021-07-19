@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+
+bld(
+	features = 'cxx cxxprogram debug asan',
+	source = 'main.cpp',
+	target = 'UseAfterFree',
+)

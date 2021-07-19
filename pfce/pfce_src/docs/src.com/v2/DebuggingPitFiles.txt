@@ -1,0 +1,35 @@
+:toc!:
+== Debugging Pit Files ==
+
+One of the most difficult and important tasks of building the pit file is debugging it to verify it works as intended.  Peach has four tools/methods that will assist in debugging and validating the pit files.
+
+=== Parse Testing
+
+The first tool at your disposal will verify if the Peach pit file parser correctly.  Getting the pit file to parse properly is the first and possibly easier step if debugging and validating your fuzzer.
+
+To test the pit file simply run the command line tool with the +-t+ argument as shown below the output will indicate success or failure and provide information on how to resolve any issues.
+
+----
+peach.py -t mypit.xml
+----
+
+=== Peach Validator
+
+The next tool is the graphical Peach Validator, this program will allow you to load a pit file, select a data model and load sample data into the data model.  It will allow you to explore the resulting data model, the values it contains and the locations that it read from.
+
+You can run the tool as follows:
+
+----
+peachvalidator.pyw
+----
+
+=== Peach Debug Output
+
+If unable to debug your pit file using the prior tools the last option is to review the debug output from Peach as it parses the pit file and data.  This information is verbose but sometimes cryptic in nature as it was origionally intended for the author to debug the Peach internals.
+
+*TODO: Provide examples an explanation on reading output*
+
+----
+peach.py --debug mypit.xml
+----
+

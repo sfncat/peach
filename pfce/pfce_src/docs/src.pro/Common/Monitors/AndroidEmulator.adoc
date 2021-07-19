@@ -1,0 +1,121 @@
+<<<
+[[Monitors_AndroidEmulator]]
+== AndroidEmulator Monitor
+
+*Monitor Categories*: *Automation*, *Fault detection*
+
+The _AndroidEmulator_ monitor handles setup and teardown for Android Virtual Devices (AVDs)
+running within the Android Emulator. This monitor detects faults related to the emulator
+operation, not fuzzing results.
+
+The monitor provides the following functionality:
+
+* Start a virtual device at the start of a fuzzing run.
+* Start a virtual device at the start of each test iteration.
+* Start a virtual device when called from the state model.
+* Start a virtual device at the beginning of an iteration that immediately follows a fault.
+* Shuts down at the end of a fuzzing session.
+* Logs timeout messages when querying the emulator for the device serial number.
+* Logs timeout messages when shutting down the emulator.
+* logs messages sent to StdErr.
+* Logs messages sent to StdOut.
+
+This monitor requires the following items to run:
+
+* The Android monitor that watches the OS and application being fuzzed.
+* The http://developer.android.com/tools/help/emulator.html[Android Emulator]
+* The http://developer.android.com/sdk/index.html[Android Platform Tools].
+
+The fuzzing configuration for a virtual or emulated device follows. For a configuration using a physical device, see the xref:Monitors_Android[Android Monitor].
+
+image::{images}/Common/Monitors/AndroidEmulator.png[scalewidth="75%"]
+
+=== Parameters
+
+_Required:_
+
+Avd:: Android virtual device.
+
+_Optional:_
+
+EmulatorPath:: Directory containing the Android emulator.
+If not provided, Peach searches the directories in the PATH variable for the installed emulator.
+Headless:: If true, runs the emulator *without a display*. Defaults to false.
+RestartAfterFault::
+If `true`, restarts the emulator when any monitor detects a fault.
+If `false`, restarts the emulator only if the emulator exits or crashes.
+This argument defaults to `true`.
+
+RestartEveryIteration:: Restart emulator on every iteration. Defaults to false.
+StartOnCall:: Start the emulator when notified by the state machine.
+StartTimeout:: How many seconds to wait for emulator to start running. Defaults to 30.
+StopTimeout:: How many seconds to wait for emulator to exit. Defaults to 30.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Basic Usage Example +
+====================
+
+This parameter example is from a setup that the BadBehaviorActivity, sending random taps to generate
+different types of exceptions and crashes. The setup is for a virtual device that uses the Android
+Emulator Monitor, as well as the Android monitor.
+
+In order to run the Android emulator, set the EmulatorPath in the Android Emulator Monitor to the
+adb tools directory, and set the Avd parameter to the name of an Android virtual device.
+Here the name of the virtual device is "Nexus4".
+
+In the Android monitor, set the AdbPath to the platform-tools directory containing the adb (Android Debug Bridge).
+
++Android Emulator (Emu) Monitor Parameters+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter        |Value
+|Avd              |`Nexus4`
+|EmulatorPath     |`C:\adt-bundle-windows-x86_64-20131030\sdk\tools`
+|==========================================================
+
++Android Monitor (App) Parameters+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter        |Value
+|ApplicationName  |`com.android.development`
+|ActivityName     |`.BadBehaviorActivity`
+|AdbPath          |`C:\adt-bundle-windows-x86_64-20131030\sdk\platform-tools`
+|DeviceMonitor    |`Emu`
+|==========================================================
+====================
+
+NOTE: Position the Android Emulator Monitor before (above) the Android monitor in your Pit,
+so that, at run time, the virtual device exists when adb tries to connect to it. Peach
+executes the monitors in the order that they are listed in the fuzzing definition.
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Basic Usage Example
+=======================
+Runs the BadBehaviorActivity, sending random taps to generate different types of exceptions and crashes.
+
+To run the Android emulator, set your AdbPath to the directory containing the adb
+(Android Debug Bridge) platform-tools directory and point the EmulatorPath to the
+adb tools directory.
+
+NOTE: Peach executes the monitors in the order that they are listed in the fuzzing definition. Position the Android Emulator Monitor before (above) the Android monitor in your Pit, so that, at run time, the virtual device exists when adb tries to connect to it.
+
+[source,xml]
+----
+include::AndroidEmulator_Example.xml[]
+----
+
+Output for this example.
+
+----
+include::AndroidEmulator_Example.log[]
+----
+=======================
+
+endif::peachug[]

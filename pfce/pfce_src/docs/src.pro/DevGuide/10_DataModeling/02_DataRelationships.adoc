@@ -1,0 +1,191 @@
+[[Data_Modeling_DataRelationships]]
+=== Relationships in Data
+
+Data formats usually have related values. If you understand the basic data relationships types, it will be easier for you to fuzz your data correctly.
+
+The basic relationships supported in Peach are _size of_ (sometimes called ``length of''), _count of_, and _offset of_. These basic relationships often produce some of the most interesting mutations during fuzzing as they directly tie to parsing the target data. These basic relationships also form the smallest set of relationships required to correctly output, mutate, and crack most data formats.
+
+When fuzzing relationships, Peach can either fuzz each part of the relationship separately, or fuzz them together. This can lead to more powerful and interesting mutations.
+
+xref:Relations_Size[size]::
++
+--
+Size relations are the most common relationship found in data formats. Size models length and size fields. The relation is always placed on the size or length field and references the data element that needs a run-time size definition.
+--
+
+xref:Relations_Count[count]::
++
+--
+Count relations are the second most common relations found in data formats. Count relations model the array metaphor with a count specifier. Like size relations, the relationship element is always placed on the field that contains the count (the runtime value), not the array.
+--
+
+xref:Relations_Offset[offset]::
++
+--
+Offset relations are the least common data format relationship. Offset relations are used in data formats where one element provides the offset to some data.
+
+When offsets appear, they are usually arrays of offsets to arrays of data. Peach has a special way of handling this. See the xref:DataModeling_Placement[arrays of offsets to data] for more information.
+--
+
+
+
+// TODO
+//  * Common types of relationships
+//  * Why are relationships interesting?
+//   * Source of many security issues
+//  * Peach uses this information to fuzz better
+//  * size-of
+//  * count-of
+//  * offset-of
+//  * Common use cases
+//  * expressionGet/Set
+//  * Multiple relations on same element
+//  * Relations and cracking
+// * Relations sizing a block with unsized inner element
+
+==== Adjusting Relation Values
+
+/////////
+ RAB. Old 1/18/2016
+
+At some point, you will come across a format that will require you to modify the relation value in some way. Perhaps the relation value must be masked, or the value doubled. Relations in Peach allow you to associate Python expressions with both the reading and the setting of the value. The attributes _expressionGet_ and _expressionSet_ perform this function. The value is exposed as _size_, _count_, or _offset_ depending on the relation type.
+
+RAB. End of Old 1/18/2016
+/////////
+
+At some point, you will come across a format that will require a modification to the relation value. Perhaps the value requires a mask, or perhaps you need to double the value specified in the relation.
+
+Relations in Peach allow you to associate Python expressions when reading and when setting the value of the relation. The attributes _expressionGet_ and _expressionSet_ perform this function. The relation value is exposed as _size_ for a size relation, _count_ for a count relation, or _offset_ for an offset relation.
+
+.Example of expressionGet and expressionSet
+===========================================
+[source,xml]
+----
+<Number name="HalfLength" size="32">
+  <Relation type="size" of="Data" expressionGet="size * 2" expressionSet="size / 2" />
+</Number>
+<Blob name="Data" />
+----
+===========================================
+
+For more information about _expressionGet_ and _expressionSet_ with each relation type, see xref:Relation[Relation].
+
+[[DataModeling_Placement]]
+==== Arrays of Offsets to Data
+
+...Or, the story of xref:Placement[Placement].
+
+A common data pattern seen is arrays of offsets to data.
+
+When cracking this type of data, Peach cracks both the offset relation and
+its corresponding data when parsing the array element. This creates a situation
+where the corresponding data will end up in the wrong place--not at the offset.
+Peach provides _Placement_, a child-element, to move the parent data element to
+the correct location post-cracking.
+
+Consider the following data model:
+
+[source,xml]
+----
+<DataModel name="ArrayOfOffsets">
+
+  <Block name="Item" maxOccurs="1024">
+
+	<Number name="StringLength" size="32">
+	  <Relation type="size" of="Data" />
+	</Number>
+
+    <Number name="OffsetOfData" size="32">
+	  <Relation type="offset" of="Data"/>
+	</Number>
+
+	<String name="Data" />
+
+  </Block>
+
+</DataModel>
+----
+
+The structure of data formed when cracking data into the model looks like:
+
+* ArrayOfOffsets
+* Item-0  +
+** StringLength
+** OffsetOfData
+** Data
+* Item-1
+** StringLength
+** OffsetOfData
+** Data
+* Item-N
+** StringLength
+** OffsetOfData
+** Data
+
+However, the data does not actually look like this. The format should instead
+look like the following layout, with the Data element located where the _OffsetOfData_
+specifies.
+In this second layout, the data directly follows the array of lengths and offsets.
+
+* ArrayOfOffsets
+* Item-0  +
+** StringLength
+** OffsetOfData
+* Item-1
+** StringLength
+** OffsetOfData
+* Item-N
+** StringLength
+** OffsetOfData
+* Data-0
+* Data-1
+* Data-N
+
+Peach can achieve this format using the _Placement_ element. Here is the modified XML
+that produces the correct data model:
+
+[source,xml]
+----
+<DataModel name="ArrayOfOffsets">
+
+  <Block name="Item" maxOccurs="1024">
+
+	<Number name="StringLength" size="32">
+	  <Relation type="size" of="Data" />
+	</Number>
+
+    <Number name="OffsetOfData" size="32">
+	  <Relation type="offset" of="Data"/>
+	</Number>
+
+	<String name="Data">
+	  <Placement before="PlaceDataHere" />
+	</String>
+
+  </Block>
+
+  <Block name="PlaceDataHere"/>
+
+</DataModel>
+----
+
+The resulting data model looks like the following:
+
+* ArrayOfOffsets
+* Item-0  +
+** StringLength
+** OffsetOfData
+* Item-1
+** StringLength
+** OffsetOfData
+* Item-N
+** StringLength
+** OffsetOfData
+* Data-0
+* Data-1
+* Data-N
+* PlaceDataHere
+
+The block named PlaceDataHere is a zero-length data element and does not produce any actual data. It serves solely as a point to place our data.
+
+// end

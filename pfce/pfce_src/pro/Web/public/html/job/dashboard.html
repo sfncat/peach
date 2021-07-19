@@ -1,0 +1,201 @@
+
+<div class="alert alert-warning"
+		 ng-show="vm.ShowLimited">
+	<strong>Note:</strong>
+	The Pit configuration for this job is missing or was specified from the command line.
+	This will limit some available actions.
+	For a currently running job, stopping can be accomplished by stopping the Peach process responsible for this job.
+</div>
+
+<div class="alert alert-info"
+		 ng-class="vm.StatusClass"
+		 ng-show="vm.ShowStatus"
+		 ng-switch="vm.JobStatus">
+	<span ng-switch-when="startPending">
+		Peach is starting...
+	</span>
+	<span ng-switch-when="pausePending">
+		Peach is pausing...
+	</span>
+	<span ng-switch-when="continuePending">
+		Peach is continuing...
+	</span>
+	<span ng-switch-when="stopPending">
+		Peach is stopping...
+	</span>
+	<span ng-switch-when="killPending">
+		Peach is aborting...
+	</span>
+	<span ng-switch-when="starting">
+		Peach is starting...
+	</span>
+	<span ng-switch-when="running"
+				ng-switch="vm.JobMode">
+		<span ng-switch-when="fuzzing">
+			Peach is currently fuzzing...
+		</span>
+		<span ng-switch-when="reproducing">
+			Fault detected, attempting to reproduce.
+		</span>
+		<span ng-switch-when="searching">
+			Fault detected.
+			Peach is searching test cases leading to the fault.
+			This action could take a while to complete.
+		</span>
+	</span>
+	<span ng-switch-when="paused">
+		Peach is currently paused.
+	</span>
+	<span ng-switch-when="stopping"
+				ng-switch="vm.JobMode">
+		<span ng-switch-when="reporting">
+			Generating report...
+		</span>
+		<span ng-switch-default>
+			Peach is stopping...
+		</span>
+	</span>
+	<span ng-switch-when="stopped">
+		<span ng-if="vm.Job.result">
+			{{vm.Job.result}}
+		</span>
+		<span ng-if="!vm.Job.result">
+			This job has completed.
+		</span>
+		<a ng-if="vm.Job.reportUrl"
+			href="{{vm.Job.reportUrl}}">
+			<i class="fa fa-lg fa-file-pdf-o"></i>
+			Click here to view the final report.
+		</a>
+	</span>
+</div>
+
+<div class="row">
+	<div class="col-md-2">
+	</div>
+
+	<div class="col-md-8 infobox-container">
+		<div class="infobox infobox-blue">
+			<div class="infobox-data">
+				<span class="infobox-data-number">
+					{{(vm.Job.startDate | date:'M/d/yy h:mma') || '---'}}
+				</span>
+				<div class="infobox-content">
+					Start Time
+				</div>
+			</div>
+		</div>
+
+		<div class="infobox infobox-blue">
+			<div class="infobox-data">
+				<span class="infobox-data-number">
+					{{vm.ValueOr(vm.RunningTime, '---')}}
+				</span>
+				<div class="infobox-content">
+					Running Time
+				</div>
+			</div>
+
+		</div>
+
+		<div class="infobox infobox-blue">
+			<div class="infobox-data">
+				<span class="infobox-data-number">
+					{{vm.ValueOr(vm.Job.speed, '---')}}
+				</span>
+				<div class="infobox-content">
+					Test Cases/Hour
+				</div>
+			</div>
+		</div>
+
+		<div class="infobox infobox-blue">
+			<div class="infobox-data">
+				<span class="infobox-data-number">
+					{{vm.ValueOr(vm.Job.seed, '---')}}
+				</span>
+				<div class="infobox-content">
+					Seed
+				</div>
+			</div>
+		</div>
+
+		<div class="infobox infobox-blue">
+			<div class="infobox-data">
+				<span class="infobox-data-number">
+					{{vm.ValueOr(vm.Job.iterationCount, '---')}}
+				</span>
+				<div class="infobox-content">
+					Test Cases Executed
+				</div>
+			</div>
+		</div>
+
+		<div class="infobox infobox-red">
+			<div class="infobox-data">
+				<span class="infobox-data-number">
+					{{vm.ValueOr(vm.Job.faultCount, '---')}}
+				</span>
+				<div class="infobox-content">
+					Total Faults
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-2">
+	</div>
+</div>
+
+<div class="space-6"></div>
+
+<div class="row text-center"
+		 ng-show="vm.ShowCommands">
+	<div>
+		<button class="btn btn-success"
+						ng-click="vm.Continue()"
+						ng-disabled="!vm.CanContinue">
+			<i class="fa fa-play"></i>
+			Start
+		</button>
+
+		<button class="btn btn-primary"
+						ng-click="vm.Pause()"
+						ng-disabled="!vm.CanPause">
+			<i class="fa fa-pause"></i>
+			Pause
+		</button>
+
+		<button class="btn btn-danger"
+						ng-click="vm.Stop()"
+						ng-disabled="!vm.CanStop">
+			<i class="fa"
+				 ng-class="vm.StopIcon"></i>
+			{{vm.StopPrompt}}
+		</button>
+	</div>
+</div>
+
+<div class="row text-center"
+		 ng-show="!vm.ShowCommands">
+	<div>
+		<button class="btn btn-primary"
+						ng-disabled="vm.IsEditDisabled"
+						ng-click="vm.OnEdit()">
+			<i class="fa fa-edit"></i>
+			Edit Configuration
+		</button>
+		<button class="btn btn-primary"
+						ng-disabled="vm.IsReplayDisabled"
+						ng-click="vm.OnReplay()">
+			<i class="fa fa-reply"></i>
+			Replay Job
+		</button>
+	</div>
+</div>
+
+<hr />
+
+<h4>Recent Faults</h4>
+<peach-faults limit="10">
+</peach-faults>

@@ -1,0 +1,17 @@
+<<<
+[[Mutators_StringLengthVariance]]
+== StringLengthVariance
+
+This mutator produces test cases for String elements. The test cases produced are variances of the string length.
+
+The string lengths generated for the test cases form a Gaussian distribution with the current length as the center of the distribution.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

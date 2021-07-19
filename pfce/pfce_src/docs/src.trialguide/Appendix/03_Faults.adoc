@@ -1,0 +1,45 @@
+[[ExamineFaults]]
+=== Examining faults
+
+Each job represents a single test run using a specific configuration.
+A job will show information on the duration of the job, the settings used to run that job, and the faults that were found.
+When you <<RunningSamples, run a test>> on a configuration, a new job is created and you will see all the relevant information for that job.
+If you wish to view the information on a previous job, you can select a specific job from the Jobs page.
+
+. First, navigate to the  Jobs page by clicking on the Jobs tab 
++
+image::{images}/click-jobs.png[]
+or by clicking on the Jobs icon
++
+image::{images}/jobs-icon.png[]
+
+. Next, select the job you wish to view.
++
+image::{images}/select-job.png[]
+
+. The job you selected will now be displayed.  
+Select a fault to view more information.
++
+image::{images}/sample-job-results.png[]
+
+. The selected fault will contain detailed information about the type of fault, how it was discovered, and the information collected from the various Monitors that were running when the fault occurred.
++
+image::{images}/select-fault.png[]
+
+. You can download all the captured data by clicking *Download all fault assets*.
++
+image::{images}/download-fault-assets.png[]
+
+[[DownloadReport]]
+=== Downloading the final report
+
+Each job contains a final report detailing an overview of all the findings from that job.
+You can access this report several different ways:
+
+* From the Jobs page, click the *Report* icon for any job in the list to download the report for that job
++
+image::{images}/download-report-icon.png[]
+
+* If you are already viewing a job, click the link at the top of the page
++
+image::{images}/download-job-report.png[]

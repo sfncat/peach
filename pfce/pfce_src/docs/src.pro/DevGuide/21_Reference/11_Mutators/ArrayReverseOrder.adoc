@@ -1,0 +1,19 @@
+<<<
+[[Mutators_ArrayReverseOrderMutator]]
+== ArrayReverseOrder
+
+This mutator reverses the order of items in an array.
+
+=== Supported Elements
+
+This mutator supports any array element. Array elements are those that have the _occurs_, _minOccurs_, or _maxOccurs_ attribute.
+
+ * xref:occurs[occurs] attribute
+ * xref:minOccurs[minOccurs] attribute
+ * xref:maxOccurs[maxOccurs] attribute
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

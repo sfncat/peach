@@ -1,0 +1,59 @@
+:toc!:
+== Data ==
+
+Data elements are used to create and load default sets of data into DataModels.  This data overwrites the default data in the _value_ attributes of the data elements. To match the data into the correct elements, Peach will "crack" the data and fail if the data does not fit. This is done the same way data is cracked from an link:Action.html#_input[input] Action.
+
+There are currently three ways to load data, first is from a file, the second is via a python expression, and the third is by setting values field by field.
+
+The Data element is a valid top level element (child of <Peach>) when defining sets of data to be referenced later on.  It is also valid as a child of link:Action.html[Action] when used to both define data or reference an existing top level definition.
+
+If multiple Data files xml blocks are specified, the attribute _switchCount_ with the link:MutationStrategies.html[random strategy] can be used to specify the number of iterations performed before switching to the next.
+
+[source,xml]
+----
+
+<DataModel name="MyDataModel">
+   <Block name="FooBlock">
+      <String name="Value" />
+   </Block>
+</DataModel>
+
+<Data name="HelloWorldDataSet">
+  <Field name="FooBlock.Value" value="Hello World!" />
+</Data>
+
+<Data name="LoadFromFile" fileName="sample.bin" />
+
+----
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the DataModel [required]
+ * link:ref.html[ref] -- Reference to a DataModel to use as a template [optional]
+ * link:fileName.html[fileName] -- Name of file to load, or folder with files to cycle through [optional]
+
+_Valid Child-Elements:_
+
+ * link:Field.html[Field]
+ 
+ 
+=== Examples ===
+
+.Multiple Data elements switched after _switchCount_ iterations"
+[source,xml]
+----
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="output">
+      <DataModel ref="TheDataModel" />
+      <Data name="SampleData1">
+        <Field name="Block1.Value" value="Hello World!" />
+      </Data>
+      <Data name="SampleData2">
+        <Field name="Block1.Value" value="Good Afternoon World!" />
+      </Data>
+    </Action>
+  </State>
+</StateModel>
+----

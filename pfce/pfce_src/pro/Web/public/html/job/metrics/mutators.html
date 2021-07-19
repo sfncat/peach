@@ -1,0 +1,66 @@
+﻿<p>
+	This metric display shows statistics for each mutator.
+</p>
+<table
+	st-table="vm.MutatorData"
+	st-safe-src="vm.AllMutatorData"
+	class="table table-striped table-bordered table-hover peach-table">
+	<thead>
+		<tr>
+			<th st-sort="mutator"
+				class="width-100">
+				Mutator
+			</th>
+			<th st-sort="elementCount">
+				Elements
+			</th>
+			<th st-sort="iterationCount">
+				Test Cases
+			</th>
+			<th st-sort="bucketCount">
+				Buckets
+			</th>
+			<th st-sort="faultCount"
+				st-sort-default="reverse">
+				Faults
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class="text-center"
+					colspan="5"
+					ng-if="vm.AllMutatorData.length === 0">
+				No data is available
+			</td>
+		</tr>
+		<tr ng-repeat="row in vm.MutatorData">
+			<td class="width-100">
+				{{row.mutator}}
+			</td>
+			<td>
+				{{row.elementCount}}
+			</td>
+			<td>
+				{{row.iterationCount}}
+			</td>
+			<td>
+				{{row.bucketCount}}
+			</td>
+			<td>
+				{{row.faultCount}}
+			</td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr ng-if="vm.AllMutatorData.length > 25">
+			<td colspan="5"
+					class="text-center">
+				<div st-pagination
+							st-items-by-page="25"
+							st-displayed-pages="10">
+				</div>
+			</td>
+		</tr>
+	</tfoot>
+</table>

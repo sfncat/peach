@@ -1,0 +1,33 @@
+[[minOccurs]]
+
+// 03/28/2014 Lynn
+// Sentence edits.
+
+== Minimum Occurrence Attribute
+
+_minOccurs_ specifies the minimum number of times an element can occur. Peach treats a data element with _minOccurs_ as an array.
+
+Occurrence attributes are used when cracking, producing, and mutating data. 
+
+The _minOccurs_ attribute specifies a lower limit on the number of array elements 
+that can occur. A similar attribute, the xref:maxOccurs[maxOccurs] attribute 
+specifies an upper limit on the number of array elements that can occur. When 
+used together, these two attributes define a range of an element’s occurrence.
+
+Related attributes: xref:maxOccurs[maxOccurs], xref:occurs[occurs].
+
+=== Examples
+
+[source,xml]
+----
+<!-- Must occur at least twice -->
+<Block name="OtherThings" minOccurs="2">
+  <String name="A" value="A" />
+  <String name="B" value="B" />
+  <String name="C" value="C" />
+</Block>
+
+<!-- Can occur 0 or more times -->
+<String name="OptionalValue" minOccurs="0" />
+----
+

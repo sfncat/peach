@@ -1,0 +1,16 @@
+:toc!:
+== HMACTransformer
+
+The _HMACTransformer_ will produce HMAC on the value in the parent data model as described in RFC 2104. 
+
+=== Examples
+
+[source,xml]
+----
+  <DataModel name="Ex1">
+    <String name="TransformMe" value="AAAAAAAAAAA">
+      <Transformer class="Hmac" />
+    </String>
+  </DataModel>
+----
+

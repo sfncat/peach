@@ -1,0 +1,37 @@
+[[TutorialDumbFuzzing_CreateDataModel]]
+== Creating Data Models
+
+Now we are going to dive right in.  Let's start by making a copy of +template.xml+ (found in your Peach folder) to +png.xml+.  This will hold all of the information about our PNG dumb fuzzer.  Also, You want several samples PNG files; start with 10.
+
+Go ahead and load up +png.xml+ into your XML editor.
+
+For our dumb fuzzer, we only need one data model to hold all the data from the PNG file.  The data model does not know anything about the PNG data structure, instead keeping all the data in a "Blob" element (binary large object or byte array).
+
+=== Creating the DataModel
+
+Okay, head over to your +png.xml+ file and let's start writing some XML!  Locate the xref:DataModel[DataModel] called _TheDataModel_ is should look something like this:
+
+[source,xml]
+----
+<!-- TODO: Create data model -->
+<DataModel name="TheDataModel">
+</DataModel>
+----
+
+
+Read more about: xref:DataModel[DataModel]
+
+We are going to add a single data element to our data model as follows:
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+    <Blob />
+</DataModel>
+----
+
+Read more about: xref:DataModel[DataModel], xref:Blob[Blob]
+
+Okay, that's all we need for our data model.  The "Blob" element will end up holding all of our PNG data.
+
+// end

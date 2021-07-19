@@ -1,0 +1,37 @@
+:toc!:
+== When Attribute ==
+
+The when attribute is a boolean expression that is evaluated before preforming an action. If the expression (written in python) evaluates to true, the action will be preformed, otherwhys the action is skipped.
+
+
+=== Examples ===
+
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action type="input">
+			<DataModel ref="InputModel" /> 
+		</Action> 
+					
+		<Action type="changeState" ref="State2" when="int(StateModel.states['InitialState'].actions[0].dataModel['Type'].InternalValue) == 2"/>
+
+		<Action type="changeState" ref="State3" when="int(StateModel.states['InitialState'].actions[0].dataModel['Type'].InternalValue) == 3"/>
+
+	</State>
+
+	<State name="State2">
+		<Action type="output">
+			<DataModel ref="OutputModelA" /> 
+		</Action> 
+	</State>
+
+	<State name="State3">
+		<Action type="output">
+			<DataModel ref="OutputModelB" /> 
+		</Action> 
+	</State>
+
+----
+

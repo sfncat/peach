@@ -1,0 +1,79 @@
+[[Mutators]]
+
+=== Mutators
+
+Mutators perform the actual data changes to models that produce fuzzed output. The fuzzing strategy decides
+how and when to apply mutators. During a fuzzing session, Peach weights mutators based on the number of
+variations of data that each mutator generates. Peach selects mutators that generate more variations
+more frequently than mutators that generate fewer variations of fuzzed data.
+
+A typical mutator performs a single type of change. For example, the _BlobBitFlipperMutator_ performs bit flipping on _Blob_ elements. Most mutators have no or very little state or complex logic.
+
+Mutators that are associated with state have a prefix for identification, either State or Action.
+
+Custom mutators are relatively easy to write.
+
+To focus on using a specific set of mutators in a fuzzing session, specify the mutators to use or those not to use during a fuzzing run in the xref:Test[_Test_] element of the Pit. Most often, Peach considers all mutations and uses all mutations appropriate for the DataModel.
+
+The following sections provide descriptions of each mutator, as well as hints and configuration options.
+
+:leveloffset: 2
+include::ArrayEdgeCase.adoc[]
+include::ArrayRandomizeOrder.adoc[]
+include::ArrayReverseOrder.adoc[]
+include::ArrayVariance.adoc[]
+include::BlobChangeFromNull.adoc[]
+include::BlobChangeRandom.adoc[]
+include::BlobChangeSpecial.adoc[]
+include::BlobChangeToNull.adoc[]
+include::BlobExpandAllRandom.adoc[]
+include::BlobExpandSingleIncrementing.adoc[]
+include::BlobExpandSingleRandom.adoc[]
+include::BlobExpandZero.adoc[]
+include::BlobReduce.adoc[]
+include::ChoiceSwitch.adoc[]
+include::DataElementBitFlipper.adoc[]
+include::DataElementDuplicate.adoc[]
+include::DataElementRemove.adoc[]
+include::DataElementSwapNear.adoc[]
+include::DoubleRandom.adoc[]
+include::DoubleVariance.adoc[]
+include::ExtraValues.adoc[]
+include::NumberEdgeCase.adoc[]
+include::NumberRandom.adoc[]
+include::NumberVariance.adoc[]
+include::SampleNinja.adoc[]
+include::SizedDataEdgeCase.adoc[]
+include::SizedDataVariance.adoc[]
+include::SizedEdgeCase.adoc[]
+include::SizedVariance.adoc[]
+include::StateChangeRandom.adoc[]
+include::StringAsciiRandom.adoc[]
+include::StringCaseLower.adoc[]
+include::StringCaseRandom.adoc[]
+include::StringCaseUpper.adoc[]
+include::StringLengthEdgeCase.adoc[]
+include::StringLengthVariance.adoc[]
+include::StringList.adoc[]
+include::StringStatic.adoc[]
+include::StringUnicodeAbstractCharacters.adoc[]
+include::StringUnicodeFormatCharacters.adoc[]
+include::StringUnicodeInvalid.adoc[]
+include::StringUnicodeNonCharacters.adoc[]
+include::StringUnicodePlane0.adoc[]
+include::StringUnicodePlane1.adoc[]
+include::StringUnicodePlane14.adoc[]
+include::StringUnicodePlane15And15.adoc[]
+include::StringUnicodePlane2.adoc[]
+include::StringUnicodePrivateUseArea.adoc[]
+include::StringUtf8BomLength.adoc[]
+include::StringUtf8BomStatic.adoc[]
+include::StringUtf8ExtraBytes.adoc[]
+include::StringUtf8Invalid.adoc[]
+include::StringUtf16BomLength.adoc[]
+include::StringUtf16BomStatic.adoc[]
+include::StringUtf32BomLength.adoc[]
+include::StringUtf32BomStatic.adoc[]
+include::StringXmlW3C.adoc[]
+
+// end

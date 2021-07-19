@@ -1,0 +1,15 @@
+<<<
+[[Mutators_DataElementDuplicate]]
+== DataElementDuplicate
+
+This mutator produces test cases for all data elements by duplicating them in the model. The number of duplicated elements range from 1 to 50 and form a distribution. The distribution is configurable.
+
+=== Supported Elements
+
+All data elements are supported.
+
+=== Hints
+
+DataElementDuplicate-N:: Standard deviation of the number of duplications.
+
+// end

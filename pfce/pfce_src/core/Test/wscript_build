@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+
+deps = [
+	'IronPython.dll',
+	'Peach.Core.dll',
+	'System.dll',
+	'System.Core.dll',
+	'System.Runtime.Remoting.dll',
+	'System.Xml.dll',
+]
+
+pkgs = [
+	'NLog',
+	'NUnit',
+]
+
+bld(
+	name = 'Peach.Core.Test.dll',
+	features = 'cs test paket',
+	use = deps,
+	use_packages = pkgs,
+	paket_settings = dict(
+		frameworks = ['net45', 'Net45'],
+	),
+	source = bld.path.ant_glob('**/*.cs'),
+)

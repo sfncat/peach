@@ -1,0 +1,42 @@
+[[AddLocalAgent]]
+=== Adding an agent
+
+An Agent runs either in-process of {product} or can be installed and run on a remote machine.
+
+NOTE: It is typically not necessary to configure multiple agents for the same machine.
+A single agent is capable of running multiple different monitors.
+
+==== Add a local agent
+To add a local agent, follow these steps:
+
+. Click Monitoring
++
+image::{images}/click-add-monitor.png[Add Monitor, 100, 250, role="text-right"]
+. Click Add Agent
++
+image::{images}/click-add-agent.png[Add Agent]
+. Enter a name for the agent e.g. `Local`.
+Leave the default value of `local://` for the agent's location.
++
+image::{images}/enter-agent-name.png[Enter name]
+. Click Save
++
+image::{images}/save-agent.png[Save agent]
+
+==== Add a remote agent
+Assume you have peachagent running on a host with the IP address 192.168.17.145.
+To add a remote agent to this host, follow these steps:
+
+. Click Monitoring
++
+image::{images}/click-add-monitor.png[Add Monitor, 100, 250, role="text-right"]
+. Click Add Agent
++
+image::{images}/click-add-agent.png[Add Agent]
+. Enter a name for the agent e.g. `Remote`.
+Use `tcp://192.168.17.145` to indicate the agent is running on the remote host.
++
+image::{images}/enter-agent-name-remote.png[Enter name]
+. Click Save
++
+image::{images}/save-agent-remote.png[Save agent]

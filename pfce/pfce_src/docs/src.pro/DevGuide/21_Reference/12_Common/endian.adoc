@@ -1,0 +1,43 @@
+[[endian]]
+== Endian Attribute ==
+
+Specify the byte order of a field.  
+
+For more information about endian-ness, see http://en.wikipedia.org/wiki/Endian[the Endian Wikipedia article].
+
+*Valid Values:*
+
+* big or network -- Most significant byte first
+* little -- Least significant byte first
+
+=== Examples: ===
+
+[source,xml]
+----
+<DataModel name="NumberExample6">
+ <Number name="Hi5" value="AB CD" valueType="hex" size="16" signed="false" endian="big" />
+</DataModel>
+----
+
+
+Produces the bytes in the following order. 
+
+----
+ AB CD 
+----
+
+
+[source,xml]
+----
+<DataModel name="NumberExample7">
+ <Number name="Hi5" value="AB CD" valueType="hex" size="16" signed="false" endian="little" />
+</DataModel>
+----
+
+
+Produces the bytes in the following order. 
+
+----
+ CD AB 
+----
+

@@ -1,0 +1,69 @@
+<<<
+[[Publishers_Zip]]
+== Zip Publisher
+
+The _Zip_ publisher opens a zip file for writing.
+The Zip publisher enumerates all Stream data elements in the DataModel and creates a zip entry for each stream.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="Zip">
+    <Param name="FileName" value="output.zip" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+FileName:: Name of file to open
+
+=== Actions
+
+xref:Action_open[open]:: Open file for reading/writing.
+xref:Action_close[close]:: Close file stream.
+xref:Action_output[output]:: Data to be written to file
+
+=== Examples
+
+.Write two text files (file1.txt and file2.txt) to a zip file
+===============
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <Stream streamName='file1.txt'>
+      <String value='Hello'/>
+    </Stream>
+    <Stream streamName='file2.txt'>
+      <String value='World'/>
+    </Stream>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="Zip">
+      <Param name="FileName" value="fuzzed.zip" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+
+View of fuzzed.zip in 7Zip
+
+image::{images}/DevGuide/Publishers/Zip.png[]
+
+===============

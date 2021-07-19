@@ -1,0 +1,86 @@
+<<<
+[[Test_Include]]
+== Include
+
+When used in the 'Test' element of a Pit, the Include and xref:Test_Exclude[Exclude] 
+elements allows for including or excluding various data elements from mutation. 
+One use case of these elements is to fuzz encapsulated data without fuzzing the container. 
+
+XPath is used to identify the included elements. 
+
+.XPath Further Reading
+****
+The following links provide additional information regarding XPath.
+
+ * http://www.w3schools.com/xpath/[XPath Tutorial]
+ * http://www.w3schools.com/xpath/xpath_syntax.asp[XPath Syntax]
+ * http://www.w3.org/TR/xpath/[XPath Specification]
+
+****
+
+=== Syntax
+
+[source,xml]
+----
+<!-- Include all data elements -->
+<Include />
+
+<!-- Include specific elements -->
+<Include xpath="//Value" />
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xpath:: Provide an xpath query to select elements to include. 
+
+TIP: Peach interprets the statement _<Include />_ as all-inclusive, and fuzzes all data elements. 
+=== Examples
+
+.Include via xpath
+====================
+This example excludes all data elements, then includes specific ones.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String value="1" />
+		<String value="2" />
+		<String value="3" />
+		<String value="4" />
+		<String value="5" />
+
+		<Block name="FuzzJustThese">
+			<String value="6" />
+			<String value="7" />
+			<String value="8" />
+		</Block>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel" />
+		<Publisher class="ConsoleHex"/>
+
+		<Exclude />
+		<Include xpath="//FuzzJustThese" />
+	</Test>
+</Peach>
+----
+====================

@@ -1,0 +1,20 @@
+:toc!:
+== Null Publisher
+
+All data sent to the null publisher is discarded.  This publisher is used by the unit tests.
+
+=== Parameters
+
+None
+
+=== Examples
+
+[source,xml]
+----
+<Test name="Default">
+
+  <Publisher class="Null" />
+  
+</Test>
+----
+

@@ -1,0 +1,391 @@
+﻿
+.skin-1 .nav-list > li.disabled > a > .menu-text,
+.skin-1 .nav-list > li.disabled > a > i,
+.skin-1 .nav-list > li.disabled > a > .arrow {
+	color: #595D60;
+	cursor: not-allowed;
+}
+
+.skin-1 .navbar-header img {
+	height: 50px;
+}
+
+a.disabled {
+	cursor: not-allowed;
+}
+
+.timeline.vis .box.item {
+	cursor: pointer;
+}
+
+pre {
+	word-wrap: normal;
+	overflow: auto;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+.accordion-toggle {
+	display: block; /* allow user to click entire heading to toggle */
+}
+
+.accordion-toggle span {
+	line-height: 22px;
+}
+
+.accordion-toggle:hover {
+	text-decoration: none;
+}
+
+.accordion-toggle:focus {
+	outline: none;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.btn-cell {
+	line-height: 24px;
+	background-color: transparent !important;
+	border-color: transparent !important;
+	color: red !important;
+}
+
+.btn-xs .glyphicon {
+	margin-right: 0;
+}
+
+.btn-sm .glyphicon {
+	margin-right: 0;
+}
+
+.btn-lg {
+	border-width: 3px;
+	line-height: 1.35;
+	padding: 7px 16px;
+}
+
+.peach-icon-cell {
+	width: 25px;
+}
+
+pre.peach-test-log {
+	min-height: 300px;
+}
+
+.pagination > li {
+	cursor: pointer;
+}
+
+.peach-table th[st-sort] {
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.peach-table th[st-sort]::before {
+	content: "\f0dc";
+	display: inline-block;
+	color: #555;
+	font-family: FontAwesome;
+	font-size: 13px;
+	font-weight: normal;
+	margin-right: 2px;
+}
+
+.peach-table th.st-sort-descent::before {
+	content: "\f0dd";
+}
+
+.peach-table th.st-sort-ascent::before {
+	content: "\f0de";
+}
+
+.nowrap {
+	white-space: nowrap;
+}
+
+.break-word {
+	word-wrap: break-word;
+}
+
+.peach-fault-detail {
+	width: 100%;
+	table-layout: fixed;
+}
+
+.peach-fault-detail tr td:first-child {
+	white-space: nowrap;
+	min-width: 110px;
+	width: 200px;
+}
+
+.peach-fault-detail tr td {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.peach-fault-detail pre {
+	min-height: 250px;
+	max-height: 600px;
+	overflow: auto;
+}
+
+.peach-fault-files {
+	height: 24em;
+	overflow-y: scroll;
+}
+
+.peach-parameter-group {
+	margin-top: 10px;
+}
+
+td div.peach-parameter-input .input-group {
+	top: 5px;
+}
+
+/* turn off animation, this can screw with autofocus */
+.modal.fade .modal-dialog,
+.modal.in .modal-dialog {
+	-webkit-transform: translate(0, 0);
+	-ms-transform: translate(0, 0);
+	transform: translate(0, 0);
+}
+
+.peach-add-monitor {
+	max-height: 600px;
+	overflow-y: auto;
+}
+
+@media only screen and (max-height: 1000px) {
+	.peach-add-monitor {
+		max-height: 400px;
+		overflow-y: auto;
+	}
+}
+
+.peach-migrate-pit {
+	max-height: 600px;
+	overflow-y: auto;
+}
+
+@media only screen and (max-height: 1000px) {
+	.peach-migrate-pit {
+		max-height: 250px;
+		overflow-y: auto;
+	}
+}
+
+#loading-bar .bar {
+	background: orange;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+	display: none !important;
+}
+
+noscript {
+	text-align: center;
+	padding: 30px;
+	display: block;
+	font-size: large;
+}
+
+.peach-library {
+	-moz-column-width: 200px;
+	-webkit-column-width: 200px;
+	column-width: 200px;
+}
+
+.peach-library ul > li {
+	width: 100%;
+	position: relative;
+	border: 1px solid white;
+}
+
+.peach-library .action-buttons {
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding-left: 5px;
+	padding-right: 5px;
+	background-color: white;
+}
+
+.peach-library ul li:hover {
+	border: 1px solid #ddd;
+}
+
+.peach-library ul li:hover .action-buttons {
+	display: block;
+	text-decoration: none;
+}
+
+.peach-library .action-buttons a:hover,
+.peach-library .action-buttons a:focus {
+	text-decoration: none;
+}
+
+.breadcrumb {
+	background-color: transparent;
+}
+
+.badge-transparent {
+	background-color: transparent;
+}
+
+.submenu .badge {
+	padding: 1px 7px;
+}
+
+.peach-error {
+	width: 500px;
+}
+
+.peach-error-text {
+	white-space: pre-line;
+}
+
+.max-width-200 {
+	max-width: 200px;
+}
+
+.max-width-500 {
+	max-width: 500px;
+}
+
+@media only screen and (max-width: 1260px) {
+	.max-width-500 {
+		max-width: 400px;
+	}
+}
+
+@media only screen and (max-width: 1199px) {
+	.max-width-500 {
+		max-width: 300px;
+	}
+}
+
+.ui-select-bootstrap > .ui-select-choices {
+	max-height: 400px;
+}
+
+.ui-select-toggle {
+	text-align: left;
+}
+
+.tuning-legend span {
+	padding: 10px;	
+}
+
+.tuning-legend-text {
+	line-height: 1.2;
+}
+
+.tuning-legend-text span.line.first {
+	padding-left: 19px;
+	padding-right: 4px;
+}
+
+.tuning-legend-text span.line {
+	padding-left: 21px;
+}
+
+.tuning-legend-text span.line:before {
+	content: "";
+	border: 1px solid black;
+	border-width: 0 0 0 1px;
+}
+
+.tuning-legend-text span.text {
+	padding-left: 8px;
+}
+
+.tuning {
+	position: relative;
+}
+
+.tuning > div {
+	overflow-x: auto;
+	overflow-y: visible;
+	margin-left: 150px;
+}
+
+.tuning table {
+	width: 100%;
+}
+
+.tuning-row-hover {
+	background-color: #EEE;
+}
+
+.tuning th {
+	position: absolute;
+	width: 160px;
+	left: 0;
+	padding: 10px 0 10px 10px;
+}
+
+.tuning-legend span i,
+.tuning th i {
+	font-size: 133%;
+	line-height: 0.75em;
+	vertical-align: -15%;
+	margin: 1px;
+	color: #AAA;
+}
+
+.tuning-legend span i.fa-circle,
+.tuning th i.fa-circle,
+.tuning th i.fa-dot-circle-o {
+	color: #2091cf;
+}
+
+.tuning-legend span i.first,
+.tuning th i.first {
+	margin-right: 10px;
+}
+
+.tuning td {
+	padding: 2px 0 2px 45px;
+}
+
+.tuning td .expander {
+	float: left;
+	margin-left: -35px;
+	margin-right: 5px;
+}
+
+.tuning td div.node {
+	border: 1px solid black;
+	border-radius: 3px;
+	padding: 7px;
+	white-space: nowrap;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.dirty-search {
+	border-color: red !important;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(255, 0, 0, .6) !important;
+}
+
+.fault-monitor-tab-content {
+	padding: 10px;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+
+.help-text {
+	margin-top: 5px;
+	font-size: 85%;
+	color: #777;
+}
+
+.help-block {
+	margin: 0;
+}

@@ -1,0 +1,16 @@
+:toc!:
+== Ipv4StringToNetworkOctetTransformer
+
+The _Ipv4StringToNetworkOctetTransformer_ will produce network order octet bytes from the string representation of an Internet Protocol version 4 address.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+    <Blob name="TransformMe" value="127.0.0.1"> 
+      <Transformer class="Ipv4StringToNetworkOctet" />
+    </Blob>
+  </DataModel>
+----
+

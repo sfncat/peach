@@ -1,0 +1,12 @@
+:toc!:
+== Size Attribute ==
+
+The size attribute is always specified in bits and typically deals with numerical fields or bit flags.
+
+_Valid Values:_
+
+ * 8
+ * 16
+ * 24
+ * 32
+ * 64

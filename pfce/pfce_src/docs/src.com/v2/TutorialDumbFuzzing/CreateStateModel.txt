@@ -1,0 +1,45 @@
+:toc!:
+link:CreateDataModel.html[<< Previouse] | link:../TutorialDumbFuzzing.html[Up] | link:ConfigurePublisher.html[Next >>]
+
+''''
+
+== Create State Model ==
+
+Now that you have created the data model we can create the state model.  For file fuzzing the state model is very simple.  All we want to do is write out the file and launch the target process.  We will do this using three actions:
+
+ * output -- Write the file
+ * close -- Close the file
+ * call -- Launch the application
+
+Go ahead and locate the state model in the +png.xml+ file called _TheState_.  We will expand on this state model to include our three actions as follows:
+
+[source,xml]
+----
+<!-- This is our simple png state model -->
+<StateModel name="TheState" initialState="Initial">
+	<State name="Initial">
+		
+		<!-- Write out our png file -->
+		<Action type="output" publisher="file">
+			<DataModel ref="TheDataModel"/>
+
+			<!-- This is our folder of sample files to read in -->
+			<Data name="data" fileName="samples/*.png"/>
+		</Action>
+		
+		<Action type="close" publisher="file"/>
+		
+		<!-- Launch the target process -->
+		<Action type="call" method="LaunchMplayer" publisher="launcher"/>
+	</State>
+</StateModel>
+----
+
+
+Read more about: link:../StateModel.html[StateModel], link:../State.html[State], link:../Action.html[Action], link:../DataModel.html[DataModel], link:../Data.html[Data]
+
+Sweet!  We are all set!  Next we just need to configure our debugger and publishers!
+
+''''
+
+link:CreateDataModel.html[<< Previouse] | link:../TutorialDumbFuzzing.html[Up] | link:ConfigurePublisher.html[Next >>]

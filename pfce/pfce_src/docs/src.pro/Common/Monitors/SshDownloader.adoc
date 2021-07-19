@@ -1,0 +1,83 @@
+<<<
+[[Monitors_SshDownloader]]
+== SshDownloader Monitor
+
+*Monitor Categories*: *Data collection*
+
+The _SshDownloader_ monitor downloads a file or folder from a remote host over SSH SFTP (Secure Shell File Transfer Protocol) after any other monitor detects a fault.
+
+_SshDownloader_ supports password, keyboard, and private key authentication methods.
+
+_SshDownloader_ can be configured to delete files from the source after they have been downloaded.
+
+=== Parameters
+
+_Required:_
+
+Host::
+Remote hostname or IP address for the SSH connection.
+
+Username::
+Username for authentication with the remote host.
+
+_Optional:_
+
+Password::
+Password for authentication with the remote host.
+Defaults to `""`.
+Either the 'Password' or the 'KeyPath' parameter must be set.
+
+KeyPath::
+A local path to the private part of an SSH key-pair to be used for authentication with the remote host.
+Defaults to `""`.
+Either the 'Password' or the 'KeyPath' parameter must be set.
+
+File::
+Path of the remote file to download.
+Defaults to `""`.
+Either the 'File' or the 'Folder' parameter must be set.
+
+Folder::
+Path of the remote folder to download.
+Defaults to `""`.
+Either the 'File' or the 'Folder' parameter must be set.
+
+Remove::
+When this value is set to `true`,
+remove the remote file after the download completes.
+Defaults to `true`.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Download a log file
+====================
+This example downloads a log file when a fault is detected by any other monitor.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter  |Value
+|Host       |`my.target.com`
+|Username   |`tester`
+|Password   |`Password!`
+|File       |`/var/log/syslog`
+|Remove     |`false`
+|==========================================================
+====================
+
+endif::peachug[]
+
+ifndef::peachug[]
+
+.Download a log file
+============
+This example downloads a log file when a fault is detected by any other monitor.
+
+[source,xml]
+----
+include::SshDownloader_Example.xml[]
+----
+============
+
+endif::peachug[]

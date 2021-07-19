@@ -1,0 +1,3 @@
+#!/usr/bin/env python
+
+bld.read_paket('paket.lock')

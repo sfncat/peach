@@ -1,0 +1,16 @@
+<<<
+[[Mutators_NumberVariance]]
+== NumberVariance
+
+This mutator produces test cases for Number and String elements. String elements are only supported when the default data they contain is an integer. The test cases are produced using a Gaussian distribution with the current default value as the center of the distribution.
+
+=== Supported Elements
+
+ * xref:String[String]
+ * xref:Number[Number]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

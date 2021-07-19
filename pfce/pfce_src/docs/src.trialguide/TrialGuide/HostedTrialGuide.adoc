@@ -1,0 +1,6 @@
+:hosted: 
+:all:
+
+include::TrialGuide.adoc[]
+
+//end

@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+deps = [
+	'System.dll',
+	'System.Core.dll',
+	'System.Xml.dll',
+	'Microsoft.CSharp.dll',
+]
+
+excl = [
+	'KeyboardInteractiveConnectionInfo.NET40.cs',
+	'NoneConnectionInfo.cs',
+	'PasswordConnectionInfo.NET40.cs',
+	'Common/Extensions.NET40.cs',
+	'Sftp/Requests/PosixRenameRequest.cs',
+	'Sftp/Requests/StatVfsRequest.cs',
+	'Sftp/Responses/StatVfsResponse.cs',
+]
+
+bld(
+	features = 'cs',
+	use = deps,
+	source = bld.path.ant_glob('**/*.cs', excl=excl),
+	name = 'Renci.SshNet.dll',
+	csflags = [ '/nowarn:0219' ],
+	version = False,
+	csdoc = False,
+)

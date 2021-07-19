@@ -1,0 +1,288 @@
+[[Analyzers_Xml]]
+== Xml Analyzer
+
+The XML Analyzer consumes an XML document or fragment and converts it into a tree structure of xref:XmlElement[XmlElement] and xref:XmlAttribute[XmlAttribute] elements.
+
+When run using the command line, the results of the generated model are saved to disk. Once saved, you can use and modify the results as needed.
+
+This analyzer can be attached to a string.
+
+[TIP]
+====
+The following XML special characters need to be encoded if they are inline values.
+
+[options="header"]
+|=======================
+|Symbol   |Name           |Escape Sequence
+|&quot;   |double-quote   |`&quot;`
+|&apos;   |single-quote   |`&apos;`
+|&lt;     |less-than      |`&lt;`
+|&gt;     |greater-than   |`&gt;`
+|&amp;    |ampersand      |`&amp;`
+|=======================
+====
+
+=== Syntax
+
+[source,xml]
+----
+<String  value="&lt;Root&gt;HelloWorld!&lt;/Root&gt;">
+	<Analyzer class="Xml" />
+</String>
+----
+
+----
+pittool analyzer Xml input.xml output.xml
+----
+
+=== Command Line Syntax
+
+----
+pittool analyzer Xml <input file> <output file>
+----
+
+input file::
+    XML file
+
+output file::
+    Generated PIT file
+
+=== Attributes
+
+_Required:_
+
+None.
+
+
+==== Examples
+
+.Simple Hello World Example
+==========================
+This example uses the XML analyzer on an inline value.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="TheModel">
+		<String  value="&lt;Root&gt;HelloWorld!&lt;/Root&gt;">
+			<Analyzer class="Xml" />
+		</String>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="TheModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output of the example using an inline value.
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 22910.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(24 bytes)
+00000000   3C 52 6F 6F 74 3E 48 65  6C 6C 6F 57 6F 72 6C 64   <Root>HelloWorld
+00000010   21 3C 2F 52 6F 6F 74 3E                            !</Root>
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Xml_HelloWorld.png[]
+
+==========================
+
+.Inline XML Inline Encoding Example
+==========================
+This example uses the Xml analyzer on an inline value with encoded Xml characters.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="TheModel">
+		<String  value="&lt;Root test=&quot;true&quot;&gt;HelloWorld!&amp;amp;&lt;/Root&gt;">
+			<Analyzer class="Xml" />
+		</String>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="TheModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output from the example using an inline value with encoded Xml characters.
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 44192.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(37 bytes)
+00000000   3C 52 6F 6F 74 20 74 65  73 74 3D 22 74 72 75 65   <Root test="true
+00000010   22 3E 48 65 6C 6C 6F 57  6F 72 6C 64 21 26 3C 2F   ">HelloWorld!&</
+00000020   52 6F 6F 74 3E                                     Root>
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Xml_EncodingExample.png[]
+
+==========================
+
+.Load XML From File Example
+==========================
+This example uses the Xml analyzer on itself.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="TheModel">
+		<String>
+			<Analyzer class="Xml" />
+		</String>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="TheModel" />
+				<Data name="TheData" fileName="example.xml"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output from the example that uses the Xml analyzer on itself.
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 10150.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'TheModel' Bytes: 0/787, Bits: 0/6296
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'TheModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'TheModel'
+Peach.Core.Cracker.DataCracker scan: String 'TheModel.DataElement_0' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'TheModel' Size: <null>, Bytes: 0/787, Bits: 0/6296
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'TheModel.DataElement_0' Bytes: 0/787, Bit s: 0/6296
+Peach.Core.Cracker.DataCracker getSize: -----> String 'TheModel.DataElement_0'
+Peach.Core.Cracker.DataCracker scan: String 'TheModel.DataElement_0' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'TheModel.DataElement_0'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 6296
+Peach.Core.Cracker.DataCracker Crack: String 'TheModel.DataElement_0' Size: 6296 , Bytes: 0/787, Bits: 0/6296
+Peach.Core.Dom.DataElement String 'TheModel.DataElement_0' value is: <?xml version="1.0" encoding="utf-8"?> <Peach xmlns="http://pea.. (Len: 787 chars)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(669 bytes)
+00000000   3C 50 65 61 63 68 20 78  6D 6C 6E 73 3D 22 68 74   <Peach xmlns="ht
+00000010   74 70 3A 2F 2F 70 65 61  63 68 66 75 7A 7A 65 72   tp://peachfuzzer
+00000020   2E 63 6F 6D 2F 32 30 31  32 2F 50 65 61 63 68 22   .com/2012/Peach"
+00000030   20 78 6D 6C 6E 73 3A 78  73 69 3D 22 68 74 74 70    xmlns:xsi="http
+00000040   3A 2F 2F 77 77 77 2E 77  33 2E 6F 72 67 2F 32 30   ://www.w3.org/20
+00000050   30 31 2F 58 4D 4C 53 63  68 65 6D 61 2D 69 6E 73   01/XMLSchema-ins
+00000060   74 61 6E 63 65 22 20 64  31 70 31 3A 73 63 68 65   tance" d1p1:sche
+00000070   6D 61 4C 6F 63 61 74 69  6F 6E 3D 22 68 74 74 70   maLocation="http
+00000080   3A 2F 2F 70 65 61 63 68  66 75 7A 7A 65 72 2E 63   ://peachfuzzer.c
+00000090   6F 6D 2F 32 30 31 32 2F  50 65 61 63 68 20 2E 2E   om/2012/Peach ..
+000000A0   2F 70 65 61 63 68 2E 78  73 64 22 20 78 6D 6C 6E   /peach.xsd" xmln
+000000B0   73 3A 64 31 70 31 3D 22  68 74 74 70 3A 2F 2F 77   s:d1p1="http://w
+000000C0   77 77 2E 77 33 2E 6F 72  67 2F 32 30 30 31 2F 58   ww.w3.org/2001/X
+000000D0   4D 4C 53 63 68 65 6D 61  2D 69 6E 73 74 61 6E 63   MLSchema-instanc
+000000E0   65 22 3E 3C 44 61 74 61  4D 6F 64 65 6C 20 6E 61   e"><DataModel na
+000000F0   6D 65 3D 22 54 68 65 4D  6F 64 65 6C 22 3E 3C 53   me="TheModel"><S
+00000100   74 72 69 6E 67 3E 3C 41  6E 61 6C 79 7A 65 72 20   tring><Analyzer
+00000110   63 6C 61 73 73 3D 22 58  6D 6C 22 20 2F 3E 3C 2F   class="Xml" /></
+00000120   53 74 72 69 6E 67 3E 3C  2F 44 61 74 61 4D 6F 64   String></DataMod
+00000130   65 6C 3E 3C 53 74 61 74  65 4D 6F 64 65 6C 20 6E   el><StateModel n
+00000140   61 6D 65 3D 22 54 68 65  53 74 61 74 65 22 20 69   ame="TheState" i
+00000150   6E 69 74 69 61 6C 53 74  61 74 65 3D 22 69 6E 69   nitialState="ini
+00000160   74 69 61 6C 22 3E 3C 53  74 61 74 65 20 6E 61 6D   tial"><State nam
+00000170   65 3D 22 69 6E 69 74 69  61 6C 22 3E 3C 41 63 74   e="initial"><Act
+00000180   69 6F 6E 20 74 79 70 65  3D 22 6F 75 74 70 75 74   ion type="output
+00000190   22 3E 3C 44 61 74 61 4D  6F 64 65 6C 20 72 65 66   "><DataModel ref
+000001A0   3D 22 54 68 65 4D 6F 64  65 6C 22 20 2F 3E 3C 44   ="TheModel" /><D
+000001B0   61 74 61 20 6E 61 6D 65  3D 22 45 78 61 6D 70 6C   ata name="Exampl
+000001C0   65 22 20 66 69 6C 65 4E  61 6D 65 3D 22 74 65 73   e" fileName="tes
+000001D0   74 70 65 61 63 68 2E 78  6D 6C 22 20 2F 3E 3C 2F   tpeach.xml" /></
+000001E0   41 63 74 69 6F 6E 3E 3C  2F 53 74 61 74 65 3E 3C   Action></State><
+000001F0   2F 53 74 61 74 65 4D 6F  64 65 6C 3E 3C 54 65 73   /StateModel><Tes
+00000200   74 20 6E 61 6D 65 3D 22  44 65 66 61 75 6C 74 22   t name="Default"
+00000210   3E 3C 53 74 61 74 65 4D  6F 64 65 6C 20 72 65 66   ><StateModel ref
+00000220   3D 22 54 68 65 53 74 61  74 65 22 20 2F 3E 3C 50   ="TheState" /><P
+00000230   75 62 6C 69 73 68 65 72  20 63 6C 61 73 73 3D 22   ublisher class="
+00000240   43 6F 6E 73 6F 6C 65 48  65 78 22 20 2F 3E 3C 4C   ConsoleHex" /><L
+00000250   6F 67 67 65 72 20 63 6C  61 73 73 3D 22 46 69 6C   ogger class="Fil
+00000260   65 22 3E 3C 50 61 72 61  6D 20 6E 61 6D 65 3D 22   e"><Param name="
+00000270   50 61 74 68 22 20 76 61  6C 75 65 3D 22 6C 6F 67   Path" value="log
+00000280   73 22 20 2F 3E 3C 2F 4C  6F 67 67 65 72 3E 3C 2F   s" /></Logger></
+00000290   54 65 73 74 3E 3C 2F 50  65 61 63 68 3E            Test></Peach>
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Xml_FileExample.png[]
+
+==========================

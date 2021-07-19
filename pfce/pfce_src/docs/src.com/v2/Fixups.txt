@@ -1,0 +1,46 @@
+:toc!:
+== Fixup ==
+
+The Fixup element is a child element of a link:Block.html[Block], link:Number.html[Number], link:Blob.html[Blob], or link:String.html[String]. Fixups are typically used to apply pre-link:Transformer.html[Transformer] modifications to an element, such as compute a CRC.  
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Number name="CRC" size="32" signed="true" endian="little">
+     <Fixup class="checksums.Crc32Fixup">
+        <Param name="ref" value="Data"/>
+     </Fixup>
+  </Number>
+  <Blob name="Data"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- Name of fixup class to use
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param] - name = 'ref'; value = '<name of referenced link:DataModel.html[DataModel] or link:Block.html[Block]>'.
+
+_Existing Fixups:_
+
+ * link:checksums.Crc32Fixup.html[checksums.Crc32Fixup], link:checksums.Crc32Fixup.html[Crc32Fixup]
+ * link:checksums.Crc32DualFixup.html[checksums.Crc32DualFixup], link:checksums.Crc32DualFixup.html[Crc32DualFixup]
+ * link:checksums.EthernetChecksumFixup.html[checksums.EthernetChecksumFixup], link:checksums.EthernetChecksumFixup.html[EthernetChecksumFixup]
+ * checksums.ExpressionFixup, ExpressionFixup
+ * link:checksums.IcmpChecksumFixup.html[checksums.IcmpChecksumFixup], link:checksums.IcmpChecksumFixup.html[IcmpChecksumFixup]
+ * checksums.SHA224Fixup
+ * link:checksums.SHA256Fixup.html[checksums.SHA256Fixup], link:checksums.SHA256Fixup.html[SHA256Fixup]
+ * link:checksums.SHA384Fixup.html[checksums.SHA384Fixup], link:checksums.SHA384Fixup.html[SHA384Fixup]
+ * link:checksums.SHA512Fixup.html[checksums.SHA512Fixup], link:checksums.SHA512Fixup.html[SHA512Fixup]
+ * link:checksums.SHA1Fixup.html[checksums.SHA1Fixup], link:checksums.SHA1Fixup.html[SHA1Fixup]
+ * link:checksums.MD5Fixup.html[checksums.MD5Fixup], link:checksums.MD5Fixup.html[MD5Fixup]
+ * checksums.SspiAuthenticationFixup
+ * link:checksums.LRCFixup.html[checksums.LRCFixup], link:checksums.LRCFixup.html[LRCFixup]
+
+
+ * link:sequence.SequenceIncrementFixup.html[sequence.SequenceIncrementFixup], link:sequence.SequenceIncrementFixup.html[SequenceIncrementFixup]
+ * link:sequence.SequenceRandomFixup.html[sequence.SequenceRandomFixup], link:sequence.SequenceRandomFixup.html[SequenceRandomFixup]

@@ -1,0 +1,100 @@
+<<<
+[[Publishers_ConsoleHex]]
+== ConsoleHex Publisher
+
+// Reviewed:
+//  - 02/13/2014: Seth & Adam: Outlined
+// param is good and default value is good
+// give full put to run for example
+// Updated:
+// - 02/14/2014: Jordyn
+// Added full example
+
+The _ConsoleHex_ publisher outputs data to standard out.  The data is displayed in hex format.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="ConsoleHex"/>
+----
+
+=== Parameters
+
+_Required:_
+
+There are no required parameters for this publisher.
+
+_Optional:_
+
+BytesPerLine:: Number of bytes per row of text (optional, defaults to 16)
+
+=== Actions
+
+xref:Action_open[open]:: Initialize stream to standard out.
+xref:Action_close[close]:: Close stream to standard out.
+xref:Action_output[output]:: Data sent via output is written to the console.
+
+=== Examples
+
+.Display data to console
+===========================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41"/>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+===========================
+
+.Display data with custom bytes per line
+===========================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41"/>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="ConsoleHex">
+      <Param name="BytesPerLine" value="8" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+===========================

@@ -1,0 +1,28 @@
+:toc!:
+== Hint ==
+
+Hints are extensions of link:Mutators.html[Mutators] that can be attached to data elements to provide the peach engine more information about the data that is being parsed and how it should treat it. For instance when a link:String.html[String] contains a number only the numerical tests contained within the string mutator would execute. However, if you add a link:NumericalString.html[NumericalString] hint to the link:String.html[String]  it will attach all the numerical mutators as well.
+
+[source,xml]
+----
+<String value="250">
+   <Hint name="NumericalString" value="true" />
+</String>
+----
+
+
+_Available Hints_:
+
+ * link:NumericalString.html[NumericalString]
+ * ArrayVarianceMutator-N
+ * DWORDSliderMutator
+ * BitFlipperMutator-N
+ * NumericalVarianceMutator-N
+ * NumericalEdgeCaseMutator-N
+ * FiniteRandomNumbersMutator-N
+ * SizedVaranceMutator-N
+ * SizedNumericalEdgeCasesMutator-N
+ * SizedDataVaranceMutator-N
+ * SizedDataNumericalEdgeCasesMutator-N
+ * type
+ * ValidValues 

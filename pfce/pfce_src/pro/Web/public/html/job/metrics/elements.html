@@ -1,0 +1,72 @@
+﻿<p>
+	This metric display shows statistics for all of the elements in your Pit.
+</p>
+<table
+	st-table="vm.ElementData"
+	st-safe-src="vm.AllElementData"
+	class="table table-striped table-bordered table-hover peach-table">
+	<thead>
+		<tr>
+			<th st-sort="state">
+				State
+			</th>
+			<th st-sort="action">
+				Action
+			</th>
+			<th st-sort="element"
+				class="width-100">
+				Element
+			</th>
+			<th st-sort="iterationCount">
+				Test Cases
+			</th>
+			<th st-sort="bucketCount">
+				Buckets
+			</th>
+			<th st-sort="faultCount"
+					st-sort-default="reverse">
+				Faults
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class="text-center"
+					colspan="7"
+					ng-if="vm.AllElementData.length === 0">
+				No data is available
+			</td>
+		</tr>
+		<tr ng-repeat="row in vm.ElementData">
+			<td class="max-width-200 break-word">
+				{{row.state}}
+			</td>
+			<td class="max-width-200 break-word">
+				{{row.action}}
+			</td>
+			<td class="max-width-500 width-100 break-word">
+				{{row.element || 'Other'}}
+			</td>
+			<td>
+				{{row.iterationCount}}
+			</td>
+			<td>
+				{{row.bucketCount}}
+			</td>
+			<td>
+				{{row.faultCount}}
+			</td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr ng-if="vm.AllElementData.length > 25">
+			<td colspan="7"
+					class="text-center">
+				<div st-pagination
+							st-items-by-page="25"
+							st-displayed-pages="10">
+				</div>
+			</td>
+		</tr>
+	</tfoot>
+</table>

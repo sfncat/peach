@@ -1,0 +1,27 @@
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 61495.
+Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach-pro\output\win_x64_debug\bin\Logs\CanSendFrame_Example.xml_20180521162530\debug.log
+Peach.Core.Agent.Channels.AgentLocal StartMonitor: Monitor CanSendFrame
+Peach.Pro.Core.Publishers.Can.VectorCanDriver VectorCanDriver.Initialize: Vector XL -Receive loop started
+Peach.Core.Agent.Channels.AgentLocal SessionStarting
+Peach.Pro.Core.Agent.Monitors.CanSendFrame Starting timer to send CAN frame every 500 ms
+Peach.Pro.Core.Agent.Monitors.CanSendFrame Sending frame id '0x07DC' of 'AA BB CC DD EE FF'
+Peach.Core.Engine runTest: Iteration Starting: 1,  =============================
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing control recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "SendCanFrames".
+Peach.Core.Dom.Action Run(SendCanFrame_3): Call
+Peach.Pro.Core.Publishers.CanPublisher start()
+Peach.Pro.Core.Publishers.CanPublisher call(Send) ActionParameter Count: 2
+Peach.Pro.Core.Publishers.CanPublisher call(Send) BitwiseStream Count: 2
+Peach.Pro.Core.Publishers.CanPublisher open()
+Peach.Pro.Core.Publishers.CanPublisher close()
+Peach.Core.Agent.AgentManager DetectedFault: checking for fault in agent Local
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Engine All test cases executed, stopping engine.
+Peach.Pro.Core.Publishers.CanPublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.

@@ -1,0 +1,24 @@
+﻿<div class="combobox">
+	<input type="text"
+					ng-model="selected"
+					ng-keydown="vm.OnKeyDown($event)"
+					ng-keyup="vm.OnKeyUp($event)"
+					placeholder="{{placeholder}}"
+					class="form-control"
+					peach:auto-focus 
+					autocomplete="off" />
+	<span class="open"
+				ng-click="vm.ToggleOptions()"
+				ng-disabled="!data.length">
+	</span>
+	<ul class="options"
+		  ng-if="showOptions && options.length">
+		<li class="option"
+				ng-repeat="option in options"
+				data-value="{{option.value}}"
+				ng-click="vm.SelectOption(option)"
+				ng-class="{highlighted: highlighted == $index}">
+			{{option}}
+		</li>
+	</ul>
+</div>

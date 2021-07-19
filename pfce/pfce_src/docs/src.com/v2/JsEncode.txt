@@ -1,0 +1,18 @@
+:toc!:
+= encode.JsEncode =
+
+Encodes output as a Javascript string. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="encode.JsEncode"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +encode.JsEncode+, +JsEncode+

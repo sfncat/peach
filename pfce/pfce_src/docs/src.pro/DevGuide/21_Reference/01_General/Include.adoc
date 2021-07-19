@@ -1,0 +1,92 @@
+<<<
+[[Include]]
+== Include
+
+The Include element allows you to include other Pit files in namespaces (the name that is pre-appended to everything in the pit) so they can be used by the current Pit file.  
+
+When referencing included Pit files, prefix element names with the namespace and a colon (:) _foo:datamodel_.
+
+=== Syntax
+
+[source,xml]
+----
+<Include ns="foo" src="file:foo.xml" />
+----
+
+=== Attributes
+
+_Required:_
+
+ns:: Namespace prefix.
+src:: Source URL, use "+file:+" prefix for filenames.
+
+_Optional:_
+
+None.
+
+=== Examples
+
+.Basic Include Example
+======================
+This example uses the Include element to use a data model defined in another file.
+
+[source,xml]
+.example_include.xml
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String value="Hello From Example_Include.xml!\n" />
+	</DataModel>
+</Peach>
+----
+
+[source,xml]
+.example.xml
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<Include ns="ex" src="example_include.xml" />
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="ex:TheDataModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel" />
+		<Publisher class="Console"/>
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 35703.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(32 bytes)
+Hello From Example_Include.xml!
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+======================
+

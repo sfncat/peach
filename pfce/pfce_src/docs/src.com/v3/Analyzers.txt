@@ -1,0 +1,17 @@
+:toc!:
+== Analyzers
+
+Analyzers are classes that can deconstruct some form of data and build a Peach DOM, or partial DataModel.  Examples of data that can be easily deconstructed are XML, and ASN.1.  Using an Analyzer can make it incredibly quick to begin smart fuzzing since the time spent creating a precise DataModel can be avoided.
+
+Analyzers support several modes of operation:
+
+ * _Command Line_ -- Run from the command line, the analyzer will output a Peach Pit file.
+ * _Data Element_ -- Attached to a data element (Blob, Number, or String).  The analyzer will consume the data held by the data element and replace said element with a DOM structure.
+ * More coming in next rev.
+
+Currently the following analyzers ship with Peach:
+
+ * link:Analyzers/Binary.html[Binary] -- Analyzes unknown binary blobs for strings, etc
+ * link:Analyzers/PitParser.html[PitParser] -- Default parser to generate Peach DOM
+ * link:Analyzers/StringToken.html[StringToken] -- Builds a tokenized tree from String input around various punction and special characters
+ * link:Analyzers/Xml.html[Xml] -- Converts a string of xml into seperated XML elements

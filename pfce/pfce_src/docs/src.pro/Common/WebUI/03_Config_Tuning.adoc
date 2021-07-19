@@ -1,0 +1,61 @@
+[[WebUI_Config_Tuning]]
+==== Tuning
+
+Tuning allows control of how testing is performed on a field-by-field basis.
+
+Fields are shown hierarchically below. A search feature is provided to quickly find fields of interest. Each field, or set of fields, can be excluded from testing or have its testing focus turned up or down. As a field's focus is turned up (High or Highest), test cases will be generated more often for that field. If a field is turned down (Low, Lowest), fewer test cases will be generated for that field. Fields that are excluded will not have any test cases generated.
+
+Excluding fields from testing should be used judiciously as it can lead to undiscovered faults.
+
+NOTE: Tuning is not required. In fact it's recommended to use the defaults and let Peach decide how often to test fields.
+
+===== From the Home Page
+
+To begin configuring from the Home Page:
+
+. Click the Library menu entry.
+. From the Pit Library, select a Pit or an existing configuration.
++
+* Selecting a configuration means that you are revising the settings of an existing configuration. Peach displays the start screen for the configuration.
+* Selecting a Pit means that you are creating a new configuration. You will need to name the configuration, optionally provide a description, and click "Submit" to reach the start screen for the configuration.
++
+image::{images}/Common/WebUI/NP2_Config_Start.png[]
+
+. Click the "Configure" menu item on the left of the screen. It will expand to show several configuration options.
+. Click the "Tuning" sub-menu item to access the Tuning page.
+The Monitoring data entry screen displays and is initially empty.
++
+image::{images}/Common/WebUI/AC_Tuning.png[scalewidth="70%"]
+
+===== Tuning Fields
+
+The Tuning page shows fields in a hierarchy. For file pits such as media formats or application formats, this will be the format of the file being generated.  For network pits, the hierarchy will show different packets or messages being transmitted, assuming the protocol has this concept.  When modifying a field that contains children, by default all of the children will also be changed.  This allows quickly tuning entire messages or sections of a message.
+
+For each field there are several tuning options:
+
+Exclude::
++
+Don't perform any testing of this field.
++
+CAUTION: Excluding fields from testing should be used judiciously, as it may lead to missed faults. It's our recommendation that all fields get tested.
+Instead of excluding fields, consider tuning them to lower or lowest.
+
+Lowest:: Produce the least number of test cases for this field.
+When selected, the field will still receive some testing, but much less than fields marked as normal.
+
+Low:: Produce fewer test cases for this field.
+Fields tuned to low will still be tested, but fewer test cases will be generated compared to fields marked as normal.
+
+Normal:: No changes to how this field is tested.
+Peach will decide how often to generate test cases for fields marked as normal.
+This is the recommended setting for all fields.
+
+High:: Produce more test cases for this field.
+Fields tuned to high will receive more testing than those marked as normal.
+
+Highest:: Produce even more test cases for this field.
+Fields tuned to highest will receive more testing than those marked as high.
+
+Once you have completed tuning the fields, click the Save button in the upper right of the screen.
+
+// end

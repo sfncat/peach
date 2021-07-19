@@ -1,0 +1,37 @@
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 3054.
+Peach.Core.Agent.Agent StartMonitor: Emu AndroidEmulator
+Peach.Core.Agent.Agent StartMonitor: App Android
+Peach.Core.Agent.Agent SessionStarting: Emu
+Peach.Enterprise.Agent.Monitors.AndroidEmulator Starting android emulator
+Peach.Enterprise.Agent.Monitors.AndroidEmulator Resolved emulator instance to android device 'emulator-5554'
+Peach.Enterprise.Agent.Monitors.AndroidEmulator Android emulator 'emulator-5554' successfully started
+Peach.Core.Agent.Agent SessionStarting: App
+Peach.Enterprise.AndroidBridge Initializing android debug bridge.
+Peach.Enterprise.AndroidBridge Android debug bridge initialized.
+Peach.Enterprise.Agent.Monitors.AndroidMonitor Resolved device 'emulator-5554' from monitor 'Emu'.
+Peach.Enterprise.AndroidDevice Waiting for device 'emulator-5554' to become ready
+Peach.Enterprise.AndroidDevice Device 'emulator-5554' is now ready
+Peach.Enterprise.AndroidDevice Executing command on 'emulator-5554': am start -W -S -n com.android.development/.BadBehaviorActivity
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Call
+Peach.Enterprise.Publishers.AndroidMonkeyPublisher start()
+Peach.Enterprise.Publishers.AndroidMonkeyPublisher call(tap, System.Collections.Generic.List`1[Peach.Core.Dom.ActionParameter])
+Peach.Core.Agent.AgentManager Message: App => DeviceSerial
+Peach.Enterprise.Publishers.AndroidMonkeyPublisher Resolved device 'emulator-5554' from monitor 'App'.
+Peach.Enterprise.AndroidDevice Executing command on 'emulator-5554': input tap 100 0
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Enterprise.Publishers.AndroidMonkeyPublisher stop()
+Peach.Core.Agent.Agent SessionFinished: App
+Peach.Enterprise.AndroidBridge Terminating android debug bridge.
+Peach.Core.Agent.Agent SessionFinished: Emu
+Peach.Enterprise.Agent.Monitors.AndroidEmulator Sending stop command to emulator 'emulator-5554'
+Peach.Enterprise.Agent.Monitors.AndroidEmulator Waiting for emulator 'emulator-5554' to exit
+Peach.Enterprise.Agent.Monitors.AndroidEmulator Emulator 'emulator-5554' exited with code: 0
+Peach.Enterprise.Agent.Monitors.AndroidEmulator Emulator 'emulator-5554' exited
+
+[*] Test 'Default' finished.

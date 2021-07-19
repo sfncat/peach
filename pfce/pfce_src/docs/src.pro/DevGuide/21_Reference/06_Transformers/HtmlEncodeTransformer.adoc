@@ -1,0 +1,207 @@
+<<<
+[[Transformers_HtmlEncodeTransformer]]
+== HtmlEncode
+
+// Reviewed:
+//  - 02/19/2014: Seth & Adam: Outlined
+// TODO:
+// Verify parameters expand parameter description
+// Full pit example using hex console
+// expand  general description
+// Identify direction / actions supported for (Input/Output/Call/setProperty/getProperty)
+// See AES for format
+// Test output, input
+
+// Updated:
+// 2/19/14: Mick
+// verified params
+// added supported actions
+// expanded description
+// added full example
+
+// ISSUE:
+// peach says < > & " is encoded
+// msdn says < & " is encoded
+// < & ' " is actually encoded
+
+[horizontal]
+Type:: Encoder/Decoder
+
+_HtmlEncode_ produce an HTML/XML-encoded string of the provided value in the parent xref:DataModel[DataModel].
+The following characters are encoded: less than (<), ampersand (&), apostrophe ('), and quotation mark (").
+
+The xref:Transformer[Transformer] can bidirectionally encode data as well as decode data.
+
+=== Parameters
+
+None.
+
+=== Attributes
+
+None.
+
+=== Actions Supported
+
+xref:Action_input[input]:: On input, HtmlEncode decodes HTML-encoded character sequences to single-character  representations for incoming data.
+xref:Action_output[output]:: On output, HtmlEncode encodes characters to their HTML-encoded character sequences for outgoing data.
+
+=== Examples
+
+.Simple Encode Example
+==========================
+This example uses HtmlEncode on an inline value, writes the transformed value to a file, and reads the value from the file to the console.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ex1">
+		<String value="&lt;Body&gt; " token="true"/>
+		<String name="TransformMe" value="These are encoded: &lt; &amp; &quot; '   These are not: &gt;!$2/\\c*">
+			<Transformer class="HtmlEncode" />
+		</String>
+		<String value=" &lt;/Body&gt;" token="true"/>
+	</DataModel>
+
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<!-- Encoded Output -->
+			<Action type="output" publisher="ConsolePub">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<!-- Write Encoded Output to File -->
+			<Action type="output" publisher="FilePubWrite">
+				<DataModel ref="Ex1" />
+				<Data>
+					<Field name="TransformMe" value="These are encoded: &lt;, &gt;, &amp;, &quot;\nThese are not: '!$2/\\c*" />
+				</Data>
+			</Action>
+
+			<Action type="close" publisher="FilePubWrite" />
+
+			<!-- Read and decode encoded file and slurp the value to output in console -->
+			<Action type="input" publisher="FilePubRead" >
+				<DataModel name="InputModel" ref="Ex1" />
+			</Action>
+
+			<Action type="slurp" valueXpath="//InputModel//TransformMe" setXpath="//OutputModel//StringValue" />
+
+			<Action type="output" publisher="ConsolePub">
+				<DataModel name="OutputModel">
+					<String name="StringValue" />
+				</DataModel>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" name="ConsolePub"/>
+
+		<Publisher class="File" name="FilePubWrite">
+			<Param name="FileName" value="encoded.bin" />
+		</Publisher>
+
+		<Publisher class="File" name="FilePubRead">
+			<Param name="FileName" value="encoded.bin" />
+			<Param name="Overwrite" value="false" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 52076.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(83 bytes)
+00000000   3C 42 6F 64 79 3E 20 54  68 65 73 65 20 61 72 65   <Body> These are
+00000010   20 65 6E 63 6F 64 65 64  3A 20 26 6C 74 3B 20 26    encoded: &lt; &
+00000020   61 6D 70 3B 20 26 71 75  6F 74 3B 20 26 23 33 39   amp; &quot; &#39
+00000030   3B 20 20 20 54 68 65 73  65 20 61 72 65 20 6E 6F   ;   These are no
+00000040   74 3A 20 3E 21 24 32 2F  5C 63 2A 20 3C 2F 42 6F   t: >!$2/\c* </Bo
+00000050   64 79 3E                                           dy>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher output(84 bytes)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Input
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher input()
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'InputModel' Bytes: 0/84, Bits: 0/672
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'InputModel'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.DataElement_0' -> Pos: 0, Saving Token
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.DataElement_0' -> Pos: 56, Length: 56
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'InputModel' Size: <null>, Bytes : 0/84, Bits: 0/672
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'InputModel.DataElement_0' Bytes: 0/84, Bits: 0/672
+Peach.Core.Cracker.DataCracker getSize: -----> String 'InputModel.DataElement_0'
+
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.DataElement_0' -> Pos: 0, Saving Token
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.DataElement_0' -> Pos: 56, Length: 56
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 56
+Peach.Core.Cracker.DataCracker Crack: String 'InputModel.DataElement_0' Size: 56, Bytes: 0/84, Bits: 0/672
+Peach.Core.Dom.DataElement String 'InputModel.DataElement_0' value is: <Body>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'InputModel.TransformMe' Bytes: 7/84, Bits : 56/672
+Peach.Core.Cracker.DataCracker getSize: -----> String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.TransformMe' -> Offset:
+0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'InputModel.TransformMe'
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.DataElement_1' -> Pos: 0, Saving Token
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.DataElement_1' -> Pos: 64, Length: 64
+Peach.Core.Cracker.DataCracker getSize: <----- Required Token: 552
+Peach.Core.Cracker.DataCracker Crack: String 'InputModel.TransformMe' Size: 424, Bytes: 0/53, Bits: 0/424
+Peach.Core.Dom.DataElement String 'InputModel.TransformMe' value is: These are encoded: <, >, &, "
+These are not: '!$2/\c*
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'InputModel.DataElement_1' Bytes: 76/84, Bits: 608/672
+Peach.Core.Cracker.DataCracker getSize: -----> String 'InputModel.DataElement_1'
+
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.DataElement_1' -> Pos: 0, Saving Token
+Peach.Core.Cracker.DataCracker scan: String 'InputModel.DataElement_1' -> Pos: 64, Length: 64
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 64
+Peach.Core.Cracker.DataCracker Crack: String 'InputModel.DataElement_1' Size: 64, Bytes: 76/84, Bits: 608/672
+Peach.Core.Dom.DataElement String 'InputModel.DataElement_1' value is:  </Body>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Slurp
+Peach.Core.Dom.Action Slurp, setting OutputModel.StringValue from InputModel.TransformMe
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(53 bytes)
+00000000   54 68 65 73 65 20 61 72  65 20 65 6E 63 6F 64 65   These are encode
+00000010   64 3A 20 3C 2C 20 3E 2C  20 26 2C 20 22 0A 54 68   d: <, >, &, "?Th
+00000020   65 73 65 20 61 72 65 20  6E 6F 74 3A 20 27 21 24   ese are not: '!$
+00000030   32 2F 5C 63 2A                                     2/\c*
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

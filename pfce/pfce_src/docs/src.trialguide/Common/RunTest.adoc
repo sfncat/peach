@@ -1,0 +1,48 @@
+==== Running the test
+
+
+ifdef::advancedconfigname[]
+
+
+To run the pre-configured basic test:
+
+. Click *{configname}*.
+. Enter a seed value of *{seedval}*.
+ifdef::startcase[]
+. Enter a Start Test Case value of *{startcase}*.
+endif::[]
+. Enter a Stop Test Case value of *{stopcase}*.
+. Click *Start*.
++
+image::{images}/{runimage}[]
+
+To run the pre-configured advanced test:
+
+. Click *{advancedconfigname}*.
+. Enter a seed value of *{seedval}*.
+ifdef::startcase[]
+. Enter a Start Test Case value of *{startcase}*.
+endif::[]
+. Enter a Stop Test Case value of *{stopcase}*
+. Click *Start*.
++
+image::{images}/{advancedrunimage}[]
+endif::[]
+
+// no advanced config, assume basic and only show that
+ifndef::advancedconfigname[]
+
+To run the pre-configured test:
+
+. Click *{configname}*.
+. Enter a seed value of *{seedval}*.
+ifdef::startcase[]
+. Enter a Start Test Case value of *{startcase}*.
+endif::[]
+. Enter a Stop Test Case value of *{stopcase}*.
+. Click *Start*.
++
+image::{images}/{runimage}[]
+endif::[]
+
+

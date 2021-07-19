@@ -1,0 +1,6 @@
+:toc!:
+== nullTerminated Attribute ==
+
+The _nullTerminated_ attribute indicates if the produced string should be null terminated.  It should be noted that only the final value will have the null termination applied, the value returned by .getInternalValue() will not.
+
+_nullTerminated_ is a boolean type accepting _true_ or _false_ only, defaults to _false_.

@@ -1,0 +1,60 @@
+<<<
+[[Monitors_WindowsService]]
+== WindowsService Monitor (Windows)
+
+*Monitor Categories*: *Automation*, *Fault detection*
+
+The _WindowsService_ monitor controls a windows service. When the monitor runs, it checks
+the state of the service. If the service exits prematurely, _WindowsService_ generates a fault.
+If a fault is detected by from _windowsService_ or from another monitor, the monitor collects status of
+the service and continues.
+
+If the service is not running, this monitor attempts to restore the service to a running state, whether starting, restarting, or resuming from a paused state.
+
+=== Parameters
+
+_Required:_
+
+Service:: Name that identifies the service to the system, such as the display name of the service.
+
+_Optional:_
+
+FaultOnEarlyExit:: Fault if the service exits early, defaults to false.
+MachineName:: Name of the computer on which the service resides, defaults to local machine.
+Restart:: Specifies whether to start the service on each iteration, defaults to false.
+StartTimeout:: Specifies the duration, in minutes, to wait for the service to start, defaults to 1 minute.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Start IIS +
+====================
+
+This parameter example is from a minimal setup that monitors the Internet Information Service (IIS) at the beginning of the fuzzing run. The example runs on the local machine with a startup timeout period of 1 minute. In this case, the monitor does not generate a fault if the service exits early, nor restarts the service for each test iteration.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter  |Value
+|Service    |`World Wide Web Publishing Service`
+|==========================================================
+
+====================
+
+endif::peachug[]
+
+ifndef::peachug[]
+
+.Start IIS
+==========
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="WindowsService">
+		<Param name="Service" value="World Wide Web Publishing Service" />
+	</Monitor>
+</Agent>
+----
+==========
+
+endif::peachug[]

@@ -1,0 +1,27 @@
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 26777.
+Peach.Core.Agent.Agent StartMonitor: Monitor Ping
+Peach.Core.Agent.Agent SessionStarting: Monitor
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher start()
+Peach.Core.Publishers.TcpClientPublisher open()
+Peach.Core.Publishers.TcpClientPublisher output(4 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   69 7A 00 00                                        iz··
+
+Peach.Core.Publishers.TcpClientPublisher close()
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 198.185.159.135:80
+Peach.Core.Publishers.TcpClientPublisher Read 0 bytes from 198.185.159.135:80, closing client connection.
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 198.185.159.135:80
+Peach.Core.Agent.Monitors.PingMonitor DetectedFault(): www.peachfuzzer.com replied after 10000ms
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.TcpClientPublisher stop()
+Peach.Core.Agent.Agent SessionFinished: Monitor
+
+[*] Test 'Default' finished.

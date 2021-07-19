@@ -1,0 +1,70 @@
+:toc!:
+= file.FileWriterLauncherGui =
+
+This publisher is very similar to the FileWriterLauncher publisher and also allows writing a file and then launching a process.  However, this publisher will close the application by sending a WM_CLOSE message to the main window.  This allows the process to properly shutdown and will better allow triggering of memory corruption issues then simply killing the application.
+
+[source,xml]
+----
+<Publisher class="file.FileWriterLauncherGui">
+  <Param name="fileName" value="peach.bin" />
+  <Param name="windowName" value="Notepad" />
+</Publisher>
+----
+
+
+_Parameters:_
+
+ * fileName -- Name of file to write [required]
+ * windowName -- Partial name of the application window [required]
+
+_Supported Actions:_
+
+ * link:output.html[output]
+ * link:close.html[close]
+ * link:call.html[call]
+
+_Example:_
+
+[source,xml]
+----
+<DataModel name="TestTemplate">
+    <String value="Hello World!" />
+</DataModel>
+
+<!-- A template to hold the filename -->
+<DataModel name="FileName">
+    <String isStatic="true" value="fuzzfile.bin" />
+</DataModel>
+
+<!-- Define a simple state machine that will write the file and 
+    then launch a program using the FileWriterLauncher publisher -->
+<StateMachine name="State" initialState="Initial">
+    <State name="Initial">
+        <!-- Write out contents of file -->
+        <Action name="WriteFile" type="output">
+            <DataModel ref="TestTemplate" />
+        </Action>
+        
+        <!-- Close file -->
+        <Action type="close" />
+        
+        <!-- Launch the file consumer -->
+        <Action type="call" method="c:\windows\system32\notepad.exe">
+            <Param type="in" name="filename">
+                <DataModel ref="FileName"/>
+            </Param>
+        </Action>
+    </State>
+</StateModel>
+
+<Test name="TheTest">
+    <StateMachine ref="State"/>
+    
+    <!-- Configure our publisher with correct filename to write too -->
+    <Publisher class="file.FileWriterLauncherGui">
+        <Param name="fileName" value="fuzzfile.bin" />
+        <Param name="windowName" value="Notepad" />
+    </Publisher>
+</Test>
+----
+

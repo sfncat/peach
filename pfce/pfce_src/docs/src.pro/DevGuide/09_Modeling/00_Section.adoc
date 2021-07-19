@@ -1,0 +1,13 @@
+== Modeling
+
+Modeling describes the format and flow of the data to fuzz, whether in a file format, a network protocol, an embedded system, or a kernel driver. Accurate models are at the core of a successful Peach Fuzzer experience.
+
+The two types of models used in Peach are the data model that describes the format of the data we fuzz and the state model that provides the flow of data to and from the target. A dumb fuzzer in Peach is a simplistic data model, while a smart (or fully fleshed out) Peach fuzzer has a full data model and state model for both the test data and the system under test.
+
+When modeling with Peach, remember to model enough depth to enable the fuzzer to work but not more. Instead of worrying about business rules or constraints, focus on the information type, relationships between data elements, and updating items such as checksums.
+
+IMPORTANT: Modeling is about data structure, not logic.
+
+When creating custom Peach fuzzers, we recommend initially creating a dumb or simple version of the fuzzer and then extending it. This allows you to run the dumb version of the fuzzer as you develop the fuller, fleshed-out version. This stepping stone approach is also easier for novices to implement.
+
+// end

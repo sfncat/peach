@@ -1,0 +1,12 @@
+:toc!:
+== ArrayNumericalEdgeCasesMutator ==
+
+This mutator changes the lengths of arrays to a variable range around numerical edge cases. By default, this range is N - 50 to N + 50 around each edge case.
+
+_Target Elements_
+
+ * link:Array.html[Array]
+
+_Hints_
+
+ * ArrayNumericalEdgeCasesMutator-N -- Change the default +/- of 50 to a specified amount. [Peach 2.2 / Peach 3.0]

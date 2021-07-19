@@ -1,0 +1,277 @@
+<<<
+[[JsonDouble]]
+== JsonDouble
+
+The _JsonDouble_ element defines a JSON floating-point number of up to 64-bits.
+
+The JsonDouble element is a child element of
+xref:DataModel[DataModel],
+xref:Block[Block],
+xref:Sequence[Sequence],
+xref:JsonObject[JsonObject],
+xref:JsonArray[JsonArray],
+or xref:Choice[Choice].
+
+=== Syntax
+
+[source,xml]
+----
+<JsonObject>
+    <JsonDouble propertyName="Price" value="1.99" />
+</JsonObject>
+
+<JsonArray>
+    <JsonDouble value="1.99" />
+</JsonArray>
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xref:name[name]::
+	Name of the floating point number.
+propertyName::
+    Property name for element when child of xref:JsonObject[JsonObject].
+isNull::
+    Is this elements value null. Json output will be +null+ instead of value.
+type:: Type controls the output encoding allowing both traditional json and also binary json (bson). Supported values: 'json' or 'bson'. Defaults to 'json'.
+xref:value[value]::
+	The default value to assign to the floating point number.
+xref:valueType[valueType]::
+	The representation of the value.
+	Valid options are string and hex.
+xref:token[token]::
+	This element is treated as a token when parsing, defaults to false. Valid options true and false.
+xref:mutable[mutable]::
+	Is data element changeable (should it be mutated during fuzzing), defaults to true.
+	Valid options true and false.
+
+=== Child Elements
+
+xref:Analyzers[Analyzer]:: Analyze current element post cracking, can dynamically change model.
+xref:Fixup[Fixup]:: Dynamic transformations such as checksums and CRCs.
+xref:Hint[Hint]:: Provide information to mutators.
+xref:Placement[Placement]:: Relocate an element after it has been cracked.
+xref:Relation[Relation]:: Modeling of relationships in the data (such as comparisons)
+xref:Transformer[Transformer]:: Static transformations such as compression or encoding.
+
+=== Mutators
+
+The following mutators will operate on this element type:
+
+_Used for all data elements_
+
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator will duplicate data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator will remove data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator will swap data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator will combine data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator will cause the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator will cause the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator will change both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator will change both sides of the relation (data and value) to match numerical variances of the current size.
+
+_Specific to this element type_
+
+xref:Mutators_DoubleRandom[DoubleRandom]:: This mutator will produce random values from the available numerical space.
+xref:Mutators_DoubleVariance[DoubleVariance]:: This mutator will produce values near the current value of a number.
+
+xref:Mutators_ExtraValues[ExtraValues]:: This mutator provides extra test case values on a per-data element basis.
+
+xref:Mutators_NumberEdgeCase[NumberEdgeCase]:: This mutator produces numerical edge cases for integer values.
+xref:Mutators_NumberRandom[NumberRandom]:: This mutator produces random values from the available numerical space.
+xref:Mutators_NumberVariance[NumberVariance]:: This mutator produces values near the current value of a number.
+
+
+=== Examples
+
+.Simple Double
+====================
+
+This example outputs a double that is part of a xref:JsonObject[JsonObject].
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+        <JsonObject>
+		  <JsonDouble propertyName="price" value="1.99" />
+        </JsonObject>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.57:8888/
+
+[*] Test 'Default' starting with random seed 48084.
+Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach\Logs\example.xml_20160215194649\debug.log
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "InitialState".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Pro.Core.Publishers.ConsolePublisher start()
+Peach.Pro.Core.Publishers.ConsolePublisher open()
+Peach.Pro.Core.Publishers.ConsolePublisher output(14 bytes)
+00000000   7B 22 70 72 69 63 65 22  3A 31 2E 39 39 7D         {"price":1.99}
+Peach.Pro.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Pro.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+====================
+
+.Null String
+====================
+
+In this example our initial value for our JsonString element is null. During testing this field's value
+will be mutated to string values.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+        <JsonObject>
+		  <JsonString propertyName="phrase" isNull="true" />
+        </JsonObject>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.57:8888/
+
+[*] Test 'Default' starting with random seed 29586.
+Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach\Logs\example.xml_20160215192237\debug.log
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "InitialState".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Pro.Core.Publishers.ConsolePublisher start()
+Peach.Pro.Core.Publishers.ConsolePublisher open()
+Peach.Pro.Core.Publishers.ConsolePublisher output(15 bytes)
+00000000   7B 22 70 68 72 61 73 65  22 3A 6E 75 6C 6C 7D      {"phrase":null}
+Peach.Pro.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Pro.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+====================
+
+.String in JsonArray
+====================
+
+This example outputs a string that is part of a xref:JsonArray[JsonArray].  Note that we do not
+specify +propertyName+ in this case.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+        <JsonArray>
+		  <JsonString value="Hello World!" />
+        </JsonArray>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.57:8888/
+
+[*] Test 'Default' starting with random seed 4074.
+Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach\Logs\example.xml_20160215192532\debug.log
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "InitialState".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Pro.Core.Publishers.ConsolePublisher start()
+Peach.Pro.Core.Publishers.ConsolePublisher open()
+Peach.Pro.Core.Publishers.ConsolePublisher output(16 bytes)
+00000000   5B 22 48 65 6C 6C 6F 20  57 6F 72 6C 64 21 22 5D   ["Hello World!"]
+Peach.Pro.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Pro.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+====================
+
+// end

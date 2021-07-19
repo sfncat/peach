@@ -1,0 +1,40 @@
+[[Extending]]
+== Extending Peach
+
+{product} was designed to be extended,
+allowing you to increase Peach's capabilities.
+The most common reasons for extending Peach include:
+--
+* Custom validation algorithms (such as checksums)
+* Custom publishers (I/O adapters)
+* Monitoring
+--
+
+Peach can use custom implementations of the following to extend its functionality:
+
+* xref:Agent[Agents]
+* xref:Analyzers[Analyzers]
+* xref:Fixup[Fixups]
+* xref:Logger[Loggers]
+* xref:Monitors[Monitors]
+* xref:Publisher[Publishers]
+* xref:Transformer[Transformers]
+
+All extensions follow the same paradigm:
+--
+. Create a C# class that derives from the appropriate Peach base class.
+. Decorate the class with the appropriate plugin attribute.
+. Compile the class into an assembly and place the assembly in the Plugins directory.
+--
+
+This section covers the most common types of extensions for Peach.
+
+include::01_PlugIns.adoc[]
+include::02_Fixup.adoc[]
+include::03_Monitor.adoc[]
+include::04_Publisher.adoc[]
+include::05_Transformer.adoc[]
+include::06_Mutator.adoc[]
+include::07_Agent.adoc[]
+
+// end

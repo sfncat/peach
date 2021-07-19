@@ -1,0 +1,119 @@
+:toc!:
+== State Modeling ==
+
+In Peach there are two models that create a fuzzer, the data model and the state model.  The state model recreates the basic state logic needed to test a protocol.  The state model indicates how to send and receive data to our fuzzing target.  State models can range from very simple to overly complex.  It's recommended when starting out to keep your state models as simple as possible and expand them as needed.
+
+ * link:StateModel.html[StateModel]
+ ** link:State.html[State]
+ *** link:Action.html[Action]
+
+== Example State Models ==
+
+=== File Fuzzing ===
+
+When file fuzzing we want to write data to a file, then call the target process.  We can do this with a single state and three actions.
+
+_Peach 3_
+
+[source,xml]
+----
+<StateModel name="State" initialState="Initial">
+	<State name="Initial">
+		
+		<!-- Write out contents of file.  The publisher attribute matches 
+		the name we provide for the publisher in the Test section. -->
+		<Action type="output">
+			<DataModel ref="TestTemplate" />
+		</Action>
+		
+		<!-- Close file -->
+		<Action type="close" />
+		
+		<!-- Launch the file consumer -->
+		<Action type="call" method="ScoobySnacks" publisher="Peach.Agent"/>
+		
+	</State>
+</StateModel>
+----
+
+
+_Peach 2.3_
+
+[source,xml]
+----
+<StateModel name="State" initialState="Initial">
+	<State name="Initial">
+		
+		<!-- Write out contents of file.  The publisher attribute matches 
+		the name we provide for the publisher in the Test section. -->
+		<Action type="output" publisher="file">
+			<DataModel ref="TheDataModel" />
+		</Action>
+		
+		<!-- Close file -->
+		<Action type="close" publisher="file" />
+		
+		<!-- Launch the file consumer -->
+		<Action type="call" method="ScoobySnacks" publisher="launch"/>
+		
+	</State>
+</StateModel>
+
+<Test name="TheTest">
+	<StateModel ref="State"/>
+	
+	<!-- Configure our publisher with correct filename to write too -->
+	<Publisher class="file.FileWriter" name="file">
+		<Param name="fileName" value="fuzzfile.bin" />
+	</Publisher>
+	
+	<!-- Configure publisher to launch our target process -->
+	<Publisher class="process.DebuggerLauncher" name="launch"/>
+	
+</Test>
+----
+
+
+=== Simple Network State Model ===
+
+In this state model we will send and receive a set of packets from a TCP port.
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="TheState">
+	<State name="TheState">
+
+		<!-- Peach will automatically connect to the remote host -->
+
+		<!-- Send data -->
+		<Action type="output">
+			<DataModel ref="PacketModel1" />
+		</Action>
+
+		<!-- Receive response -->
+		<Action type="input">
+			<DataModel ref="PacketModel2" />
+		</Action>
+
+		<!-- Send data -->
+		<Action type="output">
+			<DataModel ref="PacketModel3" />
+		</Action>
+
+		<!-- Receive response -->
+		<Action type="input">
+			<DataModel ref="PacketModel4" />
+		</Action>
+	</State>
+</StateModel>
+
+<Test name="Default">
+	<StateModel ref="TheStateModel"/>
+
+	<Publisher class="TcpClient">
+		<Param name="Host" value="127.0.0.1" />
+		<Param name="Port" value="4242" />
+	</Publisher>
+</Test>
+----
+

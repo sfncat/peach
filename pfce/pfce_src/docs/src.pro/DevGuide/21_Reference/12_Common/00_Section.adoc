@@ -1,0 +1,31 @@
+=== Common Attributes and Parameters
+
+The following sections contain common attributes and parameters used by other Peach Pit files elements. Other sections of the documentation reference these attributes and parameters.
+
+:leveloffset: 2
+include::constraint.adoc[]
+include::endian.adoc[]
+include::Field.adoc[]
+include::fileName.adoc[]
+include::Hint.adoc[]
+include::length.adoc[]
+include::lengthType.adoc[]
+include::maxOccurs.adoc[]
+include::minOccurs.adoc[]
+include::mutable.adoc[]
+include::name.adoc[]
+include::occurs.adoc[]
+include::State_onStart.adoc[]
+include::State_onComplete.adoc[]
+include::Actions_onComplete.adoc[]
+include::Actions_onStart.adoc[]
+include::ref.adoc[]
+include::signed.adoc[]
+include::size.adoc[]
+include::token.adoc[]
+include::value.adoc[]
+include::valueType.adoc[]
+include::Actions_when.adoc[]
+include::xpath.adoc[]
+
+// end

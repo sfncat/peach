@@ -1,0 +1,175 @@
+:targetapp: modpoll 
+:protocol: MODBUS
+:pitname: MODBUS-TCP_Master
+:configname: Example-MODBUS-TCP-Master
+:advancedconfigname!: 
+:seedval: 58544 
+:stopcase: 50
+:targetexe: /var/targets/modbus/modpoll/linux/modpoll
+:runimage: {pitname}/run-test.png
+
+[[MODBUS]]
+=== {protocol}
+
+This configuration will test an application using {protocol}.
+ifdef::advancedconfigname[]
+It has two versions, a basic configuration and an advanced configuration.
+The basic configuration is compiled only with the Debug option.
+The advanced configuration is compiled with Address Sanitizer, Debug, and Optimization Level 1 options.
+endif::[]
+
+ifdef::hosted[]
+[[MODBUS-Master-RunTest]]
+include::../Common/RunTest.adoc[]
+endif::[]
+
+include::../Common/ConfigTest.adoc[]
+
+===== Configuring Variables
+
+The first thing you need to configure are the variables that control how {product} will test the application.
+ifdef::advancedconfigname[]
+Both the Basic and Advanced configuration will use the same variables with the same values.
+endif::[]
+Follow these steps to create a working configuration on your trial instance:
+
+. Click *Configure Variables*.
+. Configure your variables as appropriate for your application.  The following
+should be used for {targetapp} running on the trial instance:
+.. Listen IPv4 Address: Leave the default of *0.0.0.0* so that peach will listen on all interfaces.
+.. Listen Port: Leave the default of *502* since {targetapp} will also use this port. 
+.. Under *Advanced Configuration*, leave all the defaults as they are acceptable for {targetapp}.
+.. Under System Defines, do NOT change any of the values present.  These values normally do not require changing.
+. Once all the settings have the desired values, click *Save*.
++
+image::{images}/{pitname}/variables.png[]
+
+include::../Common/AddAgent.adoc[]
+
+:configtype: basic
+:compileroptions: Debug enabled
+:gdb:
+:startoncall:
+:pcap: port ##ListenPort##
+ifdef::hosted[]
+:args: -m tcp 127.0.0.1
+endif::[]
+ifndef::hosted[]
+:args: -m tcp 10.0.1.127
+endif::[]
+:syslog!:
+:process!:
+
+include::../Common/ConfigMonitors.adoc[]
+
+:startoncall!:
+
+include::../Common/TestConfig.adoc[]
+Follow the steps under <<MODBUS-Master-RunTest, Running the test>> to start testing the application.
+
+ifndef::hosted[]
+[[MODBUS-Master-RunTest]]
+include::../Common/RunTest.adoc[]
+endif::[]
+
+// modbus slave
+:targetapp: diagslave 
+:pitname: MODBUS-TCP_Slave 
+:configname: Example-MODBUS-TCP_Slave
+:seedval: 25254
+:stopcase: 30
+:targetexe: /var/targets/modbus/diagslave/linux/diagslave
+:runimage: {pitname}/run-test.png
+
+[[MODBUS-Slave]]
+=== {protocol}-Slave
+
+This configuration will test an application using {protocol}.
+ifdef::advancedconfigname[]
+It has two versions, a basic configuration and an advanced configuration.
+The basic configuration is compiled only with the Debug option.
+The advanced configuration is compiled with Address Sanitizer, Debug, and Optimization Level 1 options.
+endif::[]
+
+ifdef::hosted[]
+[[MODBUS-Slave-RunTest]]
+include::../Common/RunTest.adoc[]
+endif::[]
+
+include::../Common/ConfigTest.adoc[]
+
+===== Configuring Variables
+
+The first thing you need to configure are the variables that control how {product} will test the application.
+ifdef::advancedconfigname[]
+Both the Basic and Advanced configuration will use the same variables with the same values.
+endif::[]
+Follow these steps to create a working configuration on your trial instance:
+
+. Click *Configure Variables*.
+. Configure your variables as appropriate for your application.  The following
+should be used for {targetapp} running on the trial instance:
+ifdef::hosted[]
+.. Target IPv4 Address: Set to *127.0.0.1* to ensure that {product} can connect to {targetapp}.
+endif::[]
+ifndef::hosted[]
+.. Target IPv4 Address: Set to the IP address of the target VM e.g. *192.168.17.145* to ensure that {product} can connect to {targetapp}.
+endif::[]
+.. Target Port: Leave the default of *502* since {targetapp} will use this value by default. 
+.. Coil Address: Leave the default of *1*.
+.. Descrete Input Address: Leave the default of *1*.
+.. Input Register: Leave the default of *1*.
+.. Holding Register: Leave the default of *1*.
+.. File Number: Leave the default of *1*.
+.. FIFO Pointer Address: Leave the default of *1*.
+.. Under *Advanced Configuration*, leave all the defaults as they are acceptable for {targetapp}.
+.. Under System Defines, do NOT change any of the values present.  These values normally do not require changing.
+. Once all the settings have the desired values, click *Save*.
++
+ifdef::hosted[]
+image::{images}/{pitname}/variables.png[]
+endif::[]
+ifndef::hosted[]
+image::{images}/{pitname}/variables-client.png[]
+endif::[]
+
+include::../Common/AddAgent.adoc[]
+
+// everything from Master should be already set and should just work here
+:configtype: basic
+:args: -m tcp
+:startoncall!:
+
+include::../Common/ConfigMonitors.adoc[]
+
+:pcap!:
+:process!:
+:gdb!:
+:configtype!:
+:asanwarn!:
+:compileroptions!:
+:args!:
+:syslog!:
+:startonexit!:
+
+include::../Common/TestConfig.adoc[]
+Follow the steps under <<MODBUS-Slave-RunTest, Running the test>> to start testing the application.
+
+ifndef::hosted[]
+[[MODBUS-Slave-RunTest]]
+include::../Common/RunTest.adoc[]
+endif::[]
+
+:protocol!: 
+:pitname!: 
+:targetapp!: 
+:configname!:
+:advancedconfigname!:
+:seedval!:
+:stopcase!:
+:targetexe!: 
+:advancedtargetexe!: 
+:runimage!:
+:advancedrunimage!:
+
+// end

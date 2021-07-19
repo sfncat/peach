@@ -1,0 +1,17 @@
+:toc!:
+== Import ==
+
+This element allows importing custom Python modules for use in Pit file.  It works just like the Python _import_ keyword, via the two attributes: _import_ and _from_.
+
+[source,xml]
+----
+<Import from="MyCode.Foo" import="*" />
+
+<Import import="MyCode" />
+----
+
+
+_Attributes:_
+
+ * from -- Same as python from keyword [optional]
+ * import -- Same as python import keyword [required]

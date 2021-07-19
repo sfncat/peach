@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+
+app = bld(
+	features = 'c cprogram debug',
+	source = 'main.c',
+	target = 'CrashTest',
+)

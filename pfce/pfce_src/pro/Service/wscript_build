@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+deps = [
+	'Peach.Core.dll',
+	'Peach.Pro.dll',
+	'Peach.Pro.WebApi2.dll',
+	'System.dll',
+	'System.Core.dll',
+	'System.Xml.dll',
+]
+
+app = bld(
+	features = 'cs',
+	use = deps,
+	source = bld.path.ant_glob('**/*.cs'),
+	name = 'PeachService.exe',
+	ver_product = 'Peach Fuzzing Service',
+)

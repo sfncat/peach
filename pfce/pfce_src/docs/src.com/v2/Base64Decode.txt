@@ -1,0 +1,18 @@
+:toc!:
+= encode.Base64Decode =
+
+Decodes output as Base64. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="encode.Base64Decode"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +encode.Base64Decode+, +Base64Decode+

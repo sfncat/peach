@@ -1,0 +1,104 @@
+:toc!:
+== ValueType Attribute ==
+
+The _valueType_ attribute specifies what type of data is contained in the _value_ attribute.
+Valid values: +string+, +hex+, and +literal+.
+
+=== string (default) ===
+
+The value provided is a string value.  String value will be converted into the appropriate data element type.  The _Number_ element expects numerical values while _String_ and _Blob_ will take any values.
+
+==== Examples: ====
+
+A numerical representation of value 65. 
+[source,xml]
+----
+   <Number valueType="string" value="65" /> 
+----
+
+Output
+[source,xml]
+----
+A
+----
+
+A string representation of value 65. 
+[source,xml]
+----
+   <Number valueType="string" value="65" /> 
+----
+
+Output
+[source,xml]
+----
+ 65 
+----
+
+=== hex ===
+
+The value specified as a stream of hex bytes.  
+
+Peach is fairly good about figuring out different types of hex strings, e.g. "+0x00 0x00+" or "+\x00 \x00+" or "+00 00 00 00 00+" etc.
+
+==== Examples: ====
+
+A numerical representation of value 0x41. 
+
+[source,xml]
+----
+   <String valueType="hex" value="41" /> 
+----
+
+Output
+
+[source,xml]
+----
+A
+----
+
+A numerical representation of value 0x41. 
+
+[source,xml]
+----
+   <Number valueType="hex" value="41" /> 
+----
+
+
+Output
+
+[source,xml]
+----
+A
+----
+
+NOTE: The hex values must be EVEN numbered! For example this is WRONG: "+0x000+" and this is CORRECT: "+0x0000+"
+
+=== literal ===
+
+Specify a python or ruby statement that evaluates to the wanted value. The evaluation occurs only once when the Pit is parsed into an internal dom tree. Literal should *NOT* be used in place of a link:Relation.html[relation] or a link:Fixup.html[fixup]. Literals are only to be used for quick one-time expressions.
+
+==== Examples: ====
+
+[source,xml]
+----
+   <String valueType="literal" value="(1 + 2 + 3)**2" /> 
+----
+
+Output
+
+[source,xml]
+----
+36
+----
+
+[source,xml]
+----
+   <String valueType="literal" value="'hello world!'.upper()" /> 
+----
+
+Output
+
+[source,xml]
+----
+HELLO WORLD!
+----

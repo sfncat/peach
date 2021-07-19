@@ -1,0 +1,43 @@
+[[InstallOnWindows]]
+=== Windows
+
+// See compatibility list for .NET Framework 4.5
+
+Peach is officially supported on the following Windows(R) Operating Systems:
+
+* Windows 7 SP1 (x86 and x64)
+* Windows 8 (x86 and x64)
+* Windows 8.1 (x86 and x64)
+* Windows 10 (x64)
+* Windows Server 2008 SP2 (x86 and x64)
+* Windows Server 2008 R2 SP1 (x64)
+* Windows Server 2012 (x64)
+* Windows Server 2012 R2 (x64)
+
+The only required software is the Microsoft .NET Framework v4.5.
+
+. Download and install the https://dotnet.microsoft.com/download/dotnet-framework-runtime/net452[Microsoft .NET Framework v4.5.2 (Installer)].
+. Install the https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/debugger-download-tools[Microsoft Debugging Tools for Windows] (optional).
++
+NOTE: This is only required if you want to use a debugger to detect crashes in fuzzed programs.
+
+. Install https://www.wireshark.org/#download[Wireshark] (optional).
++
+NOTE: This is only required if you want to collect network captures during fuzzing runs.
+
+. Unzip the Peach distribution to the appropriate folder.
+The file is a zip file with the extension `.zip`.
+Use the filename that begins with `peach-pro` and contains the appropriate architecture for your system,
+such as +peach-pro-{BUILDTAG}-win_x64_release.zip+.
+
+. When fuzzing, many security products (such as anti-virus programs) can interfere or slowdown fuzzing.
+For network fuzzing,
+make sure none of the network or host-based network intrusion detection systems (IDS) are running.
+For file fuzzing,
+disable anti-virus software;
+or mark Peach,
+the target application,
+and any directories that might have files used in fuzzing,
+as out of scope for real time monitoring.
+
+// end

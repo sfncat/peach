@@ -1,0 +1,18 @@
+:toc!:
+= encode.HexString =
+
+Encodes a string of bytes into the specified hex format. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="encode.HexString"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +encode.HexString+, +HexString+

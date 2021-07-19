@@ -1,0 +1,22 @@
+:toc!:
+== Aes128Transformer
+
+The _Aes128Transformer_ will transform the parent data model by encrypting the data using AES (Rijndael) with the provided Key and Initialization Vector.  
+
+=== Parameters
+
+ * Key -- the Secret Key supplied as a HexString 
+ * IV -- the Initialization Vector supplied as a HexString
+
+=== Examples
+
+[source,xml]
+----
+<Blob name="TransformMe" value="superdoopersecret" >
+	<Transformer class="Aes128">
+		<Param name="Key" value="ae1234567890aeaffeda214354647586"/> 
+		<Param name="IV" value="aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae"/> 
+	</Transform>
+</Blob>
+----
+

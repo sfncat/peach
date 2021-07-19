@@ -1,0 +1,41 @@
+<<<
+[[Monitors_CanErrorFrame]]
+== CAN Error Frame Monitor
+
+*Monitor Category*: *Fault detection*
+
+The _CAN Error Frame_ monitor is will trigger a fault when an error frame is received on the specified device/channel.  Multiple _CAN Error Frame_ monitors can be configured to monitor different devices/channel combinations.
+
+=== Parameters
+
+_Required:_
+
+CanDriver:: Driver to use. Defaults to 'Vector XL'.
+CanChannel:: Channel number
+CanBitrate:: Set the bitrate for CAN packet reception (default 500,000)
+
+_Optional:_
+
+No optional parameters supported on this monitor.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Fault if an error frame is received+
+
+==============================
+This parameter example is from a setup that uses the CAN Error Frame Monitor
+to fault if an error frame is received.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+| CanDriver   | `Vector XL`
+| CanChannel  | `1`
+| CanBitrate  | (default)
+|==========================================================
+
+==============================
+
+endif::peachug[]

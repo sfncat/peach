@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+deps = [
+	'Peach.Core.dll',
+	'Peach.Core.Test.dll',
+	'Peach.Pro.dll',
+	'System.dll',
+	'System.Core.dll',
+	'System.Xml.dll',
+]
+
+pkgs = [
+	'NLog',
+	'NUnit',
+]
+
+bld(
+	name = 'Peach.Pro.Test.OS.Linux.dll',
+	features = 'cs test',
+	use = deps,
+	use_packages = pkgs,
+	paket_settings = dict(
+		frameworks = ['net45'],
+	),
+	source = bld.path.ant_glob('**/*.cs'),
+	ide_path = '../',
+)

@@ -1,0 +1,140 @@
+<<<
+[[XmlCharacterData]]
+== XmlCharacterData
+
+Defines an XML CDATA section. This element must a child of xref:XmlElement[XmlElement] and is used to fuzz the content of an XML CDATA section.  All the output produced from _XmlCharacterData_ and it's parent xref:XmlElement[XmlElement] are well formed.
+
+NOTE: The _XmlCharacterData_ and the _XmlElement_ elements do not support cracking of data. If you need to crack XML content into _XmlCharacterDataElement_ and _XmlElement_ components, use an xref:Analyzers_Xml[XmlAnalyzer] attached to a String element.
+
+NOTE: The resulting value produced by any child element(s) must be a string. In the case of elements that produce binary output, a xref:Transformer[Transformer] must be used to convert the binary output to a string. An example of such a transformer is the xref:Transformers_Base64EncodeTransformer[Base64Encode] transformer.
+
+See also xref:Analyzers_Xml[XML] analyzer, xref:XmlElement[XmlElement] and xref:XmlAttribute[XmlAttribute] elements.
+
+=== Syntax
+
+[source,xml]
+----
+<XmlElement elementName="Foo">
+  <XmlCharacterData>
+    <String value="Hello World!" />
+  </XmlCharacterData>
+</XmlElement>
+----
+
+[source,xml]
+----
+<Foo><![CDATA[Hello World!]]></Foo>
+----
+
+=== Attributes
+
+_Required:_
+
+No required attributes.
+
+_Optional:_
+
+xref:name[name]:: Name of the data model
+xref:length[length]:: length of the data element. Default is null
+xref:lengthType[lengthType]:: Units of the length attribute. Default is bytes
+xref:constraint[constraint]:: Scripting expression that evaluates to true or false. Default is null
+xref:token[token]:: This element should be treated as a token when parsing, defaults to false.
+xref:mutable[mutable]:: Is data element changeable (should it be mutated), defaults to true.
+
+=== Child Elements
+
+xref:Blob[Blob]:: Used to represent binary data (array of bytes) to create simple dumb fuzzers in Peach.
+xref:Block[Block]:: Group one or more data elements in a logical structure.
+xref:Choice[Choice]:: Indicate all sub-elements are valid; however, only one sub-element should be selected.
+xref:Fixup[Fixup]:: Dynamic transformations such as checksums and CRCs.
+xref:Flags[Flags]:: Defines a set of bit sized flags.
+xref:Hint[Hint]:: Provide information to mutators.
+xref:Number[Number]:: Defines a binary number of lengths 8, 16, 24, 32, or 64 bits.
+xref:String[String]:: Defines a single or double byte string.
+xref:XmlElement[XmlElement]:: Defines an XML element, the basic building block of XML documents.
+
+=== Mutators
+
+The following mutators operate on this element type:
+
+_Enabled when element is marked as an array_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]:: This mutator grows and shrinks an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]:: This mutator randomizes the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]:: This mutator reverses the order of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]:: This mutator grows and shrinks an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementBitFlipper[DataElementBitFlipper]:: This mutator produces test cases by flipping bits in the output value.
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator combines data elements from different data sets.
+
+=== Examples
+
+.XML Namespace
+=================================
+The following example models an XML snippet with a CDATA section.
+
+[source,xml]
+.XML to model
+----
+<Foo><![CDATA[Hello World!]]></Foo>
+----
+
+[source,xml]
+.example.xml
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+        <XmlElement elementName="Foo">
+          <XmlCharacterData>
+            <String value="Hello World!" />
+          </XmlCharacterData>
+        </XmlElement>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+		<Publisher class="Console" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 50415.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(90 bytes) <1>
+<Foo><![CDATA[Hello World!]]></Foo>Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Produced XML
+=================================
+
+

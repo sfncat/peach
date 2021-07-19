@@ -1,0 +1,16 @@
+:toc!:
+== ApacheMd5Crypt
+
+The _ApacheMd5Crypt_ will MD5 Crypt the data using the first two bytes as the salt and prepend the value $apr1$. 
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<Blob name="TransformMe" value="superdoopersecret"> 
+		<Transformer class="ApacheMd5Crypt" />
+	</Blob>
+</DataModel>
+----
+

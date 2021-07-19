@@ -1,0 +1,18 @@
+:toc!:
+= Tutorial: Dumb Fuzzing =
+
+Welcome to the dumb fuzzing tutorial, part of the Peach Quickstart.
+In this tutorial we are going to build a simple dumb fuzzer for PNG graphics files (.png).
+Our dumb fuzzer will use several sample files (also known as seed files) to mutate using methods like bit flipping,
+dword slides, etc.
+The target of this fuzzer is +mspaint+ on Windows, +feh+ on Linux and +Safari+ on OSX.
+
+== Tutorial Outline ==
+
+ . link:TutorialDumbFuzzing/DevelopmentEnvironment.html[Development environment]
+ . link:TutorialDumbFuzzing/CreateDataModel.html[Creating the data model]
+ . link:TutorialDumbFuzzing/CreateStateModel.html[Creating the state model]
+ . link:TutorialDumbFuzzing/ConfigurePublisher.html[Configuring a publisher]
+ . link:TutorialDumbFuzzing/AgentAndMonitor.html[Adding an agent and monitor]
+
+link:TutorialDumbFuzzing/DevelopmentEnvironment.html[Start >>]

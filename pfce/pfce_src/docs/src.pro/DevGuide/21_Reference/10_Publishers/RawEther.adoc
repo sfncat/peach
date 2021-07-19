@@ -1,0 +1,107 @@
+<<<
+[[Publishers_RawEther]]
+== RawEther Publisher
+
+// Reviewed:
+//  - 02/13/2014: Seth & Adam: Outlined
+// Params are good
+// give full put to run for example
+// name is name not ip
+// Give full enumeration of Ethernet protocols supported
+// Talk about MTU setProperty for fuzzing MTU
+// Updated:
+// - 02/14/2014: Jordyn
+// Added full example w/ mtu fuzzing
+// Added full enum list for Ethernet protocol
+// Added short description about fuzzing mtu
+
+The _RawEther_ publisher allows sending raw Ethernet packets.
+
+NOTE: This publisher requires administrative privileges.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="RawEther">
+	<Param name="Interface" value="eth0" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Interface:: Name of interface to bind to
+
+_Optional:_
+
+Timeout:: Amount of time, in milliseconds, to wait for data or for a connection. The default value is 3,000.
+MinMTU:: Minimum packet size to transmit. The smallest value is 1280, which is the default value.
+MaxMTU:: maximum packet size to transmit. The largest value is 131070, which is the default value.
+Filter::
+    Filters the received frames using a libpcap-style filter string. For more information
+    about libpcap style filters, see http://www.tcpdump.org/manpages/pcap-filter.7.html[this page].
+
+=== Actions
+
+xref:Action_start[start]:: Implicit Action to start the Publisher.
+xref:Action_stop[stop]:: Implicit Action to stop the Publisher.
+xref:Action_open[open]:: Open and initialize the socket.
+xref:Action_close[close]:: Close and clean up the socket.
+xref:Action_output[output]:: Writes data through output to the open socket.
+xref:Action_input[input]:: Reads data through input from the open socket.
+
+=== Examples
+
+.Sending data
+===============
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <Defaults>
+    <Number endian="big"/>
+  </Defaults>
+
+  <DataModel name="TheDataModel">
+    <Blob name="Dest" valueType="hex" mutable="false" length="6" value="FFFFFFFFFFFF"/>
+    <Blob name="Src" valueType="hex" mutable="false" length="6" value="FFFFFFFFFFFF"/>
+    <Number name="TypeOrLen" size="16" token="true"  valueType="hex" value="0806"/>
+    <Block name="Payload">
+      <String name="name" value="Hello, scoobysnacks."/>
+    </Block>
+  </DataModel>
+
+  <DataModel name="propertySize">
+    <Number size="32" value="1500"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="setProperty" property="MaxMTU">
+        <DataModel ref="propertySize"/>
+      </Action>
+
+      <Action type="setProperty" property="MinMTU">
+        <DataModel ref="propertySize"/>
+      </Action>
+
+      <Action type="output">
+        <DataModel ref="TheDataModel"/>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+  <Publisher class="RawEther">
+    <Param name="Interface" value="eth0" />
+    <Param name="Filter" value="ether proto 0x0806" />
+  </Publisher>
+  </Test>
+</Peach>
+----
+===============

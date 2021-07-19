@@ -1,0 +1,33 @@
+:toc!:
+== Padding ==
+
+The _Padding_ element is used to pad out variably sized blocks or data models.
+
+=== Attributes: ===
+
+ * link:name.html[name] -- [Required] Name of the number.
+ * link:aligned.html[aligned] -- Align parent to 8 bit boundry (defaults to false)
+ * link:alignment.html[alignment] -- Align to this bit boundry (e.g. 8, 16, etc.) (defaults to 8)
+ * link:alignedTo.html[alignedTo] --  Name of element to base our padding on
+ * link:lengthCalc.html[lengthCalc] -- Scripting expression that evaluates to an integer
+ * link:constraint.html[constraint] -- A constraint in the form of a python expression.  Used during data cracking. 
+ * link:mutable.html[mutable] -- Is data element changeable (should it be mutated during fuzzing), defaults to true. Valid options true and false.
+
+=== Valid Child-Elements: ===
+
+ * link:Fixup.html[Fixup]
+ * link:Relation.html[Relation]
+ * link:Transformer.html[Transformer]
+ * link:Hint.html[Hint]
+
+=== Examples: ===
+
+[source,xml]
+----
+<DataModel name="NumberExample1">
+ <String name="VariableSizeString" />
+ 
+ <Padding aligned="true"/>
+</DataModel>
+----
+

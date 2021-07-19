@@ -1,0 +1,16 @@
+<<<
+[[Mutators_BlobChangeFromNull]]
+== BlobChangeFromNull
+
+This mutator produces test cases in which a random number of contiguous null bytes in a xref:Blob[Blob] are changed. The location where the change occurs is randomly-determined as is the number of bytes altered in the mutation. The number of contiguous bytes that receive new and different values range from 1 to 100.
+
+=== Supported Elements
+
+ * xref:Blob[Blob]
+
+=== Hints
+
+BlobChangeFromNull-N:: Standard deviation of the number of bytes to change.
+BlobMutator-N:: Standard deviation of the number of bytes to change. The value of this Hint affects other Blob mutators.
+
+// end

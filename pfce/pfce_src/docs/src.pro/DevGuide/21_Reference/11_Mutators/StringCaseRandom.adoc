@@ -1,0 +1,15 @@
+<<<
+[[Mutators_StringCaseRandom]]
+== StringCaseRandom
+
+This mutator produces test cases by randomly changing the case of a string.
+
+=== Supported Elements
+
+* xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

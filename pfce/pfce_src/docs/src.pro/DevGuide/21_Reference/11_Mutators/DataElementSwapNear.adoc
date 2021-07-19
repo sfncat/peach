@@ -1,0 +1,17 @@
+<<<
+[[Mutators_DataElementSwapNear]]
+== DataElementSwapNear
+
+This mutator produces a single test case for all data elements by swapping the element with its neighbor.
+
+=== Supported Elements
+
+All data elements are supported.
+
+NOTE: This mutator binds to any container data element (DataModel, Block, Choice, Flags, or array) that contains 2 or more child elements.
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

@@ -1,0 +1,125 @@
+<<<
+[[JsonBool]]
+== JsonBool
+
+The _JsonBool_ element defines a Boolean value (values 0 or 1) that represents either true or false.
+
+=== Syntax
+
+[source,xml]
+----
+<JsonObject>
+    <JsonBool propertyName="enabled" value="1"/>
+</JsonObject>
+----
+
+=== Attributes
+
+_Required:_
+
+No required attributes.
+
+_Optional:_
+
+xref:name[name]::
+	Name of the boolean value.
+
+isNull:: Set default value of this element to null (defaults to false)
+type:: Type controls the output encoding allowing both traditional json and also binary json (bson). Supported values: 'json' or 'bson'. Defaults to 'json'.
+
+xref:value[value]::
+	The default value to assign to the boolean.
+	Valid options are integer values 0 or 1.
+xref:mutable[mutable]::
+	Is data element changeable (should it be mutated during fuzzing), defaults to true.
+	Valid options true and false.
+
+=== Child Elements
+
+xref:Hint[Hint]:: Provide information to mutators.
+xref:Placement[Placement]:: Relocate an element after it has been cracked.
+
+=== Mutators
+
+The following mutators will operate on this element type:
+
+_Used for all data elements_
+
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator will duplicate data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator will remove data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator will swap data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator will combine data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator will cause the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator will cause the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator will change both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator will change both sides of the relation (data and value) to match numerical variances of the current size.
+
+=== Examples
+
+.Simple Example
+==========================
+Produce Json string with a boolean value of true.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+	<DataModel name="BoolExample">
+        <JsonObject>
+            <JsonBool propertyName="enabled" value="1"/>
+        </JsonObject>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="BoolExample"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent" />
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex"/>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug BoolExample1.xml
+
+[*] Web site running at: http://10.0.1.57:8888/
+
+[*] Test 'Default' starting with random seed 65435.
+Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach\Logs\example.xml_20160223180045\debug.log
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "Initial".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Pro.Core.Publishers.ConsolePublisher start()
+Peach.Pro.Core.Publishers.ConsolePublisher open()
+Peach.Pro.Core.Publishers.ConsolePublisher output(16 bytes)
+00000000   7B 22 65 6E 61 62 6C 65  64 22 3A 74 72 75 65 7D   {"enabled":true}
+Peach.Pro.Core.Publishers.ConsolePublisher close()
+Peach.Core.Agent.AgentManager DetectedFault: TheAgent
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Pro.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+==========================
+
+// end

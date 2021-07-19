@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+deps = [
+	'Be.Windows.Forms.HexBox.dll',
+	'Peach.Core.dll',
+	'Peach.Pro.dll',
+	'System.dll',
+	'System.Core.dll',
+	'System.Drawing.dll',
+	'System.Management.dll',
+	'System.Data.dll',
+	'System.Runtime.Remoting.dll',
+	'System.ServiceProcess.dll',
+	'System.Windows.Forms.dll',
+	'System.Xml.dll',
+]
+
+pkgs = [
+	'NLog',
+	'TreeViewAdv',
+]
+
+bld(
+	name = 'PeachValidator.exe',
+	features = 'cs paket',
+	use = deps,
+	use_packages = pkgs,
+	paket_settings = dict(
+		frameworks = ['net45', 'net'],
+	),
+	source = bld.path.ant_glob('**/*.cs **/*.resx'),
+	resource = bld.path.ant_glob('icons/*.*'),
+	bintype = 'winexe',
+	icon = 'icons/peach20x20.ico',
+)

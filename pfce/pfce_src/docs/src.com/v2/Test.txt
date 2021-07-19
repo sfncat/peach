@@ -1,0 +1,66 @@
+:toc!:
+== Test ==
+
+The test element is used to configure a specific fuzzing test that combines a state model with a publisher and other configuration options such as including/excluding elements from being mutated, defining a path through the state model and a list of mutators to use.
+
+[source,xml]
+----
+<Test name="TheTest">
+
+  <!-- Optionally exclude some elements from mutation -->
+  <Exclude xpath="//Reserved" />
+  <Exclude xpath="//Magic" />
+
+  <!-- Optional agent references -->
+  <Agent ref="LocalAgent" />
+  <Agent ref="RemoteAgent" />
+
+  <!-- Indicate which state model to use (required) -->
+  <StateModel ref="TheState" />
+
+  <!-- Configure the publisher to use (required) -->
+  <Publisher class="tcp.Tcp">
+     <Param name="host" value="127.0.0.1" />
+     <Param name="port" value="9001" />
+  </Publisher>
+
+</Test>
+----
+
+== Platform Specific Agents ==
+
+Platform specific Agents can be defined with the platform attribute of the Agent nodes within a Test node. Platform specifiers must be lower case in order to be properly recognized.
+
+[source,xml]
+----
+<Test name="TheTest">
+
+  <!-- Optional platform specific agent references -->
+  <Agent ref="WinAgent" platform="windows" />
+  <Agent ref="LinAgent" platform="linux" />
+  <Agent ref="OSXAgent" platform="osx" />
+
+  <!-- Indicate which state model to use (required) -->
+  <StateModel ref="TheState" />
+
+  <!-- Configure the publisher to use (required) -->
+  <Publisher class="tcp.Tcp">
+     <Param name="host" value="127.0.0.1" />
+     <Param name="port" value="9001" />
+  </Publisher>
+
+</Test>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [required]
+
+_Valid Child-Elements:_
+
+ * link:Agent.html[Agent]
+ * link:StateModel.html[StateModel]
+ * link:Publisher.html[Publisher]
+ * link:Test/Include.html[Include]
+ * link:Test/Exclude.html[Exclude]

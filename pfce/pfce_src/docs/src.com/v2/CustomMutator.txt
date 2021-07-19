@@ -1,0 +1,112 @@
+:toc!:
+== Create a Custom Mutator ==
+
+Creating a custom mutator is fairly easy.  Mutators should be written to perform one type of change to a data element.  There is no limit to the number of mutators that can be used by Peach.
+
+The code you write should live in a _.py_ file in the same folder as your _.xml_ file.  This will make it all much easier to package up.  See the PythonPath and link:Import.html[Import] elements for how to include your new code into your Peach XML file.
+
+Once you have created your mutator and added the required link:Import.html[Import] statement you will need to tell Peach to use it.  You can do this two ways.
+
+ * Add it to the default list of mutators.  This will cause every Pit to get this mutator.  You can do this by editing defaults.xml.  You will want to add your link:Import.html[Import] statement and also a Mutator element.
+ * Create a list of mutators in a specific Pit file in the link:Test.html[Test] element like this (note, only listed mutators are used):
+
+[source,xml]
+----
+<Test>
+  <Mutator class="StaticSet" />
+</Test>
+----
+
+
+*NOTE:* Never add the code into the Peach source folders!  You're welcome to submit them as patches, but otherwise keep them in another folder.  This will make it easier to move to another machine, and upgrade Peach in the future.
+
+[source,python]
+----
+
+from Peach.mutator import *
+from Peach.Engine.common import *
+
+class StaticSet(Mutator):
+	'''
+	This mutator will iterate through an array of values
+	returning them one at a time.
+	'''
+	
+	def __init__(self, peach, node):
+		Mutator.__init__(self)
+		
+		# Do we have a finite number of values
+		# to produce?
+		self.isFinite = True
+		
+		# Name of mutator (typically same as class)
+		self.name = "StaticSet"
+		
+		self._peach = peach
+		
+		# Here is our list of values
+		self._values = [
+			'Value #1',
+			'Value #2',
+			'Value #3'
+			]
+		
+		self._count = len(self._values)
+		
+		# Our position in _values
+		self._index = 0
+	
+	def next(self):
+		'''
+		Move to the next value we can produce.  If
+		we run out of values throw the "MutatorCompleted()"
+		exception.
+		'''
+		
+		self._index += 1
+		if self._index >= self._count:
+			raise MutatorCompleted()
+	
+	def getCount(self):
+		'''
+		Return the total number of values we can produce
+		'''
+		return self._count
+
+	def supportedDataElement(node):
+		'''
+		Can we produce values for a DataElement.
+		'''
+		
+		# For our example mutator we will only support
+		# 'String' types that are mutable.
+		
+		if isinstance(node, String) and node.isMutable:
+			return True
+		
+		return False
+	supportedDataElement = staticmethod(supportedDataElement)
+
+	def sequencialMutation(self, node):
+		'''
+		A value from this mutator in sequence.  Until next()
+		is called this method will return the same value.
+		'''
+		
+		self.changedName = node.getFullnameInDataModel()
+		node.currentValue = self._values[self._index]
+	
+	def randomMutation(self, node, rand):
+		'''
+		Use the provided rand variable to produce a random value
+		from our _values set.  Each call to this method will
+		produce a different value.
+		'''
+		
+		self.changedName = node.getFullnameInDataModel()
+		node.currentValue = rand.choice(self._values)
+
+# end
+
+----
+

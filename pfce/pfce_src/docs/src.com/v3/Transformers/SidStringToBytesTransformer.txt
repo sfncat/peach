@@ -1,0 +1,16 @@
+:toc!:
+== SidStringToBytesTransformer
+
+The _SidStringToBytesTransformer_ will produce the byte representation from a security identifier string.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+    <String name="TransformMe" value="S-1-5-21-2127521184-1604012920-1887927527-1712781">
+      <Transformer class="SidStringToBytes"  />
+    </String>
+  </DataModel>
+----
+

@@ -1,0 +1,122 @@
+:toc!:
+= debugger.WindowsDebugEngine =
+
+This is the primary Windows debugging engine.  It wraps WinDbg for it's debugging engine and will utilize exploitable for advanced crash investigation and bucketing of crashes by likely exploitability.
+
+This module works on both 32 and 64bit platforms and requires that WinDbg already be installed.
+
+[source,xml]
+----
+<!-- Spawn and attach to process -->
+<Monitor class="debugger.WindowsDebugEngine">
+  <Param name="CommandLine" value="c:\windows\system32\notepad.exe" />
+  <Param name="SymbolsPath" value="SRV*c:\symbols" />
+</Monitor>
+
+<!-- Attach to existing process -->
+<Monitor class="debugger.WindowsDebugEngine">
+  <Param name="ProcessName" value="explorer.exe" />
+</Monitor>
+
+<!-- Attach a kernel debugger -->
+<Monitor class="debugger.WindowsDebugEngine">
+  <Param name="KernelConnectionString" value="com:pipe,port=\\VMHost\pipe\PipeName" />
+</Monitor>
+
+<!-- Peach 2.3: Attach to windows service -->
+<Monitor class="debugger.WindowsDebugEngine">
+  <Param name="Service" value="w3svc" />
+</Monitor>
+
+----
+
+
+_Parameters:_
+
+One of the following parameters is required:
+
+ * CommandLine -- Command line to run and attach to
+ * ProcessName -- Process name to locate and attach to
+ * ProcessID -- Process ID to attach to
+ * KernelConnectionString -- Connection string for KD connection
+ * Service -- Name of service to debug.  Will start the service if stopped (Peach 2.3)
+
+Optional parameters:
+
+ * StartOnCall -- Used for file fuzzing to trigger program launch from state model
+ * IgnoreFirstChanceGardPage -- Ignore first chance guard page exceptions (defaults to false)
+ * IgnoreSecondChanceGardPage -- Ignore first and second chance guard page exceptions (defaults to false)
+ * SymbolsPath -- Symbol path to use (defaults to SRV*http://msdl.microsoft.com/download/symbols) [optional]
+ * NoCpuKill -- Don't monitor CPU usage to kill target (Peach 2.3.7)
+ * FaultOnEarlyExit -- Trigger fault if program exits early (defaults to false) (Peach 2.3.7)
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]
+
+When using the _CommandLine_ option this monitor can restart the process when a fault is detected.  Otherwise the fuzzer will stop running on a fault.
+
+== File Fuzzing Example (Peach 2.3) ==
+
+[source,xml]
+----
+
+<!-- Define our file format -->
+<DataModel name="TestTemplate">
+    <String value="Hello World!" />
+</DataModel>
+
+
+<!-- Define a simple state machine that will write the file and 
+    then launch a program -->
+<StateModel name="State" initialState="Initial">
+    <State name="Initial">
+        <!-- Write out contents of file -->
+        <Action name="WriteFile" type="output">
+            <DataModel ref="TestTemplate" />
+        </Action>
+        
+        <!-- Close file -->
+        <Action type="close" />
+        
+        <!-- Launch the file consumer -->
+        <Action type="call" method="ScoobySnacks"/>
+      
+    </State>
+</StateModel>
+
+<Agent name="LocalAgent">
+    <Monitor class="debugger.WindowsDebugEngine">
+        
+        <!-- The command line to run.  Notice the filename provided matched up 
+            to what is provided below in the Publisher configuration -->
+        <Param name="CommandLine" value="c:\windows\system32\notepad.exe fuzzfile.bin" />
+        
+        <!-- This parameter will cause the debugger to wait for an action-call in
+            the state model with a method="ScoobySnacks" before running
+            program.
+            
+            Note: You will also need to add a parameter to the publisher called
+                "debugger" and set it to "true"!
+            -->
+        <Param name="StartOnCall" value="ScoobySnacks" />
+        
+    </Monitor>
+</Agent>
+
+<Test name="TheTest">
+    <Agent ref="LocalAgent" />
+    
+    <StateModel ref="State"/>
+    
+    <!-- Configure our publisher with correct filename to write too -->
+    <Publisher class="file.FileWriterLauncher">
+        <Param name="fileName" value="fuzzfile.bin" />
+
+        <!-- The following is critical, this indicates the debugger will launch
+             the file! -->
+        <Param name="debugger" value="true"/>
+    </Publisher>
+</Test>
+----
+

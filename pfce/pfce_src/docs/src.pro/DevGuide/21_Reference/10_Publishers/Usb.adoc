@@ -1,0 +1,142 @@
+<<<
+[[Publishers_Usb]]
+== USB Publisher
+
+The _Usb_ publisher is used to test devices via the USB hardware interface.
+This publisher is used to test devices connected to a host via USB. 
+It cannot be used to test USB drivers.
+
+The Usb publisher is a wrapper around libusb. 
+As such it can be useful at times to refer to the libusb documentation regarding questions about publisher parameters specific to USB or to diagnose error messages.
+
+It is recommended that users have a basic understanding of how USB works prior to using the _Usb_ publisher.
+
+A number of tools exist that can assist in identifying USB devices and capturing traffic.
+One tool that is highly recommended is link:https://wiki.wireshark.org[Wireshark]. Wireshark has the ability to capture USB traffic on Windows and Linux. More information about capture USB with Wireshark can be found link:https://wiki.wireshark.org/CaptureSetup/USB[here].
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="Usb">
+    <Param name="VendorId" value="4817" />
+    <Param name="ProductId" value="5340" />
+    
+    <Param name="Configuration" value="1"/>
+    <Param name="Interface" value="0"/>
+    <Param name="ReadEndpoint" value="Ep02" />
+    <Param name="WriteEndpoint" value="Ep02" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+VendorId::
+    USB vendor IDs (VID) are 16-bit numbers used in comingation with USB vendor IDs to identify USB devices to a  host. 
+    Each vendor ID is assigned by the USB Implementers Forum to a specific company. 
+    The VID is embedded in the product and communicated to the computer when the device is plugged in.
+
+ProductId:: 
+    USB product IDs (PID) are 16-bit numbers used in combination with USB vendor IDs to identify USB devices to a host. Each vendor assigns a PID to individual products. The PID is then embedded in the product and communicated to the computer when the device is plugged in.
+
+_Optional:_
+
+Configuration::
+USB configuration to set for device. Defaults to 1. Use -2 to skip and -1 to set unconfigured state.
++
+If the device is already configured with the selected configuration, a lightweight device reset will occur: a SET_CONFIGURATION is issued causing most USB-related device state to be reset.
++
+The configuration cannot be set if other applications or drivers have claimed interfaces.
+In this case a value of -2 can be used to skip setting the configuration.
++
+A configuration value of -1 will put the device into unconfigured state.  
+The USB specifications state that a configuration value of 0 does this, however buddy devices exist which actually have a configuration 0.
++
+A USB device configuration descriptor specified hwo the device is powered, the number of interfaces it has, etc.
+
+Interface::
+USB device interface descriptor to claim for use. Defaults to 0.
++
+The interface groups endpoints for a single feature of the device.
+
+ReadEndpoint:: USB endpoint to read from. Defaults to 'Ep01'. Options are: Ep01 through Ep15.
+ReadEndpointType:: USB endpoint read type. Defaults to 'Bulk'. Options are: Bulk, Control, Interrupt, Isochronous
+WriteEndpoint:: USB endpoint to write to. Defaults to 'Ep01'. Options are: Ep01 through Ep15.
+WriteEndpointType:: USB endpoint write type. Defaults to 'Bulk'. Options are: Bulk, Control, Interrupt, Isochronous
+Timeout:: How long to wait in milliseconds for reading and writing. Defaults to 3,000.
+
+=== Actions
+
+xref:Action_start[start]::
+Open USB device, set configuration, claim interface and open endpoints. 
++
+Performed once at the start of fuzzing.
+
+xref:Action_stop[stop]:: Free all USB resources. Performed once at the end of fuzzing.
+
+xref:Action_output[output]:: Transmit data via the USB writer endpoint.
+xref:Action_input[input]:: Receive data via the USB reader endpoint.
+
+=== Examples
+
+.USB Fuzzing Example
+================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach-pro/output/win_x64_debug/bin/peach.xsd">
+
+	<Import import="time"/>
+	
+	<Defaults>
+		<Number endian="big" signed="false"/>
+	</Defaults>
+	
+	<DataModel name="TheDataModel">
+		<Number name="MessageType" size="32" endian="little" value="1" />
+		<Number name="MessageLength" size="32" endian="little">
+			<Relation type="size" of="TheDataModel"/>
+		</Number>
+		<Number name="DataOffset" size="32" endian="little">
+			<Relation type="offset" of="Frame"/>
+		</Number>
+		<Number name="DataLength" size="32" endian="little">
+			<Relation type="size" of="Frame"/>
+		</Number>
+		<Number name="OOBDataOffset" size="32" endian="little" value="0" />
+		<Number name="OOBDataLength" size="32" endian="little" value="0" />
+		<Number name="NumOOBDataElements" size="32" endian="little" value="0" />
+		<Number name="PerPacketInfoOffset" size="32" endian="little" value="0" />
+		<Number name="PerPacketInfoLength" size="32" endian="little" value="0" />
+		<Number name="VcHandle" size="32" endian="little" value="0" />
+		<Number name="Reserved" size="32" endian="little" value="0" />
+        
+		<Blob name="Frame" value="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"/>
+	</DataModel>
+
+	<StateModel name="State" initialState="State1" >
+		<State name="State1">
+			<Action type="output" onStart="time.sleep(1)">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+
+		<Publisher class="Usb">
+			<Param name="VendorId" value="4817" />
+			<Param name="ProductId" value="5340" />
+			<Param name="Configuration" value="1"/>
+			<Param name="Interface" value="0"/>
+			<Param name="ReadEndpoint" value="Ep02" />
+			<Param name="WriteEndpoint" value="Ep02" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+================

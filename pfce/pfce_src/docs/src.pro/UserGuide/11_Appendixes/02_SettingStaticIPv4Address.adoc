@@ -1,0 +1,90 @@
+[[Recipe_StaticIpSetup]]
+=== Setting a Static IPv4 Address
+
+While running automated fuzzing sessions, use this to ensure the IP address on the target system is the same every time it runs. Different operating systems have different ways of implementing it.
+
+The information for Windows and Ubuntu Linux systems is provided. The workflow for other Unix-based systems, such as OS X, CentOS, and SUSE Linux, are similar.
+
+==== Windows
+
+This consists of changing the Internet Protocol Version 4 settings for the network adapter used in the test.
+
+1. You can navigate to the IPv4 Settings using the following menu entries:
++
+Control Panel -> Network and Internet -> Network Connections
+2. Select the appropriate network adapter.
+3. Right-click and select Properties from the shortcut menu.
+4. Select the Internet Protocol Version 4 (IPv4) entry and click "Properties".
++
+The following properties dialogs for the IPv4 protocol display settings for a dynamic IP assignment on the left. The static values are displayed on the right. Values specified for the static IPv4 address are fictitious. Use the values provided by running the `ipconfig –all` command in a command processor.
++
+image::{images}/UserGuide/IPv4_Chg_to_Static.png[scale="50"]
++
+Click "Use the following IP address", and fill in the values for the IP address, submask, and gateway, as well as the entries for DNS servers.
+5.	When finished, click OK.
+
+===== Linux
+
+The change to use a static IPv4 address is similar to the change made to Windows systems. The biggest difference is adding a step to restart the network service after the changes.
+
+The changes are made to entries in the `/etc/network/interfaces` file. Note that root privileges are needed to update this file.
+
+1.	Configure the network interface
++
+Initial settings (Before change)
++
+=========
+auto lo +
+iface lo inet loopback +
+iface eth0 inet dynamic
+=========
++
+.. Change the first line of the interface entry (here, the `eth0` interface) by replacing `dynamic` with `static`.
+.. Supply the address of the interface to the entry listed by `ifconfig`.
+.. Supply the gateway address that is the address of the router.
++
+Edited settings (Changes applied)
++
+=========
+auto lo +
+iface lo inet loopback +
+iface eth0 inet static +
+
+   address 192.168.1.101 +
+   netmask 255.255.255.0 +
+   gateway 192.168.1.1 +
+=========
+
+2. Save the changes.
+
+3. Configure the DNS server.
++
+The DNS name servers need to be updated.
+
+** If your Ubuntu system is 14.04 or greater, add the following line to `/etc/network/interfaces`:
++
+=========
+dns-nameservers 8.8.8.8
+=========
++
+** For Ubuntu systems earlier than 14.04, the update DNS server update occurs in the `/etc/resolv.conf` file. Add the IP addresses for the servers using the following syntax.
++
+=========
+  nameserver xxx.xxx.xxx.xxx
+  nameserver xxx.xxx.xxx.xxx
++
+Example: Using the Google DNS servers, these lines would be:
+**    nameserver 8.8.8.8
+**    nameserver 8.8.4.4
+=========
+4. Save the change.
+
+5. Restart the network service.
++
+As with the DNS servers, 2 permutations exist.
+** For Ubuntu systems version 14.04 and greater, use the following command: +
+    systemctl restart ifup@eth0
+** For Ubuntu systems with a version less than 14.04, use the following command: +
+    sudo /etc/init.d/networking restart
+
+// end

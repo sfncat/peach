@@ -1,0 +1,75 @@
+<<<
+[[Monitors_SaveFile]]
+== SaveFile Monitor
+
+*Monitor Categories*: *Data collection*
+
+The _SaveFile_ monitor saves a specified file as part of the logged data when a fault occurs.
+A copy of the file is placed in the log folder.
+
+=== Parameters
+
+_Required:_
+
+Filename:: File to save when a fault is detected by another monitor.
+
+_Optional:_
+
+None.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Collect logs when a fault occurs
+====================
+In this example,
+the xref:Monitors_Process[Process Monitor] is used to launch `nginx` as the target.
+When a fault is detected by this monitor,
+the _SaveFile_ monitor is configured to collect logs from `nginx`.
+These logs will be available as part of the data collected for the fault.
+
+_Process (Launch nginx) Parameters_
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Executable   |`/usr/sbin/nginx`
+|==========================================================
+
+_SaveFile (Save error.log) Parameters_
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Filename     |`/var/log/nginx/error.log`
+|==========================================================
+
+_SaveFile (Save access.log) Parameters_
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Filename     |`/var/log/nginx/access.log`
+|==========================================================
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+
+.Collect logs when a fault occurs
+
+In this example,
+the xref:Monitors_Process[Process Monitor] is used to launch `nginx` as the target.
+When a fault is detected by this monitor,
+the _SaveFile_ monitor is configured to collect logs from `nginx`.
+These logs will be available as part of the data collected for the fault.
+
+==============================
+[source,xml]
+----
+include::SaveFile_Example.xml[]
+----
+==============================
+
+endif::peachug[]

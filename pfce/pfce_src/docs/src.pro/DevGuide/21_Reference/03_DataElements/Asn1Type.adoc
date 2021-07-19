@@ -1,0 +1,139 @@
+<<<
+[[Asn1Type]]
+== Asn1Type
+
+_Asn1Type_ is used to model Abstract Syntax Notation One (ASN.1) structures.
+
+The _Asn1Type_ specifies the information of ASN.1 fields. ASN.1 data elements can be primitive (pre-defined) or constructed. ASN.1 structures can be very deep. It's recommended to use the ASN.1 analyzer to generate data models that can then be modified.
+
+TIP: This element exists for manually coding ASN.1 data elements. An alternative is to use the ASN.1 analyzer that can generate an ASN.1 data model, and produces instances of this element in the resulting data model.
+
+=== Syntax
+
+[source,xml]
+----
+<Asn1Type class="0" pc="1" tag="16" name="TerminationID">
+    <Block name="Value">
+        <Asn1Type class="2" pc="1" tag="0" name="wildcard">
+            <Block name="Value" />
+        </Asn1Type>
+        <Asn1Type class="2" pc="0" tag="1" name="id">
+            <Blob name="terminationIDValue" valueType="hex" value="00000000300015c1" />
+        </Asn1Type>
+    </Block>
+</Asn1Type>
+----
+
+=== Attributes
+_Required:_
+
+*tag*:: ASN.1 tag identifier (numeric)
+
+_Optional:_
+
+*class*:: ASN.1 Class value, default is "0". +
+[horizontal]
+  0::: Universal class.
+  1::: Application class.
+  2::: Context-specific class.
+  3::: Private class.
+[vertical]
+
+xref:constraint[constraint]:: Scripting expression that evaluates to true or false, default is "".
+
+*forceMultiByteIdentifier*:: If "true", force long encoding of ASN.1 tags. The default is "false".
+
+*indefiniteLength*::
++
+If "true", use the indefinite encoding form of the ASN.1 element.
+If "false", use definite encoding form.
+The default is "false".
+
+*longLength*::
++
+If "true", always use the long encoding form (that is, multiple length octets) to express the length of the ASN.1 element.
+If "false", also allow the short encoding form where the number of content octets is expressed in 7 bits (127 or less).
+The default is "false".
+
+xref:minOccurs[minOccurs]::
+	The minimum number of times this blob must occur. Defaults to 1.  +
+	* Used to define arrays with variable size. Arrays defined by min/maxOccurs generally have a relation
+	defined.
+	* Adding this attribute, even with a value of 1, converts the element to an array.
+
+xref:maxOccurs[maxOccurs]::
+	The maximum number of times this blob can occur. Defaults to 1.  +
+	* Used to define arrays with static size.
+	* Adding this attribute, even with a value of 1, converts the element to an array.
+
+xref:mutable[mutable]:: Is this element mutable, default is "true".
+
+xref:name[name]:: Element name, default is "true".
+
+*pc*::
++
+Integer that specifies whether the ASN.1 element is a primitive or a constructed element.
+The default is "0" which indicates a primitive element.
+
+xref:token[token]:: Is this element a token for parsing, default is "false".
+
+=== Child Elements
+
+xref:Asn1Type[Asn1Type]:: Asn1Type of a child ASN.1 data element.
+xref:Blob[Blob]:: Represents binary data (array of bytes) to create simple dumb fuzzers in Peach.
+xref:Block[Block]:: Groups one or more data elements in a logical structure.
+xref:Choice[Choice]:: Indicates that all of the sub-elements are valid; but, only one
+    sub-element should be selected.
+xref:Flags[Flags]::  Defines a set of bit-sized flags.
+xref:Number[Number]:: Defines a binary number of arbitrary bit size.
+xref:Padding[Padding]:: Pads variably sized blocks or data models provide size uniformity or consistency.
+xref:Placement[Placement]:: Relocates an element after it has been cracked.
+xref:Stream[Stream]:: Groups one or more data elements in a logical structure.
+xref:String[String]:: Character sequence consisting of ASCII or Unicode characters.
+xref:XmlAttribute[XmlAttribute]:: Performs static transformations such as compression or encoding.
+xref:XmlElement[XmlElement]:: Defines an XML element, the basic building block of XML documents.
+xref:Fixup[Fixup]:: Performs dynamic transformations such as checksums and CRCs.
+xref:Hint[Hint]:: Provides information to mutators.
+xref:Transformer[Transformer]:: Performs static transformations such as compression or encoding.
+xref:Relation[Relation]:: Identifies a type of relationship with another data element, such as count.
+xref:Analyzers[Analyzer]:: Analyzes current element post cracking, can dynamically change model.
+
+=== Mutators
+
+This data element is a container element with several hidden internal elements of Number type, plus any value for the ASN.1 field.  This data element will get fuzzed with all mutators from Block and Number.
+
+{nbsp}
+[[Asn1Type_Examples]]
+=== Examples
+
+.Example of ASN.1 Model
+==========================
+
+Example of modeling an ASN.1 specification fragment.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach>
+
+	<DataModel name="TheDataModel">
+        <Asn1Type class="2" pc="1" tag="0" name="terminationId">
+            <Asn1Type class="0" pc="1" tag="16" name="TerminationID">
+                <Block name="Value">
+                    <Asn1Type class="2" pc="1" tag="0" name="wildcard">
+                        <Block name="Value" />
+                    </Asn1Type>
+                    <Asn1Type class="2" pc="0" tag="1" name="id">
+                        <Blob name="terminationIDValue" valueType="hex" value="00000000300015c1" />
+                    </Asn1Type>
+                </Block>
+            </Asn1Type>
+        </Asn1Type>
+	</DataModel>
+
+</Peach>
+----
+==========================
+
+
+// end

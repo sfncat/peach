@@ -1,0 +1,59 @@
+:toc!:
+== Installing Peach 2 ==
+
+*link:v3/Installation.html[For Peach 3 installation instruction click here.]*
+
+The following sections list the steps needed to install Peach on different operating systems.  Peach is written in Python and should run on any system that has a Python v2.5 run time.  For Window users there is a pure binary release.
+
+== Windows ==
+
+*Binary Version of Peach*
+
+ . Install Debugging Tools for Windows (http://www.microsoft.com/whdc/devtools/debugging/default.mspx[download]).
+ . Run the Peach installer (http://sourceforge.net/projects/peachfuzz/files/Peach/2.3.8/Peach-2.3.8-x86.exe/download[x86 download], http://sourceforge.net/projects/peachfuzz/files/Peach/2.3.8/Peach-2.3.8-x64.exe/download[x64 download])
+
+_If you would like to enable network captures when fuzzing network protocols then also install http://wireshark.org[Wireshark] or http://www.winpcap.org/[Winpcap]._
+
+
+*Latest Source Version of Peach*
+
+ . Install http://www.activestate.com/activepython/downloads[ActiveState Python v2.7] (32bit or 64bit)
+ . Install Debugging Tools for Windows (http://www.microsoft.com/whdc/devtools/debugging/default.mspx[download] or http://rxwen.blogspot.com/2010/04/standalone-windbg-v6120002633.html[just installer]).
+ . Install SVN client such as http://tortoisesvn.net[TortoiseSVN].
+ . Checkout source code from http://peachfuzz.svn.sf.net/svnroot/peachfuzz/branches/Peach2.3
+ . Install dependencies from "peach\dependencies\py2.7-???" (32bit or 64bit as needed)
+ . Verify install is working by:
+ . Run "peach samples\HelloWorld.xml" and verify no errors.
+ . Run "peach samples\DebuggerWindows.xml".  You may need to provide the WinDbg path to the two monitors.
+
+_If you would like to enable network captures when fuzzing network protocols then also install http://wireshark.org[Wireshark] or http://www.winpcap.org/[Winpcap]._
+
+
+*Known Issues*
+
+In the x64 version of Peach, the Peach Validator tool does not work.  This is a known issue that will hopefully be resolved in the future.
+
+== OS X ==
+
+Peach has excellent support for fuzzing on OS X with the exception of the Peach Validator GUI program which can be hard to get working.
+
+ . Install XCode from your OS X install DVD
+ . Download and compile Crash Wrangler from Apple.  NOTE: If you move Crash Wrangler to another Apple, you will need to recompile.
+ . Download http://sourceforge.net/projects/peachfuzz/files/Peach/2.3.7/Peach-2.3.7-src.zip/download[Peach source from here]
+ . Install all required dependencies.  The minimum set of dependencies is: 4Suite, cDeepCopy, cPeach, Zope, and Twisted.  The source to them is provided in the +dependencies/src+ folder.
+ . Change your Crash Reporter preferences to "Server."  This will stop those annoying crash dialogs from popping up.  There is a preferences utility included with XCode.
+
+There are two choices for detecting faults on OS X.  The preferred method is using Crash Wrangler, the other option is Crash Reporter.
+
+
+== Linux/Unix ==
+
+ . Install Python 2.5 (2.6 is OK)
+ . Download http://sourceforge.net/projects/peachfuzz/files/Peach/2.3.7/Peach-2.3.7-src.zip/download[Peach source from here]
+ . Install all required dependencies.  The source to them is provided in the +dependencies/src+ folder.  For wxPython I recommend you install the OS X package available from the development site.
+
+The UnixDebugger required vdb or vdebug module included with the dependencies.  There is now a BETA Crash Reporter monitor for OS X.  You will need to change the Crash Reporter settings to "Server" mode to avoid those pop-ups.
+
+*GUI Applications*
+
+Peach has a GUI application Peach Validator that uses wxWidgets and wxpython.  I have had some issues getting these running well under OS X.  YMMV.  Peach will still run in console mode w/o these GUI's.

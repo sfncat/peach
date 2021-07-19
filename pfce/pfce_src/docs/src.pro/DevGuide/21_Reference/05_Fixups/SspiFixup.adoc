@@ -1,0 +1,143 @@
+<<<
+[[Fixups_SspiFixup]]
+== Sspi
+
+The _Sspi_ fixup enables Peach to perform the Microsoft SSPI challenge-response
+authentication process for the NTLMv2 mechanism and attempts to negotiate it.
+The Microsoft SSPI authentication process is common across Microsoft protocols and
+APIs, including Windows file-sharing protocols CIFS/SMB.
+
+The challenge-response nature of this protocol necessitates using the fixup multiple
+times to complete an authentication process. For NTLMv2, the challenge-response
+process consists of at least three messages between the client and server. This fixup
+uses and stores data in the iteration state bag to consume the last message from the
+server. Also, the SSPI fixup provides a Boolean indicator identifying whether another
+message is needed or authentication is complete.
+
+Since the number of messages needed to complete the authentication process is not
+known initially (due to the mechanism being negotiated), the protocol or API typically
+has a loop that continues until authentication completes. A loop is the preferred way
+to model this in the state model of the fuzzing definition. A specific state will be
+performed over and over until the fixup indicates that authentication has completed.
+See the examples section of this fixup for an example of how this might be modeled.
+
+.NOTES
+========
+The CIFS_Server Pit is a working example of this process. By default, this fixup uses
+two iteration state store keys during it's operation:
+
+* Peach.SspiSecurityBuffer - Stores messages received from the server. In response to
+this message, the fixup consumes this data and produces the next message in the series.
+
+* Peach.SspiContinueNeeded - Indicates whether an additional authentication message from
+the service is needed. False indicates the authentication is complete. True indicates
+another message is needed from the server, and is the default values.
+========
+
+=== Parent Elements
+
+xref:Blob[Blob]
+
+=== Parameters
+
+_Required:_
+
+User:: User name of the authorizing account.
+Password:: Password associated with the authorizing account.
+
+_Optional:_
+
+Domain:: Domain in which the authorizing account resides. Default is `""`.
+ContinueNeeded:: Reference to a key for connection-oriented use in NTLM.
+The value is the name of the field in the state bag that indicates whether
+authentication continues (as in a connection).
+
+=== Examples
+
+.Sspi Fixup Example
+
+This example consists of two code fragments:
+
+* A few lines of Python code takes the received message from the server and places
+it into the Peach state store. The fixup then processes the message text next time
+the script runs.
+
+* A portion of the State model that performs the challenge response authentication.
+
+NOTE: The challenge-response authentication requires multiple exchanges between
+the client and the server to complete the authentication process. The example
+shows the portion of the state model that achieves the authentication.
+
+The following Python fragment sets up the storage for the challenge/response value
+in the state bag:
+
+=========================
+    import clr
+    clr.AddReferenceByPartialName('Peach.Core')
+
+    import Peach.Core
+    import System
+
+    def ContinueUpdate(ctx, action):
+        securityBuffer = action.dataModel.find('SecurityBuffer')
+        if securityBuffer != None:
+            ctx.iterationStateStore['Peach.SspiSecurityBuffer'] = securityBuffer.Value
+
+=========================
+
+
+The following pit fragment defines the action to achieve authentication in the state model.
+
+=========================
+[source,xml]
+----
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="Packet">
+        <String name="SspiResponse">
+			<Fixup class="SspiFixup">
+                <String name="User" value="PeachUser"/>
+                <String name="Password" value="Calhoun30701"/>
+                <String name="Domain" value="CAITLIN" />
+                <String name="SecurityContinues" value="" />
+		    </Fixup>
+        </String>
+
+        <BLob name="UserData" />
+    </DataModel>
+
+
+    <StateModel>
+        <State name="Initial">
+            <!-- Fill in initial state details -->
+        </State>
+
+        <!-- The next state will loop several times to perform
+             the challenge-response authentication -->
+        <State name="Authenticate">
+            <Action type="output" name="SessionSetupRequest">
+                <DataModel ref="CIFS:TcpRequest"/>
+            </Action>
+
+            <Action type="input" name="SessionSetupResponse"
+                onComplete="cifs.ContinueUpdate(Context, Action)">
+
+                <DataModel ref="CIFS:TcpResponse"/>
+            </Action>
+
+            <!-- Next action does the loop until authenticate is done -->
+            <Action type="changeState" ref="Authenticate"
+                when="Context.iterationStateStore['Peach.SspiContinueNeeded']" />
+
+            <!-- Authentication complete, goto next state -->
+            <Action type="changeState" ref="ConnectIpc" />
+        </State>
+    </StateModel>
+
+    <!-- Place the remaining pit details here. -->
+
+</Peach>
+----
+
+=========================

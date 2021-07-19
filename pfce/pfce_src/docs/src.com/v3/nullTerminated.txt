@@ -1,0 +1,9 @@
+:toc!:
+== nullTerminated Attribute ==
+
+The _nullTerminated_ attribute indicates if the produced string should be null terminated.  It should be noted that only the final value will have the null termination applied, if the value is accessed the internal value will not have the null attached.
+
+_nullTerminated_ is a boolean type accepting _true_ or _false_ only, defaults to _false_.
+
+When _nullTerminated_ attribute is provided the link:String.html[String] must not specify a linke:length.html[length] as they are mutually exclusive.
+

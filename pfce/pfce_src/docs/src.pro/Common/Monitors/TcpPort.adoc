@@ -1,0 +1,203 @@
+<<<
+[[Monitors_TcpPort]]
+== TcpPort Monitor
+
+*Monitor Categories*: *Automation*, *Data collection*, *Fault detection*
+
+The _TcpPort_ monitor detects state changes on TCP ports.
+A state change is a transition in port status from 'Open' to 'Closed' or from 'Closed' to 'Open'.
+The _TcpPort_ monitor can be configured in the following ways:
+
+* as an automation task (wait until a specified state occurs)
+* fault detection (fault on a specific state)
+* data collection (report the current state)
+
+For automation tasks,
+the _When_ parameter can be configured to detect the state of a TCP port
+at various points in time during a fuzzing session:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+=== Parameters
+
+_Required:_
+
+Host::
+Hostname or IP address of the remote host
+
+Port::
+Port number to monitor
+
+_Optional:_
+
+Action::
+Action to take (Automation, Data, Fault).
+Defaults to `Automation`.
++
+[horizontal]
+Automation;; Wait for the port to reach a specified state.
+The _When_ parameter determines when the monitor should detect the state of the specified port.
+Data;; Report the state of the port immediately following a fault that is detected by any other monitor.
+Fault;; Generate a fault if the port is in a specified state at the end of an iteration.
+[vertical]
+
+State::
+Port state to monitor.
+The default value is `Open`.
++
+[horizontal]
+Open;; The port is available for use.
+Closed;; The port is not available.
+[vertical]
+
+Timeout::
+The amount of time in milliseconds to wait for the specified TCP state to occur.
+Specify `-1` to indicate an infinte timeout.
+
+WaitOnCall::
+Detect port state upon recept of the specified call from the state model.
+This value is used only when the 'When' parameter is set to `OnCall`.
+
+When::
++
+Specify one of the following values to control when port state detection should occur during a fuzzing session:
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"When" Setting              |Description
+|OnStart                     |
+Detect port state when the fuzzing session starts.
+This occurs once per session.
+|OnEnd                       |
+Detect port state when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Detect port state at the start of each iteration.
+|OnIterationEnd              |
+Detect port state at the end of each iteration.
+|OnFault                     |
+Detect port state when any monitor detects a fault.
+|OnIterationStartAfterFault  |
+Detect port state at the start of the iteration that immediately follows a fault detection.
+|OnCall                      |
+Detect port state upon receipt of the call specified by the 'WaitOnCall' parameter from the state model.
+This is the default setting.
+|==========================================================
++
+.When Choices
+image::{images}/Common/Monitors/Timings_All.png[scalewidth="75%"]
+
+=== Examples
+
+ifdef::peachug[]
+
+.Automation example: Open
+====================
+This example causes Peach to wait until the remote port is in an open state after the `WaitForPort` call is received from the state model.
+No timeout interval is provided, so Peach will wait forever.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Host         |`192.168.133.4`
+|Port         |`502`
+|WaitOnCall   |`WaitForPort`
+|==========================================================
+====================
+
+.Automation example: Closed
+====================
+This example causes Peach to wait until the remote port in in a closed state after the `WaitForPort` call is received from the state model.
+No timeout interval is provided, so Peach will wait forever.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Host         |`192.168.133.4`
+|Port         |`502`
+|State        |`Closed`
+|WaitOnCall   |`WaitForPort`
+|==========================================================
+====================
+
+.Fault Detection example
+====================
+This example inspects the state of the remote port at the end of an iteration.
+A fault is generated if the port is closed at the end of an iteration.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Host         |`192.168.133.4`
+|Port         |`502`
+|Action       |`Fault`
+|State        |`Closed`
+|==========================================================
+====================
+
+.Data Collection example
+====================
+
+This example causes the TcpPort monitor to report the state of a port after a fault is detected by any other monitor.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Host         |`192.168.133.4`
+|Port         |`502`
+|Action       |`Data`
+|==========================================================
+====================
+
+endif::peachug[]
+
+ifndef::peachug[]
+
+.Automation example: Open
+===============================
+This example causes Peach to wait until the remote port is in an open state after the `WaitForPort` call is received from the state model.
+No timeout interval is provided, so Peach will wait forever.
+
+[source,xml]
+----
+include::TcpPort_Example_Open.xml[]
+----
+===============================
+
+.Automation example: Closed
+===============================
+This example causes Peach to wait until the remote port in in a closed state after the `WaitForPort` call is received from the state model.
+No timeout interval is provided, so Peach will wait forever.
+
+[source,xml]
+----
+include::TcpPort_Example_Closed.xml[]
+----
+===============================
+
+.Fault Detection example
+===============================
+This example inspects the state of the remote port at the end of an iteration.
+A fault is generated if the port is closed at the end of an iteration.
+
+[source,xml]
+----
+include::TcpPort_Example_FaultDetection.xml[]
+----
+===============================
+
+.Data Collection example
+===============================
+This example causes the TcpPort monitor to report the state of a port after a fault is detected by any other monitor.
+
+[source,xml]
+----
+include::TcpPort_Example_DataCollection.xml[]
+----
+===============================
+
+endif::peachug[]

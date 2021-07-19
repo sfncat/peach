@@ -1,0 +1,12 @@
+[[fileName]]
+== fileName ==
+
+When used with the xref:Data[Data] element, _fileName_ can specify any of the following:
+
+* A single file ("+sample.png+"),
+* Multiple files by pointing to a folder ("+samples+"), or 
+* Multiple files by providing a file glob ("+samples_*.jpg+").
+
+If a folder or file glob specifies multiple files, use the _switchCount_  attribute with the xref:MutationStrategies[random strategy] to specify the number of iterations performed before switching to the next file.
+
+IMPORTANT: Multiple files are ONLY supported by the random mutation strategy.

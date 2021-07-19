@@ -1,0 +1,22 @@
+== Accessing your trial instance
+
+You should have received the following for your trial instance:
+
+- The URL to access the instance
+- The login/password for your trial instance
+
+If you do not have this information, please contact {supportemail} for assistance.
+
+=== Logging in to your trial instance
+
+To log in to your trial instance, follow these steps:
+
+. Enter the URL into your web browser.  It should be something similar to https://mycompany.demo.peach.tech
+. When prompted, enter your credentials.
+. Click "Accept" to accept the license agreement.
+. If prompted a second time for credentials, enter the same credentials you used in step 2.
+. You should now see a screen similar to what is pictured below
++
+image::{images}/initial-screen.png[]
+
+//end

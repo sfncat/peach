@@ -1,0 +1,20 @@
+:toc!:
+== SHA224Fixup
+
+Perform a SHA-224 hash of _ref_ element's value and place in our parent element.
+
+=== Parameters
+
+ * _link:../ref.html[ref]_ -- Refernce to element who's value we will hash
+ 
+=== Examples
+
+[source,xml]
+----
+<String name="value" value="Hello World" />
+<Blob>
+  <Fixup class="SHA224Fixup">
+    <Param name="ref" value="value" />
+  </Fixup>
+</Blob>
+----

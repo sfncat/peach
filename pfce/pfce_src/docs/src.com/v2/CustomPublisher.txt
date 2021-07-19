@@ -1,0 +1,261 @@
+:toc!:
+== Create a Custom Publisher ==
+
+There are a number of methods available to override from the Parent class, this shows the minimum needed to implement a file writer.  Many other methods are also available to override depending on use.
+
+The code you write should live in a _.py_ file in the same folder as your _.xml_ file.  This will make it all much easier to package up.  See the link:PythonPath.html[PythonPath] and link:Import.html[Import] elements for how to include your new code into your Peach XML file.
+
+*NOTE:* Never add the code into the Peach source folders!  You're welcome to submit them as patches, but otherwise keep them in another folder.  This will make it easier to move to another machine, and upgrade Peach in the future.
+
+[source,python]
+----
+import os, sys, time
+from Peach.publisher import Publisher
+
+class FileWriter(Publisher):
+	'''
+	Publishes generated data to a file.
+	'''
+	
+	def __init__(self, filename):
+		'''
+		@type	filename: string
+		@param	filename: Filename to write to
+		'''
+		
+		# Always call the parent init method
+		Publisher.__init__(self)
+		
+		self._filename = filename
+		self._fd = None
+		self._state = 0    # 0 - stopped; 1 - started
+	
+	def start(self):
+		pass
+	
+	def connect(self):
+		if self._state == 1:
+			raise Exception('File::start(): Already started!')
+		
+		if self._fd != None:
+			self._fd.close()
+		
+		self.mkdir()
+		
+		self._fd = open(self._filename, "w+b")
+		self._state = 1
+	
+	def stop(self):
+		self.close()
+	
+	def mkdir(self):
+		# lets try and create the folder this file lives in
+		delim = ""
+		
+		if self._filename.find("\\") != -1:
+			delim = '\\'
+		elif self._filename.find("/") != -1:
+			delim = '/'
+		else:
+			return
+		
+		# strip filename
+		try:
+			path = self._filename[: self._filename.rfind(delim) ]
+			os.mkdir(path)
+		except:
+			pass
+		
+	def close(self):
+		if self._state == 0:
+			return
+		
+		self._fd.close()
+		self._fd = None
+		self._state = 0
+	
+	def send(self, data):
+		self._fd.write(data)
+	
+	def receive(self, size = None):
+		if size != None:
+			return self._fd.read(size)
+		
+		return self._fd.read()
+----
+
+
+This is the parent class.  Override methods as needed.
+
+[source,python]
+----
+class Publisher:
+	'''
+	The Publisher object(s) implement a way to send and/or receave
+	data by some means.  This could be a TCP connection, a filehandle, or
+	SQL, etc.
+	
+	There are two "types" of publishers, stream based and call based.  This
+	base class supports both types.
+	
+	To support stream based publishing implement everything but "call".
+	
+	To support call based publishing implement start, stop, and call.
+	
+	Note: A publisher can support both stream and call based publishing.
+	'''
+	
+	def __init__(self):
+		#: Indicates which method should be called.
+		self.withNode = False
+		
+	def hexPrint(self, src):
+		'''
+		WHen in --debug publishers should output there IO
+		stuffs using hexPrint.
+		'''
+
+		FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
+		N=0; result=''
+		length=16
+		while src:
+			s,src = src[:length],src[length:]
+			hexa = ' '.join(["%02X"%ord(x) for x in s])
+			s = s.translate(FILTER)
+			result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+			N+=length
+		print result
+
+	def initialize(self):
+		'''
+		Called at start of test run.  Called once per <test> section.
+		'''
+		pass
+	
+	def finalize(self):
+		'''
+		Called at end of test run.  Called once per <test> section.
+		'''
+		pass
+	
+	def start(self):
+		'''
+		Change state such that send/receave will work.  For Tcp this
+		could be connecting to a remote host
+		'''
+		pass
+	
+	def stop(self):
+		'''
+		Change state such that send/receave will not work.  For Tcp this
+		could be closing a connection, for a file it might be closing the
+		file handle.
+		'''
+		pass
+	
+	def send(self, data):
+		'''
+		Publish some data
+		
+		@type	data: string
+		@param	data: Data to publish
+		'''
+		raise PeachException("Action 'send' not supported by publisher")
+	
+	def sendWithNode(self, data, dataNode):
+		'''
+		Publish some data
+		
+		@type	data: string
+		@param	data: Data to publish
+		@type   dataNode: DataElement
+		@param  dataNode: Root of data model that produced data
+		'''
+		raise PeachException("Action 'send' not supported by publisher")
+	
+	def receive(self, size = None):
+		'''
+		Receive some data.
+		
+		@type	size: integer
+		@param	size: Number of bytes to return
+		@rtype: string
+		@return: data received
+		'''
+		raise PeachException("Action 'receive' not supported by publisher")
+	
+	def call(self, method, args):
+		'''
+		Call a method using arguments.
+		
+		@type	method: string
+		@param	method: Method to call
+		@type	args: Array
+		@param	args: Array of strings as arguments
+		@rtype: string
+		@return: data returned (if any)
+		'''
+		raise PeachException("Action 'call' not supported by publisher")
+
+	def callWithNode(self, method, args, argNodes):
+		'''
+		Call a method using arguments.
+		
+		@type	method: string
+		@param	method: Method to call
+		@type	args: Array
+		@param	args: Array of strings as arguments
+		@type   argNodes: Array
+		@param  argNodes: Array of DataElements
+		@rtype: string
+		@return: data returned (if any)
+		'''
+		raise PeachException("Action 'call' not supported by publisher")
+
+	def property(self, property, value = None):
+		'''
+		Get or set property
+		
+		@type	property: string
+		@param	property: Name of method to invoke
+		@type	value: object
+		@param	value: Value to set.  If None, return property instead
+		'''
+		raise PeachException("Action 'property' not supported by publisher")
+	
+	def propertyWithNode(self, property, value, valueNode):
+		'''
+		Get or set property
+		
+		@type	property: string
+		@param	property: Name of method to invoke
+		@type	value: object
+		@param	value: Value to set.  If None, return property instead
+		@type	valueNode: DataElement
+		@param	valueNode: data model root node that produced value.
+		'''
+		raise PeachException("Action 'property' not supported by publisher")
+
+	def connect(self):
+		'''
+		Called to connect or open a connection/file.
+		'''
+		
+		raise PeachException("Action 'connect' not supported by publisher")
+		
+	def accept(self):
+		'''
+		Accept incoming connection.  Blocks until incoming connection
+		occurs.
+		'''
+		
+		raise PeachException("Action 'accept' not supported by publisher")
+	
+	def close(self):
+		'''
+		Close current stream/connection.
+		'''
+		raise PeachException("Action 'close' not supported by publisher")
+
+----
+

@@ -1,0 +1,182 @@
+<<<
+[[Monitors_RunCommand]]
+== Run Command
+
+*Monitor Categories*: *Automation*, *Data collection*, *Fault detection*
+
+The _RunCommand_ monitor can be used to launch a command at various points in time during a fuzzing session:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+If a fault occurs,
+the monitor captures and logs the console output from `stdout` and `stderr`.
+Additionally,
+this monitor can initiate a fault under the following conditions (in-order of evaluation):
+
+. An link:https://github.com/google/sanitizers/wiki/AddressSanitizer[Address Sanitizer] message appears in `stderr`.
+. The specified regular expression matches messages in `stdout` or `stderr`.
+. The command takes longer to finish than the specified timeout duration.
+. The command exits with a specified exit code.
+. The command exits with a nonzero exit code.
+
+=== Parameters
+
+_Required:_
+
+Command::
+The command or application to launch.
+
+_Optional:_
+
+Arguments::
+Command line arguments
+
+FaultOnNonZeroExit::
+When this value is set to `true`,
+generate a fault if the exit code is non-zero.
+The default value is `false`.
+
+FaultOnExitCode::
+When this value is set to `true`,
+generate a fault if the exit code matches the specified 'FaultExitCode' parameter.
+The default value is `false`.
+
+FaultExitCode::
+When 'FaultOnExitCode' is set to `true`, generate a fault if the specified exit code occurs.
+The default value is `1`.
+
+StartOnCall::
+Launch the command when the monitor receives the specified call from the state machine.
+This value is used only when the 'When' parameter is set to `OnCall`.
+
+FaultOnRegex::
+If this value is specified,
+generate a fault if the specified regular expression matches the command output.
+The default value is unspecified.
+
+Timeout::
+Maximum time period, in milliseconds, for the process to run.
+Generate a fault if the command runs longer than the specified value.
+This feature is disabled by specifying `-1` for the time period.
+The default value is `-1`.
+
+WorkingDirectory::
+Set the current working directory for the command launched by this monitor.
+The default value is the Peach current working directory.
+The current working directory for the command is valid until the command changes the directory or ends.
+
+When::
+Specify one of the following values to determine when to launch the command:
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"When" Setting              |Description
+|OnStart                     |
+Run command when the fuzzing session starts.
+This occurs once per session.
+|OnEnd                       |
+Run command when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Run command at the start of each iteration.
+|OnIterationEnd              |
+Run command at the end of each iteration.
+|OnFault                     |
+Run command when any monitor detects a fault.
+|OnIterationStartAfterFault  |
+Run command at the start of an iteration that immediately follows a fault detection.
+|OnCall                      |
+Run command when the call specified by the 'StartOnCall' parameter is received from the state model.
+This is the default setting.
+|==========================================================
++
+.When Choices
+image::{images}/Common/Monitors/Timings_All.png[scalewidth="75%"]
+
+=== Examples
+
+ifdef::peachug[]
+
+.Using _RunCommand_ for Fault Detection
+====================
+This parameter example detects a fault by checking for any lines that begin with `ERROR_`.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter         |Value
+|Command           |`python`
+|Arguments         |`check_for_fault.py`
+|WorkingDirectory  |`C:\MyScripts`
+|FaultOnRegex      |`^ERROR_`
+|When              |`OnIterationEnd`
+|==========================================================
+====================
+
+.Using _RunCommand_ for Data Collection
+====================
+This parameter example captures `stderr` and `stdout` for data collection when another monitor detects a fault.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter         |Value
+|Command           |`python`
+|Arguments         |`collect_log.py`
+|WorkingDirectory  |`C:\MyScripts`
+|When              |`OnFault`
+|==========================================================
+====================
+
+.Using _RunCommand_ for Automation
+====================
+This parameter example runs the `clear_state.py` python script on the next iteration start after a fault is detected.
+This can be used to get the target back into a working state so that fuzzing can continue.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter         |Value
+|Command           |`python`
+|Arguments         |`clear_state.py`
+|WorkingDirectory  |`C:\MyScripts`
+|When              |`OnIterationStartAfterFault`
+|==========================================================
+====================
+
+endif::peachug[]
+ifndef::peachug[]
+
+.Using _RunCommand_ for Fault Detection
+=========================================
+This example detects a fault by checking for any lines that begin with `ERROR_`.
+
+[source,xml]
+----
+include::RunCommand_Example_FaultDetection.xml[]
+----
+=========================================
+
+.Using _RunCommand_ for Data Collection
+=========================================
+This example captures `stderr` and `stdout` for data collection when another monitor detects a fault.
+
+[source,xml]
+----
+include::RunCommand_Example_DataCollection.xml[]
+----
+=========================================
+
+.Using _RunCommand_ for Automation
+=========================================
+This example runs the `clear_state.py` python script on the next iteration start after a fault is detected.
+This can be used to get the target back into a working state so that fuzzing can continue.
+
+[source,xml]
+----
+include::RunCommand_Example_Automation.xml[]
+----
+=========================================
+
+endif::peachug[]

@@ -1,0 +1,1 @@
+[{"IterationNumber":"2","TotalIteration":"4294967295","ElementName":"DataElement_0","MutatorName":"DataElementSwapNearNodesMutator"},{"DataModels":[{"name":"TestTemplate","children":[{"name":"DataElement_0","type":"String"}]}]}]

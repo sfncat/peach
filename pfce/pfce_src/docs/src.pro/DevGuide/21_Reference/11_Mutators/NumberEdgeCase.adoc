@@ -1,0 +1,16 @@
+<<<
+[[Mutators_NumberEdgeCase]]
+== NumberEdgeCase
+
+This mutator produces test cases for Number and String elements. String elements are only supported when the default data they contain is an integer. The test cases are generated using a Gaussian distribution around numerical edge cases. Edge cases are defined as boundaries between signed/unsigned and bit boundaries (0, 8, 16, 32, 64).
+
+=== Supported Elements
+
+ * xref:String[String]
+ * xref:Number[Number]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

@@ -1,0 +1,47 @@
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 10470.
+Peach.Core.Agent.Agent StartMonitor: Monitor NetworkCapture
+Peach.Core.Agent.Agent StartMonitor: Monitor_1 WindowsDebugger
+Peach.Core.Agent.Agent SessionStarting: Monitor
+Peach.Core.Agent.Agent SessionStarting: Monitor_1
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid SessionStarting
+Establishing the listener...
+
+[R1,-,-] Performing iteration
+Waiting for a connection...
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher start()
+Peach.Core.Publishers.TcpClientPublisher open()
+Accepted connection from 127.0.0.1:51784.
+Peach.Core.Publishers.TcpClientPublisher output(12 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   48 65 6C 6C 6F 20 57 6F  72 6C 64 21               Hello World!
+
+Received 12 bytes from client.
+Peach.Core.Publishers.TcpClientPublisher close()
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 127.0.0.1:4244
+Connection closed by peer.
+Shutting connection down...
+Connection is down.
+Waiting for a connection...
+Peach.Core.Publishers.TcpClientPublisher Read 0 bytes from 127.0.0.1:4244, closing client connection.
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 127.0.0.1:4244
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid DetectedFault()
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid DetectedFault() - No fault detected
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.TcpClientPublisher stop()
+Peach.Core.Agent.Agent SessionFinished: Monitor_1
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid SessionFinished
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _FinishDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+Peach.Core.Agent.Agent SessionFinished: Monitor
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _FinishDebugger
+Peach.Core.Agent.Monitors.WindowsDebuggerHybrid _StopDebugger
+
+[*] Test 'Default' finished.

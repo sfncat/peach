@@ -1,0 +1,102 @@
+<<<
+[[Publishers_Tcp]]
+== Tcp Client Publisher
+
+The _Tcp_ Client publisher connects to a remote TCP service.
+
+Since it is easy to confuse _Tcp_ Client and _TcpListener_, here's the difference:
+
+* The _Tcp_ Client Publisher connects out(ward)
+* The _TcpListener_ Publisher listens to (inward) connections
+
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="Tcp">
+	<Param name="Host" value="127.0.0.1" />
+	<Param name="Port" value="8080" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Host:: Hostname or IP address of remote host
+Port:: Destination port number
+
+_Optional:_
+
+RetryMode:: 
++
+Connection retry method, defaults to +FirstAndAfterFault+.
++
+_Options:_
++
+Never;; Never attempt a reconnection
+FirstAndAfterFault;; Only reattempt a connection when the remote host may be have restarted by Peach. This will be on first iteration and after a fault was detected.
+Always;; Always attempt a reconnection
+
+FaultOnConnectionFailure:: Log a fault when unable to connect to remote host. Defaults to true.
+Lifetime::
++
+Lifetime of connection.  Defaults to +Iteration+.
++
+_Options:_
++
+Iteration;; Connection lasts lifetime of a testcase/iteration.
+Session;; Connection lasts lifetime of testing session. Reconnects if connection is closed, but otherwise the connection will be left open.
+
+Timeout:: How long to wait in milliseconds for data. Defaults to 3,000.
+ConnectTimeout:: How long to wait in milliseconds for a new connection. Defaults to 10,000.
+
+=== Actions
+
+xref:Action_output[output]:: Send data to remote host
+xref:Action_input[input]:: Receive data from remote host
+
+=== Examples
+
+.Sending and receiving data
+===========================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String name="value" length="4" />
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+				<Data>
+					<Field name="value" value="mike" />
+				</Data>
+			</Action>
+
+			<!-- receive 4 bytes -->
+			<Action type="input">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent"/>
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+		<StateModel ref="TheState"/>
+		<Publisher class="Tcp">
+			<Param name="Host" value="127.0.0.1" />
+			<Param name="Port" value="8080" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+===========================

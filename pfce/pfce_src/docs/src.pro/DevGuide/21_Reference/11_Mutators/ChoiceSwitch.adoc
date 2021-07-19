@@ -1,0 +1,15 @@
+<<<
+[[Mutators_ChoiceSwitch]]
+== ChoiceSwitch
+
+This mutator produces test cases for xref:Choice[Choice] elements by changing the selected choice.
+
+=== Supported Elements
+
+ * xref:Choice[Choice]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

@@ -1,0 +1,8 @@
+:toc!:
+== UnicodeBomMutator ==
+
+This mutator injects BOMs into the same list of useful fuzzing strings that link:StringMutator.html[StringMutator] generates.
+
+_Target Elements_
+
+ * link:String.html[String]

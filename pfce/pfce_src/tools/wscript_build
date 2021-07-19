@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+
+tools = [
+	'nunit.py',
+	'trampoline.py',
+]
+
+files = [
+	'nunit3-to-junit.xsl',
+]
+
+bld(
+	name='nunit-tools',
+	features = 'peach',
+	install_path = '${BINDIR}',
+	install_755 = tools,
+	install_644 = files,
+)
+

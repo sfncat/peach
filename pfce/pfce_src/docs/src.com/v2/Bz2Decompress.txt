@@ -1,0 +1,18 @@
+:toc!:
+= compress.Bz2Decompress =
+
+This transformer decompresses the output using a bzip2 decompression transform. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="compress.Bz2Decompress"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +compress.Bz2Decompress+, +Bz2Decompress+

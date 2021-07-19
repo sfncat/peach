@@ -1,0 +1,6 @@
+:toc!:
+== Token ==
+
+*Peach 2.3*
+
+Token indicates a data element is a token that should be looked for when parsing incoming data.  It performs the same function as isStatic.

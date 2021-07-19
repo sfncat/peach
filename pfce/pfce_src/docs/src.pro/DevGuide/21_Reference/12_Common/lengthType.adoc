@@ -1,0 +1,22 @@
+[[lengthType]]
+
+== Length Type Attribute ==
+
+The _lengthType_ attribute defines the units of measure of the _length_ attribute.
+
+NOTE: A _length_ attribute must be defined before using _lengthType_. 
+
+bits:: Length is specified as a number of bits.
+bytes:: Length is specified as a number of bytes (default).
+chars:: Length is specified as a number of characters (only applies to xref:String[String]).
+
+=== Examples ===
+
+[source,xml]
+----
+<Blob length="8" lengthType="bytes" value="01 02 03 04 05 06 07 08" valueType="hex" />
+
+<String value="MAGIC" length="5" lengthType="chars"/>
+
+<String value="MAGIC" lengthType="calc" lengthCalc="4+1"/>
+----

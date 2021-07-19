@@ -1,0 +1,227 @@
+[[Action_when]]
+== Action when Attribute
+
+// 01/30/2014: Seth & Mike: Outlined
+//  * Python expression
+//  * Return true/false
+//  * expand on description
+//  * Walk through example(s)
+//  * Link to scripting guide (content needed)
+
+// 03/04/2014: Mike: Ready for tech writer
+
+// 03/05/2014: Lynn: 
+//  Edited current text 
+
+The _when_ attribute is a Python Boolean expression that is evaluated before performing an action. If the expression evaluates to true, the action is performed; otherwise, the action is skipped.
+
+.Keeping State
+****
+Peach provides a mechanism for the user to store state during for the lifetime of the current iteration, or the fuzzing session.
+This is accomplished using one of two state bags exposed through the RunContext instance.
+The state bags are defined as _Dictionary<string, object>_ in C#.
+A full example of using the iteration state bag is provided in the examples section.
+
+_Using the Session State:_
+
+This state stored in this state bag persists for the entire fuzzing session, from the point of creation to the end of the fuzzing session.
+
+[source,python]
+----
+context.stateStore['my_counter'] = 0
+----
+
+_Using the Iteration State:_
+
+The state stored in this state bag exists only for the current iteration.
+
+[source,python]
+----
+context.iterationStateStore['my_counter'] = 0
+----
+****
+
+=== Syntax
+
+[source,xml]
+----
+<State name="Initial">
+
+  <Action type="changeState" ref="State2" when="int(state.actions[0].dataModel.find('Type').DefaultValue) == 2"/>
+
+</State>
+----
+
+=== Scripting Scope
+
+action:: Action instance
+context:: RunContext instance
+state:: State instance
+stateModel:: StateModel instance
+self:: Action instance
+test:: Test instance
+
+=== Examples
+
+.Conditional _changeState_ Based on _when_ Expression
+==========================
+The following example changes its behavior based on input received from the target client.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Ping">
+    <Choice>
+      <String name="PingPingStr" value="PINGPING" token="true" />
+      <String name="PingStr" value="PING" token="true"/>
+    </Choice>
+  </DataModel>
+
+  <DataModel name="Pong">
+    <String value="PONG" />
+  </DataModel>
+
+  <DataModel name="PongPong">
+    <String value="PONGPONG" />
+  </DataModel>
+
+  <StateModel name="TheStateModel" initialState="InitialState">
+    <State name="InitialState"> 
+    
+      <Action type="accept" />
+
+      <Action type="input"> 
+        <DataModel ref="Ping"/> 
+      </Action>
+      
+      <!-- Switch states only when input was PINGPING -->
+      <Action type="changeState" ref="PongPongBack" 
+        when="state.actions[1].dataModel.find('PingPingStr') != None" />
+
+      <Action type="output"> 
+        <DataModel ref="Pong"/> 
+      </Action>
+      
+    </State>
+    
+    <!-- This state is only reached when input was PINGPING -->
+    <State name="PongPongBack">
+    
+      <Action type="output">
+        <DataModel ref="PongPong"/>
+      </Action>
+      
+    </State>
+    
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheStateModel"/>
+    <Publisher class="TcpListener">
+      <Param name="Interface" value="0.0.0.0" />
+      <Param name="Port" value="31337" />
+      <Param name="AcceptTimeout" value="10000" />
+      <Param name="Timeout" value="10000" />
+    </Publisher>
+
+    <Logger class="File" >
+      <Param name="Path" value="logs"/>
+      </Logger>
+  </Test>
+</Peach>
+----
+==========================
+
+.Loop Using Iteration State Bag
+==========================
+This example uses the iteration state bag to simulate a for loop.
+
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+  
+  <DataModel name="TheDataModel">
+    <String value="Looping!\n" />
+  </DataModel>
+  
+  <StateModel name="State" initialState="Initial">
+    <State name="Initial">
+	  
+	  <!-- Initialize our counter -->
+	  <Action type="changeState" ref="Loop" onStart="context.iterationStateStore['count'] = 0" />
+	
+	</State>
+
+	<State name="Loop">
+
+	  <!-- onComplete will increment counter -->
+      <Action type="output" onComplete="context.iterationStateStore['count'] = context.iterationStateStore['count'] + 1">
+        <DataModel ref="TheDataModel" />
+      </Action>
+      
+	  <!-- Loop until our counter is greater than 3 -->
+	  <Action type="changeState" ref="Loop" when="context.iterationStateStore['count'] &lt; 3" />
+
+    </State>
+
+  </StateModel>
+  
+  <Test name="Default">
+    <StateModel ref="State"/>
+    
+    <Publisher class="Console"/>  </Test>
+  
+</Peach>
+----
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 28742.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.ChangeState
+Peach.Core.Dom.Action Changing to state: Loop
+Peach.Core.Dom.StateModel Run(): Changing to state "Loop".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(9 bytes)
+Looping!                                                                     <1>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.ChangeState
+Peach.Core.Dom.Action Changing to state: Loop
+Peach.Core.Dom.StateModel Run(): Changing to state "Loop".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(9 bytes)
+Looping!                                                                     <2>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.ChangeState
+Peach.Core.Dom.Action Changing to state: Loop
+Peach.Core.Dom.StateModel Run(): Changing to state "Loop".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(9 bytes)
+Looping!                                                                     <3>
+Peach.Core.Dom.Action Run: action 'Action_1' when returned false             <4>
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Output from iteration 1
+<2> Output from iteration 2
+<3> Output from iteration 3
+<4> _when_ expression returning false causing exit from loop
+==========================

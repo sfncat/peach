@@ -1,0 +1,98 @@
+==== Monitoring
+The Monitoring data entry screen defines one or more Agents and one or more Monitors for the Pit.
+
+Agents are host processes for monitors and publishers. Local agents can reside on the same machine as Peach, and can control the test environment through monitors and publishers. Remote agents reside on the test target, and can provide remote monitors and publishers.
+
+Monitors are components that perform one or more of the following functions: detect faults (issues), collect data associated with faults, and help manage the fuzzing job to reduce the level of human interaction throughout the job.
+
+===== From the Home Page
+
+To begin configuring from the Home Page:
+
+. Click the Library menu entry.
+. From the Pit Library, select a Pit or an existing configuration.
++
+* Selecting a configuration means that you are revising the settings of an existing configuration. Peach displays the start screen for the configuration.
+* Selecting a Pit means that you are creating a new configuration. You will need to name the configuration, optionally provide a description, and click "Submit" to reach the start screen for the configuration.
++
+image::{images}/Common/WebUI/NP2_Config_Start.png[]
+
+. Click the "Configure Monitoring" button to define or edit agents, monitors, and the data values associated with them. The Monitoring data entry screen displays and is initially empty.
++
+image::{images}/Common/WebUI/AC08_Monitors_Page_Empty.png[scalewidth="70%"]
++
+The workflow for this data entry screen has you declare an Agent. Then, you can branch out and do the following in any order:
++
+* Declare one or more monitors for the agent
+* Fill in details for a monitor
+* Switch focus from one monitor to another
+* Declare additional agents, as needed
+* Switch focus from one agent to another
+
+In this instance, we're going to complete the agent, then add a monitor and fill in the monitor settings.
+
+===== Specifying an Agent
+
+Here are the steps to add an agent to a configuration:
+
+. Click the "Add Agent" button. Peach adds a new agent to the Monitors page, as in the following illustration.
++
+image::{images}/Common/WebUI/AC09_Mon_Pg_NewAgent.png[scalewidth="70%"]
++
+An agent has a name and location. The location can be local or remote.
++
+* Local agents run in the same process space as the Peach fuzzing engine.
+* Remote agents are separate processes that can reside on the same hardware as the test target. Remote agents act as intermediaries between Peach and test targets, sending test cases to the test target and replying with test case results and data back to Peach.
++
+If you use a remote agent, you need to supply location information that conforms to a URL with the following parts: `channel://host:port`
++
+channel:: Specify one of the following for the channel type: 'local', 'tcp', or 'http'. Typical remote agent configurations should use the 'tcp' channel.
+host::    Specify the hostname of the agent to be used. This value is not required for the 'local' channel.
+port::    Specify the port number of the agent to be used. This value is not required for the 'local' channel.
++
+* Example agent using the `tcp` channel: `tcp://192.168.127.128:9001`
+
+. Give the agent a name, such as `LocalAgent` and click "Save".
++
+Peach saves the Agent information, provides a visual cue with a "Saved successfully." message in a banner near the top of the page.
+
+===== Adding a Monitor
+
+. click the "Add a monitor..." button. +
+Peach displays a list of monitors that you can use in your configuration. The monitors are categorized by usage. Fault detection monitors appear first, then data collection, automation, android, and lastly, other monitors.
++
+image::{images}/Common/WebUI/AC10_Mon_Pg_Monitor_DropList.png[scalewidth="70%"]
+
+. Select the `WindowsDebugger` entry, located under the `Fault Detection` section, and click "OK".
++
+image::{images}/Common/WebUI/AC11_Mon_Pg_Added_WinDbg.png[]
+
+. Fill in the details of monitor. +
+Configuration information for each monitor is available in the xref:Monitors[Monitors] reference section. A list of monitors appears at the start of the section that links to the individual entries.
++
+The monitor parameters divide into three groups: "Core", "When To Trigger", and "Advanced".
++
+image::{images}/Common/WebUI/AC12_Mon_Windbg_Detail.png[]
++
+* The "Core" parameters consist of parameters that you should check when creating or editing a configuration. This monitor provides a choice of what to monitor: an executable file, a running process, or a service.
++
+image::{images}/Common/WebUI/AC12A_Mon_WinDbg_Core.png[]
+* The "When To Trigger" addresses timing-related issues, such as restarting the test target at the end of an iteration. This is common for file fuzzing, where Peach creates a fuzzed data file, then starts the target with the fuzzed file as input.
++
+image::{images}/Common/WebUI/AC12B_Mon_WinDbg_Trigger.png[]
+* The "Advanced" parameters are items that seldom need to be specified; the default values of these parameters are usually sufficient as is. Yet, once in a while you might need to access one of these parameters. When fuzzing a network client, the "No Cpu Kill" parameter needs to be set to true to give the client an opportunity to close cleanly.
++
+image::{images}/Common/WebUI/AC12C_Mon_WinDbg_Advanced.png[]
+
+
+===== Sample Agent with Multiple Monitors
+The following illustration is of an agent with multiple monitors. Note that you can show or hide the details for a monitor by clicking the chevron preceding the monitor name. In fact, this is true for agents, too.
+
+image::{images}/Common/WebUI/AC13_LocAgnt_n_Mtrs.png[]
+
+===== Sample Remote Agent
+The following illustration is of a remote agent. The location of the agent is the IP address of the remote machine, and that the address is stored in a custom variable. The agent manages multiple monitors.
+
+image::{images}/Common/WebUI/AC14_RemAgnt_n_Mtrs.png[]
+
+// end

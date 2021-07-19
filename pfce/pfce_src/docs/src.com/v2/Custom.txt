@@ -1,0 +1,175 @@
+:toc!:
+== Custom ==
+
+The Custom element is used to add custom data-types to Peach link:DataModel.html[data models].  Custom types require the writing of a python class that defines how the custom type is parsed, cracked, and generated.
+
+[source,xml]
+----
+<Custom name="mib" class="MyCustomType"/>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [required]
+ * link:ref.html[ref] -- Reference to a data model to use as a template [optional]
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur
+ * link:value.html[value] -- The default value contained within the Blob
+ * link:valueType.html[valueType] -- The format in which the default value is expressed. (i.e hex, string, or literal)
+ * link:isStatic.html[isStatic] -- This element should be treated as a token when parsing, defaults to False [DEPRECATED] [optional]
+ * link:token.html[token] -- (Peach 2.3)This element should be treated as a token when parsing, defaults to False [optional]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]
+
+_Valid Child-Elements:_
+
+ * ??? - All children are handled by the custom type
+
+*Python Code*
+
+[source,python]
+----
+'''
+Custom type example
+'''
+
+from Peach.Engine.dom import *
+
+class MultiByteInteger(Custom):
+	'''
+	A custom type
+	'''
+	
+	def handleParsing(self, node):
+		'''
+		Handle any custom parsing of the XML such as
+		attributes.
+		'''
+		pass
+	
+	def handleIncomingSize(self, node, data, pos, parent):
+		'''
+		Return initial read size for this type.
+		'''
+		
+		# Always at least a single byte
+		return (2,1)
+	
+	def handleIncoming(self, cntx, data, pos, parent, doingMinMax = False):
+		'''
+		Handle data cracking.
+		'''
+		
+		try:
+			while(True):
+				i = struct.unpack("B", data[pos])[0]
+				pos += 1
+				if i & 0x80 == 0:
+					break
+				
+				i &= 0x7F
+				
+				j = struct.unpack("B", data[pos])[0]
+				pos += 1
+				i |= (j & 0x7f) << 7
+				if j & 0x80 == 0:
+					break
+				
+				k = struct.unpack("B", data[pos])[0]
+				pos += 1
+				i |= (k & 0x7f) << 14
+				if k & 0x80 == 0:
+					break
+				
+				l = struct.unpack("B", data[pos])[0]
+				pos += 1
+				i |= (l & 0x7f) << 0x15
+				if l & 0x80 == 0:
+					break
+				
+				m = struct.unpack("B", data[pos])[0]
+				pos += 1
+				i |= m << 0x1c
+				if m & 0xf8 != 0:
+					# failed to parse...
+					return (4, pos)
+				
+				break
+		except:
+			raise
+			# out of data
+			if not cntx.haveAllData:
+				raise NeedMoreData(1, "")
+			else:
+				return (4, pos)
+		
+		value = str(i)
+		eval("self.%s(value)" % cntx.method)
+		
+		return (2, pos)
+	
+	def getInternalValue(self, sout = None):
+		'''
+		Return the internal value of this date element.  This
+		value comes before any modifications such as packing,
+		padding, truncating, etc.
+		
+		For Numbers this is the python int value.
+		'''
+		
+		value = None
+		
+		# Override value?
+		if self.currentValue != None:
+			value = self.currentValue
+		
+		else:
+			# Default value
+			value = self.defaultValue
+			
+			# Relation
+			value = str(self.getRelationValue(value))
+			
+			# Fixup
+			if self.fixup != None:
+				self.fixup.fixup.context = self
+				ret = self.fixup.fixup.dofixup()
+				if ret != None:
+					value = ret
+		
+		# Write to buffer
+		if sout != None:
+			sout.write(value, self.getFullDataName())
+		
+		# Return value
+		return value
+	
+	def getLength(self):
+		'''
+		Get the length of this element.
+		'''
+		
+		return len(self.getValue())
+	
+	def getRawValue(self, sout = None):
+		value = self.getInternalValue()
+	
+		# Apply mbint pack
+		ret = ""
+		i = long(value)
+		while ((i & 0xffffff80L) != 0L):
+			ret += struct.pack("B", ((i & 0x7f) | 0x80))
+			i = i >> 7
+		
+		ret += struct.pack("B", i)
+		
+		# Write to buffer
+		if sout != None:
+			sout.write(ret, self.getFullDataName())
+		
+		return ret
+
+# end
+
+----
+

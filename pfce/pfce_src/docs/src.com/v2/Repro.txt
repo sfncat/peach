@@ -1,0 +1,10 @@
+:toc!:
+== Peach Reproduction Mode ==
+
+The peach reproduction mode allows running a folder or files through peach with agents, monitors and logging.  The files will be run once at a time with no mutations applied.
+
+To use the reproduction mode follow these instructions:
+
+ * create a folder called repros that contains all of the reproduction files
+ * make a copy of repros.xml and edit to add needed publishers and agents
+ * run repros.xml via peachrepro.bat

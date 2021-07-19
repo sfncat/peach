@@ -1,0 +1,18 @@
+:toc!:
+= crypto.CvsScramble =
+
+CVS pserver password scramble. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="crypto.CvsScramble"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +crypto.CvsScramble+, +CvsScramble+

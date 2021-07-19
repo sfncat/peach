@@ -1,0 +1,16 @@
+:toc!:
+== Utf16LeTransformer
+
+The _Utf16LeTransformer_ will produce a UTf-16 encoding of the value in the parent data model with a Little endian BOM marker.  
+
+=== Examples
+
+[source,xml]
+----
+ <DataModel name="Ex1">
+    <String name="TransformMe" value="The brown lazy fox jumped over the fuzzed buffer">
+      <Transformer class="Utf16Le" />
+    </String>
+  </DataModel>
+----
+

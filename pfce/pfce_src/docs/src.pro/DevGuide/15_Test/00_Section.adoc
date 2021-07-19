@@ -1,0 +1,11 @@
+[[TestConfig]]
+== Test
+
+The final step to create a Peach Pit is the xref:Test[Test] element section. Here, the state model, agents, publishers, and logger all come together. A Test element represents a fuzzing test session that Peach can run. A Pit can contain one or more Test elements.
+
+If a Pit contains multiple Test elements, you can specify the Test element to use for a specific fuzzing session at runtime.
+
+See the references for: xref:Test[Test], xref:Agent[Agent], xref:Test_Include[Include], xref:Test_Exclude[Exclude],
+xref:Test_Mutators[Mutators], and xref:Publisher[Publisher].
+
+// end

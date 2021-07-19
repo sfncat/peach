@@ -1,0 +1,43 @@
+:toc!:
+== Remote Publisher
+
+The _Remote_ publisher runs another publisher from a link:../Agent.html[Peach Agent] process.
+
+TIP: Remote publishing is only supported with TCP Remoting agent channel.
+
+=== Parameters
+
+ * _Agent_ -- Name of Agent to run the Publisher from
+ * _Class_ -- Name of Publisher to run
+ * _Other Parameters_ -- Parameters for Publisher being remoted
+
+=== Actions
+
+ * Any actions supported by remoted publisher
+
+=== Examples
+
+.Remoting TCP Publisher
+[source,xml]
+----
+<Agent name="RemoteAgent" location="tcp://192.168.1.1:9001" />
+
+<Test name="Default">
+    <!-- ... -->
+	<Agent ref="RemoteAgent" />
+	
+	<Publisher class="Remote">
+		<Param name="Agent" value="RemoteAgent" />
+		<Param name="Class" value="TcpClient"/>
+		
+		<!-- Parameters for TcpClient -->
+		<Param name="Host" value="127.0.0.1" />
+		<Param name="Port" value="8080" />
+	</Publisher>
+</Test>
+----
+
+.Starting Peach Agent Process
+----
+peach.exe -a tcp
+----

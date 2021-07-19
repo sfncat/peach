@@ -1,0 +1,123 @@
+[[web_Response]]
+== Web Response
+
+The _Response_ element is used to model HTTP response bodies. It's an optional child element of the xref:Action_web[web] action. If a _Response_ element is not specified, the _web_ action will automatically create a default one. When manually specifying a _Response_ element a child DataModel is typically specified to capture the body.
+
+A _Response_ element will modify the resulting DataModel to also contian the status code, status message and headers.  The resulting data model will look as follows:
+
+[source,xml]
+----
+<Response>
+    <DataModel name="Response">
+        <String name="StatusCode" />
+        <String name="StatusDescription"/>
+        <Block name="Headers">
+            <String name="Content-Type" value="application/json"/>
+        </Block>
+        <Block name="Body">
+            <!-- Custom DataModel contents here -->
+            <!-- ... OR ... -->
+            <!-- Auto generated Data Model -->
+        </Block>
+    </DataModel>
+</Response>
+----
+
+The automatically generated will be one of the following:
+
+Model generated for text based content types:
+
+[source,xml]
+----
+<DataModel name="WebApiResponse">
+    <Choice name="ResultOfEmpty">
+        <String name="Result">
+            <!-- Analyzer is only added for known content-types -->
+            <Analyzer class="Json|Xml"/>
+        </String>
+        <Block name="Empty" />
+    </Choice>
+</DataModel>
+----
+
+Model generated for unknown content types:
+
+[source,xml]
+----
+<DataModel name="WebApiResponse">
+    <Choice name="ResultOfEmpty">
+        <Blob name="Result" />
+        <Block name="Empty" />
+    </Choice>
+</DataModel>
+----
+
+=== Syntax:
+
+[source,xml]
+----
+<Action type="web" method="GET" url="http://www.google.com/users">
+    <Response>
+        <DataModel ref="CustomBody" />
+    </Response>
+</Action>
+----
+
+=== Attributes
+
+_Required:_
+
+xref:name[name]:: Name of parameter.
+
+_Optional:_
+
+None.
+
+=== Child Elements
+
+xref:DataModel[DataModel]:: Reference to a DataModel that acts as a source for fuzzed data.
+xref:Data[Data]:: Set of initial data to be cracked into the above DataModel before fuzzing.
+
+=== Examples
+
+.Simple Example
+===================================
+
+Example setting the Content-Type header field.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="User">
+    <JsonObject>
+        <JsonString propertyName="user" value="jsmith"/>
+        <JsonString propertyName="name" value="John Smith" />
+    </JsonObject>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+    
+        <Action type="web" method="GET" url="http://www.example.com/user/1">
+            
+            <Response>
+                <DataModel ref="User" />
+            </Response>
+            
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================

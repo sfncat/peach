@@ -1,0 +1,16 @@
+:toc!:
+== HexTransformer
+
+The _HexTransformer_ will produce ...
+
+=== Examples
+
+[source,xml]
+----
+  <DataModel name="Ex1">
+    <String name="TransformMe" value="AAAAAAAAAAA">
+      <Transformer class="Hex" />
+    </String>
+  </DataModel>
+----
+

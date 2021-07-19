@@ -1,0 +1,18 @@
+:toc!:
+= encode.UrlEncodePlus =
+
+Encodes output as a URL with spaces turned into pluses. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="encode.UrlEncodePlus"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +encode.UrlEncodePlus+, +UrlEncodePlus+

@@ -1,0 +1,20 @@
+:toc!:
+== CleanupFolder Monitor
+
+The _CleanupFolder_ monitor will remove the contents of a folder prior to every iteration.  This is useful for cleaning up after targets.
+
+=== Parameters
+
+ * _Folder_ -- Folder to clean up
+ 
+=== Examples
+
+.Remove contents of a folder
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="CleanupFolder">
+		<Param name="Folder" value="c:\temp" />
+	</Monitor>
+</Agent>
+----

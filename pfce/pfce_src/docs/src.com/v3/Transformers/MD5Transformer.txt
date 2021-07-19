@@ -1,0 +1,16 @@
+:toc!:
+== MD5Transformer
+
+The _MD5Transformer_ creates an MD5 hash of the value in the parent Data Model.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<String name="TransformMe" value="Password!">
+		<Transformer class="Md5" />
+	</String>
+</DataModel>
+----
+

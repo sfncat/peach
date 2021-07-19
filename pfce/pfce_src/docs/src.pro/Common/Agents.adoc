@@ -1,0 +1,1220 @@
+[[Agent]]
+== Agents
+
+A Peach agent is a light weight process that can host multiple monitors.
+These monitors perform tasks such as fault detection, data collection and automation.
+
+The Peach agent communicates over a network channel to the main Peach process where all captured information is reported.
+This allows the main Peach process to perform monitoring locally or on the device under test.
+
+Monitors that perform fault detection provide methods to identify when a problem with the target under test during testing. For example, you might use a debugger monitor to detect when a target crashes and collect information about the crash. Peach finds more issues when robust fault detection is configured.
+
+Data collection monitors are used to gather additional information about a fault that has occured. This can include taking a network capture of the test traffic, collecting log files and running scripts to collect information about the target state. The goal is to collect any information that will be useful in tracking down the root cause of the faulting condition.
+
+Automation monitors are used to automate the target and target environment. This can include startup automation such as configuring an environment and starting the target. Restarting the environment when a fault occurs so testing can continue. And finally shutting down the target/environment when testing has completed. Some configurations may also require triggering the target to connect/consume data.
+
+.Peach Agent Block Diagram
+image::{images}/Common/AgentDiagram.svg[align="center",scalewidth="70%"]
+
+.Agent Privileges
+****
+
+Some monitors or publishers hosted by an agent process sometimes require heightened privileges.
+If you receive an error regarding permissions, try running the agent with root or administrative priviledges.
+
+*OS X/Linux/Unix*
+
+On OS X, Linux and other Unix systems, a process can be launched as root using the 'sudo' utility.
+
+For local agents:
+
+ sudo ./peach
+ 
+For remote agents:
+
+ sudo ./peachagent
+
+*Windows*
+
+On Windows a process can be started with administrator rights by right-clicking and selecting "Run as Adminsitrator". Optionally the user can be given additional needed priviledges by the system administrator.
+
+*Privileged Monitors*
+
+Which monitors require additional privileges depends on the specific OS and privileges of the user, but typically the following require special rights:
+
+ * PageHeap (Windows)
+ * NetworkCapture (OS X/Linux/Unix)
+
+****
+
+.Network Firewall
+****
+
+Many modern operating systems such as Windows and Linux come with a firewall that prevents incoming or outgoing network traffic. 
+This can prevent a remote agent from communicating with Peach.
+On Windows the user is asked when program first runs if a firewall rule should be added.
+
+On Linux, specifically Ubuntu distributions, this command allows packets through the firewall using port 9001 (default the port for remote agents).
+
+----
+sudo ufw allow 9001
+----
+
+****
+
+
+=== Agent Channels
+
+Local Agent (local)::
+	The agent is hosted in the current Peach process. This is the default channel. An example agent URL is +local://+
+
+Remote Agent (tcp)::
+	The external Peach agent communicates using network calls over TCP. Peach can run as a remote agent using the xref:Program_PeachAgent[PeachAgent] program. Remote agents do not require a valid license and are only used to host monitors or remote publishers. An example agent URL is +tcp://192.168.1.2:9002+
+
+ifdef::peachug[]
+
+Custom Agent (RESTful API) (http)::
+	This agent protocol uses RESTful style calls over HTTP. This channel is best suited for custom Peach agents. For more information, see the +Agent+ topic in the +Extending Peach+ section of the _Peach Professional Developer Guide_. An example agent URL is +tcp://192.168.1.2:8080+
+
+endif::peachug[]
+
+==== Local Agent
+
+The peach runtime supports a local agent that runs in process. LocalAgent is the default agent unless another agent type is specified.
+
+Agent URL:
+
+ local://
+
+ifndef::peachug[]
+
+.Configuring a local agent
+[source,xml]
+----
+<Agent name="local">
+   <!-- Monitors -->
+</Agent>
+----
+
+endif::peachug[]
+
+==== Remote Agent
+
+Peach includes a remote xref:Program_PeachAgent[agent server] that can be used to host Monitors and Publishers on remote machines. Usage of a remote agent requires a location URL of the following format:
+
+Agent URL:
+
+ tcp://HOST:PORT
+
+HOST:: Remote host the agent is running on
+PORT:: Remote port the agent is bound to (defaults to 9001)
+
+Example:
+
+ tcp://192.168.1.100:9001
+
+ifndef::peachug[]
+
+.Configuring a local agent
+[source,xml]
+----
+<Agent name="local" location="tcp://192.168.1.100:9001">
+   <!-- Monitors -->
+</Agent>
+----
+
+==== REST JSON Agent
+
+This agent is intended to communicate with custom remote agents written in other languages.
+
+.Example configuration with remote publisher
+[source,xml]
+----
+<Agent name="TheAgent" location="http://127.0.0.1:9980">
+	<Monitor class="WindowsDebugger">
+		<Param name="Executable" value="c:\windows\system32\mspaint.exe />
+		<Param name="Arguments" value="fuzzed.png" />
+		<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />
+		<Param name="StartOnCall" value="ScoobySnacks"/>
+	</Monitor>
+	<Monitor class="PageHeap">
+		<Param name="Executable" value="c:\windows\system32\mspaint.exe />
+		<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />
+	</Monitor>
+</Agent>
+
+<Test name="Default">
+	<Agent ref="TheAgent"/>
+	<StateModel ref="TheState"/>
+
+	<Publisher class="Remote">
+		<Param name="Agent" value="TheAgent"/>
+		<Param name="Class" value="File"/>
+		<Param name="FileName" value="fuzzed.png"/>
+	</Publisher>
+
+</Test>
+----
+
+
+[[Rest-API-AgentConnect]]
+===== GET /Agent/AgentConnect (Required)
+
+Peach instance is connecting to a remote agent.  When called, remote agent should reset it's current state, closing any open monitors or publishers.  This method is called once per fuzzing session, unless the connection was lost due to the target system crashing or being reset by post-fault automation.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+[[Rest-API-AgentDisconnect]]
+===== GET /Agent/AgentDisconnect (Required)
+
+Peach instance is disconnecting from the remote agent. When called, the remote agent should release any resources created, including monitors and publishers. This method is called once at the end of a fuzzing session.  This method should never return an error.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+[[Rest-API-StartMonitor]]
+===== POST /Agent/StartMonitor
+
+Start a monitor. This is called after xref:Rest-API-AgentConnect[AgentConnect] to start an instance of a monitor. The parameters contain the information configured in the +Monitor+ element of the Pit file.
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type |Name |Description            |Required |Schema
+|Query|name |Name of monitor        |True     |
+|Query|cls  |Monitor class. Value from +class+ attribute.|True|
+|Body |     |Arguments for monitor. |True     | xref:Agent-Rest-Schema-Args[Args]
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+[[Rest-API-StopAllMonitors]]
+===== GET /Agent/StopAllMonitors (Required)
+
+Stop all active monitors. Typically called prior to xref:Rest-API-AgentDisconnect[AgentDisconnect].
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+[[Rest-API-SessionStarting]]
+===== GET /Agent/SessionStarting (Required)
+
+Session starting. Called once to indicate a fuzzing job is starting.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+[[Rest-API-SessionFinished]]
+===== GET /Agent/SessionFinished (Required)
+
+Session finished. Called once to indicate a fuzzing job has finished.  Typically called prior to xref:Rest-API-StopAllMonitors[StopAllMonitors] and xref:Rest-API-AgentDisconnect[AgentDisconnect].
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+[[Rest-API-IterationStarting]]
+===== GET /Agent/IterationStarting (Required)
+
+Iteration starting. Called at the start of each test case.
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type |Name           |Description                 |Required |Schema
+|Query|isReproduction |Is current test case part of fault reproduction? | true | Boolean
+|Query|lastWasFault   |Was last iteration a fault? | true | Boolean
+|Query|iterationCount |DEPRECATED, always 0        | true | Integer
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+[[Rest-API-IterationFinished]]
+===== GET /Agent/IterationFinished (Required)
+
+Iteration finished. Called at the end of each test case.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+[[Rest-API-DetectedFault]]
+===== GET /Agent/DetectedFault (Required)
+
+Was a fault detected? Called after xref:Rest-API-IterationFinished[IterationFinished] for each test case.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-DetectedFault[DetectedFault Response]
+|==========================
+
+[[Rest-API-GetMonitorData]]
+===== GET /Agent/GetMonitorData (Required)
+
+Return monitor data. Called when a fault has been detected on the current test case and the engine is collecting data from the agents/monitors. Data for each monitor that has been started is returned in the results of this call.
+
+NOTE: GetMonitorData can be called even if xref:Rest-API-DetectedFault[DetectedFault] returns false if another peach component (agent, publisher, etc.) indicates a fault has occured.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-GetMonitorData[GetMonitorData Response]
+|==========================
+
+[[Rest-API-Message]]
+===== GET /Agent/Message (Required)
+
+Message (Event) from state model. Called when an event is broadcast from the StateModel using
+an action type 'call' with a publisher of 'Peach.Agent'.
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description                 |Required |Schema
+|Query |msg            |Message/event               |True     |String
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | No Content
+|==========================
+
+
+// ////// Publisher //////////////////////////////
+
+// ////// Publisher //////////////////////////////
+
+// ////// Publisher //////////////////////////////
+
+[[Rest-API-Pub-CreatePublisher]]
+===== POST /Publisher/CreatePublisher
+
+Create a publisher hosted in the remote agent. Only a single Publisher can be created per
+remote agent.
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description                 |Required |Schema
+|Body  |               |                            |True     |xref:Agent-Rest-Schema-CreatePublisher[CreatePublisher Request]
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Start]]
+===== GET /Publisher/start
+
+Action of type _start_ called on publisher.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Stop]]
+===== GET /Publisher/stop
+
+Action of type _stop_ called on publisher.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Open]]
+===== GET /Publisher/open
+
+Action of type _open_ called on publisher. Prior to _open_ being called both xref:Rest-API-Pub-Set_Iteration[Set_Iteration] and xref:Rest-API-Pub-Set_IsControlIteration[Set_IsControlIteration] are called.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Set_Iteration]]
+===== GET /Publisher/Set_Iteration
+
+Provide the current iteration number to the publisher. This is called prior to the first xref:Rest-API-Pub-Open[open] or xref:Rest-API-Pub-Call[call].
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description                 |Required |Schema
+|Body  |               |                            |true     |xref:Agent-Rest-Schema-Iteration[Iteration]
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Set_IsControlIteration]]
+===== GET /Publisher/Set_IsControlIteration
+
+Provide the current iteration number to the publisher. This is called prior to the first xref:Rest-API-Pub-Open[open] or xref:Rest-API-Pub-Call[call].
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description                 |Required |Schema
+|Body  |               |                            |true     |xref:Agent-Rest-Schema-IsControlIteration[IsControlIteration]
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Close]]
+===== GET /Publisher/close
+
+Action of type _open_ called on publisher.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Accept]]
+===== GET /Publisher/accept
+
+Action of type _accept_ called on publisher.  Call should block until completion.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Call]]
+===== GET /Publisher/call
+
+Action of type _call_ called on publisher.
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description                 |Required |Schema
+|Body  |               |                            |true     |xref:Agent-Rest-Schema-Call[Call]
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-Result[Result]
+|==========================
+
+[[Rest-API-Pub-SetProperty]]
+===== POST /Publisher/setProperty
+
+Action of type _setProperty_ called on publisher.
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description                 |Required |Schema
+|Body  |               |                            |true     |xref:Agent-Rest-Schema-SetProperty[SetProperty]
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-GetProperty]]
+===== GET /Publisher/getProperty
+
+Action of type _getProperty_ called on publisher.
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description                            |Required |Schema
+|Body  |property       |The property to retrive the value of.  |true     |Json String
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-Result[Result]
+|==========================
+
+[[Rest-API-Pub-Output]]
+===== POST /Publisher/output
+
+Action of type _output_ called on publisher.
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description       |Required |Schema
+|Body  |data           |Data to output    |true     |xref:Agent-Rest-Schema-Output[Output]
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-Input]]
+===== GET /Publisher/input
+
+Action of type _intput_ called on publisher. Calls to xref:Rest-API-Pub-WantBytes[WantBytes] will be made to read the input data as needed by the data cracker following an _input_ call.
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-PublisherResponse[PublisherResponse]
+|==========================
+
+[[Rest-API-Pub-WantBytes]]
+===== GET /Publisher/WantBytes
+
+Called to read data during an _input_ action. Always follows a call to xref:Rest-API-Pub-Input[input].
+
+====== Parameters
+[options="header",cols="1,2,8,1,2"]
+|==========================
+|Type  |Name           |Description             |Required |Schema
+|Body  |count          |Number of bytes to read |true |xref:Agent-Rest-Schema-Count[Count]
+|==========================
+
+====== Responses
+[options="header",cols="2,8,2"]
+|==========================
+|HTTP Code|Description|Schema
+|200      | OK        | xref:Agent-Rest-Schema-DataResponse[DataResponse]
+|==========================
+
+
+// //////////// SCHEMA ////////////////////////
+
+// //////////// SCHEMA ////////////////////////
+
+// //////////// SCHEMA ////////////////////////
+
+// //////////// SCHEMA ////////////////////////
+
+===== Schemas
+
+The following are sent/received in the JSON format.
+
+[[Agent-Rest-Schema-Args]]
+====== Args
+
+Variable set of arguments passed into our out of a call.
+Used by StartMonitor to pass monitor arguments.
+
+.Example monitor definition
+[source,xml]
+----
+<Monitor class="WindowsDebugger">
+    <Param name="Executable" value="c:\windows\system32\mspaint.exe" />
+    <Param name="Arguments" value="fuzzed.png" />
+    <Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />
+    <Param name="StartOnCall" value="ScoobySnacks"/>
+</Monitor>
+----
+
+.Resulting arguments object
+[source,java]
+----
+{
+    "args" : {
+        "Executable" : "c:\\windows\\system32\\mspaint.exe",
+        "Arguments" : "fuzzed.png",
+        "WinDbgPath" : "C:\\Program Files (x86)\\Debugging Tools for Windows (x86)",
+        "StartOnCall" : "ScoobySnacks"
+    }
+}
+----
+
+[[Agent-Rest-Schema-DetectedFault]]
+====== DetectedFault Response
+
+Generic status response object.
+
+[source,java]
+----
+{
+    "Status" : "true",
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name    |Description                 |Required |Schema
+|Status  |Was a fault detected?       |true     |Bool
+|==========================
+
+[[Agent-Rest-Schema-GetMonitorData]]
+====== GetMonitorData Response
+
+Collection of monitor data.
+
+[source,java]
+----
+{
+    "Results": [
+        {
+            "detectionSource":"",
+            "monitorName":"",
+            "collectedData":[
+                {"":"data1","Value":"AA=="}
+            ]
+        }
+    ]
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name    |Description                 |Required |Schema
+|Results |Array of monitor data, one entry per monitor  |true | xref:Agent-Rest-Schema-MonitorData[MonitorData]
+|==========================
+
+[[Agent-Rest-Schema-MonitorData]]
+====== MonitorData Response
+
+Data collected by a monitor.
+
+[source,java]
+----
+{
+    "detectionSource":"RunCommand",
+    "monitorName":"CheckPid",
+    "collectedData":[
+        {"Key":"stdout.txt","Value":"AA=="}
+    ]
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name            |Description                                  |Required |Schema
+|detectionSource |Monitors class name                          |true     |String
+|monitorName     |Name attribute from monitor definition       |true     |String
+|collectedData   |Array of assets collected/created by monitor |true     |xref:Agent-Rest-Schema-Data[Data]
+|==========================
+
+[[Agent-Rest-Schema-Data]]
+====== Data Response
+
+Named binary data.
+
+[source,java]
+----
+{
+    "Key":"stdout.txt",
+    "Value":"AA=="}
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name  |Description             |Required |Schema
+|Key   |Filename for data       |true     |String
+|Value |Data (base64 encoded)   |true     |Bytes
+|==========================
+
+[[Agent-Rest-Schema-PublisherResponse]]
+====== PublisherResponse Response
+
+Response for Publisher API
+
+.Exmaple of non-error result
+[source,java]
+----
+{
+    "error": false,
+}
+----
+
+.Exmaple of error result
+[source,java]
+----
+{
+    "error": true,
+    "errorString": "Error creating publisher XYZ"
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name         |Description           |Required |Schema
+|error        |Has an error occured? |true     |Boolean
+|errorString  |Error message         |false    |String
+|==========================
+
+[[Agent-Rest-Schema-CreatePublisher]]
+====== CreatePublisher Request
+
+Create publisher request object.
+
+[source,java]
+----
+{
+    "iteration": 1,
+    "isControlIteration": false,
+    "Cls": "Ioctl",
+    "args":{
+        "arg1":"xyz",
+        "arg2":"xyz",
+        "arg3":"xyz",
+    }
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name               |Description                 |Required |Schema
+|iteration          |Iteration/testcase number   |true     |Integer
+|isControlIteration |Is this a control iteration |true     |Boolean
+|Cls                |Publisher class attribute   |true     |String
+|args               |Publisher arguments         |true     |Object
+|==========================
+
+[[Agent-Rest-Schema-Iteration]]
+====== Iteration
+
+Create publisher request object.
+
+[source,java]
+----
+{
+    "iteration": 1
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name               |Description                 |Required |Schema
+|iteration          |Iteration/testcase number   |true     |Integer
+|==========================
+
+[[Agent-Rest-Schema-IsControlIteration]]
+====== IsControlIteration
+
+Create publisher request object.
+
+[source,java]
+----
+{
+    "isControlIteration": false
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name               |Description                 |Required |Schema
+|isControlIteration |Is this a control iteration |true     |Boolean
+|==========================
+
+[[Agent-Rest-Schema-Call]]
+====== Call
+
+Information needed to complete a _call_ action.
+
+[source,java]
+----
+{
+    "method": "PerformWork",
+    "args"  : [
+        {"name":"firstName", "data":"AA==", "type":"in" }
+    ]
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name    |Description                                                        |Required |Schema
+|method  |Method to call, maps to the 'method' attribute of a 'call' action. |true     |String
+|args    |Arugments for call. Zero or more.                                  |true     |Array of xref:Agent-Rest-Schema-CallArg[CallArg]
+|==========================
+
+[[Agent-Rest-Schema-CallArg]]
+====== CallArg
+
+Argument for a call action.
+
+[source,java]
+----
+{
+    "name" : "firstName",
+    "data" : "AA==",
+    "type" : "in"
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name  |Description                  |Required |Schema
+|name  |Argument/parameter name      |true     |String
+|data  |Binary data base64 encoded   |true     |Bytes
+|type  |DEPRECATED, always 'in'      |true     |String
+|==========================
+
+[[Agent-Rest-Schema-Result]]
+====== Result
+
+The result of a _call_ or _getProperty_ action.
+
+.Example of successful result
+[source,java]
+----
+{
+    "value": "AA==",
+    "error": false,
+}
+----
+
+.Example of error result
+[source,java]
+----
+{
+    "value": null,
+    "error": true,
+    "errorString": "Error call method"
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name         |Description                                  |Required |Schema
+|value        |Resulting data, can be null. Base64 encoded. |true     |Bytes
+|error        |Has an error occured?                        |true     |Boolean
+|errorString  |Error message                                |false    |String
+|==========================
+
+[[Agent-Rest-Schema-DataResponse]]
+====== DataResponse
+
+The result of a _call_ or _getProperty_ action.
+
+.Example of successful result
+[source,java]
+----
+{
+    "data": "AA==",
+    "error": false,
+}
+----
+
+.Example of error result
+[source,java]
+----
+{
+    "data": null,
+    "error": true,
+    "errorString": "Error call method"
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name         |Description                                  |Required |Schema
+|data         |Resulting data, can be null. Base64 encoded. |true     |Bytes
+|error        |Has an error occured?                        |true     |Boolean
+|errorString  |Error message                                |false    |String
+|==========================
+
+[[Agent-Rest-Schema-Output]]
+====== Output
+
+Data to output
+
+[source,java]
+----
+{
+    "data"    : "AA=="
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name         |Description                                  |Required |Schema
+|data         |Property value. Base64 encoded.              |true     |Bytes
+|==========================
+
+[[Agent-Rest-Schema-SetProperty]]
+====== SetProperty
+
+Contains information required to make a SetProperty call.
+
+[source,java]
+----
+{
+    "property": "FirstName",
+    "data"    : "AA=="
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name         |Description                                  |Required |Schema
+|property     |Property to set data on                      |true     |String
+|data         |Property value. Base64 encoded.              |true     |Bytes
+|==========================
+
+[[Agent-Rest-Schema-Count]]
+====== Count
+
+Count of bytes requested.
+
+[source,java]
+----
+{
+    "count": 1000,
+}
+----
+
+.Parameters
+[options="header",cols="2,8,1,2"]
+|==========================
+|Name      |Description                                  |Required |Schema
+|count     |Property to set data on                      |true     |Integer
+|==========================
+
+
+//////////////////////////
+
+==== Example REST API Session
+
+The following are sample REST API sessions.
+
+.Sample session
+[source,java]
+----
+GET /Agent/AgentConnect
+<< { "Status":"true" }
+
+POST /Agent/StartMonitor?name=Monitor_0&cls=WindowsDebugger
+>> {"args":{"Executable":"mspaint.exe","Arguments":"fuzzed.png","WinDbgPath":"C:\\Program Files (x86)\\Debugging Tools for Windows (x86)","StartOnCall":"ScoobySnacks"}}
+<< { "Status":"true" }
+
+POST /Agent/StartMonitor?name=Monitor_1&cls=PageHeap
+>> {"args":{"Executable":"mspaint.exe","WinDbgPath":"C:\\Program Files (x86)\\Debugging Tools for Windows (x86)"}}
+<< { "Status":"true" }
+
+GET /Agent/SessionStarting
+<< { "Status":"true" }
+
+GET /Agent/IterationStarting?iterationCount=1&isReproduction=False
+<< { "Status":"true" }
+
+GET /Agent/IterationFinished
+<< { "Status":"true" }
+
+GET /Agent/DetectedFault
+<< { "Status":"true" }
+// Status of true indicates a fault was detected. False for no fault.
+
+GET /Agent/GetMonitorData
+<< {
+	"Results":[
+		{
+			"iteration":0,
+			"controlIteration":false,
+			"controlRecordingIteration":false,
+			"type":0,  (0 unknown, 1 Fault, 2 Data)
+			"detectionSource":null,
+			"title":null,
+			"description":null,
+			"majorHash":null,
+			"minorHash":null,
+			"exploitability":null,
+			"folderName":null,
+			"collectedData":[
+				{"Key":"data1","Value":"AA=="}
+			]
+		}
+	]
+}
+
+GET /Agent/IterationStarting?iterationCount=1&isReproduction=True
+<< { "Status":"true" }
+
+GET /Agent/IterationFinished
+<< { "Status":"true" }
+
+GET /Agent/DetectedFault
+<< { "Status":"true" }
+// Status of true indicates a fault was detected. False for no fault.
+
+GET /Agent/GetMonitorData
+<< {
+	"Results":[
+		{
+			"iteration":0,
+			"controlIteration":false,
+			"controlRecordingIteration":false,
+			"type":0,  (0 unknown, 1 Fault, 2 Data)
+			"detectionSource":null,
+			"title":null,
+			"description":null,
+			"majorHash":null,
+			"minorHash":null,
+			"exploitability":null,
+			"folderName":null,
+			"collectedData":[
+				{"Key":"data1","Value":"AA=="}
+			]
+		}
+	]
+}
+
+GET /Agent/Publisher/stop
+<< { "Status":"true" }
+
+GET /Agent/SessionFinished
+<< { "Status":"true" }
+
+GET /Agent/StopAllMonitors
+<< { "Status":"true" }
+
+GET /Agent/AgentDisconnect
+<< { "Status":"true" }
+
+----
+
+.Sample session with remote publisher
+[source,java]
+----
+GET /Agent/AgentConnect
+<< { "Status":"true" }
+
+POST /Agent/StartMonitor?name=Monitor_0&cls=WindowsDebugger
+>> {"args":{"Executable":"mspaint.exe","Arguments":"fuzzed.png","WinDbgPath":"C:\\Program Files (x86)\\Debugging Tools for Windows (x86)","StartOnCall":"ScoobySnacks"}}
+<< { "Status":"true" }
+
+POST /Agent/StartMonitor?name=Monitor_1&cls=PageHeap
+>> {"args":{"Executable":"mspaint.exe","WinDbgPath":"C:\\Program Files (x86)\\Debugging Tools for Windows (x86)"}}
+<< { "Status":"true" }
+
+GET /Agent/SessionStarting
+<< { "Status":"true" }
+
+GET /Agent/IterationStarting?iterationCount=1&isReproduction=False
+<< { "Status":"true" }
+
+POST /Agent/Publisher/Set_Iteration
+>> {"iteration":1}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_IsControlIteration
+>> {"isControlIteration":true}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_IsControlIteration
+>> {"isControlIteration":true}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_Iteration
+>> {"iteration":1}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/start
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/open
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/output
+>> {"data":"SGVsbG8gV29ybGQ="}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/close
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/call
+>> {"method":"ScoobySnacks","args":[{"name":"p1","data":"SGVsbG8gV29ybGQ=","type":0}]}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/IterationFinished
+<< { "Status":"true" }
+
+GET /Agent/DetectedFault
+<< { "Status":"true" }
+// Status of true indicates a fault was detected. False for no fault.
+
+GET /Agent/GetMonitorData
+<< {
+	"Results":[
+		{
+			"iteration":0,
+			"controlIteration":false,
+			"controlRecordingIteration":false,
+			"type":0,  (0 unknown, 1 Fault, 2 Data)
+			"detectionSource":null,
+			"title":null,
+			"description":null,
+			"majorHash":null,
+			"minorHash":null,
+			"exploitability":null,
+			"folderName":null,
+			"collectedData":[
+				{"Key":"data1","Value":"AA=="}
+			]
+		}
+	]
+}
+
+GET /Agent/IterationStarting?iterationCount=1&isReproduction=True
+<< { "Status":"true" }
+
+POST /Agent/Publisher/Set_Iteration
+>> {"iteration":1}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_IsControlIteration
+>> {"isControlIteration":true}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_IsControlIteration
+>> {"isControlIteration":true}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_Iteration
+>> {"iteration":1}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/start
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/open
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/output
+>> {"data":"SGVsbG8gV29ybGQ="}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/close
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/call
+>> {"method":"ScoobySnacks","args":[{"name":"p1","data":"SGVsbG8gV29ybGQ=","type":0}]}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/IterationFinished
+<< { "Status":"true" }
+
+GET /Agent/DetectedFault
+<< { "Status":"true" }
+// Status of true indicates a fault was detected. False for no fault.
+
+GET /Agent/GetMonitorData
+<< {
+	"Results":[
+		{
+			"iteration":0,
+			"controlIteration":false,
+			"controlRecordingIteration":false,
+			"type":0,  (0 unknown, 1 Fault, 2 Data)
+			"detectionSource":null,
+			"title":null,
+			"description":null,
+			"majorHash":null,
+			"minorHash":null,
+			"exploitability":null,
+			"folderName":null,
+			"collectedData":[
+				{"Key":"data1","Value":"AA=="}
+			]
+		}
+	]
+}
+
+GET /Agent/Publisher/stop
+<< { "Status":"true" }
+
+GET /Agent/SessionFinished
+<< { "Status":"true" }
+
+GET /Agent/StopAllMonitors
+<< { "Status":"true" }
+
+GET /Agent/AgentDisconnect
+<< { "Status":"true" }
+
+----
+//////////////////////////
+
+endif::peachug[]
+

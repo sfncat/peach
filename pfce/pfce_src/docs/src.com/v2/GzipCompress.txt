@@ -1,0 +1,18 @@
+:toc!:
+= compress.GzipCompress =
+
+This transformer compresses the output using a Gzip compression transform. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="compress.GzipCompress"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +compress.GzipCompress+, +GzipCompress+

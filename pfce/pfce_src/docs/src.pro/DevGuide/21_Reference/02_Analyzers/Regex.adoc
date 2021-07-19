@@ -1,0 +1,129 @@
+[[Analyzers_Regex]]
+== Regex Analyzer
+
+The Regex Analyzer parses a string and breaks it into substrings using a regular expression to define parsing details. This analyzer provides a quick way to parse string-based data.
+
+A regular expression provides a pattern that the parser attempts to match while walking through the input string data. A pattern can consist of a single specification. Or, a pattern can consist of groups where each group describes a substring or a part of the overall pattern. With Peach, if a group is named, you can optionally name the corresponding substring.
+
+When used in the DataModel section of a Peach Pit, the Fuzzer walks the input string data and creates the appropriate substrings.
+
+When used from the command line, the Fuzzer walks the input string data, creates the appropriate substrings, and saves the results of the generated model to disk. Once saved, you can use and modify the results as needed.
+
+NOTE: The regular expression syntax is consistent with the regular expression parser used by Microsoft.NET. For more information, see the http://msdn.microsoft.com/en-us/library/az24scfc(v=vs.110).aspx[quick reference].
+
+=== Syntax
+
+[source,xml]
+----
+<String name="Value" value="http://www.google.com/q?q=kitty">
+  <Analyzer class="Regex">
+    <!-- (?<protocol>\w+)(://)(?<host>[^/?]+)(?<path>[^?]+)(\?)(?<query>.*) -->
+    <Param name="Regex" value="(?&lt;protocol&gt;\w+)(://)(?&lt;host&gt;[^/?]+)(?&lt;path&gt;[^?]+)(\?)(?&lt;query&gt;.*)"/>
+  </Analyzer>
+</String>
+----
+
+----
+pittool analyzer Regex "(\w+)(.)" input.txt output.xml
+----
+
+=== Command Line Syntax
+
+----
+pittool analyzer Regex <regex> <input file> <output file>
+----
+
+regex::
+    Regular Expression to base tokens on
+
+input file::
+    Text file
+
+output file::
+    Generated PIT file
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+None.
+
+=== Parameters
+
+Regex::
+    Regular expression. Only groups are kept. Group names are used to name specific
+    elements and cannot be duplicated.
+
+=== Examples
+
+.Simple HTTP GET URL Example
+==========================
+This example uses the string tokenizer on an inline value.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <String name="Value" value="http://www.google.com/q?q=kitty">
+      <Analyzer class="Regex">
+        <!-- (?<protocol>\w+)(://)(?<host>[^/?]+)(?<path>[^?]+)(\?)(?<query>.*) -->
+        <Param name="Regex" value="(?&lt;protocol&gt;\w+)(://)(?&lt;host&gt;[^/?]+)(?&lt;path&gt;[^?]+)(\?)(?&lt;query&gt;.*)"/>
+      </Analyzer>
+    </String>
+  </DataModel>
+
+  <StateModel name="State" initialState="State1" >
+    <State name="State1"  >
+      <Action type="output" >
+        <DataModel ref="TheDataModel"/>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="State"/>
+
+    <Publisher class="Console" />
+  </Test>
+</Peach>
+<!-- end -->
+----
+
+Output from the example using the string tokenizer and an inline value.
+----
+> peach -1 --debug RegexAnalyzer.xml
+
+[*] Web site running at: http://localhost:8889/
+
+[*] Test 'Default' starting with random seed 43577.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "State1".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(31 bytes)
+00000000   68 74 74 70 3A 2F 2F 77  77 77 2E 67 6F 6F 67 6C   http://www.googl
+00000010   65 2E 63 6F 6D 2F 71 3F  71 3D 6B 69 74 74 79      e.com/q?q=kitty
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Output in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Regex_Output.png[]
+
+==========================
+

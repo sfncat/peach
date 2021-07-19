@@ -1,0 +1,25 @@
+:toc!:
+== LRCFixup
+
+The _LRCFixup_ will produce a longitudinal redundancy check (LRC) using data from a single element.
+
+=== Parameters
+
+ * _link:../ref.html[ref]_ -- Reference to element
+
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <!-- .... -->
+
+  <Number size="32">
+    <Fixup class="LRCFixup">
+	  <Param name="ref" value="Data" />
+	</Fixup>
+  </Number>
+</Block>
+
+<Blob name="Data" />
+----

@@ -1,0 +1,12 @@
+:toc!:
+== SizedDataVarianceMutator ==
+
+This mutator will change the length of the size of a data element to a range of size - N to size + N. By default, N = 50. Even though the size of the data element will be manipulated, the size indicator in the relation will stay the same. This means the actual size of the data and the size reported by the relation will not be equal.
+
+_Target Elements_
+
+ * link:DataModeling.html[DataElement] with a link:Relation.html[SizeRelation]
+
+_Hints_
+
+ * SizedDataVarianceMutator-N -- Change the default +/- of 50 to a specified amount. [Peach 2.2 / Peach 3.0]

@@ -1,0 +1,27 @@
+:toc!:
+= osx.CrashReporter =
+
+This is a BETA monitor that uses the Crash Reporting system on OS X to detect crashes during fuzzing.
+
+*SETUP:* Please configure Crash Reporter to "Server" mode using the preferences tool included with xcode.  This will get rid of the pop-up message.
+
+[source,xml]
+----
+
+<Monitor class="osx.CrashReporter" />
+
+<Monitor class="osx.CrashReporter">
+  <Param name="ProcessName" value="Safari" />
+</Monitor>
+
+----
+
+
+_Parameters:_
+
+ * ProcessName -- Name of process to watch for [optional]
+ * LogFolder -- Crash Reporter log folder to monitor [optional, defaults to current users]
+
+_Valid Child-Elements:_
+
+None.

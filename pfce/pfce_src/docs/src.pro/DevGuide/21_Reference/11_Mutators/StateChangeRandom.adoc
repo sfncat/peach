@@ -1,0 +1,17 @@
+<<<
+[[Mutators_StateChangeRandom]]
+== StateChangeRandom
+
+This mutator produces test cases that affect the flow of the state model. During a state change, starting with selecting the initial state, the state change can land on a randomly-selected state. This mutator can be enabled if more than one state is available.
+
+NOTE: Currently, state model mutations are disabled by default.
+
+=== Supported Elements
+
+All states defined in the state model.
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

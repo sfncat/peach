@@ -1,0 +1,148 @@
+<<<
+[[JsonRaw]]
+== JsonRaw
+
+The _JsonRaw_ element is used to embeded raw string or binary data into a JSON document.
+This allows creation of json that does not adhere to the JSON specification.
+
+This is a container element that is able to host other data elements.
+
+=== Syntax
+
+[source,xml]
+----
+<JsonObject name="ServiceRequest">
+
+  <JsonString propertyName="id" value="3fcbbc99-bb05-432d-8ce5-9df4fab91ae6" />
+
+  <JsonRaw propertyName="binary">
+	<Blob value="01 02 03 04 05" valueType="hex"/>
+  </JsonRaw>
+
+</JsonObject>
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xref:name[name]:: Name of the block.
+isNull::
+    Is this elements value null. Json output will be +null+ instead of value.
+xref:ref[ref]:: Reference to a xref:DataModel[] to use as a template.
+xref:mutable[mutable]:: Is data element changeable (should it be mutated), defaults to false.
+
+=== Child Elements
+
+_all data elements supported by Block are supported by JsonRaw_
+
+xref:Analyzers[Analyzer]:: Analyzes current element post cracking, can dynamically change model.
+xref:Fixup[Fixup]:: Are dynamic transformations such as checksums and CRCs.
+xref:Hint[Hint]:: Provides information to mutators.
+xref:Placement[Placement]:: Relocates an element after it has been cracked.
+
+=== Mutators
+
+The following mutators operate on this element type:
+
+_Used for all data elements_
+
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator combines data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator causes the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator causes the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator changes both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator changes both sides of the relation (data and value) to match numerical variances of the current size.
+
+=== Examples
+
+.Example JsonRaw
+==========================
+Example of using JsonRaw to output non-standard JSON document, including binary values.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach>
+  <DataModel name="TheDataModel">
+
+    <JsonObject>
+      <JsonArray propertyName="arrayWithRaw">
+        <JsonRaw>
+          <Blob value="rawvalue"/>
+        </JsonRaw>
+      </JsonArray>
+	  
+      <JsonRaw propertyName="raw">
+        <Blob value="01 02 03 04 05 06 07 08" valueType="hex"/>
+      </JsonRaw>
+    </JsonObject>
+
+    <JsonObject>
+      <JsonRaw propertyName="rawNull" isNull="true">
+        <Blob value="rawvalue"/>
+      </JsonRaw>
+    </JsonObject>
+
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+      <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[[ Peach Pro v0.0.0.1
+[[ Copyright (c) 2017 Peach Fuzzer, LLC
+
+[*] Web site running at: http://10.0.1.113:8888/
+2017-08-09 12:45:30.4826 Peach.Pro.Core.MutationStrategies.RandomStrategy Initialized with seed 29202
+
+[*] Test 'Default' starting with random seed 29202.
+2017-08-09 12:45:30.5538 Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach\Logs\example.xml_20170809124529\debug.log
+
+[R1,-,-] Performing iteration
+2017-08-09 12:45:30.6610 Peach.Core.Engine runTest: Performing control recording iteration.
+2017-08-09 12:45:30.7042 Peach.Core.Dom.StateModel Run(): Changing to state "initial".
+2017-08-09 12:45:30.7112 Peach.Core.Dom.Action Run(Action): Output
+2017-08-09 12:45:30.8125 Peach.Pro.Core.Publishers.ConsolePublisher start()
+2017-08-09 12:45:30.8125 Peach.Pro.Core.Publishers.ConsolePublisher open()
+2017-08-09 12:45:30.8125 Peach.Pro.Core.Publishers.ConsolePublisher output(58 bytes)
+00000000   7B 22 61 72 72 61 79 57  69 74 68 52 61 77 22 3A   {"arrayWithRaw":
+00000010   5B 72 61 77 76 61 6C 75  65 5D 2C 22 72 61 77 22   [rawvalue],"raw"
+00000020   3A 01 02 03 04 05 06 07  08 7D 7B 22 72 61 77 4E   :........}{"rawN
+00000030   75 6C 6C 22 3A 6E 75 6C  6C 7D                     ull":null}
+2017-08-09 12:45:30.8224 Peach.Pro.Core.Publishers.ConsolePublisher close()
+2017-08-09 12:45:30.8224 Peach.Core.Engine runTest: context.config.singleIteration == true
+2017-08-09 12:45:30.8224 Peach.Core.Engine All test cases executed, stopping engine.
+2017-08-09 12:45:30.8224 Peach.Pro.Core.Publishers.ConsolePublisher stop()
+2017-08-09 12:45:30.8224 Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+==========================
+
+// end

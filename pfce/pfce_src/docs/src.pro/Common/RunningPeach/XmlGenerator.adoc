@@ -1,0 +1,36 @@
+[[Program_PeachXmlGenerator]]
+== Peach XML Generator
+
+The Peach XML Generator generates sample files to use during fuzzing, based on the DTD schema.
+
+TIP: Peach XML Generator only works with DTD schemas.
+
+The produced files can then be used with Peach to fuzz a target.
+
+=== Syntax
+
+This program has a graphical interface and no command line switches.
+
+----
+> PeachXmlGenerator.exe
+----
+
+=== Parameters
+
+DTD File:: DTD file providing definition of XML format to generate.
+Root XML Element:: Root XML element for generated files.
+Root XML Namespace:: XML namespace of root element.
+Sample XML Files:: Where to place generated files.
+Number of Output Files:: How many files to generate. Defaults to 100.
+
+// === Examples
+//
+// .Producing SVG Examples from DTD
+// ===================
+// The default parameters in the GUI application are pre-filled with this example.
+//
+// TODO - Provide example screen shots
+//
+// ===================
+
+// end

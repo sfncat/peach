@@ -1,0 +1,16 @@
+:toc!:
+== Bz2DecompressTransformer
+
+The _Bz2DecompressTransformer_ performs a bzip2 decompression on the value in the parent data model. 
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<Blob name="TransformMe" value="42 5A 68 39 31 41 59 26 53 59 A7 83 53 78 00 00 0D 81 80 22 6F 58 00 20 00 31 00 D3 4D 01 55 03 41 EA 5D 4D A1 1E 44 47 51 18 7C 5D C9 14 E1 42 42 9E 0D 4D E0" valueType="hex" >
+		<Transformer class="Bz2Decompress" />
+	</Blob>
+</DataModel>
+----
+

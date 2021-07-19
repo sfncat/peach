@@ -1,0 +1,223 @@
+<html>
+<head>
+	<!-- <meta http-equiv="refresh" content="1"/> -->
+	<link rel="stylesheet" type="text/css" href="peach.css"/>
+	<title>Peach Visualizer</title>
+</head>
+<script type="text/javascript" src="d3.min.js" charset="utf-8" ></script>
+<body>
+	<!--<script type="text/javascript" src="driver.js"></script>-->
+<div class="content">
+    <!-- Top bar-->
+    <div class="top_block Top">
+        <div style="float:left">
+          <img src="customlogo.jpg" />
+        </div>
+
+        <div style="float:left">
+          <p id="peachTitle" class="Title">Peach Visualizer (Alpha)</p>
+        </div>
+    </div>
+
+    <div class="top_block Top">
+        <div style="float:left">
+          <p id="Iteration" style="text-decoration:underline;" class="SubTitle">Iteration:</p>
+        </div>
+
+        <div style="float:left">
+          <p id="IterationValue"  class="SubTitle">0</p>
+        </div>
+
+<!--        <div style="float:left">
+          <p id="TotalIter" style="text-decoration:underline;" class="SubTitle">Total Iters:<p>
+        </div>
+
+        <div style="float:left">
+          <p id="TotalIterValue" class="SubTitle">0<p>
+        </div> -->
+
+        <div style="float:left">
+          <p id="FuzzedEle" style="text-decoration:underline;" class="SubTitle">Fuzzed Element:</p>
+        </div>
+
+        <div style="float:left">
+          <p id="FuzzedEleValue" class="SubTitle">?</p>
+        </div>
+
+		<!--
+        <div style="float:left">
+          <p id="Mutation" style="text-decoration:underline;" class="SubTitle">Mutation:</p>
+        </div>
+
+        <div style="float:left">
+          <p id="MutationValue" class="SubTitle">??????</p>
+        </div>
+		-->
+    </div>
+
+    <!-- image hosting -->
+    <div class="left_block PictureColumn">
+      <div class="content">
+        <p class="Title">Target Image</p>
+        <div class="img-50">
+          <img src="sample.png"/>
+        </div>
+
+        <p class="Title">Fuzzed</p>
+		<div class="img-50">
+      <!--
+			<iframe id="testFrame" src="" style="width: 300px;height: 300px;border-style: solid;border-width: 1px;border-color: white;"></iframe>-->
+        <img src="fuzzed.png"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right visualization tree -->
+    <div id="viszContainer" class="right_block VisColumn"/>
+	<div id="output" style="width: 0px;height: 0px;overflow:-moz-scrollbars-vertical;overflow-y:auto;"></div>
+
+    <!-- End layout -->
+  </div>
+	<script type="text/javascript">
+
+  function loadXMLDoc() {
+    var xmlhttp;
+
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            console.log(xmlhttp.responseText);
+            var json = xmlhttp.responseText;
+            console.log(json);
+            json = JSON.parse(json);
+            console.log(json);
+            if(xmlhttp.responseText != "")
+              parseD3Json(json);
+        }
+    }
+
+    xmlhttp.open("GET", "http://localhost:8888/p/jobs/1/visualizer", true);
+    xmlhttp.send();
+  }
+
+	var width = 800, height =600 ;
+
+  var nodeTitleXAdjust = 8;
+    //create a cluster layout
+	var cluster = d3.layout.cluster()
+    .size([height, width - 160]);
+
+    //update
+	var diagonal = d3.svg.diagonal()
+    .projection(function(d) { return [d.y, d.x]; });
+
+    //use # to select by id name
+  var svg = d3.select("#viszContainer").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(40,0)");
+
+    //Load Json
+   loadXMLDoc();
+
+
+  function parseD3Json(root)
+  {
+
+  	//Select the First dataModel out of the datamodel secion
+      var iteration = 0;
+      var iterationTotal = 0;
+      var mutatedElement = "";
+      var mutationType = "";
+
+      iteration = cluster.nodes(root[0]['IterationNumber']);
+      iterationTotal = cluster.nodes(root[0]['TotalIteration']);
+      mutatedElement = cluster.nodes(root[0]['ElementName']);
+      mutationType = cluster.nodes(root[0]['MutatorName']);
+
+      d3.select("#IterationValue").text(iteration);
+      d3.select("#TotalIterValue").text(iterationTotal);
+      d3.select("#FuzzedEleValue").text(mutatedElement);
+      d3.select("#MutationValue").text(mutationType);
+
+      var topLevelName = root[1]['DataModels'][0].name;
+    	var nodes = cluster.nodes(root[1]['DataModels'][0]),
+        links = cluster.links(nodes);
+
+    	var link = svg.selectAll(".link")
+    		.data(links)
+    		.enter()
+    		.append("path")
+      	.attr("class", "link")
+      	.attr("d", diagonal);
+
+  	var node = svg.selectAll(".node")
+      	.data(nodes)
+      	.enter()
+      	.append("g")
+      	.attr("class", "node")
+        .attr("id", function(d)
+         {
+           var name = d.name;
+           currentNode = d;
+           var n = d;
+           if(n.parent != null)
+           {
+            while(n!= null && n.parent.name != topLevelName )
+            {
+              name = n.parent.name +  name;
+              if(n.parent != null)
+              {
+                n = n.parent;
+              }
+              else
+              {
+                n = null;
+              }
+            }
+          }
+
+          if(name != topLevelName)
+            name = topLevelName + name;
+          return name;
+        })
+      	.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+
+
+     //var highlight = svg.select("#")
+
+  	node.append("circle")
+  		.attr("r", 6.5);
+
+  	node.append("text")
+      	.attr("dx", function(d) { return d.children ? -nodeTitleXAdjust : nodeTitleXAdjust; })
+      	.attr("dy", 0)
+      	.style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+      	.text(function(d) { return d.name; });
+
+
+     var highlightNodes = mutatedElement[0].split('.');
+     var nodeName = "";
+     for(var nodeIndex =0; nodeIndex < highlightNodes.length; nodeIndex++)
+     {
+      nodeName += highlightNodes[nodeIndex];
+      d3.select("#" + nodeName ).attr("class", "nodeHighlight");
+      d3.select("#" + nodeName).append("circle").attr("r", 12);
+     }
+
+  	//End Json Load
+
+  	d3.select(self.frameElement).style("height", height + "px");
+  }
+  
+	</script>
+</body>
+</html>

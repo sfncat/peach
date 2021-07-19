@@ -1,0 +1,18 @@
+:toc!:
+= type.AsInt64 =
+
+Transforms a number into an Int64 or UInt64. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="type.AsInt64"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +type.AsInt64+, +AsInt64+

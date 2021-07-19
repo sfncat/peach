@@ -1,0 +1,49 @@
+[[Analyzers_Swagger]]
+
+== Swagger Analyzer
+
+This analyzer converts Swagger API JSON into Peach Pits for fuzzing WebApi style web service endpoints.
+
+link:http://swagger.io[Swagger] is a popular method for representing your RESTful API, especially for documentation purposes. Many frameworks can export Swagger API representations which can then be converted into partial pits using this analyzer.
+
+After converting, some manual work is usually needed to have a fully working pit.  This includes:
+
+ * Adding default values to models
+ * Hooking up any authentication/authorization
+ * Adding slurps for resource identifiers
+ * Adding cleanup states to remove created resources
+ * Testing to verify it all works
+ 
+NOTE: This analyzer is intended to always be run from the command line.
+
+=== Syntax
+
+----
+pittool analyzer Swagger swagger.json web_api_pit.xml
+----
+
+=== Command Line Syntax
+
+----
+pittool analyzer Swagger <input file> <output file>
+----
+
+input file::
+    Swagger API JSON
+
+output file::
+    Generated PIT file
+
+=== Attributes
+
+_Required:_
+
+There are no required attributes.
+
+_Optional:_
+
+There are no optional attributes.
+
+=== Examples
+
+No examples.

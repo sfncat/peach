@@ -1,0 +1,153 @@
+<<<
+[[Publishers_RawV6]]
+== RawV6 Publisher
+
+// Reviewed:
+//  - 02/13/2014: Seth & Adam: Outlined
+// Params are good
+// give full put to run for example
+// Mention that recv includes ip header send does not
+// Give full enumeration of Ethernet protocols supported
+// Talk about mtu setProperty for fuzzing mtu
+// Updated:
+// - 02/18/2014: Jordyn
+// Added full example using UDP
+// No enum for ipv6
+// Added MTU description
+// Added information about when receiving input
+// Added get/setProperty actions
+
+The _RawV6_ publisher sends raw IPv6 packets without the IP headers. 
+
+Input received from _RawV6_ includes the IPv6 header in the received data. 
+
+The _RawV6_ MTU size can be fuzzed by using the _setProperty_ action.
+
+NOTE: This publisher runs best on Linux and requires root privileges.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="RawV6">
+  	<Param name="Host" value="::1" />
+	<Param name="Protocol" value="17" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Host:: Hostname or IP address of remote host
+Protocol:: IP protocol to use (value must be between 0 and 255).
+
+_Optional:_
+
+Interface:: IP of interface to bind to. Uses all interfaces by default.
+Timeout:: How long to wait in milliseconds for data/connection. Defaults to 3,000.
+MaxMTU:: Maximum allowable MTU property value. Defaults to 131,070.
+MinMTU:: Minimum allowable MTU property value. Defaults to 1,280.
+
+=== Actions
+
+xref:Action_start[start]:: Implicit Action to start the Publisher.
+xref:Action_stop[stop]:: Implicit Action to stop the Publisher.
+xref:Action_open[open]:: Open and initialize the socket.
+xref:Action_close[close]:: Close and clean up the socket.
+xref:Action_output[output]:: Data sent via output is written to the open socket.
+xref:Action_input[input]:: Data received via input is read from the open socket.
+xref:Action_getProperty[getProperty]::
+	Get a property value. This publisher supports two properties:  +
+	*MTU*;; The current MTU value  +
+	*LastRecvAddr*;; The last receive address
+
+xref:Action_setProperty[setProperty]:: 
+	Set a property value. This can be used to fuzz properties exposed by the publisher. This publisher supports one property:  +
+	*MTU*;; Set the current MTU value. The value is ignored if it is not within the set range.
+
+=== Examples
+
+.Sending data
+==============
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="propertySize">
+    <Number size="32" value="1500"/>
+  </DataModel>
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41"/>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <DataModel name="UDPPacket">
+    <Block name="Header">
+      <Number name="SrcPort"  size="16" endian="big" value="31337"/>
+      <Number name="DestPort" size="16" endian="big" value="31337"/>
+      <Number name="Length"   size="16" endian="big">
+        <Relation type="size" of="UDPPacket"/>
+      </Number>
+      <Number name="Checksum" size="16" endian="big">
+        <Fixup class="UDPChecksumFixup">
+          <Param name="ref" value="UDPPacket"/>
+          <Param name="src" value="::1"/>
+          <Param name="dst" value="::1"/>
+        </Fixup>
+      </Number>
+    </Block>
+    <Block name="UdpPayload" ref="Data"/>
+  </DataModel>
+
+  <DataModel name="Packet">
+    <Flags size="32" endian="big">
+      <Flag name="Version" position="0" size="4" valueType="hex" value="06"/>
+      <Flag name="DSCP" position="4" size="6" valueType="hex" value="00"/>
+      <Flag name="ECN" position="10" size="2" valueType="hex" value="00"/>
+      <Flag name="FlowLabel" position="12" size="20" valueType="hex" value="000000"/>
+    </Flags>
+    <Number name="PayloadLength" size="16" endian="big">
+      <Relation type="size" of="IPv6Payload" />
+    </Number>
+    <Number name="NextHeader" size="8" value="17"/>
+    <Number name="HopLimit" size="8" endian="big" valueType="hex" value="40"/>
+    <Block name="SrcBlock" length="16">
+      <Blob name="SrcIP" value="::1">
+        <Transformer class="Ipv6StringToOctet"/>
+      </Blob>
+    </Block>
+    <Block name="DstBlock" length="16">
+      <Blob name="DestIP" value="::1">
+        <Transformer class="Ipv6StringToOctet"/>
+      </Blob>
+    </Block>
+    <Block name="IPv6Payload" ref ="UDPPacket"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+    	<Action type="setProperty" property="MaxMTU">
+        <DataModel ref="propertySize"/>
+      </Action>
+
+      <Action type="output">
+        <DataModel ref="Packet" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="RawV6">
+  		<Param name="Host" value="::1" />
+		<Param name="Protocol" value="17" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+==============

@@ -1,0 +1,18 @@
+:toc!:
+= encode.HtmlDecode =
+
+Decodes an HTML string. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="encode.HtmlDecode"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +encode.HtmlDecode+, +HtmlDecode+

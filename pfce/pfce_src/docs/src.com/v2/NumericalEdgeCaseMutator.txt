@@ -1,0 +1,15 @@
+:toc!:
+== NumericalEdgeCaseMutator ==
+
+This mutator will produce values in a range of N - 50 through N + 50 for all numerical edge cases.  For example 16-bit numbers have the following edge cases: 0, signed byte (127), unsigned byte (255), signed short, unsigned short.
+
+_Target Elements_
+
+ * link:Number.html[Number]
+ * link:Flag.html[Flag]
+ * link:String.html[String]
+
+_Hints_
+
+ * NumericalEdgeCaseMutator-N -- Change the default +/- of 50 to a specified amount. [Peach 2.2 / Peach 3.0]
+ * NumericalString -- Allows strings to be picked up and mutated by this mutator. [Peach 2.2 / Peach 3.0]

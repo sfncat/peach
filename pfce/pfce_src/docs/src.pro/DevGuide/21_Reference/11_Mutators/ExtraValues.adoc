@@ -1,0 +1,38 @@
+<<<
+[[Mutators_ExtraValues]]
+== ExtraValues
+
+This mutator allows the user to supply additional values to use in new test cases. Each additional value generates its own test case. The additional values are tested "as is"; that is they are not altered.
+
+If the _ExtraValues_ hint is mandatory. If the hint is not provided, this mutator is not used.
+
+=== Supported Elements
+
+ * xref:String[String]
+ * xref:Number[Number]
+ * xref:Blob[Blob]
+
+=== Hints
+
+ExtraValues:: Specify a semicolon-separated list of the values to use in new test cases.
+
+WARNING: The former hint name _ValidValues_, is deprecated in favor of _ExtraValues_.
+
+=== Examples
+
+.Providing Extra Values for a String
+=================
+
+In this example, three test cases are added to the string _FirstName_.
+
+[source,xml]
+----
+<String name="FirstName" value="Josh">
+    <!-- This list adds three test cases -->
+    <Hint name="ExtraValues" value="O'Brian;O-Brian;Josh III" />
+</String>
+----
+
+=================
+
+// end

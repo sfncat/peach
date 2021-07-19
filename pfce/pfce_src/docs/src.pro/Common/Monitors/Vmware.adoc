@@ -1,0 +1,184 @@
+<<<
+[[Monitors_Vmware]]
+== Vmware Monitor
+
+*Monitor Categories*: *Automation*
+
+The _Vmware_ monitor can control a VMware virtual machine (VM).
+This monitor works with a snapshot of the VM that provides a consistent VM environment throughout a fuzzing session.
+The _Vmware_ monitor can start a VM snapshot and,
+optionally,
+reset the VM to a snapshot configuration each iteration.
+
+The following illustration shows the VMWare Snapshot Manager,
+which is used for managing snapshots for a particular VM.
+
+image::{images}/Common/Monitors/Vmware_SnapshotManager.png[scale="60"]
+
+
+=== Parameters
+
+_Required:_
+
+Vmx::
+Path to the virtual machine.
++
+[TIP]
+====
+When using with vSphere/ESXi,
+prefix the VM image name with the storage location in brackets.
+For example, `[ha-datacenter/datastore1] guest/guest.vmx`.
+====
+
+_Optional:_
+
+SnapshotName::
+VM snapshot name.
++
+Either 'SnapshotName' or 'SnapshotIndex' must be specified,
+but it is an error to specify both.
+
+SnapshotIndex::
+VM snapshot index specification.
++
+Either 'SnapshotName' or 'SnapshotIndex' must be specified,
+but it is an error to specify both.
++
+The index specification is a list of zero-based index values delimited by a period (`.`).
+The specification resolves which leaf in a tree of snapshots should be used.
++
+For example,
+in the following tree of snapshots,
+the snapshot named `Snapshot 1.2.1` would be used when `0.1.0` is specifed.
++
+* Snapshot 1
+** Snapshot 1.1
+** Snapshot 1.2
+*** *Snapshot 1.2.1*
+*** Snapshot 1.2.2
+* Snapshot 2
+** Snapshot 2.1
+** Snapshot 2.2
+
+Host::
+Hostname or IP address the VMware host.
+
+HostPort::
+TCP/IP port of the VMware host.
+
+Login::
+Username for authentication with the VMware host.
+
+Password::
+Password for authentication with the VMware host.
+
+HostType::
++
+Type of remote host, defaults to `Default`
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|VM Product           |Description
+|*VIServer*           |vCenter Server, ESX/ESXi hosts, VMWare Server 2.0
+|*Workstation*        |VMWare Workstation
+|*WorkstationShared*  |VMWare Workstation (Shared Mode)
+|*Player*             |VMWare Player
+|*Server*             |VMWare Server 1.0.x
+|*Default*            |Default
+|==========================================================
+
+ResetEveryIteration::
+If `true` is specified,
+reset the VM on every iteration.
+Defaults to `false`.
+
+ResetOnFaultBeforeCollection::
+If `true` is specified,
+reset the VM after a fault is detected by any other monitor.
+Defaults to `false`.
+
+StopOnFaultBeforeCollection::
+If `true` is specified,
+stop the VM after a fault is detected by any other monitor.
+Defaults to `false`.
+
+WaitForToolsInGuest::
+If `true` is specified,
+wait for VMware tools to start within the guest whenever a VM is restarted.
+Defaults to `true`.
+
+WaitTimeout::
+The number of seconds to wait for VMware tools to start within a guest.
+Defaults to `600`.
+
+Headless::
+Run a VM without a GUI.
+Using this parameter can improve performance but may cause issues if the target interacts with the desktop.
+Defaults to `true`.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Start Virtual Machine
+====================
+This parameter example is from a setup that programmatically starts a VM.
+
+* The monitor requires both the physical filename with path of the VM and the +SnapshotName+ of the VM.
+* The +HostType+ identifies the VMWare product that is hosting the VM.
+* The +Headless+ parameter provides visual feedback while configuring the test setup.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter     |Value
+|Vmx           |`D:\VirtualMachines\OfficeWebTest\OfficeWebTest.vmx`
+|HostType      |`Workstation`
+|SnapshotName  |`Fuzzing`
+|Headless      |`false`
+|==========================================================
+====================
+
+.Start Virtual Machine hosted on ESXi
+====================
+This parameter example is from a setup that programmatically starts a VM.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter     |Value
+|Vmx           |`[ha-datacenter/datastore1] guest/guest.vmx`
+|SnapshotName  |`Fuzzing`
+|==========================================================
+====================
+
+endif::peachug[]
+
+ifndef::peachug[]
+
+.Start Virtual Machine
+======================
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="Vmware">
+		<Param name="Vmx" value="D:\VirtualMachines\OfficeWebTest\OfficeWebTest.vmx" />
+		<Param name="HostType" value="Workstation" />
+		<Param name="SnapshotName" value="Fuzzing" />
+	</Monitor>
+</Agent>
+----
+======================
+
+.Start Virtual Machine hosted on ESXi
+======================
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="Vmware">
+		<Param name="Vmx" value="[ha-datacenter/datastore1] guest/guest.vmx" />
+		<Param name="SnapshotName" value="Fuzzing" />
+	</Monitor>
+</Agent>
+----
+======================
+
+endif::peachug[]

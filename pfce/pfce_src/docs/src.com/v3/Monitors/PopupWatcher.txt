@@ -1,0 +1,32 @@
+:toc!:
+== PopupWatcher Monitor (Windows)
+
+The _PopupWatcher_ monitor is able to close windows based on title.
+
+=== Parameters
+
+ * _WindowNames_ -- Window names separated by a comma
+ * _Fault_ -- Trigger fault when a window is found (optional, default false)
+
+=== Examples
+
+.Close Notepad
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="PopupWatcher">
+		<Param name="WindowNames" value="Notepad" />
+	</Monitor>
+</Agent>
+----
+
+.Fault on Assert
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="PopupWatcher">
+		<Param name="WindowNames" value="Assert" />
+		<Param name="Fault" value="True" />
+	</Monitor>
+</Agent>
+----

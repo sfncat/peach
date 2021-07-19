@@ -1,0 +1,129 @@
+<<<
+[[Null]]
+== Null
+
+The _Null_ element defines an element which has no value.
+
+The Null element is a child element of xref:DataModel[DataModel], xref:Block[Block], xref:Sequence[Sequence] or xref:Choice[Choice].
+
+=== Syntax
+
+[source,xml]
+----
+<Null name="null"/>
+----
+
+=== Attributes
+
+_Required:_
+
+No required attributes.
+
+_Optional:_
+
+xref:name[name]::
+	Name of the Null value.
+xref:constraint[constraint]::
+	A constraint in the form of a python expression.
+	Used during data cracking.
+xref:mutable[mutable]::
+	Is data element changeable (should it be mutated during fuzzing), defaults to true.
+	Valid options true and false.
+xref:minOccurs[minOccurs]::
+	The minimum number of times this number must occur.
+	Defaults to 1.
+	Valid options are a positive integer value.
+xref:maxOccurs[maxOccurs]::
+	The maximum number of times this number can occur.
+	Defaults to 1.
+	Valid options are a positive integer value.
+xref:occurs[occurs]::
+	The actual number of times this number occurs.
+	Defaults to 1.
+
+
+=== Child Elements
+
+xref:Placement[Placement]:: Relocate an element after it has been cracked.
+
+=== Mutators
+
+The following mutators will operate on this element type:
+
+_Enabled when element is marked as an array_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]:: This mutator will grow and shrink an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]:: This mutator will randomize the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]:: This mutator will reverse the order of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]:: This mutator will grow and shrink an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementBitFlipper[DataElementBitFlipper]:: This mutator will produce test cases by flipping bits in the output value.
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator will duplicate data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator will remove data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator will swap data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator will combine data elements from different data sets.
+
+=== Examples
+
+.Json Null
+==========================
+Outputs a Json string with a single null value.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+	<DataModel name="NullExample">
+		<Json>
+			<Null name="Null"/>
+		</Json>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">
+		<State name="Initial">
+			<Action type="output">
+				<DataModel ref="NullExample"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent" />
+
+	<Test name="Default">
+		<Agent ref="TheAgent"/>
+
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex"/>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug NullExample1.xml
+
+[*] Web site running at: http://localhost:8888/
+
+[*] Test 'Default' starting with random seed 24442.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "Initial".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(13 bytes)
+00000000   7B 22 4E 75 6C 6C 22 3A  6E 75 6C 6C 7D            {"Null":null}
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================

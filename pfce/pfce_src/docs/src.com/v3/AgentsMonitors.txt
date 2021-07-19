@@ -1,0 +1,41 @@
+:toc!:
+== Agents and Monitors ==
+
+Agents are special Peach processes that can be run locally or remote. These processes host one or more Monitors that can perform such actions as attaching debuggers, watching memory consumption, detecting Faults, etc.
+
+ * link:Agent.html[Agent]
+
+== Monitors ==
+
+*Windows Monitors*
+
+ * link:Monitors/WindowsDebugger.html[Windows Debugger Monitor]
+ * link:Monitors/CleanupRegistry.html[Cleanup Registry Monitor]
+ * link:Monitors/PageHeap.html[Page Heap Monitor]
+ * link:Monitors/PopupWatcher.html[Popup Watcher Monitor]
+ * link:Monitors/WindowsService.html[Windows Service Monitor]
+
+*OS X Monitors*
+ 
+ * link:Monitors/CrashWrangler.html[OS X Crash Wrangler Monitor]
+ * link:Monitors/CrashReporter.html[OS X Crash Reporter Monitor]
+
+*Linux Monitors*
+
+ * link:Monitors/LinuxCrash.html[Linux Crash Monitor]
+
+*Cross Platform Monitors*
+
+ * link:Monitors/CanaKitRelay.html[CanaKit Relay Monitor]
+ * link:Monitors/CleanupFolder.html[Cleanup Folder Monitor]
+ * link:Monitors/IpPower9258.html[IpPower9258 Monitor]
+ * link:Monitors/MemoryMonitor.html[Memory Monitor]
+ * link:Monitors/Pcap.html[Pcap Network Monitor]
+ * link:Monitors/Ping.html[Ping Monitor]
+ * link:Monitors/Process.html[Process Launcher Monitor]
+ * link:Monitors/ProcessKiller.html[Process Killer Monitor]
+ * link:Monitors/SaveFile.html[Save File Monitor]
+ * link:Monitors/Socket.html[Socket Listener Monitor]
+ * link:Monitors/Ssh.html[SSH Monitor]
+ * link:Monitors/SshDownloader.html[SSH Downloader Monitor]
+ * link:Monitors/Vmware.html[Vmware Control Monitor]

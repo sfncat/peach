@@ -1,0 +1,72 @@
+= Peach.Pro.Web
+
+== README
+
+Project layout is based off of angular-ts-seed:
+https://github.com/jeffmay/angular-ts-seed
+
+To maintain project dependencies, `npm` and `bower` are used.
+
+To get started, install `npm` from:
+http://nodejs.org/
+
+Then run the following commands from this directory:
+
+[source,cmd]
+----
+mkdir %HOME%\AppData\Roaming\npm
+npm install -g grunt-cli bower
+npm install
+bower install
+----
+
+Your project can stop working at any moment because its dependencies can change. Prevent this by migrating to Yarn: https://bower.io/blog/2017/how-to-migrate-away-from-bower/
+
+I usually have two terminals open at all times running these commands:
+
+This one is for unit test.
+
+[source,cmd]
+----
+grunt unit
+----
+
+This one generates the app code and hosts a proxy server. 
+It should automatically launch your web browser.
+Before launching this command, make sure the Peach server is running first 
+(I usually use Ctrl-F5 in Visual Studio for this).
+
+[source,cmd]
+----
+grunt
+----
+
+Example for looking for package updates:
+
+[source,cmd]
+----
+bower ls
+----
+
+== Maintenance
+
+To add a new package (in this case `angular`):
+
+[source,cmd]
+----
+bower install angular -S
+tsd query angular -rosa install
+----
+
+Next we want to arrange for grunt to copy over assets from the bower package 
+into the `public/lib` directory.
+This requires an update to the `bowercopy` section in `Gruntfile.coffee`.
+Have a look at this for more details:
+https://www.npmjs.com/package/grunt-bowercopy
+
+With the `Gruntfile.coffee` file updated, you can now run:
+
+[source,cmd]
+----
+grunt init
+----

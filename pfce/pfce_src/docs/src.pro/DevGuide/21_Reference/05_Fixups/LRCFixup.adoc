@@ -1,0 +1,90 @@
+<<<
+[[Fixups_LRCFixup]]
+== Lrc
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher, test works
+// List Parent element types
+// Number, String, Blob
+
+// Updated:
+// - 02/18/2014: Jordyn
+// Added full examples
+
+// Updated:
+// - 02/21/2014: Mick
+// Parent elements
+
+The _Lrc_ fixup produces a longitudinal redundancy check (LRC) using data from a single element.
+The LRC is defined in ISO 1150:1978 and the algorithm is part of the custom Peach implementation.
+
+=== Parent Elements
+
+ * xref:Number[Number]
+ * xref:String[String]
+ * xref:Blob[Blob]
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the input data element used in the LRC calculation.
+
+=== Examples
+
+.Basic Usage Example
+====================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" valueType="hex" value="BEEFEA7E41">
+      <Fixup class="LRCFixup">
+        <Param name="ref" value="Data"/>
+      </Fixup>
+    </Blob>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 13931.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(10 bytes)
+00000000   53 74 61 72 74 AA 53 74  6F 70                     Start?Stop
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+====================

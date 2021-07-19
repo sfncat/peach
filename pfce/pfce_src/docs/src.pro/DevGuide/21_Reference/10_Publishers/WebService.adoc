@@ -1,0 +1,93 @@
+<<<
+[[Publishers_WebService]]
+== WebService Publisher
+
+// Reviewed:
+//  - 02/13/2014: Seth & Adam: Outlined
+// Params are good
+// give full pit to run for example
+// Examples: - Udp "listener" w/srcport and interface
+//           - Udp "connect" w/host and port
+//           - Multicast example
+
+The _WebService_ publisher is able to call SOAP and WCF based web services.  
+
+_WebService_ attempts to locate a service definition, or you can provide one.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="WebService">
+    <Param name="Url" value="http://localhost:7789/TestService/Service.asmx" />
+    <Param name="Service" value="Service" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Url:: WebService URL
+Service:: Service Name
+
+_Optional:_
+
+Wsdl:: Path or URL to WSDL for web service
+ErrorOnStatusCode:: Error when status code isn't 200, defaults to true.
+Timeout:: How long to wait in milliseconds for data/connection, defaults to 3,000.
+Throttle:: Time in milliseconds to wait between connections, defaults to 0.
+
+=== Actions
+
+xref:Action_call[call]:: Method attribute is method on web service to call.
+ 
+=== Examples
+
+.Example calling web service
+============================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+  <DataModel name="ArbitraryData">
+    <String name="value" />
+  </DataModel>
+
+  <StateModel name="TheState" initialState="Initial">
+    <State name="Initial">
+
+      <Action type="call" method="Login">
+        <Param name="name">
+          <DataModel ref="ArbitraryData"/>
+          <Data>
+            <Field name="value" value="mike" />
+          </Data>
+        </Param>
+        <Param name="passwd">
+          <DataModel ref="ArbitraryData"/>
+          <Data>
+            <Field name="value" value="Password!" />
+          </Data>
+        </Param>
+      </Action>
+
+    </State>
+  </StateModel>
+
+  <Agent name="TheAgent"/>
+
+  <Test name="Default">
+    <Agent ref="TheAgent"/>
+    <StateModel ref="TheState"/>
+    <Publisher class="WebService">
+      <Param name="Url" value="http://localhost:7789/TestService/Service.asmx" />
+      <Param name="Service" value="Service" />
+    </Publisher>
+  </Test>
+
+</Peach>
+----
+============================

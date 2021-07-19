@@ -1,0 +1,128 @@
+:toc!:
+== Tools ==
+
+Peach comes with a growing collection of tools to help build, test, and provide coverage information about your fuzzer.  Below are some of the tools currently included in Peach.
+
+== Minimum Set ==
+
+This tool will run each sample file through a target program and determine code coverage.  It will then find the least number of files needed to cover the most code.  This will be the minimum set of files that should be used when fuzzing.
+
+This tool currently only supports command line programs that will exit by themselves.
+
+----
+C:\peach\tools\minset>python minset.py
+
+] Peach Minset Finder v0.1
+] Copyright (c) Michael Eddington
+
+Syntax: minset.py target.exe samples\folder command.exe  "args %s"
+
+  target.exe   The target executable or ddl that
+               contains the core parser logic.
+  samples      The folder containing the sample files
+               for which we will find the min.
+  command      The command line of the program to run.
+               the command line MUST contain a %%s which
+               will get substututed for the sample filename.
+----
+
+
+*Example run:*
+
+----
+C:\peach\tools\minset>python minset.py bin\pngcheck.exe samples\basn0g*.png bin\pngcheck.exe %s
+
+] Peach Minset Finder v0.1
+] Copyright (c) Michael Eddington
+
+[*] Finding all basic blocks in [bin\pngcheck.exe]
+[*] Found 3636 basic blocks and 5 sample files
+[*] Determining coverage with [samples\basn0g01.png]....
+OK: samples\basn0g01.png (32x32, 1-bit grayscale, non-interlaced, -28.1%).
+[-] samples\basn0g01.png hit 316 blocks
+[*] Determining coverage with [samples\basn0g02.png]....
+OK: samples\basn0g02.png (32x32, 2-bit grayscale, non-interlaced, 59.4%).
+[-] samples\basn0g02.png hit 314 blocks
+[*] Determining coverage with [samples\basn0g04.png]....
+OK: samples\basn0g04.png (32x32, 4-bit grayscale, non-interlaced, 71.7%).
+[-] samples\basn0g04.png hit 314 blocks
+[*] Determining coverage with [samples\basn0g08.png]....
+OK: samples\basn0g08.png (32x32, 8-bit grayscale, non-interlaced, 86.5%).
+[-] samples\basn0g08.png hit 314 blocks
+[*] Determining coverage with [samples\basn0g16.png]....
+OK: samples\basn0g16.png (32x32, 16-bit grayscale, non-interlaced, 91.8%).
+[-] samples\basn0g16.png hit 314 blocks
+[*] Master template is [samples\basn0g01.png] with a coverage of 316 blocks
+
+[*] Minimum set is 2 of 5 files:
+[-]    samples\basn0g01.png
+[-]    samples\basn0g02.png
+----
+
+
+== Choice Coverage Check ==
+
+This tool will analyze a set of sample files against a provided Peach PIT and Data model.  It will then determine which if any choices of Choice elements are not hit by these sample files.  This allows additional insight into what parts of a target are being exercised.
+
+----
+C:\peach\tools\minset>python missing.py
+
+] Peach Choice Coverage Check
+] Copyright (c) Michael Eddington
+
+
+Syntax: missing.py MyPit.xml DataModelName samples\*.png
+
+This tool will crack every file provided into the specified
+data model and then determin if any of the choice blocks
+are not covered by the provided files.
+----
+
+
+*Example run:*
+
+----
+C:\peach\tools\minset>python missing.py png.xml Png samples\*.png
+
+] Peach Choice Coverage Check
+] Copyright (c) Michael Eddington
+
+[*] Parsing pit file: png.xml
+[*] Cracking file: samples\basn0g01.png
+../..\Peach\Transformers\type.py:200: DeprecationWarning: struct integer overflo
+w masking is deprecated
+  return struct.pack(packStr, long(data))
+[*] Cracking file: samples\basn0g02.png
+[*] Cracking file: samples\basn0g04.png
+[*] Cracking file: samples\basn0g08.png
+[*] Cracking file: samples\basn0g16.png
+[*] Cracking file: samples\basn2c08.png
+[*] Cracking file: samples\basn2c16.png
+[*] Cracking file: samples\basn3p01.png
+[*] Cracking file: samples\basn3p02.png
+[*] Cracking file: samples\basn3p04.png
+[*] Cracking file: samples\basn3p08.png
+[*] Cracking file: samples\basn4a08.png
+[*] Cracking file: samples\basn4a16.png
+[*] Cracking file: samples\basn6a08.png
+[*] Cracking file: samples\basn6a16.png
+[!] Missing: Png.Unknown Element 55.TheChunkcHRM
+[*] Done
+----
+
+
+== Struct to Peach ==
+
+This tool will scan headers, C files, or 010 Templates and convert structures into Peach XML.  This can be a huge time saver for complex file formats that have hundreds of structures.
+
+----
+C:\peach\tools>perl struct2peach.pl
+] c-struct2peach v0.3
+] Copyright (c) 2007-2008 Michael Eddington
+] mike@phed.org
+
+Syntax: struct2peach.pl [little|big] < filename.h > gens.xml
+
+  Please specify endianness
+----
+

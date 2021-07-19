@@ -1,0 +1,72 @@
+<<<
+[[Monitors_CrashReporter]]
+== CrashReporter Monitor (OS X)
+//needs better more fleshed out example pit
+
+*Monitor categories*: *Data collection*, *Fault detection*
+
+The _CrashReporter_ monitor collects and logs core dump information from crashes detected by the OS X System Crash Reporter.
+Use _CrashReporter_ when crashes can occur and you cannot use xref:Monitors_CrashWrangler[CrashWrangler].
+
+The monitoring scope can focus on a single executable,
+specified by setting the *ProcessName* parameter.
+Or,
+the monitoring scope can include all processes.
+By default, all processes are monitored.
+
+[IMPORTANT]
+======
+Before fuzzing,
+make sure to disable the Apple crash report dialog window. When the fuzzing session ends, reenable the crash report dialog window.
+Commands to disable and enable the crash report dialog window follow:
+
+* Disable the crash report dialog:
++
+`defaults write com.apple.CrashReporter DialogType none`
+
+* Enable the crash report dialog after fuzzing:
++
+`defaults write com.apple.CrashReporter DialogType crashreport`
+======
+
+
+=== Parameters
+
+_Required:_
+
+None.
+
+_Optional:_
+
+ProcessName:: Name of the process to watch (optional, defaults to all)
+
+=== Examples
+
+ifdef::peachug[]
+
+.Catch crashes from Movie Player +
+====================
+
+This parameter example is from a setup that monitors a movie player for OS X.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|ProcessName  |`mplayer`
+|==========================================================
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Catch all crashes
+====================
+[source,xml]
+----
+include::CrashReporter_Example.xml[]
+----
+====================
+
+endif::peachug[]

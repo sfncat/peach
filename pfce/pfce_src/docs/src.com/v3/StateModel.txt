@@ -1,0 +1,79 @@
+:toc!:
+== State Modeling ==
+
+In Peach there are two models that create a fuzzer, the DataModel and the StateModel.  The StateModel recreates the basic state machine logic needed to test a protocol.  The state model defines how to send and receive data to the fuzzing target.  StateModels can range from very simple to extremely complex.  It is recommended when starting out to keep state models simple and expand as needed.
+
+ * StateModel
+ ** link:State.html[State]
+ *** link:Action.html[Action]
+
+=== Example State Models
+
+==== File Fuzzing
+
+When file fuzzing Peach writes data to a file, then calls the target process to open said file. Peach can uses a single state and three actions for a simple file fuzzer.
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+	<State name="InitialState">
+		
+		<!-- Write out the contents of file.  The publisher attribute matches 
+		the name provided for the publisher in the Test section. -->
+		<Action type="output">
+			<DataModel ref="TestTemplate" />
+		</Action>
+		
+		<!-- Close the file -->
+		<Action type="close" />
+		
+		<!-- Launch the file consumer -->
+		<Action type="call" method="ScoobySnacks" publisher="Peach.Agent"/>
+		
+	</State>
+</StateModel>
+----
+
+==== Simple Network State Model ====
+
+In this state model Peach will send and receive a set of packets from a TCP port.
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+	<State name="InitialState">
+
+		<!-- Peach will automatically connect to the remote host -->
+
+		<!-- Send data -->
+		<Action type="output">
+			<DataModel ref="PacketModel1" />
+		</Action>
+
+		<!-- Receive response -->
+		<Action type="input">
+			<DataModel ref="PacketModel2" />
+		</Action>
+
+		<!-- Send data -->
+		<Action type="output">
+			<DataModel ref="PacketModel3" />
+		</Action>
+
+		<!-- Receive response -->
+		<Action type="input">
+			<DataModel ref="PacketModel4" />
+		</Action>
+	</State>
+</StateModel>
+
+<Test name="Default">
+	<StateModel ref="TheStateModel"/>
+
+	<Publisher class="TcpClient">
+		<Param name="Host" value="127.0.0.1" />
+		<Param name="Port" value="4242" />
+	</Publisher>
+</Test>
+----
+

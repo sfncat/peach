@@ -1,0 +1,95 @@
+<<<
+[[Fixups_SHA512Fixup]]
+== Sha512
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher, test works
+// List Parent element types
+// Blob
+
+// Updated:
+// - 02/18/2014: Mick
+// Added full examples
+
+Performs an SHA-512 hash of the value of the reference element value and places the result in the parent element. This is used when fuzzing protocols that hash data with SHA-512.
+
+
+The SHA512 algorithm is defined in US Federal Information Processing Standard (FIPS) PUB 180-4 and is implemented in .Net Framework Implementation - System.Security.Cryptography.
+
+=== Parent Elements
+
+xref:String[String]
+xref:Blob[Blob]
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the input data element used in the hash calculation.
+
+=== Examples
+
+.Example of SHA512Fixup Usage
+=============================
+[source,xml]
+----
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="Packet">
+		<Block name="Header">
+			<Number name="SrcPort"  size="16" endian="big" value="1234"/>
+			<Number name="DestPort" size="16" endian="big" value="1235"/>
+			<Number name="Length"   size="16" endian="big">
+				<Relation type="size" of="Packet"/>
+			</Number>
+		</Block>
+		<Blob name="Checksum">
+			<Fixup class="SHA512Fixup">
+				<Param name="ref" value="Header" />
+			</Fixup>
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="Packet" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" />
+	</Test>
+</Peach>
+----
+
+Output of this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 4183.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(70 bytes)
+00000000   04 D2 04 D3 00 46 ED 87  D8 F8 8A B6 42 62 F9 51   ?????F??????Bb?Q
+00000010   4F D8 A5 C7 6C 19 7C 14  8C 03 E3 09 EA 5D 28 78   O???l?|??????](x
+00000020   E1 98 6D A7 1A 96 BA 9A  E1 F3 F0 B2 B3 EA 05 5C   ??m????????????\
+00000030   9F A1 94 90 0A 68 80 2B  DB 9B F0 B6 05 2D 4D E6   ?????h?+?????-M?
+00000040   DF 36 BB 42 F8 31                                  ?6?B?1
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+=============================

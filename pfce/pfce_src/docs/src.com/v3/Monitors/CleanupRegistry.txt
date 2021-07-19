@@ -1,0 +1,29 @@
+:toc!:
+== CleanupRegistry Monitor (Windows)
+
+The _CleanupRegistry_ monitor will remove a registry key or a keys children.
+
+The following key prefixes are used:
+
+ * _HKCU\_ -- Current user
+ * _HKCC\_ -- Current config
+ * _HKLM\_ -- Local machine
+ * _HKPD\_ -- Performance data
+ * _HKU\_ -- Users
+
+=== Parameters
+
+ * _Key_ -- Registry key to remove
+ * _ChildrenOnly_ -- Only cleanup sub-keys. (optional, defaults false)
+
+=== Examples
+
+.Clean up after office
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="CleanupRegistry">
+		<Param name="Key" value="HKLM\SOFTWARE\Office13\Recovery" />
+	</Monitor>
+</Agent>
+----

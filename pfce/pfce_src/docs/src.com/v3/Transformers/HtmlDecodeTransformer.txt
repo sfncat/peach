@@ -1,0 +1,14 @@
+:toc!:
+== HtmlDecodeTransformer
+
+The _HtmlDecodeTransformer_ will produce ...
+
+=== Examples
+
+[source,xml]
+----
+<String name="TransformMe" >
+	<Transformer class="HtmlEnc" />
+</String>
+----
+

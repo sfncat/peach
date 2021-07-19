@@ -1,0 +1,19 @@
+:toc!:
+== SequenceIncrementFixup
+
+The _SequenceIncrementFixup_ will increment each iteration starting at 1.  This is usefull when a field must be a unique or sequencial value every iteration.
+
+=== Parameters
+
+None
+ 
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <Number name="UniqueValue" size="16">
+    <Fixup class="SequenceIncrementFixup" />
+  </Number>
+</Block>
+----

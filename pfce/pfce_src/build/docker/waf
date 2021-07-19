@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -e
+
+docker run -v $PWD:/build peachweb-toolchain ./waf $*
+docker system prune -f

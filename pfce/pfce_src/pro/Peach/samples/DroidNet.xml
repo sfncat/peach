@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<Import import="time" />
+
+	<DataModel name="NetPayload">
+		<String name="str" value="HelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorldHelloWorld" />
+		<String value="\r\n" mutable="false"/>
+	</DataModel>
+	<DataModel name="resp">
+		<String />
+	</DataModel>
+
+	<DataModel name="X">
+		<Number size="10" mutable="false" value="100" />
+	</DataModel>	
+
+	<DataModel name="Y">
+		<Number size="10" mutable="false" value="600" />
+	</DataModel>	
+
+
+	<StateModel name="State" initialState="State1" >
+		<State name="State1"  >
+			<Action type="setProperty" property="x" publisher="Monkey">
+				<DataModel ref="X" />
+			</Action>
+			<Action type="setProperty" property="y" publisher="Monkey">
+				<DataModel ref="Y" />
+			</Action>
+			<Action type="call" method="tap" publisher="Monkey" onStart="time.sleep(1)"/>
+			<Action type="output" publisher="TCP" >
+				<DataModel ref="NetPayload" />
+			</Action>
+			<Action type="input" publisher="TCP">
+				<DataModel ref="resp" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="Ag">
+		<Monitor class="Android">
+			<!--Param name="CmdOnStart" value="am start -S -n com.example.crashingapp1/.MainActivity" /-->
+			<Param name="ApplicationName" value="com.example.crashingapp1" />
+			<Param name="ActivityName" value=".MainActivity" />
+		</Monitor>
+	</Agent>
+
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+		<Agent ref="Ag" />
+
+		<!--Publisher class="Null" /-->
+		<Publisher name="Monkey" class="AndroidMonkey">
+			<Param name="Target" value="com.example.crashingapp1" />
+		</Publisher>
+		<Publisher name="TCP" class="Tcp">
+			<Param name="Host" value="127.0.0.1" />
+			<Param name="Port" value="6789" />
+		</Publisher>
+		<Logger class="File">
+			<Param name="Path" value="logs"/>
+		</Logger>
+	</Test>
+
+</Peach>
+<!-- end -->

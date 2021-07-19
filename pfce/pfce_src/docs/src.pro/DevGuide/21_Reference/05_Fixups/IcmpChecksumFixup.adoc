@@ -1,0 +1,98 @@
+<<<
+[[Fixups_IcmpChecksumFixup]]
+== IcmpChecksum
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher, test works
+// List Parent element types
+// Number, String
+
+// Updated:
+// - 02/18/2014: Jordyn
+// Added full examples
+
+// Updated:
+// - 02/21/2014: Mick
+// Parent elements
+
+The _IcmpChecksum_ produces a checksum using the ICMP algorithm used commonly in ICMP and IPv4. It is defined and documented in RFC 1071 and RFC 2460 and can be found in the Custom Peach implementation.
+
+=== Parent Elements
+
+xref:Number[Number]
+xref:String[String]
+
+=== Parameters
+
+xref:ref[ref]:: The input data element used in the checksum calculation.
+
+=== Examples
+
+.Basic Usage Example
+=====================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <Block name="Content">
+      <Number name="Type" size="8"/>
+      <Number name="Code" size="8"/>
+      <Number name="Checksum" endian="big" size="16">
+        <Fixup class="IcmpChecksumFixup">
+          <Param name="ref" value="Content" />
+        </Fixup>
+      </Number>
+      <Blob name="Payload" value="hello" />
+    </Block>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+     <Publisher class="RawV4">
+      <Param name="Host" value="127.0.0.1"/>
+      <Param name="Interface" value="127.0.0.1"/>
+      <Param name="Protocol" value="1"/>
+     </Publisher>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 37625.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.RawV4Publisher start()
+Peach.Core.Publishers.RawV4Publisher open()
+Peach.Core.Publishers.RawV4Publisher output(9 bytes)
+Peach.Core.Publishers.RawV4Publisher
+
+00000000   00 00 BC 2D 68 65 6C 6C  6F                        ··¼-hello
+
+Peach.Core.Publishers.RawV4Publisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.RawV4Publisher stop()
+
+[*] Test 'Default' finished.
+----
+=====================

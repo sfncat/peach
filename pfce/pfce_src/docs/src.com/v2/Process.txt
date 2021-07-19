@@ -1,0 +1,24 @@
+:toc!:
+= process.Process =
+
+This monitor controls and monitors a process.
+
+[source,xml]
+----
+<Monitor class="process.Process">
+  <Param name="Command" value="notepad.exe" />
+  <Param name="RestartOnEachTest" value="false" />
+  <Param name="FaultOnEarlyExit" value="false" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * Command -- Command line to run [required]
+ * RestartOnEachTest -- Restart process on each test [option, defaults to false]
+ * FaultOnEarlyExit -- Raise a fault if process shutdown unexpectedly [optional, defaults to true]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

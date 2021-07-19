@@ -1,0 +1,20 @@
+:toc!:
+== SaveFile Monitor
+
+The _SaveFile_ monitor will save a specified file as part of the logged data when a fault occurs.
+
+=== Parameters
+
+ * _Filename_ -- File to save to log data
+ 
+=== Examples
+
+.Save a file when fault occurs
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="SaveFile">
+		<Param name="Filename" value="c:\temp\output.log" />
+	</Monitor>
+</Agent>
+----

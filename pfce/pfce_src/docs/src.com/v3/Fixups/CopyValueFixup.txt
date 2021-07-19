@@ -1,0 +1,23 @@
+:toc!:
+== CopyValueFixup
+
+The _CopyValueFixup_ will copy another elements value into ours.
+
+=== Parameters
+
+ * _link:../ref.html[ref]_ -- Reference to another element
+ 
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <Number name="ValueToCopy" value="42" />
+
+  <Number size="16">
+    <Fixup class="CopyValueFixup">
+	  <Param name="ref" value="ValueToCopy" />
+	</Fixup>
+  </Number>
+</Block>
+----

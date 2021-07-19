@@ -1,0 +1,99 @@
+<<<
+[[Fixups_UDPChecksumFixup]]
+== UDPChecksum
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher, test example
+// List Parent element types
+// Number, Blob
+
+// Updated:
+// - 02/18/2014: Mick
+// Added full examples
+
+// Updated:
+// - 03/26/2014 Lynn
+//Corrected the fixup name 
+
+The _UDPChecksum_ fixup produces an checksum as defined in RFC 1071. This checksum is primarily used when fuzzing the UDPv4 and UDPv6 Protocols.
+
+A discussion on how to apply UDPChecksum can be found in RFC 793 for IPv4 and RFC 2460 for IPv6.
+
+
+=== Parent Elements
+
+xref:Number[Number]
+xref:String[String]
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the input data element used in the checksum calculation.
+src:: Source IP Address. IP address of the local machine.
+dst:: Destination IP Address. IP address of the remote machine.
+
+=== Examples
+
+.UDP Packet Example
+===================
+This example models a UDP packet which includes use of the UDPChecksum.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="Packet">
+		<Number name="SrcPort"  size="16" endian="big" value="1234"/>
+		<Number name="DestPort" size="16" endian="big" value="1235"/>
+		<Number name="Length"   size="16" endian="big">
+			<Relation type="size" of="Packet"/>
+		</Number>
+		<Number name="checksum" size="16">
+			<Fixup class="UDPChecksum">
+				<Param name="ref" value="Packet" />
+				<Param name="src" value="192.168.1.10" />
+				<Param name="dst" value="192.168.1.11" />
+			</Fixup>
+		</Number>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="Packet" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" />	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 60502.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   04 D2 04 D3 00 08 D3 72                            ???????r
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+===================

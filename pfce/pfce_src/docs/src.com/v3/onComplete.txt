@@ -1,0 +1,26 @@
+:toc!:
+== onComplete Attribute ==
+
+The onComplete attribute is an expression that is evaluated after preforming an action. This expression can be used to increment a counter or preform other functions defined in seperate files included with the link:Import.html[Import] tag.
+
+
+=== Examples ===
+
+
+[source,xml]
+----
+    <PythonPath path="./"/>
+    <Import import="xyz"/>
+    ...
+
+
+    <StateModel name="TheState" initialState="InitialReset">    
+    
+	<State name="InitialReset">
+		<Action type="changeState" ref="NextState" onComplete="xyz.reset_counter(self)"/>
+	</State>
+        ...
+
+     </StateModel>
+----
+

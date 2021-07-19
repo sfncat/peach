@@ -1,0 +1,50 @@
+<<<
+[[Monitors_WindowsKernelDebugger]]
+== WindowsKernelDebugger Monitor (Windows)
+
+*Monitor Categories*: *Data collection*, *Fault detection*
+
+The _WindowsKernelDebugger_ monitor controls debugging of a remote windows kernel
+debugging instance. At least two machines are involved:
+
+* The target machine that receives fuzzing data.
+* The host machine that controls the debugging session. Peach resides on this machine
+
+The _WindowsKernelDebugger_ performs fault detection, and data collection.
+
+* Fault detection watches and reports crashes and faults--when the target exits prematurely,
+and when the target fails to exit.
+* Data collection retrieves stack traces, logs, and other information provided by the debugger.
+Note that this monitor provides bucket information--major and minor hash values--as part of
+data collected on faults. For more information on bucketing provided by this monitor, see http://msecdbg.codeplex.com/[!exploitable].
+
+The workflow for this configuration follows:
+
+1. On the host machine, start Peach with the WindowsKernelDebugger Monitor. +
+   This action starts the fuzzing and loads a copy of Windbg in kernel mode. The
+   host machine enters a waiting state because the target machine will initiate and
+   secure the connection for the debugging session.
+2. On the target machine, open Windbg, and choose "Connect to Remote Session" from the File menu.
+   * For the "Connection String", specify the "transport:port" and the server for the debugging session, as in this example: `net:port=5000,key=1.2.3.4`. +
+   * Click OK.
+
+The debug session starts on the target machine. The target machine initiates contact
+with the host to establish the connection. Once the connection is secure, the host
+machine (with Peach) drives the activities.
+
+IMPORTANT: Instrumenting this configuration requires additional monitors external to the target. The monitors need to be able to restart the target after a crash, and to have the host resume fuzzing.
+
+
+=== Parameters
+
+KernelConnectionString:: Connection string for attaching the debugger to a kernel-mode process
+(e.g. a driver). The connection string `net:port=5000,key=1.2.3.4` indicates this is the debug server and uses the tcp transport on port 5000. The Windows debugger offers a choice of transports; and, the port is arbitrary. For more information on using other values, see MSDN articles on live kernel mode, debugging, remote debugging, and kernel connection strings.
+
+_Optional:_
+
+SymbolsPath:: Path to the debugging symbol files. The default value is Microsoft public
+symbols server `SRV*http://msdl.microsoft.com/download/symbols`.
+
+WinDbgPath:: Path to the windbg installation. If undeclared, Peach attempts to locate a local installation of the debugger.
+
+ConnectTimeout:: Duration, in milliseconds, to wait to receive a kernel connection. The default value is 3000 ms.

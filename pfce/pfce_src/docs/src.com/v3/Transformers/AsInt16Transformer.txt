@@ -1,0 +1,16 @@
+:toc!:
+== AsInt16Transformer
+
+The _AsInt16Transformer_ will transform the size of a number to an integer of 16 bits.   
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<Number name="TransformMe" size="32" value="41 42 43 44" valueType="hex">
+		<Transformer class="AsInt16"/>
+	</Number>
+</DataModel>
+----
+

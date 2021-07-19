@@ -1,0 +1,18 @@
+<<<
+[[Mutators_BlobExpandSingleIncrementing]]
+== BlobExpandSingleIncrementing
+
+This mutator produces test cases in which a random number of contiguous bytes are inserted in a xref:Blob[Blob]. The location where the insertion starts is randomly-determined as is the number of inserted bytes. The number of inserted bytes range from 1 to 255.
+
+The value of the first inserted byte is randomly selected and ranges from 0x00 to 0xff. The value of the second inserted byte increments by 1. The value of the third byte increments again. When the value 0xff occurs, value of the subsequent byte rolls over to 0x00. Thereafter the values continue to increment until all of the inserted bytes have values.
+
+=== Supported Elements
+
+ * xref:Blob[Blob]
+
+=== Hints
+
+BlobExpandAllRandom-N:: Standard deviation of the number of bytes to change.
+BlobMutator-N:: Standard deviation of number of the bytes to change. The value of this Hint affects other Blob mutators.
+
+// end

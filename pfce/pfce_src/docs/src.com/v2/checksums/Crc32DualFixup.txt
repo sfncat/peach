@@ -1,0 +1,29 @@
+:toc!:
+= checksums.Crc32DualFixup =
+
+This fixup will create a CRC32 for two referenced data elements.  The first data element (ref1) will be CRC'd and then used to seed the CRC of the 2nd data element (ref2).  You can read more about link:Fixups.html[fixups here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Number name="CRC" size="32" signed="false" endian="little">
+     <Fixup class="checksums.Crc32DualFixup">
+        <Param name="ref1" value="Data1"/>
+        <Param name="ref2" value="Data2"/>
+     </Fixup>
+  </Number>
+  <Blob name="Data1"/>
+  <String name="Data2"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- Must be +checksums.Crc32DualFixup+
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param] - name = 'ref1'; value = '<name of referenced link:DataModel.html[DataModel] or link:Block.html[Block]>'.
+ * link:Param.html[Param] - name = 'ref2'; value = '<name of referenced link:DataModel.html[DataModel] or link:Block.html[Block]>'.

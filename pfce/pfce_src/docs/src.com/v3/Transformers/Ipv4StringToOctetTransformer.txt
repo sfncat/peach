@@ -1,0 +1,14 @@
+:toc!:
+== Ipv4StringToOctetTransformer
+
+The _Ipv4StringToOctetTransformer_ will produce the octet bytes from the string represntation of an Internet Protocol version 4 address.  
+
+=== Examples
+
+[source,xml]
+----
+<String name="TransformMe" >
+	<Transformer class="Ipv4StringToOctet" />
+</String>
+----
+

@@ -1,0 +1,24 @@
+:toc!:
+== Flag ==
+
+The Flag element defines a specific bit field in a Flags container.
+
+[source,xml]
+----
+
+<Flags name="options" size="16">
+  <Flag name="compression" position="0" size="1" />
+  <Flag name="compressionType" position="1" size="3" />
+  <Flag name="opcode" position="10" size="2" value="5" />
+</Flags>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the element [optional]
+ * link:size.html[size] -- Size in bits [required]
+ * link:position.html[position] -- Position (zero based) flag starts [required]
+ * link:value.html[value] -- The default value contained within the Blob
+ * link:valueType.html[valueType] -- The format in which the default value is expressed. (i.e hex, string, or literal)
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]

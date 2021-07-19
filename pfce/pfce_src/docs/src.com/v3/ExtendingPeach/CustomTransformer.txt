@@ -1,0 +1,58 @@
+:toc!:
+== Create a Custom Transformer ==
+
+Here is a simple Transformer that will URL encode/decode the data passed to it.  If you need to perform some initialization via +__init__+ see the next example.
+
+The code you write should live in a _.py_ file in the same folder as your _.xml_ file.  This will make it all much easier to package up.  See the link:PythonPath.html[PythonPath] and link:Import.html[Import] elements for how to include your new code into your Peach XML file.
+
+*NOTE:* Never add the code into the Peach source folders!  You're welcome to submit them as patches, but otherwise keep them in another folder.  This will make it easier to move to another machine, and upgrade Peach in the future.
+
+[source,python]
+----
+import urllib
+from Peach.transformer import Transformer
+
+class UrlEncode(Transformer):
+	'''
+	URL encode w/o pluses.
+	'''
+	
+	def realEncode(self, data):
+		return urllib.quote(data)
+	
+	def realDecode(self, data):
+		return urllib.unquote(data)
+----
+
+
+Example that uses +__init__+ for initialization.  Notice that we *must* call our base classes init.
+
+[source,python]
+----
+import urllib
+from Peach.transformer import Transformer
+
+class UrlEncode(Transformer):
+	'''
+	URL encode w/o pluses.
+	'''
+	
+	def __init__(self, anotherTransformer = None):
+		'''
+		Create Transformer object.
+		
+		@type	anotherTransformer: Transformer
+		@param	anotherTransformer: A transformer to run next
+
+		'''
+		Transformer.__init__(self, anotherTransformer)
+		
+		# Place initialization stuff here :)
+
+	def realEncode(self, data):
+		return urllib.quote(data)
+	
+	def realDecode(self, data):
+		return urllib.unquote(data)
+----
+

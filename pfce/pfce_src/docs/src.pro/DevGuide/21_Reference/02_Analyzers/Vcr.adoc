@@ -1,0 +1,49 @@
+[[Analyzers_Vcr]]
+
+== Vcr Analyzer
+
+This analyzer converts Vcr cassettes into Peach Pits for fuzzing HTTP requests. 
+
+A cassette is a set of recorded interactions serialized to a specific format. A cassette has a list (or array) or interactions and information about the library that recorded it. 
+
+After converting, some manual work is usually needed to have a fully working pit.  This includes:
+
+ * Adding default values to models
+ * Hooking up any authentication/authorization
+ * Adding slurps for resource identifiers
+ * Adding cleanup states to remove created resources
+ * Testing to verify it all works
+ 
+NOTE: This analyzer is intended to always be run from the command line.
+
+=== Syntax
+
+----
+pittool analyzer Vcr cassette.json http_pit.xml
+----
+
+=== Command Line Syntax
+
+----
+pittool analyzer Vcr <input file> <output file>
+----
+
+input file::
+    Vcr cassette JSON
+
+output file::
+    Generated PIT file
+
+=== Attributes
+
+_Required:_
+
+There are no required attributes.
+
+_Optional:_
+
+There are no optional attributes.
+
+=== Examples
+
+No examples.

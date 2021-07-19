@@ -1,0 +1,26 @@
+:toc!:
+== LinuxCrash Monitor
+
+The _LinuxCrash_ monitor uses a script that is registered with the kernel to catch faulting processes.
+
+=== Parameters
+
+ * _Executable_ -- Target executable, used to filter crashes (optional, default to all)
+ * _LogFolder_ -- Folder with log files (optional, defaults to "/var/peachcrash")
+ * _Mono_ -- Full path an executable for mono runtime (optional, defaults to "/usr/bin/mono")
+
+=== Examples
+
+.Example
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="LinuxCrashMonitor"/>
+	
+	<Monitor class="Process">
+		<Param name="Executable" value="./CrashingProgram" />
+		<Param name="StartOnCall" value="Start" />
+		<Param name="Arguments" value="fuzzed.bin" />
+	</Monitor>
+</Agent>
+----

@@ -1,0 +1,8 @@
+:toc!:
+== DataElementRemoveMutator ==
+
+This mutator will remove nodes from the data model.
+
+_Target Elements_
+
+ * link:DataModel.html[DataModel]

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<Number size='32' signed="false" value="31337" />
+	</DataModel>
+
+	<DataModel name="X">
+		<Number size='32' signed="false" value="100" />
+	</DataModel>
+
+	<DataModel name="Y">
+		<Number size='32' signed="false" value="0" />
+	</DataModel>
+
+	<StateModel name="State" initialState="Initial" >
+		<State name="Initial"  >
+			<Action type="call" method="tap">
+				<Param>
+					<DataModel ref="X"/>
+				</Param>
+				<Param>
+					<DataModel ref="Y"/>
+				</Param>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Agent name="TheAgent">
+		<Monitor name="Emu" class="AndroidEmulator">
+			<Param name="Avd" value="Nexus4" />
+			<Param name="EmulatorPath" value="C:\adt-bundle-windows-x86_64-20130717\sdk\tools"/>
+		</Monitor>
+
+		<Monitor name="App" class="Android">
+			<Param name="ApplicationName" value="com.android.development" />
+			<Param name="ActivityName" value=".BadBehaviorActivity" />
+			<Param name="AdbPath" value="C:\adt-bundle-windows-x86_64-20130717\sdk\platform-tools"/>
+			<Param name="DeviceMonitor" value="Emu" />
+		</Monitor>
+	</Agent>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+		<Agent ref="TheAgent" />
+
+		<Publisher class="AndroidMonkey">
+			<Param name="DeviceMonitor" value="App"/>
+		</Publisher>
+	</Test>
+</Peach>

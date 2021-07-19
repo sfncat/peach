@@ -1,0 +1,598 @@
+[[Analyzers_Zip]]
+== Zip Analyzer
+
+The Zip Analyzer consumes a zip compressed archive and converts it into a sequence of xref:Stream[Stream] elements.
+
+The analyzer creates a xref:Stream[Stream] element for each file in the zip archive.
+The name of the stream element corresponds to the name of the file in the zip archive.
+The content of a stream element corresponds to the content of the file in the zip archive.
+
+The Zip Analyzer allows the content of each file in the zip archive to map to a xref:DataModel[DataModel].
+Using a file and the corresponding data model, Peach can further decompose the contents of a file in a zip archive instead of just treating the contents as a xref:Blob[Blob].
+The +Map+ parameter of this element defines the mappings for the streams in the zip files and the associated  data models.
+
+You can attach this analyzer to a blob.
+
+=== Syntax
+
+[source,xml]
+----
+<Blob>
+	<Analyzer class="Zip" />
+</Blob>
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+None.
+
+=== Parameters
+
+Map:: Controls mapping of stream names to the corresponding data models.
+This parameter consists of a comma-separated list of mappings. Each mapping consists of a tuple containing a regular expression and a corresponding DataModel name. The parts of a tuple are delineated with a forward slash character, similar to the substitution regular expression pattern.
+
+When the regular expression matches the file name in the zip archive, Peach uses the corresponding DataModel on the file contents.
+
+For example, to use the data model +TextModel+ for all files ending in +.txt+, set the value of the parameter to +/.txt$/TextModel/+.
+
+
+==== Examples
+
+.Analyzing a .docx file
+==========================
+This example uses the zip analyzer to decompose a .docx file into its underlying streams.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="WordDoc">
+		<Blob name="Data">
+			<Analyzer class="Zip"/>
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="WordDoc"/>
+				<Data fileName="example.docx"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="Zip">
+			<Param name="FileName" value="fuzzed.docx" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from the example that decomposes a .docx file into its underlying streams.
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 22910.
+
+
+[*] Test 'Default' starting with random seed 48751.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'WordDoc' Bytes: 0/11272, Bits: 0/90176
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'WordDoc'
+Peach.Core.Cracker.DataCracker scan: DataModel 'WordDoc'
+Peach.Core.Cracker.DataCracker scan: Blob 'WordDoc.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'WordDoc' Size: <null>, Bytes: 0/11272, Bits: 0/90176
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'WordDoc.Data' Bytes: 0/11272, Bits: 0/90176
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'WordDoc.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'WordDoc.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'WordDoc.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 90176
+Peach.Core.Cracker.DataCracker Crack: Blob 'WordDoc.Data' Size: 90176, Bytes: 0/11272, Bits: 0/90176
+Peach.Core.Dom.DataElement Blob 'WordDoc.Data' value is: 50 4b 03 04 14 00 06 00 08 00 00 00 21 00 df a4 d2 6c 5a 01 00 00 20 05 00 00 13 00 08 02 5b 43.. (Len: 11272 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: [Content_Types].xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/1312, Bits: 0/10496
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/1312, Bits: 0/10496
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/1312, Bits: 0/10496
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 10496
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 10496, Bytes: 0/1312, Bits: 0/10496
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 1312 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: [Content_Types].xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: _rels/.rels
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/590, Bits: 0/4720
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/590, Bits: 0/4720
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/590, Bits: 0/4720
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 4720
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 4720, Bytes: 0/590, Bits: 0/4720
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 590 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: _rels/.rels
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/_rels/document.xml.rels
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/817, Bits: 0/6536
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/817, Bits: 0/6536
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/817, Bits: 0/6536
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 6536
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 6536, Bytes: 0/817, Bits: 0/6536
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 817 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/_rels/document.xml.rels
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/document.xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/1620, Bits: 0/12960
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/1620, Bits: 0/12960
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/1620, Bits: 0/12960
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 12960
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 12960, Bytes: 0/1620, Bits: 0/12960
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 1620 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/document.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/theme/theme1.xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/6795, Bits: 0/54360
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/6795, Bits: 0/54360
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/6795, Bits: 0/54360
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 54360
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 54360, Bytes: 0/6795, Bits: 0/54360
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 6795 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/theme/theme1.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/settings.xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/2477, Bits: 0/19816
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/2477, Bits: 0/19816
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/2477, Bits: 0/19816
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 19816
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 19816, Bytes: 0/2477, Bits: 0/19816
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 2477 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/settings.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/fontTable.xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/1261, Bits: 0/10088
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/1261, Bits: 0/10088
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/1261, Bits: 0/10088
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 10088
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 10088, Bytes: 0/1261, Bits: 0/10088
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 1261 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/fontTable.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/webSettings.xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/497, Bits: 0/3976
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/497, Bits: 0/3976
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/497, Bits: 0/3976
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 3976
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 3976, Bytes: 0/497, Bits: 0/3976
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 497 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/webSettings.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: docProps/app.xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/711, Bits: 0/5688
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/711, Bits: 0/5688
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/711, Bits: 0/5688
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 5688
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 5688, Bytes: 0/711, Bits: 0/5688
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 711 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: docProps/app.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: docProps/core.xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/747, Bits: 0/5976
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/747, Bits: 0/5976
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/747, Bits: 0/5976
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 5976
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 5976, Bytes: 0/747, Bits: 0/5976
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 747 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: docProps/core.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/styles.xml
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/28676, Bits: 0/229408
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/28676, Bits: 0/229408
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/28676, Bits: 0/229408
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 229408
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 229408, Bytes: 0/28676, Bits: 0/229408
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 28676 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/styles.xml
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Enterprise.Publishers.ZipPublisher start()
+Peach.Enterprise.Publishers.ZipPublisher open()
+Peach.Enterprise.Publishers.ZipPublisher Added 11 entries to zip file.
+Peach.Enterprise.Publishers.ZipPublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Enterprise.Publishers.ZipPublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+View of example in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Zip_Simple.png[]
+
+==========================
+
+.Analyzing a .docx file with mappings
+==========================
+This example uses the zip analyzer to decompose a .docx file into its underlying streams.
+This example also maps all '.xml' files to the data model 'XmlModel' that further decomposes the data using the xref:Analyzers_Xml[Xml] analyzer.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="XmlModel">
+		<String type="utf8" name="Xml">
+			<Analyzer class="Xml"/>
+		</String>
+	</DataModel>
+
+	<DataModel name="WordDoc">
+		<Blob name="Data">
+			<Analyzer class="Zip">
+				<Param name="Map" value="/.xml$/XmlModel/"/>
+			</Analyzer>
+		</Blob>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="WordDoc"/>
+				<Data fileName="example.docx"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="Zip">
+			<Param name="FileName" value="fuzzed.docx" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from the example that decomposes a .docx file into its underlying streams and maps all '.xml' files to the data model 'XmlModel'.
+----
+
+[*] Test 'Default' starting with random seed 6071.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'WordDoc' Bytes: 0/11272, Bits: 0/90176
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'WordDoc'
+Peach.Core.Cracker.DataCracker scan: DataModel 'WordDoc'
+Peach.Core.Cracker.DataCracker scan: Blob 'WordDoc.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'WordDoc' Size: <null>, Bytes: 0/11272, Bits: 0/90176
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'WordDoc.Data' Bytes: 0/11272, Bits: 0/90176
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'WordDoc.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'WordDoc.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'WordDoc.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 90176
+Peach.Core.Cracker.DataCracker Crack: Blob 'WordDoc.Data' Size: 90176, Bytes: 0/11272, Bits: 0/90176
+Peach.Core.Dom.DataElement Blob 'WordDoc.Data' value is: 50 4b 03 04 14 00 06 00 08 00 00 00 21 00 df a4 d2 6c 5a 01 00 00 20 05 00 00 13 00 08 02 5b 43.. (Len: 11272 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: [Content_Types].xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry '[Content_Types].xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/1312, Bits: 0/10496
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/1312, Bits: 0/10496
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/1312, Bits: 0/10496
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 10496
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 10496, Bytes: 0/1312, Bits: 0/10496
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types .. (Len: 1312 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: [Content_Types].xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: _rels/.rels
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/590, Bits: 0/4720
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/590, Bits: 0/4720
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/590, Bits: 0/4720
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 4720
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 4720, Bytes: 0/590, Bits: 0/4720
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 590 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: _rels/.rels
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/_rels/document.xml.rels
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'Content' Bytes: 0/817, Bits: 0/6536
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Block 'Content'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'Content' Size: <null>, Bytes: 0/817, Bits: 0/6536
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'Content.Data' Bytes: 0/817, Bits: 0/6536
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'Content.Data' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'Content.Data'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 6536
+Peach.Core.Cracker.DataCracker Crack: Blob 'Content.Data' Size: 6536, Bytes: 0/817, Bits: 0/6536
+Peach.Core.Dom.DataElement Blob 'Content.Data' value is: 3c 3f 78 6d 6c 20 76 65 72 73 69 6f 6e 3d 22 31 2e 30 22 20 65 6e 63 6f 64 69 6e 67 3d 22 55 54.. (Len: 817 bytes)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/_rels/document.xml.rels
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/document.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry 'word/document.xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/1620, Bits: 0/12960
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/1620, Bits: 0/12960
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/1620, Bits: 0/12960
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 12960
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 12960, Bytes: 0/1620, Bits: 0/12960
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:docu.. (Len: 1620 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/document.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/theme/theme1.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry 'word/theme/theme1.xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/6795, Bits: 0/54360
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/6795, Bits: 0/54360
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/6795, Bits: 0/54360
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 54360
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 54360, Bytes: 0/6795, Bits: 0/54360
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<a:them.. (Len: 6735 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/theme/theme1.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/settings.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry 'word/settings.xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/2477, Bits: 0/19816
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/2477, Bits: 0/19816
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/2477, Bits: 0/19816
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 19816
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 19816, Bytes: 0/2477, Bits: 0/19816
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:sett.. (Len: 2477 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/settings.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/fontTable.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry 'word/fontTable.xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/1261, Bits: 0/10088
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/1261, Bits: 0/10088
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/1261, Bits: 0/10088
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 10088
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 10088, Bytes: 0/1261, Bits: 0/10088
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:font.. (Len: 1261 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/fontTable.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/webSettings.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry 'word/webSettings.xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/497, Bits: 0/3976
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/497, Bits: 0/3976
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/497, Bits: 0/3976
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 3976
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 3976, Bytes: 0/497, Bits: 0/3976
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:webS.. (Len: 497 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/webSettings.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: docProps/app.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry 'docProps/app.xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/711, Bits: 0/5688
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/711, Bits: 0/5688
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/711, Bits: 0/5688
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 5688
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 5688, Bytes: 0/711, Bits: 0/5688
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Proper.. (Len: 711 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: docProps/app.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: docProps/core.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry 'docProps/core.xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/747, Bits: 0/5976
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/747, Bits: 0/5976
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/747, Bits: 0/5976
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 5976
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 5976, Bytes: 0/747, Bits: 0/5976
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:cor.. (Len: 747 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: docProps/core.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Attempting to parse: word/styles.xml
+Peach.Enterprise.Analyzers.ZipAnalyzer Resolved entry 'word/styles.xml' to data model 'XmlModel'.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Content' Bytes: 0/28676, Bits: 0/229408
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Content'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Content' Size: <null>, Bytes: 0/28676, Bits: 0/229408
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Content.Xml' Bytes: 0/28676, Bits: 0/229408
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Content.Xml'
+Peach.Core.Cracker.DataCracker scan: String 'Content.Xml' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'Content.Xml'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 229408
+Peach.Core.Cracker.DataCracker Crack: String 'Content.Xml' Size: 229408, Bytes: 0/28676, Bits: 0/229408
+Peach.Core.Dom.DataElement String 'Content.Xml' value is: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styl.. (Len: 28676 chars)
+Peach.Enterprise.Analyzers.ZipAnalyzer Successfully parsed: word/styles.xml
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Enterprise.Publishers.ZipPublisher start()
+Peach.Enterprise.Publishers.ZipPublisher open()
+Peach.Enterprise.Publishers.ZipPublisher Added 11 entries to zip file.
+Peach.Enterprise.Publishers.ZipPublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Enterprise.Publishers.ZipPublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+View of example in Peach Validator
+
+image::{images}/DevGuide/Analyzers/Zip_Map.png[]
+
+==========================

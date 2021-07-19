@@ -1,0 +1,6 @@
+:toc!:
+== Validating Pit Files ==
+
+Once you have written and debugged your fuzzer, the next step is to verify that the fuzzer is generating data correctly.  The method taken is different based on the type of fuzzer you are writing, for example a file fuzzer vs. a network fuzzer, but regardless of the type of fuzzer you will want to verify the data being generated is accepted by the target.  Unless overriden by your fuzzer configuration the first mutator to run will not make any changes to the data generated.  This gives you the opportunity to verify that the data looks correct and matches known good samples.
+
+This is a critical step in the creation of your fuzzer.  If the fuzzer cannot produce "good" data then the fuzzer's mutations will not be effective.

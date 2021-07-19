@@ -1,0 +1,36 @@
+:toc!:
+== Include ==
+
+The `Include` element when placed within the `Test` element specifies which elements are to be included in mutation. This is may be used, for example, to fuzz encapsulated data without fuzzing the container. 
+
+[source,xml]
+----
+<DataModel name="Container">
+  <String name="Magic" value="[!container begin]" />
+  <Block name="ToFuzz" ref="ContainedDataModel">
+  <String name="Terminator" value="[!container end]" />
+</DataModel>
+
+<Test name="Default">
+
+  <!-- Optionally exclude all but a target elements from mutation -->
+  <Exclude/>
+  <Include xpath="//Container/ToFuzz" />
+
+  <!-- ... -->
+
+</Test>
+----
+
+The `ref` attribute transparently builds an xpath by appending `//` to the value supplied to the `ref`. The following two `Includes` are functionally analogus. 
+
+[source,xml]
+----
+  <Include xpath="//Container/ToFuzz" />
+  <Include ref="Container.ToFuzz" />
+----
+
+=== Attributes
+
+ * link:../ref.html[ref] -- Reference to a node to be included in testing
+ * link:../xpath.html[xpath] -- XPath to a node to be included in testing

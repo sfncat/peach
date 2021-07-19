@@ -1,0 +1,107 @@
+[[ReproducingFaults]]
+== Reproducing Faults
+
+A fault that occurs in a fuzzing session needs to be reproducible so that it can be investigated, understood, and mitigated.
+Peach has the following features that aid in reproducing faults that occur during fuzzing:
+
+* Automatic fault reproduction
+* Replay the fuzzing session
+
+When a fault is detected at the end of a test case, Peach automatically enters reproduction mode.
+How Peach implements fault reproduction depends on the type of target being fuzzed.
+
+.Fault Reproduction Flow Chart
+image::{images}/Common/FaultFlowchart.svg[align="center",scalewidth="100%"]
+
+=== Iteration Based Targets
+
+Iteration based test targets are targets that restart with every test case.
+File fuzzing targets are typically iteration based targets.
+For example, an image viewer that is started during every test case would be considered an iteration target.
+When reproducing a fault found on an iteration target, Peach will only try the initial faulting test case.
+Peach will not try and reproduce the fault using previous test cases.
+
+NOTE: There are rare cases in which an iteration based target retains enough state through a data store that a prior test case may impact the crash.  As faults are triaged if you find a significant number of faults that fall into this category it may make sense to reconfigure the Pit to be session based.  Currently this is only possible if you have developer access to the pit in question.
+
+=== Session Based Targets
+
+Session based test targets are targets that do not restart with every test case.
+Server or service targets are typically session based targets.
+For example, an FTP server that is started at the beginning of a fuzzing session would be considered a session target.
+With session targets, it is possible that a detected fault is the byproduct of previously executed test cases.
+Therefore, when reproducing a fault found on a session target, Peach will replay sequences of previous test cases.
+Peach will then locate the exact test case or range of test cases required to reproduce the fault.
+If a fault is reproduced on a non-fuzz (control) test case that runs after one or more fuzz test cases,
+Peach will record the range of test cases executed and consider the fault to be reproducable.
+
+==== Searching For Reproduction
+
+When Peach detects a fault, it always attempts to reproduce the fault.
+This reproduction involves searching through previously executed test cases.
+The following steps describe the major elements of the search:
+
+. Replay the most recent test. This typically is where the fault surfaces. +
+If the fault reproduces, the system logs the information and the search finishes. +
+If the test target restarts with each fuzzing iteration, the search finishes because the test started in a known, clean state.
+Otherwise, continue with step 2.
+. Replay the last 10 iterations, running them in the same sequence as in the fuzzing session. +
+If the fault reproduces, the system logs the information and the search finishes. Otherwise, continue with step 3.
+. Double the number of iterations, and run them in the same sequence as in the fuzzing session. +
+If the fault reproduces, the system logs the information and the search finishes. If not, continue the search, each time doubling the number of iterations to run. The criteria for stopping follows: +
+* Reproduce the fault.
+* Encounter a critical point in the data; the effort to recreate the fault encountered another fault that peach found and logged during the test session.
+* Encounter a user-specified limit for the search.
+
+Using a search limit of 200, the following sets of iterations would run until the limit is reached:
+
+* 1 iteration +
+* 10 iterations +
+* 20 iterations +
+* 40 iterations +
+* 80 iterations +
+* 160 iterations +
+* 200 iterations (greater than 160 iterations and less than 320 iterations, which is the next cutoff point)
+
+All told, a maximum of 511 iterations would run (1 + 10 + 20 + ... + 200) without human intervention; and some of the iterations would be repeated on subsequent passes.
+
+Some additional considerations about automated fault reproduction include the following:
+
+* Control iterations are treated as in a normal fuzzing session. That is, the results of a control iteration serves as a standard of comparison for the results of record iterations. Also, the frequency of performing a control iteration is determined by the _controlIteration_ attribute of the _Test_ element.
+* Record iterations are still compared to control iterations. If the results of a record iteration matches the results of a control iteration, all is well and good, and processing advances to the next iterations. If the results of a record iteration do not match the results of a control iteration, the results are logged and the search to reproduce the fault ends.
+
+=== How to Control the Automated Fault Reproduction
+
+If you use a licensed Peach Pit, the appropriate automated settings are already included in the fuzzing definition.
+
+ifndef::peachug[]
+
+If you need to change the setting or if you are defining your own pit, the _Test_ element in the pit has two attributes that apply to Automated Fault Reproduction: _targetLifetime_ and _maxBackSearch_.
+
+* _targetLifetime_ is an enumeration that indicates when the test target restarts. +
+*session* means that the target restarts at the start of a session; and, when a fault occurs, Peach performs the search to recreate the fault, going back several iterations as needed. +
+*iteration* means that the target restarts each iteration and that the search consists of re-running the current iteration.
+* _maxBackSearch_ indicates the maximum number of iterations to include in the search to reproduce the fault. The default value is 80. In the previous example, the search reaches into the fuzzing session a maximum of 200 iterations that precede the fault in question.
+
+TIP: If the test target restarts every iteration (as in file fuzzing), set _targetLifetime_ to "iteration".
+
+endif::peachug[]
+
+=== Replay the Fuzzing Session
+
+Any test case generated by Peach can be replayed.
+This allows an engineer to more easily perform root cause analysis of the fault discovered in the device under test.
+In order for Peach to replay a test case, you need:
+
+* The exact version of Peach
+* The pit used in the fuzzing session (the DataModel and the StateModel must be identical to those used in the fuzzing session)
+* The seed value used in the fuzzing job
+* The test case that caused the fault
+
+With this information, you can re-run the appropriate part of the fuzzing session.
+For an example, see the xref:Replay_Existing_Test_Sequence[example] listed in the xref:Program_Peach[The Peach Command Line Interface].
+
+If the command line does not specify an iteration range or a starting iteration, the entire fuzzing session runs.
+
+
+// end
+

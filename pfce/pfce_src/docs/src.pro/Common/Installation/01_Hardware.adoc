@@ -1,0 +1,33 @@
+[[Installation_Hardware]]
+=== Hardware Requirements
+
+The following are generic hardware recommendations. Adjust based on your needs.
+
+==== Local Target
+
+When fuzzing a local target (software running on the same machine as Peach),
+additional resources are required for the target process.
+
+[options="header"]
+|========
+| Target Type | Architecture | Cores | Ram  | Disk
+| Network     | 64-bit       | 4     | 8GB  | 60GB SSD
+| File        | 64-bit       | 4     | 16GB | 60GB SSD
+| Other       | 64-bit       | 4     | 8GB  | 60GB SSD
+|========
+
+==== Remote Target
+
+Remote target fuzzing occurs when the target is not located on the machine running Peach.
+
+[options="header"]
+|========
+|             | Architecture  | Cores | Ram  | Disk
+| Minimum     | 64-bit        | 2     | 4GB  | 60GB Any
+| Recommended | 64-bit        | 2     | 8GB  | 60GB SSD
+|========
+
+TIP: It's possible to run Peach on 32-bit systems, 
+but it's not recommended as it places severe limits on memory usage (max 2GB).
+
+// end

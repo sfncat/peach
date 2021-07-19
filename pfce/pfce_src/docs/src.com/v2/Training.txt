@@ -1,0 +1,62 @@
+:toc!:
+== Peach Training ==
+
+Peach has grown into a complex package and as such training is being offered at several security conferences.  This training is also offered direct to companies that would prefer having on site training, usually at a decent cost savings over sending people to train at a conference.
+
+All training is offered through my consulting company http://www.dejavusecurity.com[Deja vu Security].
+
+== Conference Training ==
+
+Peach training is offered at the following security conferences:
+
+|======
+| http://blackhat.com[Blackhat Vegas] | http://cansecwest.com/[CanSecWest]
+| | http://pacsec.jp/[PacSec]
+|======
+
+Prices vary by conference and country, please check the respective websites for pricing.
+
+== Onsite Training ==
+
+Peach training can also be delivered on site with an option of customized content.  For information about onsite training please contact Michael Eddington at mike@dejavusecurity.com.
+
+|======
+| Minimum class size | 5 students
+| Maximum class size | 20 students
+| Number of instructors | 1 for < 10, 2 > 10 students
+| Customized content? | Yes, for additional fee
+| What must the company provide? | Training room, machine for each student, projector, whiteboard
+|======
+
+== Training Overview ==
+
+The entirety of the course is student centric, hands on, and lab intensive. On day one, students will be instructed on the use of the Peach Fuzzing Platform, from a practitioner's perspective, learning the ways in which Peach can be used to fuzz a variety of targets including network protocol parsers, ActiveX/COM interfaces, file parsers, APIs, and web services. Students will build and run fuzzers that target real world applications.
+
+On the second day, students will be exposed to the internals of Peach for a developer's perspective. The Peach architecture and module interfaces will be explained in great detail as to equip students with the skills necessary to extend and adapt Peach to their custom needs. Students will then develop their own Peach extensions in a lab environment to reinforce these concepts.
+
+*Upon completion of this course, students will be enabled to create effective fuzzers that target:*
+
+ * State-aware network protocol parsers
+ * N-tier applications
+ * File parsers
+ * COM and Active/X components
+ * Apply these concepts and tools to their unique environment
+ * Utilize parallel fuzzing to increase fuzzing efficiency 
+
+*Prerequisite Knowledge*
+
+ * Ability to use Windows XP
+ * Ability to use WireShark
+ * Working knowledge of basic XML or HTML 
+
+*Laptop requirements*
+
+ * A laptop capable of running two Windows XP Virtual Machines
+ * Dual Core machine w/2GB of RAM recommended
+ * One of the following Virtualalization Platforms:
+ ** VMWare Server 2.0
+ ** VMWare Player 2.0 (FREE)
+ ** VMWare Workstation 6.x 
+ * One of the following devices:
+ ** USB 2.0 port
+ ** Dual Layer DVD Drive

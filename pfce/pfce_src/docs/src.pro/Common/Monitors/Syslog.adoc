@@ -1,0 +1,196 @@
+<<<
+[[Monitors_Syslog]]
+== Syslog Monitor
+
+*Monitor Categories*: *Automation*, *Data collection*, *Fault detection*
+
+The _Syslog_ monitor listens on a specified port for incoming syslog messages.
+This monitor is capable of performing automation, data collection, and fault detection.
+
+The default usage of the _Syslog_ monitor is data collection.
+The syslog messages received are logged when a fault occurs.
+
+To perform fault detection,
+specify a regular expression using the 'FaultRegex' parameter.
+When the regular expression matches an incoming syslog message,
+Peach generates a fault.
+
+For automation tasks, use the 'WaitForRegex' and 'WaitWhen' parameters.
+These automation parameters cause Peach to wait for matching input before continuing.
+The _Syslog_ monitor can wait at various points in time during a fuzzing session:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+=== Parameters
+
+_Required:_
+
+None.
+
+_Optional:_
+
+Port::
+Port number to listen on.
+The default value is `514`.
+
+Interface::
+IP address of the interface to listen on.
+The default value is `0.0.0.0`, which listens on all interfaces.
+
+FaultRegex::
+Generate a fault when the specified regular expression matches received data.
+This causes the _Syslog_ monitor to be used for fault detection.
+
+WaitRegex::
+Wait until the specified regular expression matches received data.
+This causes the _Syslog_ monitor to be used for automation.
+
+WaitOnCall::
+Begin waiting for the regular expression specified in the 'WaitRegex' parameter after the monitor receives the specified call from the state machine.
+This value is used only when the 'WaitWhen' parameter is set to `OnCall`.
+
+WaitWhen::
++
+Specify one of the following values to determine when to begin waiting for the regular expression specified in the 'WaitRegex' parameter to match received data:
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"WaitWhen" Setting              |Description
+|OnStart                     |
+Waits when the fuzzing session starts.
+This occurs once per session.
+This is the default setting.
+|OnEnd                       |
+Waits when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Waits at the start of each iteration.
+|OnIterationEnd              |
+Waits at the end of each iteration.
+|OnFault                     |
+Waits when any monitor detects a fault.
+|OnIterationStartAfterFault  |
+Waits at the start of the iteration that immediately follows a fault detection.
+|OnCall                      |
+Waits upon receipt of the call specified by the 'WaitOnCall' parameter from the state model.
+|==========================================================
++
+.WaitWhen Choices
+
+image::{images}/Common/Monitors/Timings_All.png[scalewidth="75%"]
+
+=== Examples
+
+ifdef::peachug[]
+
+.Data Collection example
+====================
+This parameter example is from a setup that uses the _Syslog_ monitor to listen on the default port for incoming messages.
+When a fault occurs,
+all messages are saved.
+Default values are used;
+no values are specified.
+====================
+
+.Fault Detection example
+====================
+This parameter example is from a setup that detects a fault from incoming syslog messages.
+In addition to normal data collection,
+this setup generates a fault when the text `ERROR` is received.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|FaultRegex  |`ERROR`
+|==========================================================
+====================
+
+.Combined Automation and Fault Detection example
+====================
+This example might be used when fuzzing a network device such as a router.
+One _Syslog_ monitor is configured to wait until the router has booted before starting the fuzzing session.
+Another _Syslog_ monitor is configured to detect faults and also to wait for the router to finish rebooting after a fault is detected.
+The xref:Monitors_IpPower9258[IpPower9258 Monitor] is configured to reboot the router after a fault is detected.
+
+*Syslog (Wait for boot) parameters*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Monitor     |`Syslog`
+|Name        |`Wait for boot`
+|WaitRegex   |`Boot up completed`
+|==========================================================
+
+*Syslog (Detect fault) parameters*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Monitor     |`Syslog`
+|Name        |`Detect fault`
+|FaultRegex  |`ERROR`
+|WaitRegex   |`Boot up completed`
+|WaitWhen    |`OnIterationAfterFault`
+|==========================================================
+
+*IpPower9258 (Reboot router) parameters*
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter   |Value
+|Monitor     |`IpPower9258`
+|Name        |`Reboot router`
+|Host        |`192.168.1.1:8080`
+|Port        |`1`
+|User        |`peach`
+|Password    |`PeachPower`
+|When        |`OnFault`
+|==========================================================
+====================
+
+endif::peachug[]
+
+ifndef::peachug[]
+
+.Data Collection example
+========================
+This example shows the _Syslog_ monitor listening on the default port for incoming messages.
+When a fault occurs,
+all messages are saved.
+
+[source,xml]
+----
+include::Syslog_Example_DataCollection.xml[]
+----
+========================
+
+
+.Fault Detection example
+========================
+This example shows the _Syslog_ monitor listening on the default port for incoming messages.
+_Syslog_ compares the 'FaultRegex' regular expression with each incoming message;
+when a match occurs,
+the monitor generates a fault and saves the syslog data.
+
+[source,xml]
+----
+include::Syslog_Example_FaultDetection.xml[]
+----
+========================
+
+.Combined Automation and Fault Detection example
+=====
+This example might be used when fuzzing a network device such as a router.
+One _Syslog_ monitor is configured to wait until the router has booted before starting the fuzzing session.
+Another _Syslog_ monitor is configured to detect faults and also to wait for the router to finish rebooting after a fault is detected.
+The xref:Monitors_IpPower9258[IpPower9258 Monitor] is configured to reboot the router after a fault is detected.
+
+[source,xml]
+----
+include::Syslog_Example_Automation.xml[]
+----
+=====
+
+endif::peachug[]

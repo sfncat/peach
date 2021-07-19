@@ -1,0 +1,177 @@
+<<<
+[[Fixups_ExpressionFixup]]
+== Expression
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using hex publisher, test works
+// Example 1 data returned as int
+// Example 2 data returned as string <- this doesn't work
+// Example 3 data returned as byte array
+// List Parent element types
+// Number, String, Blob
+// Make unit test for all three cases !!!
+
+
+The _Expression_ evaluates a scripting expression that produces the new value for our element.
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the input data element used in the given expression.
+expression:: Scripting expression to evaluate.  Must return a string or integer value.
+
+=== Scripting Variables
+
+self:: Fixup instance
+ref:: Referenced element
+data:: Referenced elements value as a byte array
+
+=== Examples
+
+.Basic Usage Example
+======================
+[source,xml]
+.example.xml
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <Import import="ExpressionFixup" />
+
+  <DataModel name="NumericExpressionData">
+    <Number name="NumericData" size="32" value="14"/>
+    <Number size="32">
+      <Fixup class="ExpressionFixup">
+        <Param name="ref" value="NumericData" />
+        <Param name="expression" value="ExpressionFixup.multiply_by_three(ref)" />
+      </Fixup>
+    </Number>
+  </DataModel>
+
+  <DataModel name="ByteArrayExpressionData">
+    <Blob>
+      <Fixup class="ExpressionFixup">
+        <Param name="ref" value="StringData" />
+        <Param name="expression" value="ExpressionFixup.rot13(ref)" />
+      </Fixup>
+    </Blob>
+    <String name="StringData" value="uryyb jbeyq"/>
+  </DataModel>
+
+  <DataModel name="InlineExpression">
+    <String name="StringData" value="hello there \n"/>
+    <String>
+      <Fixup class="ExpressionFixup">
+        <Param name="ref" value="StringData" />
+        <Param name="expression" value="str(str(ref.DefaultValue).upper())" />
+      </Fixup>
+    </String>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="DumpNumeric">
+    <State name="DumpNumeric">
+      <Action type="output">
+        <DataModel ref="NumericExpressionData"/>
+      </Action>
+      <Action type="changeState" ref="DumpByteArray"/>
+    </State>
+
+    <State name="DumpByteArray">
+      <Action type="output">
+        <DataModel ref="ByteArrayExpressionData"/>
+      </Action>
+      <Action type="changeState" ref="DumpInline"/>
+    </State>
+
+    <State name="DumpInline">
+      <Action type="output">
+        <DataModel ref="InlineExpression"/>
+      </Action>
+    </State>
+
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+[source,python]
+.ExpressionFixup.py
+----
+from code import InteractiveConsole
+
+import clr
+clr.AddReferenceByPartialName('Peach.Core')
+import Peach.Core
+
+
+def multiply_by_three(ref):
+    return int(ref.DefaultValue) * 3
+
+
+def rot13(ref):
+    return str(ref.DefaultValue).encode('rot13')
+
+
+def debug(ctx, ref, data):
+    """Useful for basic debugging.
+
+    <Param name="expression" value="debug(self, ref, data)" />
+    """
+    console = InteractiveConsole(locals=dict(globals().items()+locals().items()))
+    console.interact()
+
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 25461.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(8 bytes)
+00000000   0E 00 00 00 2A 00 00 00                            ????*??? <1>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.ChangeState
+Peach.Core.Dom.Action Changing to state: DumpByteArray
+Peach.Core.Dom.StateModel Run(): Changing to state "DumpByteArray".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(22 bytes)
+00000000   68 65 6C 6C 6F 20 77 6F  72 6C 64 75 72 79 79 62   hello worlduryyb <2>
+00000010   20 6A 62 65 79 71                                   jbeyq
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.ChangeState
+Peach.Core.Dom.Action Changing to state: DumpInline
+Peach.Core.Dom.StateModel Run(): Changing to state "DumpInline".
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher output(26 bytes)
+00000000   68 65 6C 6C 6F 20 74 68  65 72 65 20 0A 48 45 4C   hello there ?HEL <3>
+00000010   4C 4F 20 54 48 45 52 45  20 0A                     LO THERE ?
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+<1> Output using multiply_by_three expression
+<2> Output using rot13 expression
+<3> Output using an inline express
+
+======================

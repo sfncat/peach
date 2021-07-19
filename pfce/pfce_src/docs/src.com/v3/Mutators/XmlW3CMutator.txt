@@ -1,0 +1,24 @@
+:toc!:
+== XmlW3CMutator ==
+
+This mutator will perform the W3C parser tests. It only works on strings with a specific XMLhint hint.
+
+_Target Elements_
+
+ * link:../String.html[String]
+
+_Hints_
+
+ * XMLhint -- Set this to "xml" in order for the element to be detected by this mutator.
+
+For example:
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+  <String name="string1" value="Hello, World!">
+    <Hint name="XMLhint" value="xml"/>
+  </String>
+</DataModel>
+----
+

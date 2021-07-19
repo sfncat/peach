@@ -1,0 +1,16 @@
+:toc!:
+== Base64DecodeTransformer
+
+The _Base64DecodeTransformer_ will base64 decode a the value in the parent data model.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<String name="TransformMe" value="asfxdslkjf==" >
+		<Transformer class="Base64Decode" />
+	</String>
+</DataModel>
+----
+

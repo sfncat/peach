@@ -1,0 +1,24 @@
+<<<
+[[Monitors_CanCapture]]
+== CAN Capture Monitor
+
+*Monitor Category*: *Data Collection*
+
+The _CAN Capture_ monitor collects all frames received (but not transmitted) on the specified interface.  If a fault occure, the capture is saved in the 'PCAP' format, loadable into Wireshark for analysis.
+
+NOTE: Not all information from the CAN frame is visible in Wireshark.
+Basic flags and data are available, but not the full frame.  This is a 
+limitation of the format and not Peach Fuzzer.
+
+=== Parameters
+
+_Required:_
+
+CanDriver:: Driver to use. Defaults to 'Vector XL'.
+CanChannel:: Channel number
+CanBitrate:: Set the bitrate for CAN packet transmission (default 500,000)
+
+_Optional:_
+
+None
+

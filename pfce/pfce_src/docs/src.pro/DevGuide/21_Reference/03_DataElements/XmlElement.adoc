@@ -1,0 +1,305 @@
+<<<
+[[XmlElement]]
+== XmlElement
+
+// * Complex values
+// * How to use with relations
+
+Defines an XML element, the basic building block of XML documents. The _XmlElement_ is used to fuzz the content of an XML document, but not the XML parser.  All the output produced from _XmlElement_ and xref:XmlAttribute[XmlAttribute] are well formed.
+
+NOTE: The _XmlElement_ and the _XmlAttribute_ elements do not support cracking of data. If you need to crack XML content into _XmlElement_ and _XmlAttribute_ components, use an xref:Analyzers_Xml[XmlAnalyzer] attached to a String element.
+
+NOTE: The resulting value produced by any child element must be a string. In the case of elements that produce binary output, a xref:Transformer[Transformer] must be used to convert the binary output to a string. An example of such a transformer is the xref:Transformers_Base64EncodeTransformer[Base64Encode] transformer.
+
+See also xref:Analyzers_Xml[XML] analyzer and xref:XmlAttribute[XmlAttribute] element.
+
+=== Syntax
+
+[source,xml]
+----
+<XmlElement elementName="Foo">
+  <XmlElement elementName="Bar">
+    <String value="Hello World!" />
+  </XmlElement/>
+</XmlElement>
+----
+
+[source,xml]
+----
+<Foo><Bar>Hello World!</Bar></Foo>
+----
+
+=== Attributes
+
+_Required:_
+
+elementName:: Name of the XML element
+
+_Optional:_
+
+xref:name[name]:: Name of the data model
+xref:length[length]:: length of the data element. Default is null
+xref:lengthType[lengthType]:: Units of the length attribute. Default is bytes
+xref:constraint[constraint]:: Scripting expression that evaluates to true or false. Default is null
+
+xref:minOccurs[minOccurs]::
+	The minimum number of times this element must occur. Defaults to 1.  +
+	* Used to define arrays with variable size. Arrays defined by min/maxOccurs generally have a relation
+	defined.
+	* Adding this attribute, even with a value of 1, converts the element to an array.
+
+xref:maxOccurs[maxOccurs]::
+	The maximum number of times this element can occur. Defaults to 1.  +
+	* Used to define arrays with static size.
+	* Adding this attribute, even with a value of 1, converts the element to an array.
+
+xref:occurs[occurs]::
+	Actual occurrences of element. Defaults to 1.  +
+	* Used to define arrays with static size.
+	* Adding this attribute, even with a value of 1, converts the element to an array.
+
+ns:: XML namespace
+xref:token[token]:: This element should be treated as a token when parsing, defaults to false.
+xref:mutable[mutable]:: Is data element changeable (should it be mutated), defaults to true.
+
+=== Child Elements
+
+xref:Blob[Blob]:: Used to represent binary data (array of bytes) to create simple dumb fuzzers in Peach.
+xref:Block[Block]:: Group one or more data elements in a logical structure.
+xref:Choice[Choice]:: Indicate all sub-elements are valid; however, only one sub-element should be selected.
+xref:Fixup[Fixup]:: Dynamic transformations such as checksums and CRCs.
+xref:Flags[Flags]:: Defines a set of bit sized flags.
+xref:Hint[Hint]:: Provide information to mutators.
+xref:Number[Number]:: Defines a binary number of lengths 8, 16, 24, 32, or 64 bits.
+xref:String[String]:: Defines a single or double byte string.
+xref:XmlAttribute[XmlAttribute]:: Defines an attribute for an XML element.
+xref:XmlElement[XmlElement]:: Defines an XML element, the basic building block of XML documents.
+
+=== Mutators
+
+The following mutators operate on this element type:
+
+_Enabled when element is marked as an array_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]:: This mutator grows and shrinks an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]:: This mutator randomizes the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]:: This mutator reverses the order of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]:: This mutator grows and shrinks an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementBitFlipper[DataElementBitFlipper]:: This mutator produces test cases by flipping bits in the output value.
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator combines data elements from different data sets.
+
+=== Examples
+
+.XML Namespace
+=================================
+The following example models an XML snippet with namespaces.
+
+[source,xml]
+.XML to model
+----
+<Peach xmlns="http://peachfuzzer.com/2012/Peach">
+	<DataModel name="TheDataModel"/>
+</Peach>
+----
+
+[source,xml]
+.example.xml
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<XmlElement elementName="Peach" ns="http://peachfuzzer.com/2012/Peach">
+			<XmlElement elementName="DataModel" ns="http://peachfuzzer.com/2012/Peach">
+				<XmlAttribute attributeName="name">
+					<String value="TheDataModel" />
+				</XmlAttribute>
+			</XmlElement>
+		</XmlElement>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="Console" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 50415.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(90 bytes) <1>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"><DataModel name="TheDataModel"
+/></Peach>Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Produced XML
+=================================
+
+.Cracking XML File using Analyzer
+=================================
+
+The following example loads the +example.xml+ file into a xref:String[String] element, then use the XML analyzer to convert it to XmlElement and XmlAttribute elements.
+
+// TODO - Include image from Peach Validator
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String>
+			<Analyzer class="Xml" />
+		</String>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+				<Data fileName="example.xml" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="Console" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 1238.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'TheDataModel' Bytes: 0/684, Bits: 0/5472
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'TheDataModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'TheDataModel'
+Peach.Core.Cracker.DataCracker scan: String 'TheDataModel.DataElement_0' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'TheDataModel' Size: <null>, Bytes: 0/684, Bits: 0/5472
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'TheDataModel.DataElement_0' Bytes: 0/684, Bits: 0/5472
+Peach.Core.Cracker.DataCracker getSize: -----> String 'TheDataModel.DataElement_0'
+Peach.Core.Cracker.DataCracker scan: String 'TheDataModel.DataElement_0' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: String 'TheDataModel.DataElement_0'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 5472
+Peach.Core.Cracker.DataCracker Crack: String 'TheDataModel.DataElement_0' Size:5472, Bytes: 0/684, Bits: 0/5472
+Peach.Core.Dom.DataElement String 'TheDataModel.DataElement_0' value is: <?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://pea.. (Len: 684 chars)
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(618 bytes) <1>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" d1p1:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd" xmlns:d1p1="http://www.w3.org/2001/XMLSchema-instance"><DataModel name="TheDataModel"><String><Analyzer class="Xml" /></String></DataModel><StateModelname="TheStateModel" initialState="InitialState"><State name="InitialState"><Action type="output"><DataModel ref="TheDataModel" /><Data fileName="c:\temp\example.xml" /></Action></State></StateModel><Test name="Default"><StateModel ref="TheStateModel" /><Publisher class="Console" /></Test></Peach>Peach.Core.Publishers.
+ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+
+C:\peach\output\win_x64_debug\bin>
+----
+<1> Generated XML output
+=================================
+
+.Converting Binary Data with Transformer
+=================================
+The following example converts binary data to a string format using a xref:Transformer[Transformer] with an +XmlElement+ element.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<XmlElement elementName="Value">
+			<Block>
+				<Number size="32" value="42" />
+				<Number size="32" value="42" />
+				<Number size="32" value="42" />
+
+				<Transformer class="Base64Encode" />
+			</Block>
+		</XmlElement>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState" >
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel"/>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+
+		<Publisher class="Console" />
+	</Test>
+</Peach>
+----
+
+Produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 1238.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(31 bytes) <1>
+<Value>KgAAACoAAAAqAAAA</Value>Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Generated output is Base64 encoded, converting the binary data to a string
+=================================

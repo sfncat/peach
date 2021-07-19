@@ -1,0 +1,112 @@
+:toc!:
+== WindowsDebugger Monitor (Windows)
+
+The _WindowsDebugger_ monitor controls a windows debugger instance.
+
+*Main Usages*
+
+ * Process debugging
+ * Service debugging
+ * Kernel debugging
+
+=== Parameters
+
+One of the following parameters is required:
+
+ * _CommandLine_ -- Window names separated by a comma
+ * _ProcessName_ -- Trigger fault when a window is found (optional, default false)
+ * _KernelConnectionString_ -- Connection string for kernel debugging.
+ * _Service_ -- Name of Windows Service to attach to.  Service will be started if stopped or crashes.
+ 
+Optional parameters:
+ 
+ * _SymbolsPath_ -- Symbol path or server (optional, defaults to "SRV*http://msdl.microsoft.com/download/symbols")
+ * _WinDbgPath_ -- Path to windbg install (optional, will attempt to locate)
+ * _StartOnCall_ -- Debugger will not be attached until matching call is made from state model (optional)
+ * _IgnoreFirstChanceGuardPage_ -- Ignore first chance guard page faults.  These are sometimes false posistives or anti-debugging faults. (optional, defaults to false)
+ * _IgnoreSecondChanceGuardPage_ -- Ignore second chance guard page faults.  These are sometimes false posistives or anti-debugging faults. (optional, defaults to false)
+ * _NoCpuKill_ -- Don't use process CPU usage to terminate early. (optional, defaults to false)
+ * _FaultOnEarlyExit_ -- Trigger fault if process exists (optional, defaults to false)
+ * _WaitForExitOnCall_ -- Wait for process to exit on state model call and fault if timeout is reached (optional)
+ * _WaitForExitTimeout_ -- Wait for exit timeout value in milliseconds (-1 is infinite) (optional, defaults to 10000)
+ * _RestartOnEachTest_ -- Restart process for each iteration (optional, defaults to false)
+
+=== Examples
+
+.Commandline Configuration
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="WindowsDebugger">
+		<Param name="CommandLine" value="CrashableServer.exe 127.0.0.1 4244" />
+		<!--<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />-->
+	</Monitor>
+</Agent>
+----
+
+.Kernel Configuration
+[source,xml]
+----
+<Param name="KernelConnectionString" value="npipe:server=Server, pipe=PipeName [,password=Password]" />
+----
+
+.Service Configuration
+[source,xml]
+----
+<Param name="Service" value="WinDefend" />
+----
+
+.Process Configuration
+[source,xml]
+----
+<Param name="ProcessName" value="CrashableServer.exe" />
+----
+
+.StartOnCall Configuration
+[source,xml]
+----
+<StateModel name="TheState" initialState="initial">
+    <State name="initial">
+        <Action type="call" method="launchProgram" publisher="Peach.Agent"/>
+    </State>
+</StateModel>
+
+
+<Agent name="Local">
+    <Monitor class="WindowsDebugger">
+        <Param name="CommandLine" value="CrashableServer.exe 127.0.0.1 4244"/>
+        <Param name="StartOnCall" value="launchProgram"/>
+    </Monitor>
+</Agent>
+----
+
+.Exit Configurations
+[source,xml]
+----
+<Agent name="Local">
+    <Monitor class="WindowsDebugger">
+        <Param name="CommandLine" value="CrashableServer.exe 127.0.0.1 4244"/>
+        <Param name="NoCpuKill" value="true"/>
+        <Param name="FaultOnEarlyExit" value="false"/>
+        <Param name="WaitForExitTimeout" value="250"/>
+    </Monitor>
+</Agent>
+----
+
+.WaitForExitOnCall Configuration
+[source,xml]
+----
+<StateModel name="TheState" initialState="initial">
+    <State name="initial">
+        <Action type="call" method="exitProgram" publisher="Peach.Agent"/>
+    </State>
+</StateModel>
+
+
+<Agent name="Local">
+    <Monitor class="WindowsDebugger">
+        <Param name="CommandLine" value="CrashableServer.exe 127.0.0.1 4244"/>
+        <Param name="WaitForExitOnCall" value="exitProgram"/>
+    </Monitor>
+</Agent>
+----

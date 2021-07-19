@@ -1,0 +1,87 @@
+<<<
+[[Monitors_Socket]]
+== Socket Monitor
+
+*Monitor Category*: *Data collection*, *Fault detection*
+
+The _Socket_ monitor waits for an incoming TCP or UDP connection at the end of a test iteration.
+This monitor accepts a point-to-point connection to a single host or a multicast connection where the host broadcasts to one or more clients.
+Multicast connections are not supported when using the TCP protocol.
+
+The monitor can be configured to be used for data collection or fault detection depending on the 'FaultOnSuccess' parameter value and whether or not data is received within the specified timeout.
+The following table provides the available options:
+[options="header",halign="center"]
+|==========================================================
+|FaultOnSuccess    | Data Received   | Behavior
+|`true`            | yes             | Data collection
+|`true`            | no              | Fault detection
+|`false`           | yes             | Fault detection
+|`false`           | no              | Data collection
+|==========================================================
+
+=== Parameters
+
+_Required:_
+
+None.
+
+_Optional:_
+
+Host::
+IP address of the remote host to receive data from.
+Defaults to `""`,
+which means accept data from any host.
+
+Interface::
+IP address of the interface to listen on.
+Defaults to `0.0.0.0`,
+which means listen to all interfaces on the host.
+
+Port::
+Port to listen on.
+Defaults to `8080`.
+
+Protocol::
+Protocol type to listen for.
+Defaults to `tcp`.
+Available options for this parameter are `tcp` and `udp`.
+
+Timeout::
+Length of time in milliseconds to wait for an incoming connection.
+Defaults to `1000`.
+
+FaultOnSuccess::
+Generate a fault if no data is received.
+Defaults to `false`.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Fault Detection example
+====================
+
+This example generates a fault if data from a tcp connection on port `53` is received at the end of a test iteration.
+
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Port         |`53`
+|==========================================================
+====================
+
+endif::peachug[]
+
+ifndef::peachug[]
+
+.Fault Detection example
+===============================
+This example generates a fault if data from a tcp connection on port `53` is received at the end of a test iteration.
+
+[source,xml]
+----
+include::Socket_Example.xml[]
+----
+===============================
+
+endif::peachug[]

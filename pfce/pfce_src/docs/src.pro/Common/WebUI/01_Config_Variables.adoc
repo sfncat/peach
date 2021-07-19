@@ -1,0 +1,119 @@
+[[Program_PeachWebAdvanceConfig]]
+=== Configuration Menu
+
+You can configure a Pit by using the Configuration menu.
+This menu consists of four parts: variables, monitoring, tuning, and test.
+Only the Variable and Monitoring parts need to be completed to pass a test of the configuration.
+
+To begin from the Home Page,
+
+1. Click the Library menu entry.
+2. From the Pit Library, select a Pit or an existing configuration.
+
+* Selecting a configuration means that you are revising the settings of an existing configuration. Peach displays the start screen for the configuration.
+* Selecting a Pit means that you are creating a new configuration. You will need to
+name the configuration, optionally provide a description, and click "Submit" to reach the start screen for the configuration.
++
+image::{images}/Common/WebUI/NP2_Config_Start.png[]
+
+3. Click the "Configure Variables" button to define or edit the variables and their values.
+
+[NOTE]
+=========
+*Switching Pit Configurations*
+
+The active Peach Pit configuration can be changed in the {peachweb} by clicking on the Home menu icon above the menu along the left side of the screen. Then, click on the Library menu item to choose a Pit or Pit configuration in your library.
+=========
+
+==== Variables
+
+The variables data entry screen lists the information needed by the selected pit, as in the following illustration. Some information is pit-specific, such as file names used to fuzz file formats and port addresses used to fuzz network protocols. Other information applies to the Peach environment; two examples are the Peach Installation Directory and the Pit Library Path.
+
+image::{images}/Common/WebUI/AC01_Variables_Init.png[]
+
+==== Pit-specific Variables
+
+In the illustration, three variables are specific to the `BMP` Pit. Because the variables have default values, you can use the supplied values during the fuzzing job.
+
+* If a variable lacks a default value and is not marked optional, you need to supply a value for the variable before you can fuzz the target.
+
+* If a variable is labeled optional or has a default value, you need not supply a value to enable the configuration to run.
+
+When entering a data value, type the value into the appropriate text box of the form.
+If you'd like to use the value of another variable, type `##`, the name of the
+variable that contains the value you want to use, and `##` to end the variable name.
+
+The default value of the `Sample Path` variable in the previous illustration uses another variable (`PitLibraryPath`) as part of its value.
+
+==== System-defined Variables
+
+The Peach environment variables includes the following entries:
+
+Peach OS:: The Peach OS identifies the operating system that the Peach Fuzzer is using. The value is selected when downloading the Peach distribution image.
+
+Peach Installation Directory:: The Peach Installation Directory is the directory that contains the peach executable file. This directory was created when Peach was installed on the computer system.
+
+Peach Working Directory:: The Peach working directory is the current working directory for fuzzing. While this directory is usually the directory containing Peach, the directory can be another location on your system. The Peach Working Directory is set by launching Peach from the shell command line. The value is the current working directory of the command shell when you start Peach.
+
+Root Log Directory:: The default name of this directory is Logs. The default location is a subdirectory of the Peach Installation Directory. You can specify another location for it, such as a subdirectory of the Peach Working Directory. +
+TIP: Each pit has its own logs that appear as subdirectories of the logger Path.
+
+Pit Library Path:: The Pit library path is the full path of the folder in the Peach installation directory that contains your licensed Peach Pits and Pit Packs. The folder name is "pits", and contains subdirectories that hold your licensed Pits, Pit configurations, and Peach-supplied sample files.
+
+For descriptions on the pit-specific variables, see the documentation for the individual pit.
+
+===== Custom Variables
+
+You can create your own set variables for Peach. Perhaps you want to identify
+where the image repository is located. Or, perhaps you want to identify the
+MAC addresses, interface names, and IP addresses for the network interfaces on
+your system.
+
+Whatever the resource you'd like to specify, once you've created a variable and
+given it a value, you can use the variable wherever appropriate when supplying
+values for Pit variables and monitor variables.
+
+Additionally, once defined, the custom variable is added to the dropdown variable list. The list of variables displays during data entry when a `#` is typed as the sole character in a data field, as shown in the following illustration.
+
+image::{images}/Common/WebUI/AC02_Variable_DropList.png[scalewidth="70%"]
+
+====== Creating a custom variable
+
+Here are the steps to add a custom variable to Peach:
+
+. Begin on the Variables page.
++
+image::{images}/Common/WebUI/AC03_Vars_AddVar.png[scalewidth="70%"]
+
+. Click the "Add Variable" button immediately above and to the right of list of variables.
++
+The "Add Variable" pop-up dialog displays.
++
+image::{images}/Common/WebUI/AC04_AddVar_Popup.png[scalewidth="70%"]
+
+. Fill in values for the name, key, and value fields. The following illustration shows a variable locating a JPEG repository.
++
+** The *Name* parameter is the name of the custom variable, and allows spaces and
+punctuation. This is the name to search on if you want to edit the value of the variable.
++
+** The *Key* parameter is the value, such as `JPEGs`, that you plug into values in the Peach Web UI. When Peach processes the pit, the fuzzer replaces the key parameter with the value of the *Value* parameter.
++
+** The *Value* parameter stores the value that Peach uses when processing the pit.
++
+image::{images}/Common/WebUI/AC05_AddVar_FilledIn.png[scalewidth="70%"]
+
+. Click OK.
+
+. Click save. +
+The new value is now part of the list, and has been saved for future use.
++
+image::{images}/Common/WebUI/AC06_Vars_Page_Saved.png[scalewidth="70%"]
+
+
+====== Using a custom variable
+
+Using a custom variable consists of typing `##`, the variable name, and `##` in the value of another variable. In the following illustration, the "Sample Path" variable refers to the "JPEG Sample Pictures". When parsing the configuration information, Peach inserts the value `C:\Samples\JPEG` for the value of the "Sample Path".
+
+image::{images}/Common/WebUI/AC07_Vars_Page_Using.png[scalewidth="70%"]
+
+// end

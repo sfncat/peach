@@ -1,0 +1,344 @@
+:toc!:
+== Action ==
+
+Action elements perform various operations in the the StateModel. Actions are primarily a way of sending commands to the link:Publisher.html[Publisher]. Actions can send output, receive input, or open a connection. Actions can also chang to another state in the StateModel, move data between DataModels, and call methods defined by Agents. Actions are child elements of link:State.html[State].
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action name="SendData" type="output">
+  			<DataModel ref="MyDataModel" />
+
+  			<!-- Optional data element -->
+  			<Data name="load defaults" fileName="template.bin" />
+		</Action>
+
+	</State>
+</TheStateModel>
+----
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the action [optional]
+ * link:Action.html#_action_types[type] -- Action type [required]
+ * link:when.html[when] -- Only preform action if the expression provided evaluates to true
+ * link:onComplete.html[onComplete] -- Expression to run on completion of an action
+ * link:onStart.html[onStart] -- Expression to run on start of an action
+ * link:Action.html#_call[method] -- Method to call [required, type=call]
+ * link:Action.html#_setproperty[property] -- Property to get or set [required, type=setProperty, getProperty]
+ * link:Action.html#_slurp[setXpath] -- XPath for value to set [required, type=slurp]
+ * link:value.html[value] -- Value [type=slurp]
+ * link:Action.html#_slurp[valueXpath] -- XPath for value [type=slurp]
+ * link:ref.html[ref] -- Reference of state to change to [type=changeState]
+
+_Valid Child-Elements:_
+
+ * link:DataModel.html[DataModel]
+ * link:Data.html[Data]
+ * link:Param.html[Param]
+
+== Action Types ==
+
+=== start (implicit) ===
+
+Start up the Publisher, this is an implicit action and is not normally needed.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action type="start" />
+
+	</State>
+</TheStateModel> 
+----
+
+
+=== stop (implicit) ===
+
+Stop the Publisher, this is an implicit action and is not normally needed.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action type="stop" />
+
+	</State>
+</TheStateModel>
+----
+
+
+=== open/connect (implicit) ===
+
+Open and connect are aliases for each other and perform the same action.  Typically this action is implicit, for files the file must be opened or created, for sockets a connection is made.  Only when special control is required does one need to use this action.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action type="open" />
+
+		<Action type="output"> 
+			<DataModel ref="DataModelToWrite"/> 
+		</Action> 
+
+	</State>
+</TheStateModel>
+----
+
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action type="connect" />
+
+		<Action type="output"> 
+			<DataModel ref="DataModelToSend"/> 
+		</Action> 
+
+	</State>
+</TheStateModel>
+----
+
+
+=== close (implicit) ===
+
+Close is also implicit and is not normally required unless specific control is wanted.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action name="FileWrite" type="output">
+			<DataModel ref="FileHeader"/> 
+		</Action>
+
+		<Action name="FileClose" type="close" />
+
+	</State>
+</TheStateModel>
+----
+
+
+=== accept ===
+
+Accept an incoming connection.  Not all Publishers support this action type.  This action will typically block until the incoming connection is available.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action name="AcceptConnection" type="accept" />
+
+		<Action name="ParseIncomingPacket" type="input"> 
+				<DataModel ref="PacketModel"/> 
+		</Action> 
+
+	</State> 
+</TheStateModel> 
+----
+
+
+=== input ===
+
+Receive or read input from the Publisher.  Requires that a DataModel be specified to crack and contain the incoming data.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState"> 
+
+		<Action type="input">
+			<DataModel ref="InputModel" />
+		</Action>
+
+	</State>
+</TheStateModel>
+----
+
+
+=== output ===
+
+Send or write output via the Publisher.  Requires a DataModel, optionally a Data set can be provided.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action type="output">
+			 <DataModel ref="SomeDataModel" />
+		</Action>
+
+		<Action type="output">
+			 <DataModel ref="SomeDataModel" />
+			 <Data name="SomeSampleData" fileName="sample.bin" />
+		</Action>
+	</State>
+</TheStateModel>
+----
+
+
+=== call ===
+
+Call a method defined by the Publisher with optional parameters.  Not supported by all Publishers.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action type="call" method="openUrl">
+  			<Param name="p1" type="in">
+    	 			<DataModel ref="Param1DataModel" />
+  			</Param>
+  			<Param name="p2" type="in">
+     				<DataModel ref="Param2DataModel" />
+    		 		<Data name="p2data">
+					<Field name="value" value="http://foo.com" />
+				</Data>
+  			</Param>
+		</Action>
+	</State>
+</TheStateModel>
+----
+
+
+=== setProperty ===
+
+Set a property. Not supported by all Publishers.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action type="setProperty" property="Name">
+			<DataModel ref="NameModel"/>
+		</Action>
+	</State>
+</TheStateModel> 
+----
+
+
+=== getProperty ===
+
+Get a property. Not supported by all Publishers.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action type="getProperty" property="Name">
+			<DataModel ref="NameModel"/>
+		</Action>
+	</State>
+</TheStateModel> 
+----
+
+
+=== slurp ===
+
+Slurp is used to move data between two DataModels.  These DataModels are assigned to different Actions in a the StateModel.  A standard use case is during a protocol sequence. A sequence id or a challenge id needs to be sent back to the server. Slurp will copy the data from one action, input from the server, to the other, output to the server.  
+
+[source,xml]
+----
+<DataModel name="ReceiveChallenge">
+  <String name="Challenge" />
+</DataModel>
+
+<DataModel name="SendChallenge">
+  <String name="Challenge" />
+</DataModel>
+
+
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action name="ReceiveChallenge" type="input">
+			<DataModel name="TheReceiveChallenge" ref="ReceiveChallenge"/>
+		</Action>
+
+		<Action type="slurp" valueXpath="//TheReceiveChallenge//Challenge" setXpath="//TheSendChallenge//Challenge" />
+		
+		<Action name="SendChallenge" type="output">
+			<DataModel name="TheSendChallenge" ref="SendChallenge"/>
+		</Action>
+	</State>
+</TheStateModel> 
+----
+
+
+=== changeState ===
+
+Change to a different state. This is most often used in conjunction with the link:when.html[_when_] attribute.
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action type="input">
+			<DataModel ref="InputModel" /> 
+		</Action> 
+
+		<Action type="changeState" ref="State2"/>
+	</State>
+
+	<State name="State2">
+		<Action type="output">
+			<DataModel ref="OutputModel" /> 
+		</Action> 
+	</State>
+</TheStateModel>
+----
+
+=== when === 
+
+Perform an action based on an expression. When the expression evaluates to true the action is performed. This can be used to model choices based on input or to decide if certain input or output is performed next. 
+
+[source,xml]
+----
+<DataModel name="InputModel"> 
+	<Number name="Type" size="32" /> 
+</DataModel> 
+
+<DataModel name="OutputModelA"> 
+	<Number name="Type" size="32" value="11 22 33 44" valueType="hex" /> 
+</DataModel> 
+
+<DataModel name="OutputModelB"> 
+	<Number name="Type" size="32" value="AA BB CC DD" valueType="hex" /> 
+</DataModel> 
+
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action type="input">
+			<DataModel ref="InputModel" /> 
+		</Action> 
+					
+		<Action type="changeState" ref="State2" when="int(StateModel.states['InitialState'].actions[0].dataModel['Type'].InternalValue) == 2"/>
+
+		<Action type="changeState" ref="State3" when="int(StateModel.states['InitialState'].actions[0].dataModel['Type'].InternalValue) == 3"/>
+
+	</State>
+
+	<State name="State2">
+		<Action type="output">
+			<DataModel ref="OutputModelA" /> 
+		</Action> 
+	</State>
+
+	<State name="State3">
+		<Action type="output">
+			<DataModel ref="OutputModelB" /> 
+		</Action> 
+	</State>
+</TheStateModel>
+----
+

@@ -1,0 +1,18 @@
+:toc!:
+= encode.SidStringToBytes =
+
+Converts a SID represented as a string to bytes. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="encode.SidStringToBytes"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +encode.SidStringToBytes+, +SidStringToBytes+

@@ -1,0 +1,13 @@
+:toc!:
+== State ==
+
+State encapsulates a logical unit of work for Peach to perform in a larger state model. Some state models will only require one state others will require many states to model complex protocols.
+
+States are comprised of actions. Each action can perform tasks related to how the individual state is encapsulating logic.  
+
+=== Attributes === 
+ * link:name.html[name] -- [Required] the name of the state 
+
+=== valid Child-Elements: === 
+ * link:Action.html[Action]
+

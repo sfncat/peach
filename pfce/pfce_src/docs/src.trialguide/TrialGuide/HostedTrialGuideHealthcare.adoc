@@ -1,0 +1,7 @@
+:hosted:
+:DICOM:
+:HL7:
+
+include::./TrialGuide.adoc[]
+
+// end

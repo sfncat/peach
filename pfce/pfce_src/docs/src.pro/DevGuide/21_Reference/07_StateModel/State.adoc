@@ -1,0 +1,176 @@
+[[State]]
+== State
+
+// 01/30/2014: Seth & Mike: Outlined
+//  * Initial vs. non-initial
+//  * States not implicitly executed
+//  * Top-down execution of actions
+//  * When to have multiple states
+//  * Moving between states
+//  * Exit state
+//  * State mutation?
+//  * Examples
+//   * State with bunch of actions
+//   * State to state transition
+
+// 2/17/2014: Mick
+//  talked about initial state and changing states
+//  added example
+
+State elements reside in xref:StateModel[StateModels]. Each State element contains a logical Peach work unit.
+
+Each xref:StateModel[StateModel] must contain at least one State element. If you wish to model complex protocols or systems, use multiple State elements within your xref:StateModel[StateModel].
+
+=== Syntax
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+
+		<Action name="SendData1" type="output">
+  			<DataModel ref="MyDataModel1" />
+		</Action>
+
+		<Action name="SendData2" type="output">
+  			<DataModel ref="MyDataModel2" />
+		</Action>
+
+	</State>
+</StateModel>
+----
+
+State elements contain one or more Action elements. Each Action element can perform tasks related to how the individual State element consolidates logic.
+
+Within a State element, actions execute in sequence from top to bottom, in the same order they appear in the State definition.
+
+State elements can occur linearly by chaining from one state to another. Yet,
+Peach supports state changes that permit branching and looping among the State
+elements. Branches and loops in the StateModel are common in fuzzing scenarios
+where the input drives a response or a choice of responses.
+
+* The 'intitialState' attribute in the xref:StateModel[StateModel] declaration determines the first State element of the xref:StateModel[StateModel] to run.
+* Peach transitions into a new State after a 'changeState' action.
+
+TIP: If a set of Action elements always executes in the same order, place the set of actions in a single State element.
+
+=== Attributes
+
+_Required:_
+
+xref:name[name]:: The name of the State element.
+
+_Optional:_
+
+xref:State_onStart[onStart]:: Scripting statement run prior to any actions.
+xref:State_onComplete[onComplete]:: Scripting statement run after explicit actions.
+
+=== Child Elements
+
+xref:Action[Action]:: One or more Actions are required.
+
+=== Examples
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="Hello">
+		<String value="Hello\n" token="true"/>
+	</DataModel>
+
+	<DataModel name="Question">
+		<String value="Pick a number between 1 and 5!" />
+	</DataModel>
+
+	<DataModel name="Wrong">
+		<String value="Wrong!" />
+	</DataModel>
+
+	<DataModel name="Close">
+		<String value="Very Close! Try Again!\n" />
+	</DataModel>
+
+	<DataModel name="Correct">
+		<String value="Correct!" />
+	</DataModel>
+
+	<DataModel name="Selection">
+		<Choice name="TheSelection">
+			<String name="one" value="1" length="1" token="true" />
+			<String name="two" value="2" length="1" token="true" />
+			<String name="three" value="3" length="1" token="true" />
+			<String name="rest" length="1" />
+		</Choice>
+		<String value="\n" token="true"/>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action name="AcceptConnection" type="accept" />
+
+			<Action name="HelloIn" type="input">
+				<DataModel ref="Hello"/>
+			</Action>
+
+			<Action type="changeState" ref="AskState" />
+		</State>
+
+		<State name="AskState">
+			<Action name="AskTheQuestion" type="output">
+				<DataModel ref="Question" />
+			</Action>
+
+			<Action name="TheirAnswer" type="input">
+				<DataModel name="TheirSelection" ref="Selection"/>
+			</Action>
+
+			<Action type="changeState" ref="TryAgain" when="state.actions[1].dataModel.find('one') is not None or State.actions[1].dataModel.find('three') is not None"/>
+			<Action type="changeState" ref="Win" when="state.actions[1].dataModel.find('two') is not None"/>
+			<Action type="changeState" ref="Lose" />
+
+		</State>
+
+		<State name="TryAgain">
+			<Action type="output">
+				<DataModel ref="Close" />
+			</Action>
+			<Action type="changeState" ref="AskState" />
+		</State>
+
+		<State name="Win">
+			<Action type="output">
+				<DataModel ref="Correct" />
+			</Action>
+		</State>
+
+		<State name="Lose">
+			<Action type="output">
+				<DataModel ref="Wrong" />
+			</Action>
+		</State>
+
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+		<Publisher class="TcpListener">
+			<Param name="Interface" value="0.0.0.0" />
+			<Param name="Port" value="31337" />
+			<Param name="AcceptTimeout" value="10000" />
+			<Param name="Timeout" value="10000" />
+		</Publisher>
+
+		<Strategy class="Random"/>
+
+		<Logger class="File" >
+			<Param name="Path" value="logs"/>
+	    </Logger>
+	</Test>
+</Peach>
+----
+
+// end

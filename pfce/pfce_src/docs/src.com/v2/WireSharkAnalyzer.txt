@@ -1,0 +1,12 @@
+:toc!:
+== WireSharkAnalyzer ==
+
+This analyzer can convert PDML files into Peach Pits.  This process is not 100% perfect due to limitations in PDML, and differences in output from different Wireshark dissectors.  After converting you will need to review the Pit and make changes as needed.
+
+The PDML you convert should contain a single packet.  This analyzer does not yet support converting a stream of packets.
+
+_Command Line:_
+----
+peach --analyzer=shark.WireSharkAnalyzer in=dump.pdml out=pdml_pit.xml proto=bootp
+----
+

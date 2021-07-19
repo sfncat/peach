@@ -1,0 +1,14 @@
+:toc!:
+== NetBiosDecodeTransformer
+
+The _NetBiosDecodeTransformer_ will produce ...
+
+=== Examples
+
+[source,xml]
+----
+<String name="TransformMe" >
+	<Transformer class="NetBiosDecode" />
+</String>
+----
+

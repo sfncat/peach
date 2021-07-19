@@ -1,0 +1,16 @@
+:toc!:
+== Utf8Transformer
+
+The _Utf8Transformer_ will produce a UTF-8 version of the provided String value in the parent data model.  
+
+=== Examples
+
+[source,xml]
+----
+ <DataModel name="Ex1">
+    <String name="TransformMe" value="The brown lazy fox jumped over the fuzzed buffer">
+      <Transformer class="Utf8" />
+    </String>
+  </DataModel>
+----
+

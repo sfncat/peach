@@ -1,0 +1,22 @@
+[[Iteration_record]]
+=== Record Iteration
+
+The record iteration performs a baseline test that a Peach Pit is operating correctly. The record iteration is the first iteration of a fuzzing session. Peach does not fuzz any data: no mutations. The expected outcome is that the state model executes with no errors.
+
+Every time Peach starts, it performs a record iteration to record and evaluate
+the information it receives for this fuzzing session. Information captured from
+the record iteration will be used during later iterations. The captured
+information includes the following items:
+
+* Applicable data models and data elements, to estimate the total iteration count required for xref:Iteration_fuzzing[fuzzing iterations]
+* Which mutators can act on which data elements
+* Choices and arrays
+* Data flows, to compare with the xref:Iteration_control[control iterations]
+* States and actions flows
+
+xref:Iteration_control[Control iterations], if configured, verify that the fuzzer executes the same set of actions as in the record iteration to determine whether
+the target is still operational.
+
+When running Peach with one test, you will actually see two iterations performed--a record iteration and a single fuzzing iteration.
+
+See also xref:Iteration_control[control iterations] and xref:Iteration_fuzzing[fuzzing iterations].

@@ -1,0 +1,10 @@
+﻿<input type="text"
+			 class="form-control"
+			 autocomplete="off"
+			 ng-model="param.value"
+			 ng-required="vm.IsRequired"
+			 ng-readonly="vm.IsReadonly"
+			 name="param"
+			 placeholder="{{param.defaultValue}}"
+			 uib-tooltip="{{vm.ParamTooltip}}"
+			 uib-typeahead="choice.key for choice in vm.Choices | filter: $viewValue" />

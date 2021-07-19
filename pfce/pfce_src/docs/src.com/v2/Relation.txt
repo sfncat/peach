@@ -1,0 +1,186 @@
+:toc!:
+== Relation ==
+
+Peach allows modeling of relationships in the data.  Realtionships are things like "X is the size of Y", "X is the count of Y", or "X in the offset (in bytes) of Y".
+
+== Size-of Relation ==
+
+In this example the number will indicate the size of the string "Value" in bytes.  Note that this holds true for multi-byte characters such as wchar as well.  In future versions of Peach this will likely change, or a new relation of type length will be included to better support UTF-8 and other Unicode encodings.
+
+[source,xml]
+----
+<Number size="32" signed="false">
+  <Relation type="size" of="Value" />
+</Number>
+<String name="Value" />
+----
+
+
+*With expressionGet/expressionSet*
+
+In this example we will provide two python expressions that will allow us to modify the size when it is gotten or set.  Two variables "self" and "size" are made available to us.  Self is a reference to the Number element and size is an integer.
+
+ * _expressionGet_ -- This value is used internally and will end up determining how many bytes the String +value+ reads.
+ * _expressionSet_ -- Sets the value that will be produced.  In the following example +size+ will be "5" (length of Value) so the value that will ultimately be outputted via a Publisher will be "5*2" or 10.
+
+[source,xml]
+----
+<Number size="32" signed="false">
+  <Relation type="size" of="Value" expressionGet="size/2" expressionSet="size*2" />
+</Number>
+<String name="Value" />
+----
+
+
+
+== Count-of Relation ==
+
+In this example the number will indicate the count of the array "Strings".
+
+[source,xml]
+----
+<Number size="32" signed="false">
+  <Relation type="count" of="Strings" />
+</Number>
+<String name="Strings" nullTerminated="true" maxOccurs="1024" />
+----
+
+
+*With expressionGet/expressionSet*
+
+In this example we will provide two python expressions that will allow us to modify the count when it is gotten or set.  Two variables "self" and "count" are made available to us.  Self is a reference to the Number element and count is an integer.
+
+ * _expressionGet_ -- This value is used internally and will end up determining how many items String will exand to.
+ * _expressionSet_ -- Sets the value that will be produced.  In the following example +count+ will be determined based on how many elements Strings ends up being.
+
+[source,xml]
+----
+<Number size="32" signed="false">
+  <Relation type="count" of="Value" expressionGet="count/2" expressionSet="count*2" />
+</Number>
+<String name="Strings" nullTerminated="true" maxOccurs="1024" />
+----
+
+
+
+
+== Offset-of Relation (Peach 2.2) ==
+
+Offset relations are the latest addition to peach and allow modeling formats that require changing of the offset and also outputting the offset of various elements.
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset0" />
+	</String>
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset1" />
+	</String>
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset2" />
+	</String>
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset3" />
+	</String>
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset4" />
+	</String>
+	
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset5" />
+	</String>
+	
+	<String length="4" padCharacter=" ">
+		<Relation type="offset" of="Offset6" />
+	</String>
+	
+	<Block>
+		<Block name="Offset0">
+			<Block>
+				<String name="Offset1" value="CRAZY STRING!" />
+				<String value="aslkjalskdjas" />
+				<String value="aslkdjalskdjasdkjasdlkjasd" />
+			</Block>
+			<String name="Offset2" value="ALSKJDALKSJD" />
+			<Block>
+				<String name="Offset3" value="1" />
+				<String name="Offset4" value="" />
+				<String name="Offset5" value="1293812093" />
+			</Block>
+		</Block>
+	</Block>
+	
+	<String name="Offset6" value="aslkdjalskdjas" />
+	
+</DataModel>
+----
+
+
+*Relative Offset (Peach 2.3)*
+
+Starting with Peach 2.3 we also support the concept of relative offsets.  A relative offset if from the data element the relation is attached to.  Consider the following example.  When determining the offset of _StringData_ Peach will add/subtract the position of _OffsetToString_ to it's value as needed to determine the correct offset.
+
+[source,xml]
+----
+
+<!-- Other data elements precede -->
+
+<Number name="OffsetToString">
+   <Relation type="offset" of="StringData" relative="true" />
+</Number>
+
+<String name="StringData" nullTerminated="true"/>
+----
+
+
+
+*Relative To Offset (Peach 2.3)*
+
+Peach also supports offsets that are relative to another element.  This is used when an element contains the offset to another element from the start of, say, a structure.  In the following example the offset of _StringData_ will be calculated by adding the value of _OffsetToString_ to the position of _Structure_.
+
+[source,xml]
+----
+<Block name="Structure">
+   <!-- Other data elements precede -->
+
+   <Number name="OffsetToString">
+      <Relation type="offset" of="StringData" relative="true" relativeTo="Structure" />
+   </Number>
+
+   <String name="StringData" nullTerminated="true"/>
+</Structure>
+----
+
+
+*With expressionGet/expressionSet*
+
+When using expressionGet/Set with offset relations two variables are provided: self, and offset.  self is a reference to the parent element of the reference, and offset is an integer.
+
+*Offset Relation with Placement*
+
+In this model we will use a typical patter in which an array of offsets gives us the location of another element. We will use the link:Placement.html[Placement] element to move the created _Data_ strings to after our block called _Chunks_.
+
+NOTE: Placement only works when parsing data into a DataModel.  Read link:Placement.html[Placement] for more information.
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+  <Block name="Chunks">
+    <Block name="ArrayOfChunks" maxOccurs="4">
+      <Number size="8" signed="false">
+        <Relation type="offset" of="Data"/>
+      </Number>
+      <String name="Data" length="6">
+        <Placement after="Chunks"/>
+      </String>
+    </Block>
+  </Block>
+</DataModel>
+----
+
+
+
+== When Relation ==
+
+When is the odd boy out.  The _when_ relation allows evaluating a boolean python expression to determine if an element is used.

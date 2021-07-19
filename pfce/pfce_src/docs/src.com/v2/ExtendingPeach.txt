@@ -1,0 +1,24 @@
+:toc!:
+== Extending Peach ==
+
+Peach can be extended by the addition of custom fixups, transformers, publishers, monitors, mutators, loggers, and custom types.  Typically these additions are easy requiring only a single Python class be implemented, and little if any knowledge of how Peach works internally.  If you need assistance implementing a custom module please post to the mailing list.  Thanks.
+
+The code you write should live in a _.py_ file in the same folder as your _.xml_ file.  This will make it all much easier to package up.  See the link:PythonPath.html[PythonPath] and link:Import.html[Import] elements for how to include your new code into your Peach XML file.
+
+*NOTE:* Never add the code into the Peach source folders!  You're welcome to submit them as patches, but otherwise keep them in another folder.  This will make it easier to move to another machine, and upgrade Peach in the future.
+
+ * link:CustomFixup.html[Create a custom Fixup]
+ * link:CustomTransformer.html[Create a custom Transformer]
+ * link:CustomPublisher.html[Create a custom Publisher]
+ * link:CustomMutator.html[Create a custom Mutator]
+
+''''
+
+ * http://peachfuzzer.com/docs/apidocs/index.html[Peach API Documentation]
+
+''''
+
+*TODO: The rest of these.*  
+
+ * CustomMonitor
+ * CustomLogger

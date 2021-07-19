@@ -1,0 +1,97 @@
+[[Preface]]
+== Preface
+
+This document supports the user through a trial of using {product} to test several different
+real-world applications.
+It shows how {product} should be configured for each application, 
+what monitors are useful for each scenario, and has examples of test runs that
+show the types of faults that {product} can find and the information it gathers
+for those faults.  
+This should give the user an overview of the capabilities of
+{product} and set expectations for what the user will need to do to use 
+{product} to test their own software.
+
+[[Goals]]
+=== Goals
+
+After reading this document, you should be able to accomplish the following:
+
+ifdef::hosted[]
+. Access your trial instance of {product}
+endif::[]
+ifndef::hosted[]
+. Create configurations for each pit in your trial for the applications on the target VM.
+endif::[]
+. Run tests against several target applications with {product}
+. View the results of a test run to see the vulnerabilities that were found and the data was gathered
+. Understand how {product} is configured to test various applications based on the nature of the application
+. Understand why the configurations have the specific settings and Monitors that they do and how those settings relate to the specifics of the application they are testing
+ifdef::hosted[]
+. (Optional) Create a new configuration to test one of the existing applications that exist on your trial instance
+endif::[]
+
+[[Non-Goals]]
+=== Non-Goals
+
+This document is NOT intended to be comprehensive documentation for how to configure {product} or a full demonstration of every feature that {product} offers.
+It is also not meant to help the user install, configure, or troubleshoot {product} for testing their own applications.
+Users needing assistance with any of those things should consult the {product} User Guide or contact support for assistance.
+
+[[TargetApplications]]
+=== Target Applications 
+
+The applications being tested in the trial are all free and open source where
+possible.
+In many cases, the source was forked from the original version and
+contrived security vulnerabilities were intentionally introduced into the code
+in order to better demonstrate the features of {product}.
+Therefore, the vulnerabilities found by {product} on the trial instance should not be assumed 
+to be present in the publicly available versions of those applications.
+In addition, {company} has not done a comprehensive test of those applications so
+we cannot guarantee that additional vulnerabilities are not present in those 
+applications' original source code.
+
+[[Configurations]]
+== Configurations
+
+Each pit available in the trial has at least one configuration.
+In some cases there will be two; a basic configuration and an advanced configuration.
+
+NOTE: In protocols where both a client and server are present and being tested, the 
+client and server are considered separate protocols for purposes of this document.
+It is therefore possible that both the client and the server will each have a basic
+and advanced configuration.
+
+[[Basic]]
+=== Basic Configuration
+
+This configuration shows how a user would typically set up {product} to test 
+an application that they either can't compile or can't re-compile with additional
+compiler or linker options.  The applications used in these configurations have
+typically been compiled with debug and no optimizations e.g. `gcc -g main.cpp` or similar.
+The GDB Monitor is used in most cases to detect faults.
+
+[[Advanced]]
+=== Advanced Configuration
+
+This configuration shows how a user would typically set up {product} to test an
+application that they have recompiled with various compiler options such as 
+Address Sanitizer (the advanced configurations used in the trial are all compiled
+this way unless indicated otherwise) and various optimization 
+levels e. g. `gcc -g -O1 -fsanitize=address main.cpp` or similar. 
+
+With ASan in use, the GDB Monitor is generally not advised since ASan will 
+terminate the program without sending a signal (e.g. SIGSEGV, SIGABRT, etc.) that
+the debugger will detect.  The Process Monitor is therefore used instead, as it
+will recognize that ASan has terminated the process for some reason and can gather
+information from the ASan output in the report for the fault on that particular iteration.
+
+ifdef::hosted[]
+include::01_Access.adoc[]
+endif::[]
+
+ifndef::hosted[]
+include::02_TargetVM.adoc[]
+endif::[]
+
+// end

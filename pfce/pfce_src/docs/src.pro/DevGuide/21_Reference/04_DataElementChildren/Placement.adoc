@@ -1,0 +1,59 @@
+<<<
+[[Placement]]
+== Placement
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// * Used with offset relation mostly
+// * Arrays of Blocks with an offset relation
+// * before vs. after
+// * getting elements in correct order with arrays
+// * using a place holder empty block to place things in correct position
+// * only used during cracking
+// * Examples people!
+// * Known limitations:
+//  * Can't crack offsets that occur prior to current cracking position
+
+The placement element tells the data cracker to move specific elements after 
+parsing the input stream.  This, combined with xref:Relation[offset-of relation], 
+are the ways Peach supports handling files that contain references to elements 
+by offset.
+
+See also xref:DataModeling_Placement[Arrays of Offsets to Data] chapter.
+
+NOTE: Placement only works while parsing data into the DataModel by an input Action or a Data statement pointing to a file.
+
+=== Syntax
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+  <Block name="Chunks">
+    <Block name="ArrayOfChunks" maxOccurs="4">
+      <Number size="8" signed="false">
+        <Relation type="offset" of="Data"/>
+      </Number>
+      <String name="Data" length="6">
+        <Placement after="Chunks"/>
+      </String>
+    </Block>
+  </Block>
+</DataModel>
+----
+
+=== Attributes
+
+One of the following is required:
+
+after:: Name of the data element used in relocation. The relocated data is placed after the specified data element.
+before:: Name of the data element used in relocation. The relocated data is placed before  the specified data element.
+
+=== Child Elements
+
+None.
+
+=== Examples
+
+// TODO
+	

@@ -1,0 +1,24 @@
+:toc!:
+= gui.PopupWatcher =
+
+This monitor is able to close dialog boxes and other pop-up windows that can occur when testing Windows applications.  It can also optionally trigger a fault.  This monitor can be used multiple times on a single Agent instance.
+
+[source,xml]
+----
+<Monitor class="gui.PopupWatcher">
+  <Param name="WindowNames" value="Alert!" />
+  <Param name="CloseWindows" value="true" />
+  <Param name="TriggerFaults" value="false" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * WindowNames -- Comma separated list of Window names [required]
+ * CloseWindows -- Boolean, should we close found Windows? [optional, default false]
+ * TriggerFaults -- Boolean, should we trigger faults? [optional, default false]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

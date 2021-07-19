@@ -1,0 +1,16 @@
+:toc!:
+== Name Attribute ==
+
+Almost every element in a Peach Pit file supports the name attribute.  Names are used for both readability and also for referencing elements from other places.
+
+Names should not contain punctuation, in particular period (.) or colon (:) as they have special meaning.
+
+Examples of names:
+
+[source,xml]
+----
+<Element name="MyStuff" />
+
+<Element name="OtherThings" />
+----
+

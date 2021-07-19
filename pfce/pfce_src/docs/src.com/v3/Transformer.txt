@@ -1,0 +1,88 @@
+:toc!:
+== Transformers ==
+
+Transformers perform static tranforms or encoding on the parent element. Transforms are typically, but not always, two directional: encode and decode.  Examples include ZIP compression, Base64 encoding, HTML encoding, etc.
+
+Transfomers differ from Fixups in they operate on the parent element while Fixups reference another element's data.
+
+
+Example:
+
+[source,xml]
+----
+<DataModel name="Base64TLV">
+  <Number name="Type" size="8" signed="false" value="1" token="true" />
+  <Number name="Length" size="16" signed="false">
+    <Relation type="size" of="base64Block" />
+  </Number>
+
+  <Block name="base64Block">
+    <Transformer class="Base64Encode" />
+    <Blob name="Data" />
+  </Block>
+</DataModel>
+----
+
+The output of the above data model is 0x01<len(b64(Data))><b64(Data)>
+
+=== Default Transformers in Peach 3
+
+*Compression*
+
+ * link:Transformers/Bz2CompressTransformer.html[Bz2CompressTransformer]
+ * link:Transformers/Bz2DecompressTransformer.html[Bz2DecompressTransformer]
+ * link:Transformers/GzipCompressTransformer.html[GzipCompressTransformer]
+ * link:Transformers/GzipDecompressTransformer.html[GzipDecompressTransformer]
+
+*Crypto*
+
+ * link:Transformers/Aes128Transformer.html[Aes128Transformer]
+ * link:Transformers/ApacheMd5Crypt.html[ApacheMd5CryptTransformer]
+ * link:Transformers/CryptTransformer.html[CryptTransformer]
+ * link:Transformers/CvsScramble.html[CvsScrambleTransformer]
+ * link:Transformers/HMACTransformer.html[HMACTransformer]
+ * link:Transformers/MD5Transformer.html[MD5Transformer]
+ * link:Transformers/SHA1Transformer.html[SHA1Transformer]
+ * link:Transformers/TripleDesTransformer.html[TripleDesTransformer]
+ * link:Transformers/UnixMd5CryptToolTransformer.html[UnixMd5CryptToolTransformer]
+ * link:Transformers/UnixMd5CryptTransformer.html[UnixMd5CryptTransformer]
+
+*Encode*
+
+ * link:Transformers/Base64EncodeTransformer.html[Base64EncodeTransformer]
+ * link:Transformers/Base64DecodeTransformer.html[Base64DecodeTransformer]
+ * link:Transformers/HexTransformer.html[HexTransformer]
+ * link:Transformers/HexStringTransformer.html[HexStringTransformer]
+ * link:Transformers/HtmlEncodeTransformer.html[HtmlEncodeTransformer]
+ * link:Transformers/HtmlDecodeTransformer.html[HtmlDecodeTransformer]
+ * link:Transformers/HtmlEncodeAgressiveTransformer.html[HtmlEncodeAgressiveTransformer]
+ * link:Transformers/Ipv4StringToOctetTransformer.html[Ipv4StringToOctetTransformer]
+ * link:Transformers/Ipv4StringToNetworkOctetTransformer.html[Ipv4StringToNetworkOctetTransformer]
+ * link:Transformers/Ipv6StringToOctetTransformer.html[Ipv6StringToOctetTransformer]
+ * link:Transformers/JsEncodeTransformer.html[JsEncodeTransformer]
+ * link:Transformers/NetBiosEncodeTransformer.html[NetBiosEncodeTransformer]
+ * link:Transformers/NetBiosDecodeTransformer.html[NetBiosDecodeTransformer]
+ * link:Transformers/SidStringToBytesTransformer.html[SidStringToBytesTransformer]
+ * link:Transformers/UrlEncodeTransformer.html[UrlEncodeTransformer]
+ * link:Transformers/UrlEncodePlusTransformer.html[UrlEncodePlusTransformer]
+ * link:Transformers/Utf8Transformer.html[Utf8Transformer]
+ * link:Transformers/Utf16Transformer.html[Utf16Transformer]
+ * link:Transformers/Utf16LeTransformer.html[Utf16LeTransformer]
+ * link:Transformers/Utf16BeTransformer.html[Utf16BeTransformer]
+ * link:Transformers/WideCharTransformer.html[WideCharTransformer]
+
+*Type*
+
+ * link:Transformers/AsInt8Transformer.html[AsInt8Transformer]
+ * link:Transformers/AsInt16Transformer.html[AsInt16Transformer]
+ * link:Transformers/AsInt24Transformer.html[AsInt24Transformer]	
+ * link:Transformers/AsInt32Transformer.html[AsInt32Transformer]
+ * link:Transformers/AsInt64Transformer.html[AsInt64Transformer]
+ * link:Transformers/IntToHexTransformer.html[IntToHexTransformer]
+ * link:Transformers/NumberToStringTransformer.html[NumberToStringTransformer]
+ * link:Transformers/StringToFloatTransformer.html[StringToFloatTransformer]
+ * link:Transformers/StringToIntTransformer.html[StringToIntTransformer]
+
+*Misc*
+
+ * link:Transformers/EvalTransformer.html[EvalTransformer]

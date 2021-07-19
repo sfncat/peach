@@ -1,0 +1,16 @@
+:toc!:
+== Bz2CompressTransformer
+
+The _Bz2CompressTransformer_ performs a bzip2 compression on the value in the parent data model.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<String name="TransformMe" value="shrinkmepleaseshrinkmeplease" >
+		<Transformer class="Bz2Compress" />
+	</String>
+</DataModel>
+----
+

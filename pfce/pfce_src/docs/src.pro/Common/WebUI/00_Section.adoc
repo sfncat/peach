@@ -1,0 +1,123 @@
+[[Program_PeachWebIF]]
+== The {peachweb}
+
+The {peachweb} is an interactive interface to {product} that simplifies monitoring of local and remote fuzzing jobs. Using {peachweb}, you can select, configure, and run fuzzing definitions (Pits). The {peachweb} is operating system agnostic. This means that you can use the same interface to run Peach, whether on Windows, Linux, or OS X. When a Pit is running, you can view the state of the fuzzing job and see faults that result.
+
+The {peachweb} works with Pits from the included Pit Library. With a little configuration, the Pits will be ready to run. Once you settle on a Pit that you want to use, you can configure the Pit to detect faults, to collect data, or to automate the fuzzing session.
+
+=== {peachweb} Installation Requirements
+
+The {peachweb} uses modern web technologies, such as HTML 5. Yet,  {peachweb} requires two things to run:
+
+* JavaScript, enabled in your web browser
+* A supported browser
+** Internet Explorer: version 9 and newer
+** Safari: version 6 and newer
+** Firefox: version 4 and newer
+** Chrome: version 12 and newer
+** Opera: version 12 and newer
+
+NOTE: Other browsers might work; however, they are not officially supported
+
+<<<
+[[Start_Peach_Web]]
+=== Starting the {peachweb}
+
+You can start the {peachweb} using the GUI File Manager or from the command line. Both methods include the same functionality, use the method you prefer.
+
+We recommend running Peach with heightened or administrative privileges. Some applications that provide monitoring functions, such as debuggers, need heightened access to run.
+
+You can start Peach from a command line with two actions:
+
+. Open a command shell with administrative privileges.
+. On the command line, type Peach and press RETURN. The following illustration shows starting Peach in Windows.
+
+image::{images}/Common/WebUI/P1_Starting_Peach.png[]
+
+The {peachweb} is the default mode of operation for the command line. Launching the {peachweb} performs the following tasks:
+
+. Starts {product}
+. Loads your default web browser with the {peachweb} URL
++
+On the first launch of Peach, a licensing page displays.
++
+image::{images}/Common/WebUI/P2_EULA_Details.png[]
++
+When you have read and understood the End User License Agreement, click 'Accept'.
+
+. Displays the Peach Home Page
+
+image::{images}/Common/WebUI/H1_Home.png[]
+
+From Home, you can use click entries and buttons on the left side of the page to work with your licensed Pits, view reports and details of previous fuzzing sessions, and to interact with the Peach forums.
+
+==== Parts of the User Interface
+The Web User Interface includes many useful components, the most prominent are called out in the following illustration:
+
+image::{images}/Common/WebUI/H1_Annotated.png[]
+
+===== 1. Page Title
+The Page title identifies the page you are on and establishes the context of your current task.
+
+===== 2. Menu Entries
+Menu entries are located along the left edge of the browser window. These buttons identify the functionality immediately at your disposal. Whether you want to explore your Pit Library, investigate a completed fuzzing job, or get some assistance from Help or the Forums, the menu is there for you.
+
+The entries in the menu change according to the work context. For example, when you start working with a Pit, the menu entries change to accommodate editing a Pit definition. Click an entry in the menu to start working on that item. There is also an option to collapse the menu.
+
+===== 3. Menu Icons
+Located above the menu entries, the menu icons are always present and do not change. The icons are always:
+
+* Home Page
+* Your Pit Library
+* Your Fuzzing Job Historical Results
+* Peach User's Guide (HTML Help)
+
+Click a menu icon to move there.
+
+===== 4. Breadcrumb menu
+The breadcrumb is located above the Page Title and identifies your position within the Peach Web UI.
+Portions of the breadcrumb are links and marked appropriately by color.
+
+==== A Quick Tour of the {peachweb}
+
+This section provides a brief glimpse of the main areas of Peach that are accessible from the menu and buttons on the left edge of the page. The tour is quick: about a slide per menu item.
+
+===== Library
+
+The _Library_ menu is where you select and configure Pits (fuzzing definitions), and run fuzzing jobs. The page lists the licensed Peach Pits first, then follows with the defined configurations that you create.
+
+image::{images}/Common/WebUI/H2_Library.png[]
+
+===== Jobs
+
+The _Jobs_ menu provides access to your fuzzing job results. Click on an entry to see the report status, summary, metrics, and drill down detail of individual findings.
+
+image::{images}/Common/WebUI/H3_Jobs.png[]
+
+===== Help
+
+The _Help_ Menu provides access to the online Peach User Guide. This instructional piece provides workflows for installing Peach, recipes for setting up and running various configurations, and descriptions of the Peach monitors for detecting faults (issues), collecting data, and automating the test environment.
+
+image::{images}/Common/WebUI/H4_HTMLHelp.png[]
+
+NOTE: Additionally, the 'User Guide' is available in PDF format.
+
+image::{images}/Common/WebUI/H5_PdfHelp.png[]
+
+===== Forums
+
+Peach has user forums that serve as a knowledge base of user questions, and as an active platform to raise questions of current need or interest. Feel free to explore the forums. Note that the professional forum provides a service venue to licensed users of Peach Professional and Peach Enterprise solutions.
+
+image::{images}/Common/WebUI/H6_PeachForums.png[]
+
+include::01_Config_Variables.adoc[]
+
+include::02_Config_Monitors.adoc[]
+
+include::03_Config_Tuning.adoc[]
+
+include::04_Config_Test.adoc[]
+
+include::05_Job.adoc[]
+
+// end

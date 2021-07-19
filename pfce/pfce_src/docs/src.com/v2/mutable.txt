@@ -1,0 +1,4 @@
+:toc!:
+== mutable Attribute ==
+
+The _mutable_ attribute indicates if a data element is changeable.  This will determine if mutators are allowed to change it's value.  This attribute always defaults to True, or changeable.

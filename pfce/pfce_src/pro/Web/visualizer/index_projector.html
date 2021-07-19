@@ -1,0 +1,182 @@
+<html>
+<head>
+	<meta http-equiv="refresh" content="3"/>
+	<link rel="stylesheet" type="text/css" href="peach_projector.css"/>
+	<title>Peach Visualizer</title>
+</head>
+<script type="text/javascript" src="d3.min.js" charset="utf-8" ></script>
+<body>
+<div class="content">
+    <!-- Top bar--> 
+    <div class="top_block Top">
+        <div style="float:left">
+          <img src="customlogo.jpg" />
+        </div>
+
+        <div style="float:left">
+          <p id="peachTitle" class="MainTitle">Peach Enterprise Visualizer (Alpha)</p>
+        </div>
+    </div>
+    <!-- image hosting --> 
+    <div class="left_block PictureColumn">
+      <div class="content"> 
+        <p class="Title">Target Image</p>
+        <div class="img-50">
+          <img src="sample.png"/> 
+        </div>
+
+        <p class="Title">Fuzzed Image</p>
+        <div class="img-50">
+          <img src="fuzzed.png"/>
+        </div>
+
+        <div style="float:top">
+          <p id="Iteration" class="SubTitle Underline">Iteration:</p>
+        </div>       
+        <div style="float:top">
+          <p id="IterationValue" class="SubTitle">0</p>
+        </div>       
+
+         <div style="float:top">
+          <p id="Iteration" class="SubTitle Underline">Total Iterations:</p>
+        </div>       
+        <div style="float:top"> 
+          <p id="TotalIterValue" class="SubTitle">0<p>
+        </div>
+
+        <div style="float:top">
+          <p id="FuzzedEle" class="SubTitle Underline">Element:</p>
+        </div>
+
+        <div style="float:top">
+          <p id="FuzzedEleValue" style="word-wrap: break-word" class="SubTitle">?</p>
+        </div>
+
+        <div> 
+          <p id="Mutation" class="SubTitle Underline">Mutation:</p>
+        </div>
+        <div> 
+          <p id="MutationValue" style="word-wrap: break-word" class="SubTitle">??????</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right visualization tree --> 
+    <div id="viszContainer" class="right_block VisColumn"/>
+
+    <!-- End layout --> 
+  </div>
+	<script type="text/javascript">
+	
+	var width = 1000, height = 1100;
+
+  var clusterLayoutWidthAdjust = 350; 
+  var clusterLayoutHeightAdjust = 200; 
+    
+  var nodeTitleXAdjust = 12; 
+    //create a cluster layout 
+	var cluster = d3.layout.cluster()
+    .size([height - clusterLayoutHeightAdjust, 
+           width  - clusterLayoutWidthAdjust]);
+
+    //update 
+	var diagonal = d3.svg.diagonal()
+    .projection(function(d) { return [d.y, d.x]; });
+
+    //use # to select by id name 
+  var svg = d3.select("#viszContainer").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(40,0)");
+
+  //Load Json 
+	d3.json("peach.json", function(error, root) 
+  {
+	  //Select the First dataModel out of the datamodel secion 
+    var iteration = 0; 
+    var iterationTotal = 0; 
+    var mutatedElement = ""; 
+    var mutationType = ""; 
+    
+    iteration = cluster.nodes(root[0]['IterationNumber']); 
+    iterationTotal = cluster.nodes(root[0]['TotalIteration']); 
+    mutatedElement = cluster.nodes(root[0]['ElementName']);
+    mutationType = cluster.nodes(root[0]['MutatorName']);
+
+    d3.select("#IterationValue").text(iteration);
+    d3.select("#TotalIterValue").text(iterationTotal); 
+    d3.select("#FuzzedEleValue").text(mutatedElement); 
+    d3.select("#MutationValue").text(mutationType); 
+
+    var topLevelName = root[1]['DataModels'][0].name; 
+  	var nodes = cluster.nodes(root[1]['DataModels'][0]),
+      links = cluster.links(nodes);
+
+  	var link = svg.selectAll(".link")
+  		.data(links)
+  		.enter()
+  		.append("path")
+    	.attr("class", "link")
+    	.attr("d", diagonal);
+
+	var node = svg.selectAll(".node")
+    	.data(nodes)
+    	.enter()
+    	.append("g")
+    	.attr("class", "node")
+      .attr("id", function(d) 
+       {
+         var name = d.name; 
+         currentNode = d; 
+         var n = d; 
+         if(n.parent != null)
+         {
+          while(n!= null && n.parent.name != topLevelName )
+          {
+            name = n.parent.name +  name; 
+            if(n.parent != null)
+            {
+              n = n.parent; 
+            }
+            else 
+            {
+              n = null; 
+            }
+          }
+        }
+
+        if(name != topLevelName)
+          name = topLevelName + name; 
+        return name;  
+      })
+    	.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; })
+
+
+   //var highlight = svg.select("#")
+
+	node.append("circle")
+		.attr("r", 6.5);
+
+	node.append("text")
+    	.attr("dx", function(d) { return d.children ? -nodeTitleXAdjust : nodeTitleXAdjust; })
+    	.attr("dy", 0)
+    	.style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+    	.text(function(d) { return d.name; });
+
+
+   var highlightNodes = mutatedElement[0].split('.');
+   var nodeName = ""; 
+   for(var nodeIndex =0; nodeIndex < highlightNodes.length; nodeIndex++)
+   {
+    nodeName += highlightNodes[nodeIndex]; 
+    d3.select("#" + nodeName ).attr("class", "nodeHighlight");
+    d3.select("#" + nodeName).append("circle").attr("r", 12); 
+   }
+
+	});//End Json Load 
+
+	d3.select(self.frameElement).style("height", height + "px");
+	</script>
+</body>
+</html>

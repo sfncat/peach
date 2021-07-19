@@ -1,0 +1,35 @@
+
+== Buckets
+
+Buckes of duplicate faults.
+
+[source,java]
+----
+// Buckets of faults that are deemed similar
+// or the same.
+//
+// NOTE: Currently buckets are specific to job
+//       however, in the future buckets will
+//       sometimes span multiple jobs or target
+//       versions. By keeping the data currently
+//       stored sparse we leave room for expanding
+//       usage in the future.
+GET /p/buckets/ID
+< 200 
+< Content-Type: application/json
+{
+    "bucketUrl":"",
+	
+	// faults part of this bucket
+	"faults":[
+		"faultUrl":"",
+		"faultUrl":"",
+		"faultUrl":"",
+	]
+	
+	// label buckets
+	"tags":[
+		{ "key":"value" }
+	]
+}
+----

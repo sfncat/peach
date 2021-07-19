@@ -1,0 +1,111 @@
+<<<
+[[Publishers_File]]
+== File Publisher
+
+// Reviewed:
+//  - 02/13/2014: Seth & Adam: Outlined
+// give full put to run for example
+// Updated:
+// - 02/14/2014: Jordyn
+// Added full example
+
+The _File_ publisher opens a file for reading or writing.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="File">
+    <Param name="FileName" value="fuzzed.bin" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+FileName:: Name of file to open
+
+_Optional:_
+
+Overwrite:: Overwrite existing files, defaults to true.
+Append:: Append data to existing file, defaults to false.
+
+=== Actions
+
+xref:Action_open[open]:: Open file for reading/writing.
+xref:Action_close[close]:: Close file stream.
+xref:Action_output[output]:: Data to be written to file
+xref:Action_input[input]:: Read data from file.
+
+=== Examples
+
+.Write to file
+===============
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <Number name="Magic" size="8" value="47" token="true"/>
+    <Number name="Length" size="8">
+      <Relation type="size" of="Data"/>
+    </Number>
+    <Blob name="Data"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel" />
+        <Data fileName="file.bin" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="File">
+      <Param name="FileName" value="fuzzed.bin" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+===============
+
+.Read from file
+===============
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <Number name="Magic" size="8" value="47" token="true"/>
+    <Number name="Length" size="8">
+      <Relation type="size" of="Data"/>
+    </Number>
+    <Blob name="Data"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="input">
+        <DataModel ref="TheDataModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+    <Publisher class="File">
+      <Param name="FileName" value="file.bin" />
+      <Param name="Overwrite" value="False"/>
+    </Publisher>
+  </Test>
+</Peach>
+----
+===============

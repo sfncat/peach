@@ -1,0 +1,22 @@
+:toc!:
+== Ref Attribute ==
+
+The ref attribute specifies a reference to another element.  References can be relative or fully qualified.  The following is the syntax for references:
+
+_Fully qualified with namespace prefix:_
+----
+ref="namespace:parent.parent.child"
+----
+
+
+_Fully qualified:_
+----
+ref="parent.parent.child"
+----
+
+
+_Relative:_
+----
+ref="ElementName"
+----
+

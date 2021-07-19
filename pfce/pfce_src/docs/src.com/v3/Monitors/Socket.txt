@@ -1,0 +1,25 @@
+:toc!:
+== Socket Monitor
+
+The _Socket_ monitor waits for an incoming TCP or UDP connection.  If a connection is accepted a fault will be raised.
+
+=== Parameters
+
+ * _Host_ -- IP address of remote host (optional, defaults to "")
+ * _Interface_ -- IP address of interface to listen on (optional, defaults to 0.0.0.0)
+ * _Port_ -- Port to listen on (optional, defaults to 8080)
+ * _Protocol_ -- Protocol type to listen for (optional, defaults to tcp)
+ * _Timeout_ -- Length of time to wait for incoming connection (optional, defaults to 1000 ms)
+ * _FaultOnSuccess_ -- Fault if no conection is recorded (optional, defaults to false)
+ 
+=== Examples
+
+.Listen for incoming connection
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="Socket">
+		<Param name="Port" value="53" />
+	</Monitor>
+</Agent>
+----

@@ -1,0 +1,20 @@
+:toc!:
+= network.PingMonitor =
+
+This monitor will report a fault if it cannot ping the specified hostname.
+
+[source,xml]
+----
+
+<Monitor class="network.PingMonitor">
+  <Param name="hostname" value="10.10.10.10" />
+</Monitor>
+----
+
+_Parameters:_
+
+ * hostname -- Host to ping [required]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

@@ -1,0 +1,23 @@
+:toc!:
+= process.Command =
+
+This publisher will launch a process via the _call_ action and supports zero or more arguments.
+
+[source,xml]
+----
+<StateModel name="State" initialState="Init">
+  <State name="Init">
+     <Action type="call" method="notepad.exe" />
+  <State/>
+</StateModel>
+
+<Test name="TheTest">
+  <StateModel ref="State" />
+  <Publisher class="process.Command" />
+</Test>
+----
+
+
+_Supported Actions:_
+
+ * link:call.html[call]

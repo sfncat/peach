@@ -1,0 +1,7 @@
+:toc!:
+== Michael Eddington ==
+
+Email: mike@dejavusecurity.com
+
+Creator and lead developer of the Peach Fuzzing Platform.
+

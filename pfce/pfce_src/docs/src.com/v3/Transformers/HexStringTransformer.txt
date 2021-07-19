@@ -1,0 +1,16 @@
+:toc!:
+== HexStringTransformer
+
+The _HexStringTransformer_ takes the provided value and produces an ascii string of hex characters that represent the data.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1"> 
+	<String name="TransformMe" value="AAAAAAAAAAA">
+		<Transformer class="HexString" />
+	</String>
+</DataModel>
+----
+

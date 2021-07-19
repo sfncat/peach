@@ -1,0 +1,159 @@
+// inputs:
+// configtype: set to basic, advanced, or leave undefined
+// compileroptions: set to what compiler options were used, should be plain English sentence
+// gdb: set to anything to include gdb monitor and config steps
+// args: set to any arguments that need to be passed either to process or gdb monitors
+// process: set to anything to include process monitor and config steps
+// pcap: includes network capture monitor and config steps, sets Filter to value of {pcap}
+// startoncall: includes steps to set "Start On Call" to the value of {startoncall} for gdb and/or process
+// startonexit: includes steps to set "Start On Call" for exit iteration event
+// asanwarn: set to anything to include a warning that GDB monitor is not compatible with asan
+// delaystarthack: set to anything to include instructions for adding automation to delay the start until gdb is ready
+// syslog: set to include instructions on setting up a syslog monitor.
+// syslogregex: if set and syslog is set, this value will be used for the syslog regex
+
+// also should be set, but not specific to this file:
+// pitname: name of pit in use, images for it should be in {images}/{pitname}/image-name.png
+// targetapp: friendly name of target application e.g. "opendnp3" and not outstation-demo
+// targetexe: value used for gdb, process, and anywhere else the executable is required
+// protocol: the protocol being tested.
+ifdef::configtype[]
+===== Configuring the monitors for {configtype}
+The {configtype} configuration is targeting {targetapp} compiled with {compileroptions}.
+endif::[]
+ifndef::configtype[]
+===== Configuring the monitors
+This configuration is targeting {targetapp} compiled with {compileroptions}.
+endif::[]
+You will therefore want the following monitors:
+
+ifdef::gdb[]
+* *Gdb Monitor*.
+This will allow {product} to launch {targetapp} from within GDB so that GDB attaches to {targetapp}.
+{product} will monitor GDB and attempt to analyze any crashes that GDB detects based on receiving signals from the application being tested.
+endif::[]
+ifdef::delaystarthack[]
+// hack for sleep
+* *RunCommand Monitor*
+In this case, {targetapp} takes a long time to load.
+It is therefore necessary to add a means to delay starting the test run until the application has fully loaded.
+To do this, the RunCommand Monitor can be used to run the bash "sleep" command.
+{product} must wait both at the start of each session and the start of each iteration in case a fault was found and the target had to be restarted.
+As a result, two monitors will be added with the same sleep command, one set to *OnStart* and the other set to *OnIterationStart*.
+endif::[]
+ifdef::process[]
+* *Process Monitor*.
+This will allow {product} to launch {targetapp}.
+ifdef::asanwarn[]
+Because {targetapp} is compiled with ASan, the Process Monitor will detect the program exited due to an error and gather the output from ASan about the nature of the crash.
++
+WARNING: Do not use the GDB Monitor for applications that are compiled with ASan.
+It is not compatible with ASan.
+endif::[]
+endif::[]
+ifdef::pcap[]
+* *Network Capture monitor*.
+Since {protocol} is a network protocol, this monitor will allow {product} to capture the actual data that was sent and received as a pcap.
+This will help determine what may have caused a fault and could also be useful in trying to create a repro or test case that can aid in creating a fix for the application.
+Any configuration that is fuzzing a network protocol should typically have this monitor.
+endif::[]
+ifdef::syslog[]
+* *Syslog Monitor*
+The application writes entries to the syslog, which may be useful to capture for debugging purposes.
+In some cases, may also be useful to trigger a fault if a particular syslog message is seen.
+endif::[]
+
+// Steps to configure, should be in same order as above
+To add and configure the monitors:
+
+ifdef::gdb[]
+. Click *Add Monitor*.  In the pop-up, scroll down and select *Gdb*.  Click *Ok*.
+. Under *Executable*, enter *{targetexe}* which is the location of {targetapp}'s launcher. 
+This will allow the monitor to launch the application when fuzzing starts.
+Do not change any of the other settings for this monitor.
+ifdef::args[]
+. Under *Arguments*, enter *{args}*.
+endif::[]
+ifdef::startonexit[]
+. Under *Advanced*, set the value of *Start On Call* to *ExitIterationEvent*.
+This is important because {product} will normally try to execute the target when the session starts.
+Because this sample is fuzzing images with an application, the fuzzed image is actually created on each iteration.
+As a result, the target has to be invoked at the end of the iteration in order to ensure that the fuzzed image has been created and written to a file for the target to process.
+endif::[]
+. Click *Save*.
++
+image:{images}/{pitname}/gdb-monitor.png[]
+endif::[]
+ifdef::process[]
+. Click *Add Monitor*.  In the pop-up, scroll down and select *Process*.  Click *Ok*.
+. Under *Executable*, enter *{targetexe}* which is the location of {targetapp}'s launcher. 
+This will allow the monitor to launch the application when fuzzing starts.
+ifdef::args[]
+. Under *Arguments*, enter *{args}*.
+endif::[]
+ifdef::startoncall[]
+. Under *Advanced*, set the value of *Start On Call* to *StartIterationEvent*.
+This is important because {product} will try to initially connect to {targetapp} before fuzzing begins.
+Setting this to *StartIterationEvent* ensures that {product} will launch {targetapp} at the beginning of each test iteration so that {targetapp} is listening when {product} makes its initial connection.
+Changing this setting is necessary when fuzzing network protocols for most server applications.
+endif::[]
+ifdef::startonexit[]
+. Under *Advanced*, set the value of *Start On Call* to *ExitIterationEvent*.
+This is important because {product} will normally try to execute the target when the session starts.
+Because this sample is fuzzing images with an application, the fuzzed image is actually created on each iteration.
+As a result, the target has to be invoked at the end of the iteration in order to ensure that the fuzzed image has been created and written to a file for the target to process.
+endif::[]
+. Do not change any of the other settings for this monitor.
+. Click *Save*.
++
+image:{images}/{pitname}/process-monitor.png[]
+endif::[]
+ifdef::delaystarthack[]
+. Click *Add Monitor*.  In the pop-up, scroll down and select *RunCommand*.
+. Under *Command*, enter */bin/bash*.
+. Under *Arguments*, enter *-c "sleep 1"*.  This will call the bash "sleep" command to sleep for 1 second.
+. Under *When To Trigger*, set *When* to *OnStart* so that this will execute when the test session starts.
+. Click *Save*
++
+image:{images}/runcommand-onstart.png[]
+. Click *Add Monitor*.  In the pop-up, scroll down and select *RunCommand*.
+. The previous RunCommand monitor will have automatically used the name "Run Command" when it was created unless it was changed.  
+You will need to give this RunCommand Monitor a different name.
+Here, *Run Command On Iteration Start* is used.
+. Under *Command*, enter */bin/bash*.
+. Under *Arguments*, enter *-c "sleep 1"*.  This will call the bash "sleep" command to sleep for 1 second.
+. Under *When To Trigger*, set *When* to *OnIterationStart* so that this executes when each iteration starts.
+This is important because if a fault is found, {product} will re-start the target application and therefore needs to delay running the next iteration to give the target application enough time to load.
+. Click *Save*
++
+image:{images}/runcommand-oniterationstart.png[]
+endif::[]
+ifdef::pcap[]
+. Click *Add Monitor*.  In the pop-up, scroll down and select *Network Capture* under the *Data Collection* section.  Click *Ok*.
+ifdef::hosted[]
+. Under *Device*, enter *lo* (for loopback, since {targetapp} is listening on the loopback interface)
+endif::[]
+ifndef::hosted[]
+. Under *Device*, enter *eth0* ({targetapp} is listening on the target VM's eth0 interface)
+endif::[]
+. Under *Filter*, enter *{pcap}* to capture all traffic going to or from the port you specified when you configured the variables in the previous section.
+. Click *Save*.
++
+ifdef::hosted[]
+image:{images}/{pitname}/network-capture-monitor.png[]
+endif::[]
+ifndef::hosted[]
+image:{images}/{pitname}/network-capture-monitor-client.png[]
+endif::[]
+endif::[]
+ifdef::syslog[]
+. Click *Add Monitor*.  In the pop-up, scroll down and select *Syslog*.  Click *Ok*.
+. Leave the default values for *Interface* and *Port*.
+ifdef::syslogregex[]
+. Set the *Fault Regex* to *{syslogregex}*.
+endif::[]
+. Click *Save*
++
+image:{images}/{pitname}/syslog-monitor.png[]
+endif::[]
+// end

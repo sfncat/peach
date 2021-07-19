@@ -1,0 +1,232 @@
+:toc!:
+link:ConfigurePublisher.html[<< Previouse] | link:../TutorialDumbFuzzing.html[Up] | link:../TutorialDumbFuzzing.html[Finished]
+
+''''
+
+== Agent and Monitor ==
+
+Now we are ready to configure our agent and monitors.
+Agents are special Peach processes that can be run locally in process or remote over a network connection.
+These agents host one or more monitors that can perform such actions as attaching debuggers,
+watching memory consumption, etc.
+For this tutorial we are going to configure Peach to use monitors specific to each target platform.
+Windows will be configured to use Microsoft WinDbg to monitor +mspaint.exe+ for exceptions and other common issues.
+Additionally on Windows we will enable the HEAP debugging for the target process.
+Linux will be configured to monitor for the presence of core files.
+OSX will be configured to use CrashWrangler to monitor +Safari+ for exceptions and other common issues.
+
+== Configure the Agent and Monitor ==
+
+First lets locate the commented out +Agent+ element in the template file, it will look something like this:
+
+[source,xml]
+----
+<!-- TODO: Configure agent -->
+<Agent name="TheAgent" location="http://127.0.0.1:9000"/>
+----
+
+
+We are going to uncomment this section and remove the "location" attribute.
+When no "location" attribute is present, Peach will automatically start a local Peach Agent.
+We will configure three agents, one for Windows, one for Linux and one for OSX.
+The Windows agent will be comprised of two monitors: WindowsDebugger and PageHeap.
+The Linux agent will also be comprised of one monitor: LinuxDebugger.
+The OSX agent will only be comprised of a single monitor: CrashWrangler.
+
+[source,xml]
+----
+<Agent name="WinAgent">
+   <Monitor class="WindowsDebugger">
+
+        <!-- The command line to run.  Notice the filename provided matched up 
+             to what is provided below in the Publisher configuration -->
+        <Param name="CommandLine" value="mspaint.exe fuzzed.png" />
+
+        <!-- This parameter will cause the debugger to wait for an action-call in
+             the state model with a method="LaunchViewer" before running
+             program.
+        -->
+        <Param name="StartOnCall" value="LaunchViewer" />
+
+        <!-- This parameter will cause the monitor to terminate the process
+             once the CPU usage reaches zero.
+        -->
+        <Param name="CpuKill" value="true"/>
+
+    </Monitor>
+
+    <!-- Enable heap debugging on our process as well. -->
+    <Monitor class="PageHeap">
+        <Param name="Executable" value="mspaint.exe"/>
+    </Monitor>
+
+</Agent>
+
+<Agent name="LinAgent">
+    <!-- Register for core file notifications. -->
+    <Monitor class="LinuxDebugger"/>
+
+        <!-- This is the program we're going to run inside of the debugger -->
+        <Param name="Executable" value="feh"/>
+
+        <!-- These are arguments to the executable we want to run -->
+        <Param name="Arguments"  value="fuzzed.png"/>
+
+        <!-- This parameter will cause the monitor to terminate the process
+             once the CPU usage reaches zero.
+        -->
+        <Param name="CpuKill" value="true"/>
+
+</Agent>
+
+<Agent name="OsxAgent">
+    <Monitor class="CrashWrangler">
+        <!-- The executable to run. -->
+        <Param name="Command" value="/Applications/Safari.app/Contents/MacOS/Safari" />
+
+        <!-- The program arguments.  Notice the filename provided matched up 
+             to what is provided below in the Publisher configuration -->
+        <Param name="Arguments" value="fuzzed.png" />
+
+        <!-- Do not use debug malloc. -->
+        <Param name="UseDebugMalloc" value="false" />
+
+        <!-- Treat read access violations as exploitable. -->
+        <Param name="ExploitableReads" value="true" />
+
+        <!-- Path to Crash Wrangler Execution Handler program. -->
+        <Param name="ExecHandler" value="/usr/local/bin/exc_handler" />
+
+        <!-- This parameter will cause the monitor to wait for an action-call in
+             the state model with a method="LaunchViewer" before running
+             program.
+        -->
+        <Param name="StartOnCall" value="LaunchViewer" />
+
+    </Monitor>
+</Agent>
+----
+
+
+
+== Configure Test ==
+
+Okay, now we just need to enable the agent for our test.
+Head down to the +Test+ element, specifically we are looking to uncomment this line,
+and modify our Launcher publisher.
+
+[source,xml]
+----
+<!-- <Agent ref="LocalAgent"/> -->
+----
+
+
+Leaving us with this:
+
+[source,xml]
+----
+<Test name="Default">
+    <Agent ref="WinAgent" platform="windows"/>
+    <Agent ref="LinAgent" platform="linux"/>
+    <Agent ref="OsxAgent" platform="osx"/>
+
+    <StateModel ref="TheState"/>
+
+    <Publisher class="File">
+        <Param name="FileName" value="fuzzed.png"/>
+    </Publisher>
+</Test>
+----
+
+
+== Configure Fuzzing Strategy ==
+
+Since we are dumb fuzzing with multiple files we will want to change the default fuzzing strategy Peach uses to one more suited to our needs.  The best fuzzing strategy for dumb fuzzing is the random strategy.  We can configure it by adding a +Strategy+ element to our +Test+ section.
+
+We will add this:
+
+[source,xml]
+----
+     <Strategy class="Random"/>
+----
+
+
+Leaving us with this:
+
+[source,xml]
+----
+<Test name="Default">
+    <Agent ref="WinAgent" platform="windows"/>
+    <Agent ref="LinAgent" platform="linux"/>
+    <Agent ref="OsxAgent" platform="osx"/>
+
+    <StateModel ref="TheState"/>
+
+    <Publisher class="File">
+        <Param name="FileName" value="fuzzed.png"/>
+    </Publisher>
+
+    <Strategy class="Random"/>
+</Test>
+----
+
+
+== Configure Logging ==
+
+Now that we are using monitors that can detect faults we will want to configure a logging mechanism to capture the results of our fuzzer run.
+
+Todo this add the following to the +Test+ element at the bottom of our XML file:
+
+[source,xml]
+----
+<Logger class="Filesystem">
+    <Param name="Path" value="logs" />
+</Logger>
+----
+
+
+So it looks like this:
+
+[source,xml]
+----
+<Test name="Default">
+    <Agent ref="WinAgent" platform="windows"/>
+    <Agent ref="LinAgent" platform="linux"/>
+    <Agent ref="OsxAgent" platform="osx"/>
+
+    <StateModel ref="TheState"/>
+
+    <Publisher class="File">
+        <Param name="FileName" value="fuzzed.png"/>
+    </Publisher>
+
+    <Strategy class="Random"/>
+
+    <Logger class="Filesystem">
+        <Param name="Path" value="logs" />
+    </Logger>
+</Test>
+----
+
+
+
+== Running Fuzzer ==
+
+Now lets actually kick off our fuzzer for real!  Every 200 or so iterations the strategy will switch to a different sample file.
+
+----
+peach png.xml
+----
+
+
+== Whats Next? ==
+
+From here you will want to:
+
+ . Collect additional samples files
+ . Run minset on the sample files to remove any files that cause duplicate code paths
+ . Collect bugs!
+
+''''
+
+link:ConfigurePublisher.html[<< Previouse] | link:../TutorialDumbFuzzing.html[Up] | link:../TutorialDumbFuzzing.html[Finished]

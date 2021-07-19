@@ -1,0 +1,105 @@
+<<<
+[[Fixups_TCPChecksumFixup]]
+== TCPChecksum
+
+// Reviewed:
+//  - 02/18/2014: Seth & Adam: Outlined
+// Expand description to include use case "This is used when fuzzing {0} protocols"
+// Give full pit to run using raw publisher, test works
+// List Parent element types
+// Number, String
+
+// Updated:
+// - 02/18/2014: Mick
+// Added full examples
+
+// Updated:
+// - 03/26/2014 Lynn
+//Corrected the fixup name
+
+The _TCPChecksum_ fixup produces an Internet checksum as defined in RFC 1071. This checksum is primarily used when fuzzing the TCPv4 and TCPv6 Protocols.
+
+A discussion on how to apply TCPChecksum can be found in RFC 793 for IPv4 and RFC 2460 for IPv6.
+
+
+=== Parent Elements
+
+xref:Number[Number]
+xref:String[String]
+
+=== Parameters
+
+xref:ref[ref]:: Reference to the input data element used in the checksum calculation.
+src:: Source IP Address. IP address of the local machine.
+dst:: Destination IP Address. IP address of the remote machine.
+
+=== Examples
+
+.Basic Usage Example
+====================
+This example shows the basic usage of TCPChecksum.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Packet">
+		<Block name="Header">
+			<Number name="SrcPort" size="16" endian="big" value="1234"/>
+			<Number name="DestPort" size="16" endian="big" value="1235"/>
+			<Number name="SequenceNumber" size="32" endian="big" valueType="hex" value="0043a577"/>
+			<Number name="AcknowledgmentNumber" size="32" endian="big" value="0"/>
+			<Number name="DataOffset" size="4" endian="big" />
+			<Number name="ControlBits" size="12" endian="big" />
+			<Number name="WindowSize" size="16" endian="big" valueType="hex" value="aaaa"/>
+			<Number name="CheckSum" size="16" endian="big">
+				<Fixup class="TCPChecksum">
+					<Param name="ref" value="Packet" />
+					<Param name="src" value="127.0.0.1" />
+					<Param name="dst" value="127.0.0.1" />
+				</Fixup>
+			</Number>
+			<Number name="UrgentPointer" size="16" endian="big"/>
+		</Block>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<Action type="output">
+				<DataModel ref="Packet" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" />	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 20133.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(20 bytes)
+00000000   04 D2 04 D3 00 43 A5 77  00 00 00 00 00 00 AA AA   ?????C?w????????
+00000010   A7 D8 00 00                                        ????
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+====================

@@ -1,0 +1,36 @@
+:toc!:
+== Number ==
+
+The Number element defines a binary number of lengths 8, 16, 24, 32, or 64 bits.  The Number element is a child element of DataModel, link:Block.html[Block], or link:Choice.html[Choice].
+
+For numerical strings use a link:String.html[String] element with a link:NumericalString.html[NumericalString] hint. (Peach 2.3)
+
+[source,xml]
+----
+<Number size="16" signed="false" endian="big" />
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [required]
+ * link:ref.html[ref] -- Reference to a data model to use as a template [optional]
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur
+ * link:isStatic.html[isStatic] -- This element should be treated as a token when parsing, defaults to False [DEPRECATED] [optional]
+ * link:token.html[token] -- (Peach 2.3)This element should be treated as a token when parsing, defaults to False [optional]
+
+ * link:size.html[size] -- Size of Number in bites.  Valid options are 8, 16, 24, 32, and 64. [required]
+ * link:endian.html[endian] -- Byte order of number, defaults to little [optional]
+ * link:signed.html[signed] -- Boolean indicating if the number is signed [optional, defaults to true]
+ * link:pointer.html[pointer] -- (Peach 2.3) Is this a pointer to a structure (true|false), default is false [optional]
+ * link:pointerDepth.html[pointerDepth] -- (Peach 2.3) How many levels of pointers (e.g. void** p is 2), default is 1 [optional]
+ * link:constraint.html[constraint] -- (Peach 2.3) A constraint in the form of a python expression.  Used during data cracking [optional]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]
+
+_Valid Child-Elements:_
+
+ * link:Fixup.html[Fixup]
+ * link:Relation.html[Relation]
+ * link:Transformer.html[Transformer]
+ * link:Hint.html[Hint]

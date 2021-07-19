@@ -1,0 +1,65 @@
+﻿<ng-form name="form">
+	<uib-accordion-group is-open="isOpen">
+		<uib-accordion-heading>
+			<span>
+				<i class="fa"
+					 ng-class="{'fa-chevron-down': isOpen, 'fa-chevron-right': !isOpen}">
+				</i>
+				&nbsp;
+				{{vm.Header}}
+				<span class="btn-group btn-group-xs pull-right">
+					<button class="btn btn-xs btn-info"
+									ng-click="vm.OnMoveUp($event)"
+									ng-disabled="!vm.CanMoveUp"
+									uib-tooltip="Move Monitor Up"
+									tooltip-append-to-body="true">
+						<i class="fa fa-chevron-up">
+						</i>
+					</button>
+					<button class="btn btn-xs btn-info"
+									ng-click="vm.OnMoveDown($event)"
+									ng-disabled="!vm.CanMoveDown"
+									uib-tooltip="Move Monitor Down"
+									tooltip-append-to-body="true">
+						<i class="fa fa-chevron-down">
+						</i>
+					</button>
+					<button class="btn btn-xs btn-danger"
+									ng-click="vm.OnRemove($event)"
+									uib-tooltip="Remove Monitor"
+									tooltip-append-to-body="true">
+						<i class="fa fa-remove">
+						</i>
+					</button>
+				</span>
+			</span>
+		</uib-accordion-heading>
+		<div class="form-group"
+				 ng-class="{'has-error': form.name.$invalid}">
+			<label class="col-sm-4 control-label">
+				Name
+			</label>
+			<div class="col-sm-6">
+				<input name="name"
+							 autocomplete="off"
+							 ng-model="monitor.name"
+							 type="text"
+							 class="form-control"
+							 peach:unique-channel="agents[{{agentIndex}}].monitor.name"
+							 peach:unique-default="Monitor{{monitorIndex}}" />
+				<span class="help-text">
+					Friendly name for your monitor
+				</span>
+				<span class="help-block"
+							ng-messages="form.name.$error"
+							ng-messages-include="html/messages.html">
+				</span>
+			</div>
+		</div>
+		<uib-accordion close-others="false">
+			<peach:parameter ng-repeat="param in monitor.view track by $index"
+												param="param">
+			</peach:parameter>
+		</uib-accordion>
+	</uib-accordion-group>
+</ng-form>

@@ -1,0 +1,18 @@
+:toc!:
+== CrashReporter Monitor (OS X)
+
+The _CrashReporter_ monitor will report crashes detected by OS X System Crash Reporter.
+
+=== Parameters
+
+ * _ProcessName_ -- Process name to watch for (optional, defaults to all)
+
+=== Examples
+
+.Catch all crashes
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="CrashReporter"/>
+</Agent>
+----

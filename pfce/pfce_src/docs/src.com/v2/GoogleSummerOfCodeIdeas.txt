@@ -1,0 +1,39 @@
+:toc!:
+== Google Summer of Code 2012 Ideas ==
+
+=== Project: Port HotFuzz to Peach 3 ===
+
+*Brief explanation:*  HotFuzz is an implementation of the Peach in the Middle concept (network proxy fuzzer).  It was implemented on top of Peach 2.3 and is now out of date with the new Peach 3.
+
+ * C# Wireshark Library Wrapper
+ *
+
+*Knowledge Prerequisite:* C#, C/C++, Python
+
+
+=== Project: Convert Wireshark PDML to Peach Pits ===
+
+*Brief explanation:* Wireshark can save dissected information about packets to an XML format called PDML.  This project would take PDML output and use it to auto generate Peach fuzzing definitions.
+
+ * Generate data models for each protocol layer
+ * Generate state model based on flow of packets
+
+*Knowledge Prerequisite:* C#, Wireshark, Networking
+
+*Mentor:* Michael Eddington
+
+=== Project: Peach 3 ASN.1 Analyzer/Publisher ===
+
+*Brief explanation:* Peach 3 needs the ability to convert ASN.1 structured data into Peach Data Models and then output them back into ASN.1 in various encodings (e.g. DER, PER, BER).  This will allow Peach to fuzz ASN.1 data.
+
+*Knowledge Prerequisite:* C#
+
+*Mentor:* Michael Eddington
+
+=== Project: Peach 3 Language Fuzzing ===
+
+*Brief explanation:* Most fuzzers operate on data that is then consumed by a target program (network packets, graphics files, etc).  However, many systems now consume languages (think JavaScript, or Python via Google App Engine).  This project would be to extend Peach to perform fuzzing of languages via grammers.
+
+*Knowledge Prerequisite:* C#, Grammers/Compilers
+
+*Mentor:* Michael Eddington

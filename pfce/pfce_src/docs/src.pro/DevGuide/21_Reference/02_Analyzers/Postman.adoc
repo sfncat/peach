@@ -1,0 +1,48 @@
+[[Analyzers_Postman]]
+
+== Postman Analyzer
+
+This analyzer converts Postman Collections into Peach Pits for fuzzing WebApi style web service endpoints.
+
+link:https://www.getpostman.com[Postman] is a popular app used during development and testing of WebApi style web services. APIs are organized into Collections which can be converted into fuzzers using this analyzer.
+
+After converting, some manual work is usually needed to have a fully working pit.  This includes:
+
+ * Hooking up any authentication/authorization
+ * Adding slurps for resource identifiers
+ * Adding cleanup states to remove created resources
+ * Testing to verify it all works
+ 
+NOTE: This analyzer is intended to always be run from the command line.
+
+=== Syntax
+
+----
+pittool analyzer Postman catalog.json web_api_pit.xml
+----
+
+=== Command Line Syntax
+
+----
+pittool analyzer Postman <input file> <output file>
+----
+
+input file::
+    Postman Catalog file to covnert
+
+output file::
+    Generated PIT file
+
+=== Attributes
+
+_Required:_
+
+There are no required attributes.
+
+_Optional:_
+
+There are no optional attributes.
+
+=== Examples
+
+No examples.

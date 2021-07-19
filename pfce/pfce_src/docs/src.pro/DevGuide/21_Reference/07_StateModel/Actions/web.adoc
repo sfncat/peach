@@ -1,0 +1,405 @@
+<<<
+[[Action_web]]
+== web
+
+Model web api/http requests. Provides full control over the request being modeled. Must be used in conjunction with the xref:Publishers_WebApi[WebApi] publisher.
+
+This action gives full control over:
+
+ * Path
+ * Query string
+ * Headers
+ * Form data
+ * Multipart requests
+ * Body
+ ** Binary
+ ** Json
+ ** Text
+ ** XML
+
+Several analyzers are useful when building Pits using this action type:
+
+xref:Analyzers_Json[Json]::
+    Converts JSON documents or strings into Peach data models.
+    Can be used both inside of DataModels with the String element or also via the command line.
+    
+xref:Analyzers_Postman[Postman]::
+    Converts Postman Catalogs to Peach Pits.
+    
+xref:Analyzers_Swagger[Swagger]::
+    Converts Swagger JSON to Peach Pits
+
+xref:Analyzers_WebRecordProxy[WebRecordProxy]::
+    Recording proxy captures web requests and generates full pit.
+    This makes creating the base pit easy, simply use as your HTTP proxy.
+
+xref:Analyzers_Xml[Xml]::
+    Converts XML documents or string into Peach data models.
+    Can be used both inside of DataModels with the String element or also via the command line.
+
+
+TIP: SSL/TLS is supported, just use +https+ as the protocol in the URL.
+
+NOTE: Must be used with xref:Publishers_WebApi[WebApi] publisher.
+
+=== Syntax
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+	<State name="InitialState">
+		<Action type="web" method="GET" url="http://localhost/product/{id}">
+            <Path key="id" value="100" />
+            <Query key="first" value="Mike" />
+            <Query key="last" value="Smith" />
+            <Header key="Content-Type" value="application/json"/>
+            <Body name="Json">
+                <DataModel ref="JsonBody" />
+            </Body>
+            <Response/>
+		</Action>
+	</State>
+</StateModel>
+----
+
+=== Attributes
+
+_Required:_
+
+type:: Action type, must be set to "web"
+method:: HTTP method verb (GET, DELETE, POST, PUT, etc.)
+url::
++
+Fully qualified URL including path.  Excludes query string.
++
+URL can include path subsitution identifiers in the form +{id}+, where 'id' matches
+the +id+ attribute of a child +Path+ element (see examples below). Multiple path
+substitutions can be performed.
+
+_Optional:_
+
+name:: Name used to identify the action
+publisher:: Name of the publisher that this action should be called on or Peach.Agent
+xref:Action_when[when]:: Only perform action if the expression provided evaluates to true
+xref:Action_onStart[onStart]:: Expression to run on start of an action.
+xref:Action_onComplete[onComplete]:: Expression to run on completion of an action
+
+=== Child Elements
+
+xref:web_Path[Path]::
+    Each subsitution identifier defined in the +url+ attribute of the web action must have a corresponding
+    Path child element. This provides a default value and data model for the path variable.
+xref:web_Query[Query]::
+    Defines a querystring key/value pair.  The query portion of the URL will be built using these child elements.
+xref:web_Header[Header]:: Define an HTTP header.
+xref:web_FormData[FormData]::
+    Define a key/value pair of form data. These values are transmitted via the request body. It is not possible to combine FormData with a Body or Part child.
+xref:web_Body[Body]::
+    Define the request body. Only one Body child element is allowed.  Body elements cannot be mixed with FormData or Part elements.  Only one type of body is allowed.
+xref:web_Part[Part]::
+    Define a part of a multipart request. Each part can contain xref:web_Header[Header], xref:web_FormData[FormData] and xref:web_Body[Body] child elements. Part elements cannot be used with FormData or Body elements.
+xref:web_Response[Response]::
+    Capture the response with an optional custom data model. Exposes status code, headers and body to scripting and _slurp_ actions.  If omitted, a default Response element is generated to capture the request response.
+
+=== Examples
+
+.Calling WebApi Services with Result
+===================================
+
+The following example provides three fragments using the GET and POST methods. 
+For the GET request, the Result element is used to capture any returned data.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="PostData">
+    <JsonObject>
+        <JsonString propertyName="Name" value="Widget" />
+        <JsonDouble propertyName="Price" value="1.99" />
+        <JsonInteger propertyName="Quantify" value="1" />
+    </JsonObject>
+</DataModel>
+
+<DataModel name="WebApiResult">
+	<Choice name="ResultOrEmpty">
+		<String name="Result">
+			<Analyzer class="Json" />
+		</String>
+		<Block name="Empty" />
+	</Choice>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+        <Action type="web" method="GET" url="http://www.example.com/product/{id}">
+            <Path name="Id" key="id" value="1"/>
+
+            <Response />
+                <DataModel ref="WebApiResult" />
+            </Response>
+        </Action>
+
+        <Action type="web" method="GET" url="http://www.example.com/invoices">
+            <Query name="StartDate" key="start_date" value="11-21-2011" />
+            <Query name="EndDate" key="end_date" value="11-21-2015" />
+
+            <Response>
+                <DataModel ref="WebApiResult" />
+            </Response>
+        </Action>
+
+        <Action type="call" method="POST" url="http://www.example.com/product/{id}">
+            <Path name="Id" key="id" value="100" />
+            <Body name="PostData">
+                <DataModel ref="PostData" />
+            </Body>
+        </Action>
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================
+
+
+.Posting XML
+===================================
+
+The following example provides three fragments using the GET and POST methods.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="PostData">
+    <XmlElement elementName="Product">
+        <XmlAttribute attributeName="Name">
+            <String value="Widget" />
+        </XmlAttribute>
+        <XmlAttribute attributeName="Price">
+            <String value="1.99" />
+        </XmlAttribute>
+        <XmlAttribute attributeName="Quantity">
+            <String value="1" />
+        </XmlAttribute>
+    </XmlElement>
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+
+        <Action type="web" method="POST" url="http://www.example.com/product/{id}">
+            <Path key="id" value="1"/>
+
+            <Body name="PostData">
+                <DataModel ref="PostData" />
+            </Body>
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+===================================
+
+
+.Posting Binary
+===================================
+
+The following example provides three fragments using the GET and POST methods.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<DataModel name="PostData">
+    <Blob />
+</DataModel>
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+
+        <Action type="web" method="POST" url="http://www.example.com/product/{id}/image">
+            <Path key="id" value="1"/>
+            <Body name="PostData">
+                <DataModel ref="PostData" />
+                <Data fileName="image.png" />
+            </Body>
+        </Action>
+        
+    </State>
+</StateModel>
+
+<Test name="Default">
+
+    <StateModel ref="Default"/>
+    <Publisher class="WebApi"/>
+
+</Test>
+</Peach>
+----
+===================================
+
+.Setting Custom Header via Pit
+===================================
+
+The following example shows how to set a custom header via the Pit XML.
+The custom header is named "X-CustomeHeader" with a value of "Hello World!".
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+	
+        <Action type="web" method="GET" url="http://www.example.com/product/{id}">
+            <Path key="id" value="1"/>
+            <Header name="x-custom" key="X-CustomHeader" value="Hello World!" />
+            <Response/>
+        </Action>
+		
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================
+
+.Setting Custom Authentication Header via Python
+===================================
+
+The following example shows how to add custom authentication via a python script.
+In this example we will configure a pit for fuzzing an Amazon AWS S3 service endpoint.
+This is only an example and should not actually be used to fuzz AWS.
+
+[source,python]
+----
+import base64
+import hmac
+from hashlib import sha1
+from email.Utils import formatdate
+
+AWS_ACCESS_KEY_ID = "44CF9590006BF252F707"
+AWS_SECRET_KEY = "OtxrzxIsfpFjA7SwPzILwy8Bw21TLhquhboDYROV"
+
+def AwsAuthGen(context, action):
+
+    # Get the Publisher (WebApiPublisher)
+    if action.publisher:
+        publisher = context.test.publishers[action.publisher]
+    else:
+        publisher = context.test.publishers[0]
+
+    XAmzDate = formatdate()
+
+    h = hmac.new(AWS_SECRET_KEY, "PUT\n\napplication/json\n\nx-amz-date:%s\n/?policy" % XAmzDate, sha1)
+    authToken = base64.encodestring(h.digest()).strip()
+
+    publisher.Headers.Add("x-amz-date", XAmzDate)
+    publisher.Headers.Add("Authorization", "AWS %s:%s" % (AWS_ACCESS_KEY_ID, authToken))
+
+# end
+----
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <Import import="aws_s3_example"/>
+  
+  <!--
+{
+"Version":"2008-10-17",
+"Id":"aaaa-bbbb-cccc-dddd",
+"Statement" : [
+    {
+        "Effect":"Allow",
+        "Sid":"1", 
+        "Principal" : {
+            "AWS":["111122223333","444455556666"]
+        },
+        "Action":["s3:*"],
+        "Resource":"arn:aws:s3:::bucket/*"
+    }
+ ] 
+} 
+  -->
+  <!-- Generated using the JSON analyzer -->
+  <DataModel name="Policy">
+    <JsonObject>
+      <JsonString propertyName="Version" name="Version" value="2008-10-17" />
+      <JsonString propertyName="Id" name="Id" value="aaaa-bbbb-cccc-dddd" />
+      <JsonArray propertyName="Statement" name="Statement">
+        <JsonObject propertyName="Statement" name="Statement">
+          <JsonString propertyName="Effect" name="Effect" value="Allow" />
+          <JsonString propertyName="Sid" name="Sid" value="1" />
+          <JsonObject propertyName="Principal" name="Principal">
+            <JsonArray propertyName="AWS" name="AWS">
+              <JsonString propertyName="AWS" name="AWS" value="111122223333" />
+              <JsonString value="444455556666" />
+            </JsonArray>
+          </JsonObject>
+          <JsonArray propertyName="Action" name="Action">
+            <JsonString propertyName="Action" name="Action" value="s3:*" />
+          </JsonArray>
+          <JsonString propertyName="Resource" name="Resource" value="arn:aws:s3:::bucket/*" />
+        </JsonObject>
+      </JsonArray>
+    </JsonObject>
+  </DataModel>
+
+  <StateModel name="TheStateModel" initialState="Initial">
+    <State name="Initial">
+
+      <Action type="web" method="PUT" url="http://XXXXX.s3.amazonaws.com/?policy"
+              onStart="aws_s3_example.AwsAuthGen(context, action)">
+            
+        <Body name="Body">
+          <DataModel ref="Policy" />
+        </Body>
+      </Action>
+      
+    </State>
+  </StateModel>
+
+  <Test name="Default" maxOutputSize="20000000">
+    <StateModel ref="TheStateModel"/>
+    <Publisher class="WebApi">
+      <Param name="FaultOnStatusCodes" value="500,501,502,503,504,505" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+
+===================================
+

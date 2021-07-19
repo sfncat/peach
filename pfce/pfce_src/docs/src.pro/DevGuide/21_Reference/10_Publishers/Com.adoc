@@ -1,0 +1,143 @@
+<<<
+[[Publishers_Com]]
+== Com Publisher
+
+// Reviewed:
+//  - 02/13/2014: Seth & Adam: Outlined
+// Identify limitations (setprop/getprop only works with number and string *need to check*)
+// Verify parameters
+// Show setProperty/getProperty fuzzing
+// show call usage
+
+// Updates:
+// 2/17/2014: Mick
+// verified params
+// expanded explanation of COM
+// added call and prop examples
+
+// TODO - Debugger example
+
+The _Com_ Publisher allows calling methods and properties on COM objects. Properties and Methods correlate directly to those in the corresponding COM definition. 
+
+The xref:Action_setProperty[setProperty] and xref:Action_getProperty[getProperty] Actions can only accept Strings or Numbers because binary arrays are incompatible with COM Properties.
+
+NOTE: _Com_ Publisher only runs on Windows. 
+
+To use _Com_, Peach.Core.ComContainer.exe must be running in a separate command prompt (so it can host the COM object) while the Peach is running. 
+
+You can configure a debugger monitor to launch and monitor this process. See the xref:Monitors_WindowsDebugger[WindowsDebugger] monitor for more information about configuring a debugger monitor.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="COM">
+	<Param name="clsid" value="{d20ea4e1-3957-11d2-a40b-0c5020524153}" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+clsid:: COM CLSID
+
+_Optional:_
+
+There are no optional parameters for this publisher.
+
+=== Actions
+
+xref:Action_start[start]:: Implicit Action to start the Publisher.
+xref:Action_stop[stop]:: Implicit Action to stop the Publisher.
+xref:Action_call[call]:: Call a method
+xref:Action_getProperty[getProperty]:: Get a property value
+xref:Action_setProperty[setProperty]:: Set a property value
+
+=== Examples
+
+.Calling a method
+===================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="CoolThingsModel">
+		<String name="Username" value="username=user"/>
+		<String name="Comma" value=","/>
+		<String name="Password" value="password=admin"/>
+	</DataModel>
+
+	<StateModel name="TheStateModel">
+		<State name="initial">
+			<Action type="call" method="DoCoolThings">
+				<Param name="AuthString">
+					<DataModel ref="CoolThingsModel"/>
+				</Param>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref=="TheStateModel" />
+		<Publisher class="COM">
+			<Param name="clsid" value="{d20ea4e1-3957-11d2-a40b-0c5020524153}" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+===================
+
+.Setting/Getting Properties
+===================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String name="Value" />
+	</DataModel>
+	
+	<StateModel name="TheState" initialState="Initial">	
+		<State name="Initial">
+
+			<Action type="call" method="Players[1].OpenUrl">
+				<Param name="P1">
+					<DataModel ref="TheDataModel" />
+					<Data>
+						<Field name="Value" value="C:\labs\com\boymgirl.mov"/>
+					</Data>
+				</Param>
+			</Action>
+			
+			<Action type="setProperty" property="Players[1].QTControl.Movie.Height">
+				<DataModel ref="TheDataModel" />
+				<Data>
+					<Field name="Value" value="200"/>
+				</Data>
+			</Action>
+			
+			<Action type="setProperty" property="Players[1].QTControl.Movie.Width">
+				<DataModel ref="TheDataModel" />
+				<Data>
+					<Field name="Value" value="500"/>
+				</Data>
+			</Action>
+
+			<Action type="call" method="Players[1].QTControl.Movie.Play" />
+		</State>
+	</StateModel>
+	
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+		<Publisher class="Com">
+			<Param name="clsid" value="QuickTimePlayerLib.QuickTimePlayerApp"/>
+		</Publisher>
+	</Test>
+</Peach>
+----
+===================

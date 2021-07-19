@@ -1,0 +1,40 @@
+:toc!:
+== String ==
+
+The String element defines a single or double byte string.  The String element is a child element of DataModel or Block.
+
+To indicate this is a numerical string use the link:NumericalString.html[NumericalString] hint.
+
+[source,xml]
+----
+<String value="Hello World!" />
+
+<String value="Null terminated string" nullTerminated="true" />
+----
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the data model [optional]
+
+ * link:length.html[length] -- Length in characters of the string [optional]
+ * link:lengthType.html[lengthType] -- Units of the length attribute (defaults to bytes) [optional]
+ 
+ * type -- Character encoding type, defaults to "ascii". Valid options are: ascii, utf7, utf8, utf16, utf16be, utf32 [optional]
+
+ * link:nullTerminated.html[nullTerminated] -- Is this string null terminated (true/false) [optional]
+ * link:padCharacter.html[padCharacter] -- Character to pad string with to _length_ (default is 0x00) [optional]
+ 
+ * link:token.html[token] -- This element should be treated as a token when parsing, defaults to False [optional]
+ * link:constraint.html[constraint] -- A constraint in the form of a scripting expression.  Used during data cracking [optional]
+ * link:mutable.html[mutable] -- Is data element changeable (should it be mutated), defaults to true [optional]
+
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this block must occur (default is 1) [optional]
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this block can occur (default is 1) [optional]
+ 
+_Valid Child-Elements:_
+
+ * link:Analyzers.html[Analyzer] -- Attach an analyzer to this element [optional]
+ * link:Fixup.html[Fixup]
+ * link:Relation.html[Relation]
+ * link:Transformer.html[Transformer]
+ * link:Hint.html[Hint]

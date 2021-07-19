@@ -1,0 +1,14 @@
+:toc!:
+link:AgentAndMonitor.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:RunningInParallel.html[Next >>]
+
+''''
+
+== Optimize Testing ==
+
+While we could at this point just kick off our fuzzer and grab a beer, there are a few things we can optimize in our fuzzer to reduce the number of iterations it will perform.  For example, *....*.  So, lets dial down the mutators that will run against them.
+
+*TODO: Talk about hints*
+
+''''
+
+link:AgentAndMonitor.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:RunningInParallel.html[Next >>]

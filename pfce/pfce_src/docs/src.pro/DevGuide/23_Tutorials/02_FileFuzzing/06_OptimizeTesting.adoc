@@ -1,0 +1,9 @@
+[[TutorialFileFuzzing_OptimizeTesting]]
+== Optimize Testing
+
+At this point, we could just kick off our fuzzer and grab a beer; but, we can optimize our fuzzer in a few ways to reduce the number of iterations it will perform.  For example, all of the actual PCM/WAV samples and music data is probably something that doesn't need much fuzzing.  All that fuzzing the music data will do is create unhappy sounds.
+So, let's dial down the mutators that will run against them.
+
+// *TODO: Talk about hints*
+
+// end

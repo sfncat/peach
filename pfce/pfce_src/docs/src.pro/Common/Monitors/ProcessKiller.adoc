@@ -1,0 +1,71 @@
+<<<
+[[Monitors_ProcessKiller]]
+== ProcessKiller Monitor
+
+*Monitor Category*: *Automation*
+
+The _ProcessKiller_ monitor kills (terminates) specified processes after each iteration.
+
+=== Parameters
+
+_Required:_
+
+ProcessNames::
+Comma separated list of the processes to kill.
+
+[NOTE]
+=======================================
+The process name is usually the executable filename without the extension (`.exe`).
+For example, `notepad.exe` will be `Notepad` or `notepad`.
+For Windows operating systems,
+the process name can be found by using the `tasklist.exe` command.
+
+The comma-delimited list should not contain any white-space characters.
+=======================================
+
+_Optional:_
+
+None.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Terminate `notepad` and `mspaint`
+====================
+
+This parameter example is from a setup that terminates the notepad and the paint processes whenever they run.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter     |Value
+|ProcessNames  |`notepad,mspaint`
+|==========================================================
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+
+.Terminate two processes
+========================
+Before running this example, open `notepad.exe`.
+
+[source,xml]
+----
+include::ProcessKiller_Example.xml[]
+----
+
+Output for this example.
+
+----
+include::ProcessKiller_Example.log[]
+----
+
+In this example, peach kills the +notepad+ process whenever it runs.
+
+========================
+
+endif::peachug[]

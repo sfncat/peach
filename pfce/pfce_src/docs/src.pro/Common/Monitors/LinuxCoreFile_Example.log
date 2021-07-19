@@ -1,0 +1,126 @@
+$ peach --debug --seed=1 --range=1,1 example.xml
+
+Peach.Core.Engine runTest: context.config.range == true, start: 1, stop: 1
+
+[*] Test 'Default' starting with random seed 1.
+Peach.Core.Agent.Agent StartMonitor: Monitor LinuxCoreF
+Peach.Core.Agent.Agent StartMonitor: Monitor_1 Process
+Peach.Core.Agent.Agent SessionStarting: Monitor
+Peach.Core.Agent.Agent SessionStarting: Monitor_1
+Peach.Core.Agent.Monitors.Process _Start(): Starting process
+Establishing the listener...
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Waiting for a connection...
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher start()
+Peach.Core.Publishers.TcpClientPublisher open()
+Accepted connection from 127.0.0.1:35321.
+Peach.Core.Publishers.TcpClientPublisher output(12 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   48 65 6C 6C 6F 20 57 6F  72 6C 64 21               Hello World!
+
+Received 12 bytes from client.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.TcpClientPublisher close()
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 127.0.0.1:4244
+Connection closed by peer.
+Shutting connection down...
+Connection is down.
+Waiting for a connection...
+Peach.Core.Publishers.TcpClientPublisher Read 0 bytes from 127.0.0.1:4244, closing client connection.
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 127.0.0.1:4244
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Call
+Peach.Core.Agent.AgentManager Message: Action.Call => ScoobySnacks
+
+[1,1,0:00:00.347] Performing iteration
+[*] Fuzzing: TheDataModel.TheString
+[*] Mutator: UnicodeBomMutator
+Peach.Core.MutationStrategies.RandomStrategy Action_Starting: Fuzzing: TheDataModel.TheString
+Peach.Core.MutationStrategies.RandomStrategy Action_Starting: Mutator: UnicodeBomMutator
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher open()
+Accepted connection from 127.0.0.1:48111.
+Peach.Core.Publishers.TcpClientPublisher output(1354 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   FE FF FF FE FE FF FE BB  BF FE FF FF FE FE FF FE   ????????????????
+00000010   BB BF FF FE FF FE FF FE  FF FE FF FE FF FE FF FE   ????????????????
+00000020   FF FE FF FE FE FF FE FF  FE FF FE BB BF FE FF FE   ????????????????
+00000030   BB BF FF FE FE FF FE FF  FE BB BF FE FF FE FF FE   ????????????????
+...
+
+Received 1024 bytes from client.
+
+In CrashMe()
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.TcpClientPublisher close()
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 127.0.0.1:4244
+Peach.Core.Publishers.TcpClientPublisher Unable to complete reading data from 127.0.0.1:4244.  Connection reset by peer
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 127.0.0.1:4244
+Peach.Core.Dom.Action ActionType.Call
+Peach.Core.Agent.AgentManager Message: Action.Call => ScoobySnacks
+Peach.Core.Agent.AgentManager Fault detected.  Collecting monitor data.
+Peach.Core.Engine runTest: detected fault on iteration 1
+
+ -- Caught fault at iteration 1, trying to reproduce --
+
+Peach.Core.Loggers.FileLogger Found core fault [] <1>
+Peach.Core.Loggers.FileLogger Saving action: 1.Initial.Action.bin
+Peach.Core.Loggers.FileLogger Saving fault: <2>
+Peach.Core.Engine runTest: Attempting to reproduce fault.
+Peach.Core.Engine runTest: replaying iteration 1
+
+[1,1,0:00:02.673] Performing iteration
+Peach.Core.Agent.Monitors.Process _Start(): Starting process
+[*] Fuzzing: TheDataModel.TheString
+[*] Mutator: UnicodeBomMutator
+Peach.Core.MutationStrategies.RandomStrategy Action_Starting: Fuzzing: TheDataModel.TheString
+Peach.Core.MutationStrategies.RandomStrategy Action_Starting: Mutator: UnicodeBomMutator
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpClientPublisher open()
+Establishing the listener...
+Peach.Core.Publishers.TcpClientPublisher open: Warn, Unable to connect to remote host 127.0.0.1 on port 4244.  Trying again in 1ms...
+Waiting for a connection...
+Peach.Core.Publishers.TcpClientPublisher output(1354 bytes)
+Peach.Core.Publishers.TcpClientPublisher
+
+00000000   FE FF FF FE FE FF FE BB  BF FE FF FF FE FE FF FE   ????????????????
+00000010   BB BF FF FE FF FE FF FE  FF FE FF FE FF FE FF FE   ????????????????
+00000020   FF FE FF FE FE FF FE FF  FE FF FE BB BF FE FF FE   ????????????????
+00000030   BB BF FF FE FE FF FE FF  FE BB BF FE FF FE FF FE   ????????????????
+...
+
+Accepted connection from 127.0.0.1:40387.
+Received 1024 bytes from client.
+
+In CrashMe()
+Peach.Core.Dom.Action ActionType.Close
+Peach.Core.Publishers.TcpClientPublisher close()
+Peach.Core.Publishers.TcpClientPublisher Shutting down connection to 127.0.0.1:4244
+Peach.Core.Publishers.TcpClientPublisher Unable to complete reading data from 127.0.0.1:4244.  Connection reset by peer
+Peach.Core.Publishers.TcpClientPublisher Closing connection to 127.0.0.1:4244
+Peach.Core.Dom.Action ActionType.Call
+Peach.Core.Agent.AgentManager Message: Action.Call => ScoobySnacks
+Peach.Core.Agent.AgentManager Fault detected.  Collecting monitor data.
+Peach.Core.Engine runTest: detected fault on iteration 1
+Peach.Core.Engine >> OnFault
+
+ -- Reproduced fault at iteration 1 --
+
+Peach.Core.Loggers.FileLogger Found core fault []
+Peach.Core.Loggers.FileLogger Saving action: 1.Initial.Action.bin
+Peach.Core.Loggers.FileLogger Saving fault:
+Peach.Core.Engine << OnFault
+Peach.Core.Engine runTest: Reproduced fault, continuing fuzzing at iteration 1
+Peach.Core.Publishers.TcpClientPublisher stop()
+Peach.Core.Agent.Agent SessionFinished: Monitor_1
+Peach.Core.Agent.Monitors.Process _Stop(): Closing process handle
+Peach.Core.Agent.Agent SessionFinished: Monitor
+
+[*] Test 'Default' finished.

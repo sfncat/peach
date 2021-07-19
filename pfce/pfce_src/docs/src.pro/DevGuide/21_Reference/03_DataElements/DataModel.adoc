@@ -1,0 +1,265 @@
+<<<
+[[DataModel]]
+
+// Reviewed: 04/09/2014: Lynn
+// Added String as a Child element
+
+== DataModel
+
+The DataModel element is a child of the Peach root element.  DataModels define the structure of data blocks by specifying additional child elements such as xref:Number[Number], xref:Blob[Blob], or xref:String[String].
+
+=== Syntax
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+	<String value="Hello World" />
+</DataModel>
+----
+
+=== Attributes
+
+_Required:_
+
+xref:name[name]:: Friendly name of the DataModel. This attribute is useful when referencing a DataModel as a template or when debugging.
+
+_Optional:_
+
+xref:ref[ref]:: Reference to another DataModel to use as a template.
+
+=== Child Elements
+
+xref:Analyzers[Analyzer]:: Analyzes current element post cracking, can dynamically change model.
+xref:Blob[Blob]:: Represents binary data (array of bytes) to create simple dumb fuzzers in Peach.
+xref:Block[Block]:: Groups one or more data elements in a logical structure.
+xref:Choice[Choice]:: Indicates all of the sub-elements are valid; however, only one sub-element should be selected.
+xref:Fixup[Fixup]:: Are dynamic transformations such as checksums and CRCs.
+xref:Flags[Flags]:: Defines a set of bit sized flags.
+xref:Hint[Hint]:: Provides information to mutators.
+xref:Number[Number]:: Defines a binary number of arbitrary bit size.
+xref:Padding[Padding]:: Pads variably sized blocks or data models to provide uniformity or consistency.
+xref:Placement[Placement]:: Relocates an element after it has been cracked.
+xref:Stream[Stream]::  Groups one or more data elements in a logical structure.
+xref:Transformer[Transformer]:: Performs static transformations such as compression or encoding.
+xref:XmlElement[XmlElement]:: Defines an XML element, the basic building block of XML documents.
+
+=== Mutators
+
+The following mutators operate on this element type:
+
+_Used for all data elements_
+
+xref:Mutators_DataElementBitFlipper[DataElementBitFlipper]:: This mutator produces test cases by flipping bits in the output value.
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator combines data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator causes the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator causes the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator changes both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator changes both sides of the relation (data and value) to match numerical variances of the current size.
+
+
+=== Examples
+
+.DataModel Example
+===========================
+Any number of _DataModels_ can be specified in a Peach Pit file. However, each _DataModel_ must have a unique name. You can break down complex formats into smaller models by splitting them into logical parts. This makes DataModels easier to read, debug, and re-use.
+
+An example DataModel named "HelloWorld" contains a single string and outputs "Hello world!"
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="HelloWorld">
+    <String value="Hello world!" />
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="HelloWorld" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 63002.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(12 bytes)
+00000000   48 65 6C 6C 6F 20 77 6F  72 6C 64 21               Hello world!
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+DataModels can reference other DataModels and inherit child elements with the ref attribute.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="ParentModel">
+    <String value="Hello " />
+  </DataModel>
+
+  <DataModel name="HelloWorldModel" ref="ParentModel" >
+    <String value=" world!" />
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="HelloWorldModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug DocSample.xml
+
+[*] Test 'Default' starting with random seed 35043.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(13 bytes)
+00000000   48 65 6C 6C 6F 20 20 77  6F 72 6C 64 21            Hello  world!
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+===========================
+
+.References (ref attribute)
+===========================
+
+When a reference (ref attribute) is supplied, the contents of the referenced DataModel are copied to create the base of the new DataModel.  Any child elements in the new DataModel override elements from that base with the same name. In this example, the child DataModel Customized contains a String named Key. The value from the child DataModel overwrites the String "Key" of the parent DataModel, which has no value.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="Template">
+    <String name="Key" />
+    <String value=": " token="true" />
+    <String name="Value" />
+    <String value="\r\n" token="true" />
+  </DataModel>
+
+  <DataModel name="Customized" ref="Template">
+    <String name="Key" value="Content-Length" />
+    <String name="Value">
+      <Relation type="size" of="HttpBody" />
+    </String>
+    <Blob name="HttpBody" />
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Customized" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug DocSample.xml
+
+*] Test 'Default' starting with random seed 3945.
+
+R1,-,-] Performing iteration
+each.Core.Engine runTest: Performing recording iteration.
+each.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+each.Core.Dom.Action ActionType.Output
+each.Core.Publishers.ConsolePublisher start()
+each.Core.Publishers.ConsolePublisher open()
+each.Core.Publishers.ConsolePublisher output(4 bytes)
+0000000   3A 20 0D 0A                                        : ?? <1>
+each.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+each.Core.Dom.Action ActionType.Output
+each.Core.Publishers.ConsolePublisher output(19 bytes)
+0000000   43 6F 6E 74 65 6E 74 2D  4C 65 6E 67 74 68 3A 20   Content-Length: <2>
+0000010   30 0D 0A                                           0??
+each.Core.Publishers.ConsolePublisher close()
+each.Core.Engine runTest: context.config.singleIteration == true
+each.Core.Publishers.ConsolePublisher stop()
+
+*] Test 'Default' finished.
+----
+
+----
+<1> The output of "Template"   is " : \r\n"
+<2> The output of "Customized" is "Content-Length: 100\r\n"
+----
+
+When parsed into a DataModel, Customized looks like a combination of both data models.
+
+[source,xml]
+----
+<DataModel name="Customized" ref="Template">
+  <String name="Key" value="Content-Length" />
+  <String value=": " token="true" />
+  <String name="Value">
+    <Relation type="size" of="HttpBody" />
+  </String>
+  <String value="\r\n" token="true" />
+  <Blob name="HttpBody"/>
+</DataModel>
+----
+===========================

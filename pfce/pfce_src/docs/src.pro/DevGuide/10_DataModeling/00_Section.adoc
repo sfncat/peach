@@ -1,0 +1,67 @@
+[[DataModeling]]
+== Data Modeling
+
+Data models describe the data structures of the test target. A data model includes type information, basic relationships, and the ability to update elements (such as checksums). A data model should not include business rules or business-related constraints, such as those that appear in specifications.
+
+The goal of building a data model data is to find a balance between effort and fuzzing ability. Spending much effort beyond the balancing point does not measurably increase bug detection in the target. This extra effort lowers the fuzzing return on investment. On the other hand, spending too little effort and not reaching the balancing point decreases the number of found bugs, again hurting the fuzzing return on investment.
+
+Data models contain the following concepts:
+
+xref:DataModeling_DataElements[Data elements]::
++
+--
+Data elements describe the intrinsic data types (such as number and string).
+
+Since mutators are written to operate on data elements, providing the correct data element information is critical to fuzzing success. Incorrect data elements mean less effective mutations.
+--
+
+// TODO xref:DataModeling_Relations[Relations]::
+xref:Relation[Relations]::
++
+--
+Peach models three basic types of relationships between data elements: size, count, and offset.
+
+Data elements sometimes provide modeling information used by other element information like array counts or string length.
+Modeling relationships provides several benefits:
+
+. It allows the fuzzer to update the relationships during fuzzing.
+. If a string is lengthened, the associated length field can be updated to match. That way, the fuzzing data can penetrate deeper into the logic of the target application.
+. Mutators can mutate several fields together, providing much smarter data mutations.
+--
+
+// TODO xref:DataModeling_Fixups[Fixups]::
+xref:Fixup[Fixups]::
++
+--
+Fixups are special utility classes that calculate new checksums, CRC's and other operations that rely on data from another data element.
+
+By fixing data features such as checksums, the values in the data model have a greater chance to pass initial validation checks and exercise the data consumer's core logic.
+--
+
+// TODO xref:DataModeling_Transfomers[Transformers]::
+xref:Transformer[Transformers]::
++
+--
+In addition to fixups, Peach provides the ability to perform static transformations such as encoding/decoding and compression/decompression on data. Static transformations can be added and removed; the transformers can decode on input and encode on output.
+
+Transformers are useful when a format contains data that is encoded or compressed before it reaches the fuzzer. The transformer can decode the data, apply the fuzzing elements to the data, then encode the result so that the fuzzing target receives encoded data as it normally would.
+--
+
+// xref:DataModeling_Analyzers[Analyzers]::
+xref:Analyzers[Analyzers]::
++
+--
+In many cases (like structured data such as ASN.1 or XML), it is easier to write code to generate a data model than to manually define a data model. Analyzers let you write code helpers to generate or modify the data model.
+
+Cracking occurs when loading a sample file or when performing on input actions (such as _input_, _getProperty_, and the result from a _call_ action). We use Analyzers to crack data into a model.
+
+Although Analyzers are moderately easy to add since they directly deal with the
+data model, implementing an analyzer requires greater knowledge of Peach internals
+than other data modeling components.
+--
+
+include::01_DataElements.adoc[]
+include::02_DataRelationships.adoc[]
+include::03_Cracking.adoc[]
+
+// end

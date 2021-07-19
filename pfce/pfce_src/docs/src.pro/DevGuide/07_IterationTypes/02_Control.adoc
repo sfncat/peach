@@ -1,0 +1,46 @@
+[[Iteration_control]]
+=== Control Iteration
+
+Control iterations verify the correct target operation for a long running target (one that is operational across multiple test cases).
+
+An example of a long running target is a network service that starts once at the beginning of the fuzzing session; Peach monitors the service to see if it faults. For targets that are not long running, such as a process that restarts for every test case, control iterations are normally not necessary.
+
+NOTE: Control iterations must be explicitly enabled in the pit file.
+
+Control iterations work in conjunction with xref:Iteration_record[record iterations]. The state-model execution sequence is recorded during a record iteration. A control iteration will perform a test case with no mutations occurring and compare the execution sequence with the recorded sequence. The two sequences should match. If not, Peach generates a fault.
+
+For example, if 10 actions occur on the record iteration and only 6 occur on the control, Peach assumes that the target is in a bad state and generates a fault since the bad state is likely interesting (as a denial of service vulnerability) from a security standpoint. When a fault occurs, actions can be taken to restart the system.
+
+// TODO insert visual images from slide deck
+
+Control iterations are configured on the xref:Test[_Test_ element] using the _controlIteration_ attribute. The value provided is a positive integer that defines how often to perform a control iteration. A value of 1 will cause control iterations to be performed after each iteration.
+
+.Syntax example
+[source,xml]
+----
+<Test name="TheTest" controlIteration="1"> .... </Test>
+----
+
+A second attribute, _nonDeterministicActions_, allows Peach to continue fuzzing when
+the execution flow of a control iteration might not match the execution flow of the
+record iteration.
+
+For example, some protocols that use a challenge-response authentication process negotiate
+the number of iterations needed to gain authentication. In this case, the sequence flow is
+indefinite and control iteration sequence flow should not be compared to that of the
+record iteration.
+
+When the value of _nonDeterministicActions_ is `false', the default action occurs, in which
+Peach enforces a matching execution flow sequence between the record iteration and each
+control iteration. If the flows do not match, Peach issues a fault.
+
+When the value of _nonDeterministicActions_ is `true`, the Peach skips the check of
+the execution flow sequence. If a control iteration state flow differs from the state flow of a record iteration, Peach does not produce a fault.
+
+.Syntax example
+[source,xml]
+----
+<Test name="TheTest" controlIteration="1" nonDeterministicActions="true"> .... </Test>
+----
+
+See also xref:Iteration_control[control iterations] and xref:Iteration_fuzzing[fuzzing iterations].

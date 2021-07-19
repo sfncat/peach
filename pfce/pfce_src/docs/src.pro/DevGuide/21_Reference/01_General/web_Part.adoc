@@ -1,0 +1,157 @@
+[[web_Part]]
+== Web Part
+
+The _Part_ element allows modeling of HTTP multipart requests. 
+Each section of a multipart request can include it's own set of HTTP headers and a body composed of xref:web_FormData[FormData] elements or a single xref:web_Body[Body] element.
+This element is only valid when used with a parent element of xref:Action_web[web].
+
+NOTE: A 'Content-Type' header does not need to be provided when modeling a multipart HTTP request. Peach will automatically set the correct content-type header when a child of 'Part' is used.
+
+=== Syntax
+
+[source,xml]
+----
+<Action type="web" method="POST" url="http://api.company.com/api/v1/resource">
+
+    <Part name="metadata">
+        <Header key="Content-Disposition" value="form-data; name=&quot;metadata&quot" />
+        <Header key="Content-Type" value="application/json"/>
+        <Body name="json">
+            <DataModel ref="JsonBody" />
+        </Body>
+    </Part>
+    
+    <Part name="file">
+        <Header key="Content-Disposition" value="form-data; name=&quot;file&quot; filename=&quot;filename.zip%quot" />
+        <Header key="Content-Type" value="binary/octet-stream" />
+        <Body name="fileContents">
+            <DefaModel ref="FileData" />
+        </Body>
+    </Part>
+    
+</Action>
+----
+
+=== Attributes
+
+_Required:_
+
+name:: Name of parameter.
+
+_Optional:_
+
+xref:value[value]:: 
+    Default value. When used, a DataModel is automatically created and attached to this element.
+    Cannot be used in conjunction with a DataModel child element.
+xref:valueType[valueType]:: Format of value attribute. 
+xref:mutable[mutable]:: 
+    When _value_ attribute is used, this attribute will mark all elements in the automatically generated model with this mutable value.
+
+=== Child Elements
+
+xref:web_Header[Header]:: Define an HTTP header.
+xref:web_FormData[FormData]::
+    Define a key/value pair of form data. These values are transmitted via the request body. It is not possible to combine FormData with a Body child.
+xref:web_Body[Body]::
+    Define the request body. Only one Body child element is allowed.  Body elements cannot be mixed with FormData elements.  Only one type of body is allowed.
+
+=== Examples
+
+.Uploading a file with JSON metadata
+===================================
+
+The following example models a request that uploads a file along with some metadata in JSON format.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+        <Action type="web" method="POST" url="http://api.company.com/api/user/{id}">
+        
+            <Path key="id" value="1" />
+
+            <Part name="UserPictureMeta">
+                <Header key="Content-Disposition" value="form-data; name=&quot;metadata&quot" />
+                <Header key="Content-Type" value="application/json"/>
+                
+                <Body name="json">
+                    <DataModel ref="JsonBody" />
+                </Body>
+            </Part>
+
+            <Part name="File">
+                <Header key="Content-Disposition" value="form-data; name=&quot;file&quot; filename=&quot;filename.zip%quot" />
+                <Header key="Content-Type" value="binary/octet-stream" />
+                
+                <Body name="fileContents">
+                    <DefaModel ref="FileData" />
+                </Body>
+            </Part>
+
+        </Action>
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+
+===================================
+
+
+.Uploading file with form data
+===================================
+
+The following example models a request that uploads a file along with some metadata as form data.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+<StateModel name="Default" initialState="FirstState">
+    <State name="FirstState">
+        <Action type="web" method="POST" url="http://api.company.com/api/user/{id}">
+        
+            <Path key="id" value="1" />
+
+            <Part name="UserPictureMeta">
+                <Header key="Content-Disposition" value="form-data; name=&quot;metadata&quot" />
+                <Header key="Content-Type" value="application/x-www-form-urlencoded"/>
+                
+                <FormData key="createor" value="Josh Smith" />
+                <FormData key="category" value="misc" />
+                <FormData key="icon" value="zip" />
+            </Part>
+
+            <Part name="File">
+                <Header key="Content-Disposition" value="form-data; name=&quot;file&quot; filename=&quot;filename.zip%quot" />
+                <Header key="Content-Type" value="binary/octet-stream" />
+                
+                <Body name="fileContents">
+                    <DefaModel ref="FileData" />
+                </Body>
+            </Part>
+
+        </Action>
+    </State>
+</StateModel>
+
+<Test name="Default">
+    <StateModel ref="Default" />
+    <Publisher class="WebApi" />
+</Test>
+
+</Peach>
+----
+===================================
+

@@ -1,0 +1,27 @@
+:toc!:
+== Crc32DualFixup
+
+The _Crc32DualFixup_ will produce a CRC-32 using data from two elements.
+
+=== Parameters
+
+ * _link:../ref.html[ref1]_ -- Reference to first element
+ * _link:../ref.html[ref2]_ -- Reference to second element
+ 
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <!-- .... -->
+
+  <Number size="32">
+    <Fixup class="Crc32DualFixup">
+	  <Param name="ref1" value="Header" />
+	  <Param name="ref2" value="Data" />
+	</Fixup>
+  </Number>
+</Block>
+
+<Blob name="Data" />
+----

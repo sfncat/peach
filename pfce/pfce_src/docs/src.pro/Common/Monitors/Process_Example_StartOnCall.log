@@ -1,0 +1,20 @@
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 63117.
+Peach.Core.Agent.Agent StartMonitor: Monitor Process
+Peach.Core.Agent.Agent SessionStarting: Monitor
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Call
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Agent.AgentManager Message: Action.Call => ScoobySnacks
+Peach.Core.Agent.Monitors.Process _Start(): Starting process
+Peach.Core.Agent.Monitors.Process Cpu is idle, stopping process.
+Peach.Core.Agent.Monitors.Process _Stop(): Killing process
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.FilePublisher stop()
+Peach.Core.Agent.Agent SessionFinished: Monitor
+
+[*] Test 'Default' finished.

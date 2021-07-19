@@ -1,0 +1,222 @@
+[[Action]]
+== Action ==
+
+Action elements are part of the xref:StateModel[StateModel], and send commands to a xref:Publisher[Publisher]. Within the StateModel, Action elements are child elements of xref:State[State].
+
+Action elements set up and manage state in a fuzzing session. They issue commands to set up and control the Peach environment. For example, the _open_ action initializes a listener by initiating a network connection or opening a file handle. And, the _close_ action releases resources at the end of a fuzzing iteration.
+
+Action elements provide control over state changes, movement of data between data models, and calling custom methods defined by agents. For example, the _changeState_ action initiates a transition to a new state in the _StateModel_.
+
+Additionally, Action elements issue directives to Publishers to do things such as read input, send output, and access a property.
+
+Four Actions elements are implicit: _start_, _stop_, _open_, and _close_. They execute automatically and do not need to be declared in the StateModel.
+
+* The _start_ and _stop_ actions occur at the start and end of a fuzzing session.
+* The _open_ and _close_ actions occur at the start and end of each iteration in a fuzzing session.
+
+Other actions require explicit declarations in order to execute.
+
+.Default Order of Actions
+****
+The following is the default order in which Actions are performed when fuzzing:
+
+. _start_ - Implicit, once per session
+. _open_ - Implicit, once per iteration
+. Explicit actions (_accept_, _input_, _output_, _web_, etc.)
+. _close_ - Implicit, once per iteration
+. _stop_ - Implicit, once per session
+****
+
+=== Syntax
+
+[source,xml]
+----
+<StateModel name="StateModel" initialState="InitialState">
+	<State name="InitialState">
+
+		<Action name="SendData" type="output">
+  			<DataModel ref="MyDataModel" />
+
+  			<!-- Optional data element -->
+  			<Data name="load defaults" fileName="template.bin" />
+		</Action>
+
+	</State>
+</StateModel>
+----
+
+Complicated StateModels that have counters (or other advanced operations) use Action parameters that execute scripts at certain times (such as before the Action starts or once it has completed).
+
+Since Pits can contain multiple Publishers within a Test, many Actions have a parameter to declare the specific Publisher that carries out the command.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ping">
+		<String value="PING" token="true"/>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+
+			<Action name="PingPacket" type="output" publisher="TheTCPPub">
+				<DataModel ref="Ping"/>
+			</Action>
+
+			<Action name="PingUDPPacket" type="output" publisher="TheUDPPub">
+				<DataModel ref="Ping"/>
+			</Action>
+
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel"/>
+		<Publisher name="TheTCPPub" class="Tcp">
+			<Param name="Host" value="127.0.0.1" />
+			<Param name="Port" value="31337" />
+		</Publisher>
+		<Publisher name="TheUDPPub" class="Udp">
+			<Param name="Host" value="127.0.0.1" />
+			<Param name="Port" value="1337" />
+		</Publisher>
+
+		<Strategy class="Random"/>
+
+		<Logger class="File" >
+			<Param name="Path" value="logs"/>
+	    </Logger>
+	</Test>
+</Peach>
+----
+
+=== Attributes
+
+_Required:_
+
+xref:name[name]:: Name of the action.
+type:: Action type. The following enumeration summarizes the available action types. Detailed descriptions of the actions follow the child elements.
+
+* xref:Action_accept[accept] - temporarily blocks execution.
+* xref:Action_call[call] - provides a method-calling metaphor.
+* xref:Action_changeState[changeState] - transitions from one state to another within the xref:StateModel[StateModel].
+* xref:Action_close[close] - causes the associated Publisher to close.
+* xref:Action_getProperty[getProperty] - provides the retrieval function of a property metaphor (get function).
+* xref:Action_input[input] - reads input data using the Publisher.
+* xref:Action_infrag[infrag] - perform one or more input actions to support protocol fragmentation.
+* xref:Action_open[open (or connect)] - causes the associated Publisher to open its resources.
+* xref:Action_output[output] - causes the associated Publisher to write data.
+* xref:Action_outfrag[outfrag] - perform one or more output actions to support protocol fragmentation.
+* xref:Action_setProperty[setProperty] - provides the output function of a property metaphor (set function) that modifies the value of the property.
+* xref:Action_slurp[slurp] - copies a value from a data element in one DataModel to a data element in another DataModel.
+* xref:Action_start[start] - causes a Publisher to perform its initialization tasks.
+* xref:Action_stop[stop] - causes a Publisher to perform final cleanup.
+* xref:Action_web[web] - sent web api/http requests via WebApi publisher.
+
+_Required Based on Type:_
+
+xref:xpath[valueXpath]:: Path to the source element defined using XPath notation when the Action type is +slurp+.
+xref:xpath[setXpath]:: Path to the destination element defined using XPath notation when Action type is +slurp+.
+xref:ref[ref]:: Reference of the state to change to when the Action type is +changeState+.
+property:: Name of the property to get or set in the publisher when the Action type is +setProperty+ or +getProperty+.
+
+_Optional:_
+
+publisher:: Name of the Publisher, or *Peach.Agent*, to perform the action.
+xref:Action_onComplete[onComplete]:: Expression to evaluate when an action completes.
+xref:Action_onStart[onStart]:: Expression to evaluate at the start of an action.
+xref:Action_when[when]:: Perform the action if the provided expression evaluates to true.
+
+=== Child Elements
+
+xref:DataModel[DataModel]:: DataModel to fuzz.
+xref:Data[Data]:: Set of initial data to crack into the DataModel before fuzzing.
+xref:Param[Param]:: Argument passed with the call. The argument will be fuzzed.
+xref:Result[Result]:: Output of the call Action. The result will be cracked into a DataModel.
+
+// 01/27/2015 RAB - This is vestigial and will be removed from User Guide and Developer Guide.
+//
+// When already exists in v3/when.txt
+//=== when
+//
+//Perform an action based on an expression.
+//When the expression evaluates to true the action is performed.
+//This can be used to model choices based on input or to decide if certain input or output is performed next.
+//
+//[source,xml]
+//----
+//<DataModel name="InputModel">
+//	<Number name="Type" size="32" />
+//</DataModel>
+//
+//<DataModel name="OutputModelA">
+//	<Number name="Type" size="32" value="11 22 33 44" valueType="hex" />
+//</DataModel>
+//
+//<DataModel name="OutputModelB">
+//	<Number name="Type" size="32" value="AA BB CC DD" valueType="hex" />
+//</DataModel>
+//
+//<StateModel name="StateModel" initialState="InitialState">
+//	<State name="InitialState">
+//		<Action type="input">
+//			<DataModel ref="InputModel" />
+//		</Action>
+//
+//		<Action type="changeState" ref="State2" when="int(StateModel.states['InitialState'].actions[0].dataModel['Type'].DefaultValue) == 2"/>
+//
+//		<Action type="changeState" ref="State3" when="int(StateModel.states['InitialState'].actions[0].dataModel['Type'].DefaultValue) == 3"/>
+//
+//	</State>
+//
+//	<State name="State2">
+//		<Action type="output">
+//			<DataModel ref="OutputModelA" />
+//		</Action>
+//	</State>
+//
+//	<State name="State3">
+//		<Action type="output">
+//			<DataModel ref="OutputModelB" />
+//		</Action>
+//	</State>
+//</TheStateModel>
+//----
+//
+//
+
+:leveloffset: 3
+include::start.adoc[]
+
+include::stop.adoc[]
+
+include::open.adoc[]
+
+include::close.adoc[]
+
+include::accept.adoc[]
+
+include::input.adoc[]
+
+include::infrag.adoc[]
+
+include::output.adoc[]
+
+include::outfrag.adoc[]
+
+include::call.adoc[]
+
+include::getProperty.adoc[]
+
+include::setProperty.adoc[]
+
+include::web.adoc[]
+
+include::slurp.adoc[]
+
+include::changeState.adoc[]
+
+// end

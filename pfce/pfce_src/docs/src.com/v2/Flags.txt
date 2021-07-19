@@ -1,0 +1,21 @@
+:toc!:
+== Flags ==
+
+The Flags element defines a set of bit sized flags.  See also link:Flag.html[Flag].
+
+[source,xml]
+----
+
+<Flags name="options" size="16">
+  <Flag name="compression" position="0" size="1" />
+  <Flag name="compressionType" position="1" size="3" />
+  <Flag name="opcode" position="10" size="2" value="5" />
+</Flags>
+----
+
+
+_Attributes:_
+
+ * link:name.html[name] -- Name of the element [optional]
+ * link:size.html[size] -- Size in bits [required]
+ * link:mutable.html[mutable] -- (Peach 2.3) Is data element changeable (should it be mutated), defaults to true [optional]

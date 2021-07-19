@@ -1,0 +1,16 @@
+:toc!:
+== UnixMd5CryptToolTransformer
+
+The _UnixMd5CryptToolTransformer_ will produce the an MD5 crypt operation on the provided value in the parent data model. Using the first two bytes as the salt and pre pending the value "$1".  
+
+=== Examples
+
+[source,xml]
+----
+ <DataModel name="Ex1">
+    <String name="TransformMe" value="superdoopersecret">
+      <Transformer class="UnixMd5Crypt"/>
+    </String>
+  </DataModel>
+----
+

@@ -1,0 +1,162 @@
+<<<
+[[Transformers_Des]]
+== Des
+
+[horizontal]
+Type:: Cryptography
+
+_Des_ transforms the parent data element by encrypting the data using DES with the provided Key and Initialization Vector.
+
+The xref:Transformer[Transformer] can bidirectionally encrypt and decrypt data.
+
+=== Parameters
+
+_Required:_
+
+Key:: User provided symmetric key that is used to encrypt the value. Must be a hex string representation of a 16 byte key.
+IV:: User provided initialization vector that is used as the first block for the AES128 operation. Must be a hex string representation of an 16 byte value.
+
+_Optional:_
+
+CipherMode::
+    Cipher mode to use during encryption. Defauilts to CBC.
+    * CBC
+    * ECB
+    * CFB
+    * CTS
+    * OFB
+
+PaddingMode:: Padding mode. Defaults to Zeros.
+    * Zeros
+    * None
+    * PKCS7
+    * ANSIX923
+    * ISO101026
+
+=== Actions Supported
+
+xref:Action_input[input]:: On input, this transformer decrypts the incoming data.
+xref:Action_output[output]:: On output, this transformer encrypts the outgoing data.
+
+=== Examples
+
+.Simple Encrypt and Decrypt Example
+==========================
+This example uses DES on an inline value, writes the transformed value to a file, and reads the value from the file to the console.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach	xmlns="http://peachfuzzer.com/2012/Peach"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+	<DataModel name="Ex1">
+		<String name="TransformMe" value="supersupersecret" >
+			<Transformer class="Des">
+				<Param name="Key" value="ae 12 34 56 78 90 ae af"/>
+				<Param name="IV"  value="ae ae ae ae ae ae ae ae"/>
+			</Transformer>
+		</String>
+	</DataModel>
+
+	<StateModel name="TheState" initialState="initial">
+		<State name="initial">
+			<!-- Encrypted Output -->
+			<Action type="output" publisher="ConsolePub">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<!-- Write Encrypted Output to File -->
+			<Action type="output" publisher="FilePubWrite">
+				<DataModel ref="Ex1" />
+			</Action>
+
+			<Action type="close" publisher="FilePubWrite" />
+
+			<!-- Read and decrypt encrypted file and slurp output to console -->
+			<Action type="input" publisher="FilePubRead" >
+				<DataModel name="InputModel" ref="Ex1" />
+			</Action>
+
+			<Action type="slurp" valueXpath="//InputModel//TransformMe" setXpath="//OutputModel//StringValue" />
+
+			<Action type="output" publisher="ConsolePub">
+				<DataModel name="OutputModel">
+					<String name="StringValue" />
+				</DataModel>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="ConsoleHex" name="ConsolePub"/>
+
+		<Publisher class="File" name="FilePubWrite">
+			<Param name="FileName" value="encrypted.bin" />
+		</Publisher>
+
+		<Publisher class="File" name="FilePubRead">
+			<Param name="FileName" value="encrypted.bin" />
+			<Param name="Overwrite" value="false" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+> peach -1 --debug example.xml
+
+[*] Web site running at: http://10.0.1.87:8888/
+
+[*] Test 'Default' starting with random seed 56253.
+2016-07-08 17:27:30.8520 Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach-pro\output\win_x64_debug\bin\Logs\example.xml_20160708172729\debug.log
+
+[R1,-,-] Performing iteration
+2016-07-08 17:27:30.9893 Peach.Core.Engine runTest: Performing control recording iteration.
+2016-07-08 17:27:31.0193 Peach.Core.Dom.StateModel Run(): Changing to state "initial".
+2016-07-08 17:27:31.0193 Peach.Core.Dom.Action Run(Action): Output
+2016-07-08 17:27:31.1414 Peach.Pro.Core.Publishers.ConsolePublisher start()
+2016-07-08 17:27:31.1414 Peach.Pro.Core.Publishers.ConsolePublisher open()
+2016-07-08 17:27:31.1414 Peach.Pro.Core.Publishers.ConsolePublisher output(16 bytes)
+00000000   FF 84 0E BF DC 49 70 56  86 80 8A C3 16 61 4F E5   .....IpV.....aO.  <1>
+2016-07-08 17:27:31.1414 Peach.Core.Dom.Action Run(Action_1): Output
+2016-07-08 17:27:31.1414 Peach.Pro.Core.Publishers.FilePublisher start()
+2016-07-08 17:27:31.1414 Peach.Pro.Core.Publishers.FilePublisher open()
+2016-07-08 17:27:31.1544 Peach.Pro.Core.Publishers.FilePublisher output(16 bytes)
+2016-07-08 17:27:31.1544 Peach.Core.Dom.Action Run(Action_2): Close
+2016-07-08 17:27:31.1544 Peach.Pro.Core.Publishers.FilePublisher close()
+2016-07-08 17:27:31.1544 Peach.Core.Dom.Action Run(Action_3): Input
+2016-07-08 17:27:31.1544 Peach.Pro.Core.Publishers.FilePublisher start()
+2016-07-08 17:27:31.1544 Peach.Pro.Core.Publishers.FilePublisher open()
+2016-07-08 17:27:31.1544 Peach.Pro.Core.Publishers.FilePublisher input()
+2016-07-08 17:27:31.1704 DataCracker -+ DataModel 'InputModel', Bytes: 0/16, Bits: 0/128
+2016-07-08 17:27:31.1704 DataCracker  | Size: ??? (Deterministic)
+2016-07-08 17:27:31.1704 DataCracker  |-- String 'TransformMe', Bytes: 0/16, Bits: 0/128
+2016-07-08 17:27:31.1854 DataCracker  |   Size: 16 bytes | 128 bits (Last Unsized)
+2016-07-08 17:27:31.1854 DataCracker  |   Value: supersupersecret
+2016-07-08 17:27:31.1854 DataCracker  /
+2016-07-08 17:27:31.1854 Peach.Core.Dom.Actions.Input Final pos: 16 length: 16 crack consumed: 16 bytes
+2016-07-08 17:27:31.1854 Peach.Core.Dom.Action Run(Action_4): Slurp
+2016-07-08 17:27:31.2064 Peach.Core.Dom.Actions.Slurp Slurp, setting OutputModel.StringValue from InputModel.TransformMe
+2016-07-08 17:27:31.2064 Peach.Core.Dom.Action Run(Action_5): Output
+2016-07-08 17:27:31.2064 Peach.Pro.Core.Publishers.ConsolePublisher output(16 bytes)
+00000000   73 75 70 65 72 73 75 70  65 72 73 65 63 72 65 74   supersupersecret  <2>
+2016-07-08 17:27:31.2064 Peach.Pro.Core.Publishers.ConsolePublisher close()
+2016-07-08 17:27:31.2064 Peach.Pro.Core.Publishers.FilePublisher close()
+2016-07-08 17:27:31.2174 Peach.Core.Engine runTest: context.config.singleIteration == true
+2016-07-08 17:27:31.2174 Peach.Pro.Core.Publishers.ConsolePublisher stop()
+2016-07-08 17:27:31.2174 Peach.Pro.Core.Publishers.FilePublisher stop()
+2016-07-08 17:27:31.2174 Peach.Pro.Core.Publishers.FilePublisher stop()
+2016-07-08 17:27:31.2174 Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+<1> Encrypted output
+<2> Decrypted output
+
+==========================

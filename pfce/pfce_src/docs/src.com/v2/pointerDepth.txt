@@ -1,0 +1,32 @@
+:toc!:
+## page was renamed from pointerDepath
+== Pointer Depth Attribute ==
+
+The pointerDepth attribute is only used when modeling C structures that will be published by a publisher that supports the ctypes interface.  This attribute is only valid when +pointer="true"+ is also specified.  pointerDepth will indicate how many levels deep the pointer is (e.g. void** p is 2).  Default is 1.
+
+See also: link:pointer.html[pointer]
+
+Example XML:
+
+[source,xml]
+----
+
+<Block name="HelloWorld" pointer="true" pointerDepth="3">
+  <String value="Hello world!" />
+</Block>
+----
+
+
+Would result in the following ctypes code:
+
+[source,python]
+----
+class CustomStructure(ctypes.Structure):
+    _fields_ = [ ("HelloWorld", c_char_p) ]
+
+block = CustomStructure()
+block["HelloWorld"] = c_char_p("Hello world!")
+
+result = POINTER(POINTER(POINTER(block)))
+----
+

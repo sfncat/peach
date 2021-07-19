@@ -1,0 +1,17 @@
+:toc!:
+== XmlAnalyzer ==
+
+The XML Analyzer will consume an XML document or fragment and convert that into a tree structure of XmlElement and XmlAttribute elements.  This analyzer can be used from the command line or attached to a data element.
+
+_Data Element:_
+[source,xml]
+----
+<String analyzer="xml.XmlAnalyzer" />
+----
+
+
+_Command Line:_
+----
+peach --analyzer=xml.XmlAnalyzer xmlfile=Input.xml out=XmlPit.xml
+----
+

@@ -1,0 +1,111 @@
+[[PitTool_Ninja]]
+== Pit Tool - Ninja
+
+This tool is used when adding samples to an existing Pit or creating a custom file fuzzing Pit.
+
+Sample Ninja reads sample files used in fuzzing, 
+runs them through the Peach data crackers 
+(which applies sample files to the data models), 
+and places them into a database. 
+During fuzzing, 
+a sample ninja mutator mixes-and-matches file sections to create a new file.
+
+IMPORTANT: Sample Ninja is not available in the Peach Community version.
+
+The `pittool ninja` command produces and maintains the Sample Ninja database used by the 
+Sample Ninja mutator.
+
+To fuzz using Sample Ninja:
+
+* Generate a Sample Ninja database using `pittool ninja`.
+* The Sample Ninja mutator automatically uses the database the next time Peach is run.
+* When new or modified sample files are needed, re-run `pittool ninja` to update the database.
+
+The generated database has a name like `PIT.ninja`. 
+This means that if your pit file is `png.xml`, 
+the generated database file is `png.ninja`.
+
+=== Syntax
+
+----
+Usage:
+  PitTool.exe ninja <PitPath> <DataModel> <SamplesPath>
+
+Description:
+  Create a sample ninja database.
+
+General Options:
+  -h, --help                 Display this help and exit
+  -V, --version              Display version information and exit
+  -v, --verbose              Increase verbosity, can use multiple times
+      --plugins=VALUE        Specify the plugins path
+      --pits=VALUE           Specify the PitLibraryPath.
+----
+
+=== Parameters
+
+PitPath:: Fuzzing definition that refers to sample files.
+DataModel:: The DataModel used to crack each sample.
+SamplesPath:: The path to a folder containing the sample files to be used during fuzzing.
+
+=== Examples
+
+.Creating a Sample Ninja database
+=================
+
+ . Open a new terminal window.
+ . Run `pittool <PitPath> <DataModel> <SamplesPath>`.
+ . The Sample Ninja database will be generated.
+
+----
+> pittool ninja pits\Image\PNG.xml PNG:PNG:File samples_png
+Processing: samples_png\ajou_logo.png
+Processing: samples_png\apollonian_gasket.png
+Processing: samples_png\aquarium.png
+Processing: samples_png\baboon.png
+...
+Processing: samples_png\z00n2c08.png
+Processing: samples_png\z03n2c08.png
+Processing: samples_png\z06n2c08.png
+Processing: samples_png\z09n2c08.png
+----
+
+Generated database:
+
+----
+03/17/2014  08:39 PM             9,035 PNG.xml
+03/20/2014  03:52 PM         9,651,200 PNG.ninja
+----
+=================
+
+.Adding new samples to an existing Samples Ninja database
+=================
+
+ . Put new samples into your samples folder.
+ . Open a terminal window.
+ . Run `pittool <PitPath> <DataModel> <SamplesPath>`.
+ . The new and modified files will be added to the database.
+
+----
+> pittool ninja pits\Image\PNG.xml PNG:PNG:File samples_png
+Skipping: samples_png\ajou_logo.png
+Skipping: samples_png\apollonian_gasket.png
+Skipping: samples_png\aquarium.png
+Skipping: samples_png\baboon.png
+...
+Skipping: samples_png\z00n2c08.png
+Skipping: samples_png\z03n2c08.png
+Skipping: samples_png\z06n2c08.png
+Skipping: samples_png\z09n2c08.png
+Processing: samples_png\zzzz.png
+----
+
+Generated database:
+
+----
+03/17/2014  08:39 PM             9,035 PNG.xml
+03/20/2014  03:52 PM         9,651,200 PNG.ninja
+----
+=================
+
+// end

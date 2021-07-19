@@ -1,0 +1,70 @@
+[[PitTool_Crack]]
+== Pit Tool - Crack
+
+=== Syntax
+
+----
+Usage:
+  PitTool.exe crack [options] <PitPath> <DataModel> <SamplePath>
+
+Description:
+  Crack a sample file.
+
+General Options:
+  -h, --help                 Display this help and exit
+  -V, --version              Display version information and exit
+  -v, --verbose              Increase verbosity, can use multiple times
+      --plugins=VALUE        Specify the plugins path
+      --pits=VALUE           Specify the PitLibraryPath.
+----
+
+=== Parameters
+
+PitPath::
+  Fuzzing definition that refers to sample files.
+DataModel::
+  The DataModel used to crack each sample.
+SamplesPath::
+  The path to a folder containing the sample files to be used during fuzzing.
+
+=== Example
+
+----
+$ pittool crack \
+  pits/Net/HTTP_Client.xml \
+  HTTP:HTTP:Request \
+  pits/_Common/Samples/Net/HTTP/requests/get.bin
+Parsing: 'pits/Net/HTTP_Client.xml'
+Looking for data model: 'HTTP:HTTP:Request'
+-+ DataModel 'Request'
+ |-+ DataModel 'request-line'
+ | |-- String 'method' [GET]
+ | |-- String 'sep1' [ ]
+ | |-- String 'uri' [/]
+ | |-- String 'sep2' [ ]
+ | |-+ DataModel 'version'
+ | | |-- String 'http' [HTTP/]
+ | | |-- String 'major-version' [1]
+ | | |-- String 'period' [.]
+ | | |-- String 'minor-version' [1]
+ | |-- String 'crlf' [\r\n]
+ |-+ Array 'header-array'
+ | |-+ Choice 'header-array_0'
+ | | |-+ DataModel 'host-header'
+ | | | |-- String 'field-name' [Host]
+ | | | |-- String 'delim' [: ]
+ | | | |-- String 'field-value' [localhost]
+ | | | |-- String 'crlf' [\r\n]
+ | |-+ Choice 'header-array_1'
+ | | |-+ DataModel 'misc-header-analyzer'
+ | | | |-- String 'field-name' [User-Agent]
+ | | | |-- String 'delim' [: ]
+ | | | |-+ Block 'field-value'
+ | | | | |-+ Block 'value'
+...
+ | | | |-- String 'crlf' [\r\n]
+ |-- String 'header-crlf' [\r\n]
+ |-+ Block 'end'
+----
+
+// end

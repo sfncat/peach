@@ -1,0 +1,61 @@
+DomainModel
+  metadata:
+    defines:
+      - Define Group 1
+        - Define 1
+        - Define 2
+      - Define Group 2
+        - Define 3
+        - Define 4
+    monitors:
+      - Monitor Group 1
+        - Monitor 1
+          - Parameter Group 1
+            - Parameter 1
+            - Parameter 2
+          - Parameter Group 2
+            - Parameter 3
+            - Parameter 4
+        - Monitor 2
+          - Parameter Group 3
+            - Parameter 5
+      - Monitor Group 2
+        - Monitor 3
+  config:
+    - Define 1
+    - Define 2
+  agents:
+    - Agent 1
+      - Monitor 1
+        - Parameter 1
+        - Parameter 2
+      - Monitor 2
+    - Agent 2
+      - Monitor 3
+
+AddMonitorViewModel
+  - Monitor Group 1
+    - Monitor 1
+    - Monitor 2
+  - Monitor Group 2
+    - Monitor 3
+    - Monitor 4
+
+ConfigDefinesViewModel
+  - Define Group 1
+    - Define 1
+    - Define 2
+  - Define Group 2
+    - Define 3
+    - Define 4
+
+ConfigAgentsViewModel
+  - Agent 1
+    - Monitor 1
+      - Parameter Group 1
+        - Parameter 1
+        - Parameter 2
+      - Parameter Group 2
+        - Parameter 3
+    - Monitor 2
+  - Agent 2

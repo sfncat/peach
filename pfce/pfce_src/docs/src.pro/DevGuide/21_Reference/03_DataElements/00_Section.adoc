@@ -1,0 +1,224 @@
+
+=== Data Elements
+
+The following items comprise the data elements in Peach.
+
+xref:Blob[]::
++
+_Blob_ elements are containers for unstructured data (think byte arrays).
+A _Blob_ is a term used in the relational database field for a column that holds raw binary data.
+Data contained in a _Blob_ will be dumb fuzzed.
+
+xref:Block[]::
++
+The _Block_ element is a container for other data elements.
+By itself, a _Block_ does not have any size or contain other data.
+It simply groups other data elements and,
+by using the Block name,
+provides a mechanism to reference or operate on the group as a single unit.
++
+For example,
+if two data elements are included in a checksum calculation,
+they can be placed in a _Block_ element
+and then the fixup can perform its function by referencing the _Block_.
+Both items in the group will be included in the fixup operation.
+
+xref:Choice[]::
++
+The _Choice_ element allows constructing switch-like statements in Peach data models.
+The _Choice_ element is useful when modeling type-length-value (TLV) metaphors
+and in other situations where the data format changes.
+
+xref:DataModel[]::
++
+The _DataModel_ element is a top-level element that defines a data model.
+Multiple _DataModel_ elements can exist in a pit file.
+A _DataModel_ element by itself has no size and is a container for other data elements.
+
+xref:Double[]::
++
+_Double_ defines a floating-point number of 32 or 64 bits conforming to the IEEE 754 standard.
+Floating point values are packed into a byte representation with a byte order of little or big endian.
++
+_Double_ elements are always packed to bit/byte representation with byte order (endian-ness).
+For ASCII strings, use the _String_ element instead of a _Double_.
+
+xref:Flags[]::
++
+_Flags_ defines a set of flags and is a container for _Flag_ elements.
+The _Flags_ container can provide a nice shortcut when dealing with a flag set that has many unused positions.
++
+Tip: The _Number_ element supports unaligned sizes and can be used to define flags.
+
+xref:Flag[]::
++
+_Flag_ defines a specific _Flag_ in a flag set.
+_Flag_ elements have a bit position and bit length.
+
+xref:Frag[]::
+    Used to model protocol fragmentation
+
+xref:JsonArray[]::
++
+_JsonArray_ is used to represent a JSON array.
+It's similar in operation to xref:Sequence[].
+
+xref:JsonBool[]::
++
+The _JsonBool_ element defines a Boolean value (values 0 or 1) that represents either true or false.
+
+xref:JsonBlob[]::
++
+A JsonBlob footnote:[Blob stands for "binary large object" a term used by databases to represent a column of binary data.] is used to represent binary JSON data (array of bytes).
+JsonBlobs are base64 encoded.
++
+By definition, the internal contents of a JsonBlob is unknown.
+Consequently, Blobs are dumb fuzzed, as the list of applicable mutators below indicates.
+
+xref:JsonDouble[]::
++
+The _JsonDouble_ element defines a JSON floating-point number of up to 64-bits.
+
+xref:JsonInteger[]::
++
+The JsonInteger element defines a binary number of any arbitrary bit size from 1 to 64.
+Binary numbers are packed into a byte representation with a byte order of little-endian or big-endian.
++
+The Number element should not be used for character-based numbers, or ASCII numbers.
+Instead, use a xref:String[] element.
+
+xref:JsonObject[]::
++
+The _JsonObject_ element is used to model link:http://www.json.org/[JavaScript Object Notation (JSON)] objects.
++
+_JsonObject_ elements are containers that group JSON elements in a logical structure.
+For example,
+a _JsonString_ element,
+a _JsonInteger_ element,
+and a _JsonBlob_ element can exist in the same _JsonObject_.
+A _JsonObject_ can contain other _JsonObjects_, or nest, as deeply as needed.
+
+xref:JsonRaw[]::
++
+The _JsonRaw_ element is used to embeded raw string or binary data into a JSON document.
+This allows creation of json that does not adhere to the JSON specification.
++
+This is a container element that is able to host other data elements.
+
+xref:JsonString[]::
++
+Represents a JSON string of Unicode characters.
++
+All strings are encoded prior to output according to the JSON specification.
++
+Strings can hold numbers that are stored in a string format.
+When strings contain a number,
+Peach additionally uses numerical mutators to mutate the strings.
+
+xref:Number[]::
++
+_Number_ defines a binary integer type.
+A _Number_ is always packed to bit/byte representation with byte order (endian-ness).
+For ASCII strings, use the _String_ element instead of a _Number_.
+
+xref:Padding[]::
++
+_Padding_ defines padding of one or more characters for a _Block_ or a _DataModel_.
+The attributes of the _Padding_ element specify things such as a reference to start the alignment calculation, a size, and the _Padding_ element name.
+The most common use of _Padding_ is to ensure a consistent length of a _Block_ or _DataModel_ that contains variable length data elements,
+such as padding a _DataModel_ for a 64-byte packet.
+
+xref:Sequence[]::
++
+_Sequence_ elements are used to construct arrays consisting of predefined data elements.
+A _Sequence_ is able to contain multiple data types at once.
+Unlike regular arrays in Peach,
+the size of the Sequence is determined by the number of elements within the sequence.
+
+xref:Stream[]::
++
+_Stream_ defines a _Stream_ element with a name, attributes and content.
+_Streams_ group one or more data elements into a logical structure.
+
+xref:String[]::
++
+A _string_ defines a contiguous sequence of characters with encoding.
+Encodings include ASCII and many Unicode formats.
+
+xref:VarNumber[]::
++
+Allows modeling variable width _Numbers_. Size must be constrained using a size-of relationship or other method.
+
+xref:XmlAttribute[]::
++
+The _XmlAttribute_ defines an XML attribute.
+This element is only valid as a child of xref:XmlElement[].
+
+xref:XmlCharacterData[]::
++
+The _XmlCharacterData_ element defines an XML CDATA section.
+This element is only valid as a child of xref:XmlElement[].
+
+xref:XmlElement[]::
++
+_XmlElement_ defines an XML element.
+
+// Line between includes to make sure starting >>> always works
+:leveloffset: 2
+include::Asn1Type.adoc[]
+
+include::Blob.adoc[]
+
+include::Block.adoc[]
+
+include::Bool.adoc[]
+
+include::Choice.adoc[]
+
+include::DataModel.adoc[]
+
+include::Double.adoc[]
+
+include::Flag.adoc[]
+
+include::Flags.adoc[]
+
+include::Frag.adoc[]
+
+include::JsonArray.adoc[]
+
+include::JsonBlob.adoc[]
+
+include::JsonBool.adoc[]
+
+include::JsonDouble.adoc[]
+
+include::JsonInteger.adoc[]
+
+include::JsonObject.adoc[]
+
+include::JsonRaw.adoc[]
+
+include::JsonString.adoc[]
+
+include::Null.adoc[]
+
+include::Number.adoc[]
+
+include::Padding.adoc[]
+
+include::Sequence.adoc[]
+
+include::Stream.adoc[]
+
+include::String.adoc[]
+
+include::VarNumber.adoc[]
+
+include::XmlAttribute.adoc[]
+
+include::XmlCharacterData.adoc[]
+
+include::XmlElement.adoc[]
+
+// end

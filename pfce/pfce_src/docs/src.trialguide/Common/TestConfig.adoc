@@ -1,0 +1,13 @@
+===== Testing your configuration
+You should always test your configuration to ensure that {product} is able to fuzz your application.
+This will run some control iterations to ensure that your application responds as expected to normal input.
+
+. Click *Test*
+. Click *Begin Test*
+. Once testing is complete, you will see the results.
+Correct any errors in your Variables or Monitoring if the test is not successful.
+. Once the test has passed, click *Continue*.
+
+You can now fuzz the application.
+
+// end

@@ -1,0 +1,133 @@
+<<<
+[[Test_Exclude]]
+== Exclude
+
+// TODO - Merge with Test/Exclude
+
+When used in the 'Test' element of a Pit, the Exclude and xref:Test_Include[Include] 
+elements allows for including or excluding various data elements from mutation. 
+One use case of these elements is to fuzz encapsulated data without fuzzing the container. 
+
+By default, Peach fuzzes all data elements.  Exclude prevents Peach from fuzzing all or specific data elements. XPath is used to identify the excluded elements. 
+
+NOTE: Even though a data element is excluded, it still may appear to be fuzzed. This is due to other elements being fuzzed. However, the excluded element does not have any specific mutations performed directly to it.
+
+.XPath Further Reading
+****
+The following links provide additional information regarding XPath.
+
+ * http://www.w3schools.com/xpath/[XPath Tutorial]
+ * http://www.w3schools.com/xpath/xpath_syntax.asp[XPath Syntax]
+ * http://www.w3.org/TR/xpath/[XPath Specification]
+
+****
+
+=== Syntax
+
+[source,xml]
+----
+<!-- Exclude all data elements -->
+<Exclude />
+
+<!-- Exclude specific elements -->
+<Exclude xpath="//Value" />
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xpath:: Provides an xpath query to select elements to exclude. 
+
+TIP: Peach interprets the statement _<Exclude />_ as all exclusive, and fuzzes no data elements. 
+
+=== Examples
+
+.Exclude via xpath
+====================
+This example selects elements to exclude based on an xpath.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String value="1" />
+		<String value="2" />
+		<String value="3" />
+		<String value="4" />
+		<String value="5" />
+
+		<Block name="NotThese">
+			<String value="6" />
+			<String value="7" />
+			<String value="8" />
+		</Block>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel" />
+		<Publisher class="ConsoleHex"/>S
+
+		<Exclude xpath="//NotThese"  />
+	</Test>
+</Peach>
+----
+====================
+
+.Exclude and Include
+====================
+This example excludes all data elements, then includes specific ones.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="TheDataModel">
+		<String value="1" />
+		<String value="2" />
+		<String value="3" />
+		<String value="4" />
+		<String value="5" />
+
+		<Block name="FuzzJustThese">
+			<String value="6" />
+			<String value="7" />
+			<String value="8" />
+		</Block>
+	</DataModel>
+
+	<StateModel name="TheStateModel" initialState="InitialState">
+		<State name="InitialState">
+			<Action type="output">
+				<DataModel ref="TheDataModel" />
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheStateModel" />
+		<Publisher class="ConsoleHex"/>
+
+		<Exclude />
+		<Include xpath="//FuzzJustThese" />
+	</Test>
+</Peach>
+----
+====================

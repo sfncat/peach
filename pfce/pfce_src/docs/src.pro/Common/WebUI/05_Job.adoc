@@ -1,0 +1,232 @@
+[[Start_Fuzzing]]
+=== Fuzzing Session
+
+With your Pit configured and tested, you're ready to start fuzzing!
+
+==== From the Home Page
+
+1. From the Home screen, click the Library menu.
+2. From your Pits Library screen, select a configuration. +
+The configurations are listed in the section that follows the Pits.
++
+Once selected, the configured Pit displays, as in the following illustration.
++
+image::{images}/Common/WebUI/config_selected.png[]
++
+If needed, you can change configuration settings or set some other parameters at the button of the page (typically used in replaying a fuzzing session).
+
+3. Click Start to begin the fuzzing session. The Peach Dashboard displays.
++
+image::{images}/Common/WebUI/dashboard_oct2015.png[]
+
+The dashboard allows you to monitor progress as your fuzzing job runs and from it, you can pause, stop, resume, and replay your fuzzing session. The Peach Dashboard provides the following information:
+
+* The Configuration name, above the colored status bar
+* The time the job started
+* The duration that the job has been running
+* The number of fuzzing test cases per hour
+* The seed ID for random number generation, so you can replicate the test, if needed
+* Number of test cases completed
+* Total number of faults found in this run
+* A summary of the most recent faults.
+
+[NOTE]
+=======
+*NOTES*
+
+. The seed ID influences the fuzzing that occurs during a fuzzing job. If you want to replicate a test, the seed value is required to reproduce the exact sequence of values from the random-number generator used in fuzzing.
+. The STOP button does NOT close Peach. The STOP button only allows you to stop the currently running job.
+. If you have stopped a job and wish to start a new job using a different pit, choose one of the Pits or Pit configurations in your Pit Library. You'll need to re-visit the Home page, and then choose the appropriate entry from the library.
+. The fault summary lists the most recent faults. For information about the faults generated during this fuzzing session, click the Metrics menu, then Faults on the left side of the screen.
+=======
+
+[[PassTest_and_Fuzz]]
+==== From a Configuration Test
+
+When your Pit configuration passes the validation test, the following screen displays
+with the green banner and the message "Testing Passed, click Continue."
+
+image::{images}/Common/WebUI/AC_Test_Pass.png[scalewidth="75%"]
+
+From here, you can start a fuzzing session with two clicks of the mouse.
+
+1. Click Continue. Peach displays the Pit configuration page.
++
+image::{images}/Common/WebUI/config_selected.png[scalewidth="75%"]
+
+2. Click Start in the "Start Options" section at the bottom of the page to start a fuzzing job.
++
+The Peach dashboard displays and the fuzzing job starts.
++
+image::{images}/Common/WebUI/dashboard_oct2015.png[]
+
+[[Re-Fuzzing]]
+==== Re-running a Fuzzing Job
+
+Peach allows you to re-run fuzzing sessions in whole or in part, meaning that exactly the same tests run using exactly the same data values. If you run an entire fuzzing job, all of the test cases are performed.
+
+If you run a partial job, the test cases you specify run, again in exactly the same order as in the original fuzzing job using exactly the same data values.
+
+What is needed to re-run a fuzzing job?
+
+* Seed value
+* Start test case number
+* Stop test case number
+
+Supply the seed value and appropriate Start and Stop Test Case values in the "Start Options" on the Pit Configuration page that follows, and click Start to begin a repeat of the fuzzing session.
+
+image::{images}/Common/WebUI/config_selected.png[]
+
+The next two sections provide information about the Seed Value and the Test Case number used in recreating a fuzzing job.
+
+[[About_SeedValue]]
+===== Seed Value
+
+The seed value of a fuzzing job is located in the following places:
+
+* For a running job, the seed is part of the dashboard display when a fuzzing job is running. See entry 2 of the right column of the dashboard.
+* For a completed job, click on the Jobs menu and again on the entry in the Jobs list. This brings up the dashboard for the fuzzing job, where the seed is entry 2 of the right column.
+* For a completed job, view the generated report, a `.pdf` file. The seed is the last table entry in the Summary section (section 1) of the report.
+
+A seed is a common technique used in scientific and computer experiments to provide reproducible results when a random set of data values is needed. The seed feeds into a random-number generator that produces a sequence of "random numbers". Each time the seed is used, the same sequence of "random numbers" is generated.
+
+Peach uses the "random numbers" in determining the mutators to use in a test case, the sequence of mutators, the data elements to fuzz, and the fuzzed data values. Having the seed value guarantees that the same sequence of numbers is generated and used throughout a fuzzing job.
+
+[[About_TestCaseNumbers]]
+===== Start/Stop Test Case
+
+The Start Test Case number identifies the first test case to perform in a fuzzing job.
+The Stop Test Case number identifies the last test case to perform in a fuzzing job.
+Together, the Start and Stop Test Case numbers identify a range or a sequence of fuzzing test cases to run, whether the fuzzing job is new or is a re-run.
+
+The number of a specific test case is present in the detail or drill-down report for a specific fault. In this report, the value is at the top of the report and is labeled "Iteration". The value represents the iteration number (or test case number) in a fuzzing job.
+
+Main uses of specifying start and/or stop test case numbers in a fuzzing job are
+to confirm that an issue reliably occurs, to assist in tracking down an issue, or
+to verify that an issue is fixed.
+
+If the issue does not reproduce, the issue will be more difficult to solve and might be a HEAP-related memory issue in which the addressable memory layout can have a large impact on the bug occurrence. In short, tracking down the root cause and verifying a fix for an issue will require running Peach for a long time to see whether the issue recurs.
+There is no easy way to guarantee an effective fix in this case.
+
+TIP: Once a fix is in place, run a new fuzzing job to regress around the fix and to determine whether any residual faults surface.
+
+
+<<<
+[[Report_Faults]]
+=== Faults
+
+While {product} is running, you can view all the faults generated during the session by clicking the Faults menu option on the left.
+
+Faults displays the total number of generated faults. There are two Faults views: the Summary view and the Detail view:
+
+image::{images}/Common/WebUI/Fault_summary.png[]
+
+For each session, the Faults Summary view lists a summary of information about the fault such as:
+
+* Identified fault iteration count
+* Time and date
+* Monitor that detected the fault
+* Risk (if known)
+* Unique identifiers of the fault (major and minor hashes), if available
+
+Clicking on one of the listed faults from the Summary view opens the Details view for the selected fault.
+
+image::{images}/Common/WebUI/Fault_detail.png[]
+
+Here's where you can find details about the selected fault. Additional information (such as any files collected during the data collection phase) are located in the disk log folder.
+
+<<<
+[[Report_Metrics]]
+=== Metrics
+
+A number of metrics are available for viewing while {product} is running.
+
+TIP: The data grids used on many of the metrics displays support multi-column sorting using the _shift_ key and clicking on the different columns to sort.
+
+==== Bucket Timeline
+
+This metric display shows a timeline with new fault buckets listed, and total number of times the bucket was found during the fuzzing session.
+
+image::{images}/Common/WebUI/metrics_timeline.png[]
+
+==== Faults Over Time
+
+This metric display shows the count of faults found by hour over the course of the fuzzing run. This is the count of all faults found, not just unique buckets.
+
+image::{images}/Common/WebUI/metrics_faultsovertime.png[]
+
+==== Mutators
+
+This metric display shows statistics for each mutator by arranging the information into columns:
+
+[horizontal]
+Element Count:: The number of elements this mutator touched with mutated data.
+Iteration Count:: The number of iterations this mutator was used during the fuzzing job.
+Bucket Count:: The number of unique buckets found while this mutator was in use.
+Fault Count:: The number of faults found while this mutator was in use.
+
+image::{images}/Common/WebUI/metrics_mutators.png[]
+
+==== Elements
+
+This metric display shows statistics for all of the elements in your Pit.
+
+This display shows several columns of information:
+
+[horizontal]
+State:: The state this element belongs to
+Action:: The action this element belongs to
+Parameter:: The parameter this action belongs to (if any). Parameters are used only with actions of type _call_.
+Element:: The full name of the element and its associated DataModel.
+Mutations:: The number of mutations generated from this element.
+Buckets:: The number of unique buckets found by sending mutating data to this element.
+Faults:: The number of faults found from the mutated data sent to this element.
+
+image::{images}/Common/WebUI/metrics_elements.png[]
+
+==== States
+
+This metric display presents statistics that are relevant for pits that have state models with more than two or more states. This display shows the number of times a specific state occurred during the fuzzing session. Seldom-used states might hide issues or indicate a problem.
+
+For example, not all states always execute. If an early-occurring state is fuzzed, the outcome of the fuzzing could prevent states that are used late in the state flow from occurring.
+
+NOTE: Over time, the number of occurrences for most states should trend towards equality.
+
+image::{images}/Common/WebUI/metrics_states.png[]
+
+==== Data Sets
+
+This metric display shows statistics related to the use of two or more data sets in the fuzzing session. This is useful to determine the origin of unique buckets and also faults in terms of the data sources used in mutating.
+
+This display shows several columns of information:
+
+[horizontal]
+Data Set:: Name of the data set
+Iterations:: Number of fuzzing iterations performed using this data set
+Buckets:: Number of unique buckets found with this data set
+Faults:: Number of faults found with this data set
+
+image::{images}/Common/WebUI/metrics_datasets.png[]
+
+==== Buckets
+
+This metric display shows the buckets encountered during the fuzzing job. Several columns of information show:
+
+[horizontal]
+Fault bucket:: Identifier of the fault that occurred
+Mutator:: The mutator that generated the fault
+Iteration count:: The number of iterations that used the mutator
+Faults count:: The number of faults that occurred while using the mutator
+
+image::{images}/Common/WebUI/metrics_buckets.png[]
+
+==== Accessing Raw Metrics Data
+
+Each job has its own SQLite database that contains metrics and other information about the job.
+The database is stored with other log assets under the logs folder in the peach application folder.
+Each job will have its own folder of assets.
+While we don't document the database schema,
+advanced users are welcome to mine the database to utilize the metrics data in different ways.
+The database format may change between versions, though typically changes are small.
+
+// end

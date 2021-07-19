@@ -1,0 +1,21 @@
+:toc!:
+= process.PageHeap =
+
+This monitor will enable/disable heap debugging settings for a process.  Multiple PageHeap monitors can be specified per Agent instance.
+
+[source,xml]
+----
+<Monitor class="process.PageHeap">
+  <Param name="Executable" value="notepad.exe" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * Executable -- Specify executable filename (no path!) [required]
+ * Path -- Path to glfags.exe.  Should not include executable name. [optional]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

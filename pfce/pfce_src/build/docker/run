@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+docker run -it \
+    --add-host vmblue:10.0.1.30 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v $PWD:/build \
+    peachweb-toolchain $*
+
+docker system prune -f

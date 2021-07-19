@@ -1,0 +1,38 @@
+:toc!:
+== Exclude ==
+
+The `Exclude` element when placed within the `Test` element specifies which elements are to be excluded from mutation. This element may be used, for example, to restrict fuzzing to a specific area of code.
+
+[source,xml]
+----
+<DataModel name="Container">
+  <String name="Index" value="123" />
+  <Block name="ToFuzz" ref="ContainedDataModel">
+</DataModel>
+
+<Test name="Default">
+
+  <!-- We are only fuzzing code associated with a specific index value -->
+  <Exclude xpath="//Container/Index" />
+
+  <!-- ... -->
+
+</Test>
+----
+
+Both `Include` and `Exclude` are recursive and default to all when no targets are defined via the `ref` or `xpath` attributes.
+
+The `ref` attribute transparently builds an xpath by appending '//' to the value supplied to the `ref`. The following two `Excludes` are functionally analogous for the above XML.
+
+[source,xml]
+----
+  <Exclude xpath="//Index" />
+  <Exclude ref="Index" />
+----
+
+The `ref` attribute could match multiple values in different data models depending on how they are constructed. For targeted exclusion it is be best to use the `xpath` attribute.
+
+=== Attributes
+
+ * link:../ref.html[ref] -- Reference to a node to be excluded in testing
+ * link:../xpath.html[xpath] -- XPath to a node to be excluded in testing

@@ -1,0 +1,24 @@
+:toc!:
+== Publishers ==
+
+Publishers connect state model actions like "input" and "output" with actual IO operations such as TCP, UDP, Files, COM, etc.  A number of Publishers ship with Peach, and it's easy to add your own.
+
+*Shipping Publishers*
+
+ * link:Com.html[Com]
+ * link:FileReader.html[FileReader]
+ * link:FileWriter.html[FileWriter]
+ * link:FilePerIteration.html[FilePerIteration]
+ * link:FileWriterLauncher.html[FileWriterLauncher]
+ * link:FileWriterLauncherGui.html[FileWriterLauncherGui]
+ * link:HttpBasicAuth.html[HttpBasicAuth]
+ * link:HttpDigestAuth.html[HttpDigestAuth]
+ * link:Command.html[Command]
+ * link:Raw.html[Raw]
+ * link:RemotePublisher.html[RemotePublisher]
+ * link:Odbc.html[Odbc]
+ * link:Icmp.html[Icmp]
+ * link:Tcp.html[Tcp]
+ * link:Udp.html[Udp]
+ * link:Stdout.html[Stdout]
+ * link:Null.html[Null]

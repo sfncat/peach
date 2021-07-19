@@ -1,0 +1,28 @@
+<<<
+[[Mutators_DataElementBitFlipper]]
+== DataElementBitFlipper
+
+This mutator produces test cases by changing the values of individual bits (bit flipping) within data produced by the model. The number of changed bits is a Gaussian distribution with a range of 1 to 6.
+
+If Transformers are used in the model, this mutator affects both the pre- and post- transformed data.
+
+=== Supported Elements
+
+This mutator can attach to the following data elements:
+
+* Container elements that have a transformer attached. Container elements typically have one or more child elements. Containers include Data Models, Blocks, Choices and arrays.
+
+* Data elements that are not containers.
+
+The lone exception: a data element that does not perform a type transformation on itself is unsupported. A type transformation occurs when an element packs or encodes its data in another format. A type transformation can occur with elements whose parent elements have types such as XmlElement or XmlAttribute. A couple of type transformation examples follow:
+
+* A Number element that packs its value into a binary format
+
+* A String element that encodes the characters into a representation such as ASCII or UTF-8
+
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

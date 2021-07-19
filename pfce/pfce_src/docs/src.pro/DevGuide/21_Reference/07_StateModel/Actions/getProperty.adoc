@@ -1,0 +1,213 @@
+<<<
+[[Action_getProperty]]
+== getProperty
+
+// 01/30/2014: Seth & Mike: Outlined
+//  * not supported by all publishers
+//  * Maps to accessing properties, such as COM/DCOM, Java (obj.prop = foo)
+//  * Read operation (input)
+//  * Return value parsed into data model
+//  * How to debug parsing
+//  * Examples!
+
+// 02/12/2014: Mick
+//  Added description of what getProperty does
+//  talked about its similarity to input and what publishers use it
+//  Added attribute descriptions
+//  Added an example
+//  Changed wording to not say it cracks data due to issue 493
+
+// 02/28/2014: Mike: Ready for tech writer
+//  Add examples
+//  Document examples
+//  Update formatting
+//  Update main content
+
+// 03/05/2014: Lynn: 
+//  Edited text and corrected QuickTime information
+
+The _getProperty_ Action retrieves the value of a property from an object that uses the property metaphor and stores the value in a DataModel. _getProperty_ Actions specify in a child element the xref:DataModel[DataModel] that receives the retrieved data.
+
+_getProperty_ provides one half of a property metaphor in Peach state models. _getProperty_ actions are considered input actions. xref:Action_setProperty[_setProperty_] is the other half (output) of the property metaphor.
+
+The _getProperty_ Action has two main uses:
+
+* when fuzzing targets such as Microsoft COM/DCOM objects that use the property metaphor. The _getProperty_ Action instructs a Publisher to retrieve the value of a specified property.
+* when accessing properties in a Publisher that supports the property metaphor. Some Publishers support using properties to get or set values, such as the UDP, RawV4, RawIPv4, and RawV6 Publishers) . An instance of this type of Publisher is in the examples section.
+
+NOTE: Properties exposed by publishers are described in the publisher documentation.
+
+.Default Order of Actions
+****
+The following is the default order in which Actions are performed when fuzzing:
+
+. _start_ - Implicit, once per session
+. _open_ - Implicit, once per iteration
+. Explicit actions (_accept_, _input_, _output_, etc.)
+. _close_ - Implicit, once per iteration
+. _stop_ - Implicit, once per session
+****
+
+=== Syntax
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+  <State name="InitialState">
+    <Action type="getProperty" property="Name">
+      <DataModel ref="NameModel"/>
+    </Action>
+  </State>
+</StateModel> 
+----
+
+=== Attributes
+
+_Required:_
+
+type:: Action type, must be set to "getProperty"
+
+_Optional:_
+
+name:: Name used to identify the action
+property:: Name of the property to retrieve
+publisher:: Name of the publisher to perform this action, or the Name publisher with the property to retrieve
+xref:Action_when[when]:: Perform this action if the provided expression evaluates to true
+xref:Action_onStart[onStart]:: Evaluate expression at the start of an action
+xref:Action_onComplete[onComplete]:: Evaluate expression upon completion of an action
+
+=== Child Elements
+
+xref:DataModel[DataModel]:: Reference to a DataModel store the retrieved data
+
+=== Examples
+
+.Accessing a Property using Microsoft COM Publisher
+==========================
+This example shows interacting with the QuickTime COM object.
+
+_getProperty_ retrieves the height of the player window.
+Since _getProperty_ is considered a data input, it is not fuzzed.
+To fuzz the height property, xref:Action_setProperty[_setProperty_] would be used.
+
+This example requires a Windows XP or newer machine with Apple QuickTime installed.
+
+. Start QuickTime
+. Save example to "example.xml"
+. Run "Peach.Core.ComContainer.exe"
+. Run "Peach.exe -1 --debug example.xml"
+. You should see the QuickTime movie start to play
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <!-- Import python module so we can sleep after saying play -->
+  <Import import="time"/>
+  
+  <DataModel name="TheDataModel">
+    <String name="Value" />
+  </DataModel>
+  
+  <StateModel name="TheState" initialState="Initial">
+    
+    <State name="Initial">
+
+      <Action type="call" method="Players[1].OpenURL">
+        <!-- This parameter will be fuzzed -->
+        <Param name="P1">
+          <DataModel ref="TheDataModel" />
+          
+          <Data>
+            <Field name="Value" value="https://archive.org/download/AppleComputersQuicktimeSample/sample.mp4"/>
+          </Data>
+        </Param>
+      </Action>
+      
+      <Action type="getProperty" property="Players[1].Height">
+        <DataModel ref="TheDataModel" />
+      </Action>
+      
+      <!-- The onComplete expression will pause the fuzzer to let
+           the video play for 6 seconds. -->
+      <Action type="call" method="Players[1].QTControl.Movie.Play" onComplete="time.sleep(6)"/>
+
+    </State>
+    
+  </StateModel>
+  
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="Com">
+      <Param name="clsid" value="QuickTimePlayerLib.QuickTimePlayerApp"/>
+    </Publisher>
+  </Test>
+  
+</Peach>
+----
+==========================
+
+.Accessing Publisher Properties using _getProperty_ Action
+==========================
+This example retrieves a property from the xref:Publishers_Udp[UDP Publisher].
+
+This example uses netcat as the client connecting to Peach.
+
+. Save the example Pit to "example.xml"
+. Run "peach -1 --debug example.xml"
+. Run "echo -n "WHATSMYIP" | nc -4u -w1 localhost 1234"
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Ping">
+    <String name="PingStr" value="WHATSMYIP" token="true"/>
+  </DataModel>
+
+  <DataModel name="IpAddress">
+    <Number size="32" name="IP" value="9999" />
+  </DataModel>
+
+  <StateModel name="TheStateModel" initialState="InitialState">
+    <State name="InitialState"> 
+      <Action type="open" />
+
+      <Action type="input"> 
+        <DataModel ref="Ping"/> 
+      </Action> 
+
+      <Action name="GetIpAddress" type="getProperty" property="LastRecvAddr">
+        <DataModel ref="IpAddress" />
+      </Action>
+
+      <Action type="slurp" valueXpath="//GetIpAddress//IP" setXpath="//IpResponse//IP" />
+
+      <Action name="IpResponse" type="output"> 
+        <DataModel ref="IpAddress"/> 
+      </Action> 
+    </State> 
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheStateModel"/>
+    <Publisher class="Udp">
+      <Param name="Host" value="127.0.0.1" />
+      <Param name="SrcPort" value="1234" />
+      <Param name="Timeout" value="10000" />
+    </Publisher>
+
+    <Logger class="File" >
+      <Param name="Path" value="logs"/>
+    </Logger>
+  </Test>
+</Peach>
+----
+==========================

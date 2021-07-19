@@ -1,0 +1,96 @@
+<<<
+[[Monitors_CrashWrangler]]
+== CrashWrangler Monitor (OS X)
+
+*Monitor Categories*: *Automation*, *Data collection*, *Fault detection*
+
+IMPORTANT: The gdb debugger and xref:Monitors_Gdb[gdb] monitor are the preferred tools to detect crashes and to collect core files on OS X.
+
+The _CrashWrangler_ monitor launches a process attached to the CrashWrangler debugger
+and monitors the process for crashes and other faults. This monitor runs only on OS X
+systems. Use this monitor when gdb is not an option, such as when anti-debugging
+mechanisms are used on the test target.
+
+_CrashWrangler_ monitor detects crashes, exceptions, access violations, and faults.
+This monitor can generate faults for an application that exits early or that fails to exit.
+
+After detecting a fault, the  _CrashWrangler_ monitor collects a stack trace, data from
+the device log files, and crash dumps. Additionally, the monitor logs exceptions, and
+updates fault bucket information. For bucketing, Peach uses the text from the fault to
+determine the major bucket level. The minor bucket level is not used. The risk
+evaluation provides the following levels: exploitable, not exploitable, or unknown.
+
+[TIP]
+====
+This monitor uses Apple's Crash Wrangler tool that can be downloaded from the
+developer website. Crash Wrangler must be compiled on each machine it is used.
+
+When using more than one instance of CrashWrangler in the same fuzzing session, assign unique names for the CwLockFile, CwLogFile, and CwPidFile files used with each instance of CrashWrangler. This practice will avoid contention issues involving these files.
+====
+
+=== Parameters
+
+_Required:_
+
+Executable:: Command or application to launch. This parameter name is preferred over Command.
+Command:: Command to execute. Alias with Executable.
+
+NOTE: The Command parameter is supported, but is being deprecated. Instead, use the Executable parameter.
+
+_Optional:_
+
+Arguments:: Command line arguments for the application that CrashWrangler launches, defaults to none.
+CwLockFile:: CrashWrangler Lock file, defaults to +cw.lock+.
+CwLogFile:: CrashWrangler Log file, defaults to +cw.log+.
+CwPidFile:: CrashWrangler PID file, defaults to +cw.pid+.
+ExecHandler:: Crash Wrangler execution handler program, defaults to +exc_handler+.
+ExploitableReads:: Are read a/v's considered exploitable? Defaults to false.
+FaultOnEarlyExit:: Trigger a fault if the process exits prematurely, defaults to false.
+
+NoCpuKill:: Disable process killing by CPU usage, Defaults to false.
+
+RestartAfterFault:: If "true", restarts the target when any monitor detects a fault.
+If "false", restarts the target only if the process exits or crashes. +
+This argument defaults to true.
+
+RestartOnEachTest:: Restarts the process for each iteration, defaults to false.
+StartOnCall:: Start the executable on a state model call, defaults to none.
+UseDebugMalloc:: Use the OS X Debug Malloc (slower), defaults to false.
+WaitForExitOnCall:: Wait for the process to exit on a state model call and fault if a timeout occurs, defaults to none.
+WaitForExitTimeout:: WaitForExitOnCall timeout value, expressed in milliseconds. -1 is infinite, defaults to 10000.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Fuzzing Safari
+====================
+This parameter example is from a setup that fuzzes the Safari browser on OS X.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter        |Value
+|Executable       |`/Applications/Safari.app/Contents/MacOS/Safari`
+|Arguments        |`fuzzed.bin`
+|UseDebugMalloc   |`true`
+|ExploitableReads |`true`
+|ExecHandler      |`./exc_handler`
+|StartOnCall      |`ScoobySnacks`
+|==========================================================
+
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Fuzzing Safari
+==================
+[source,xml]
+----
+include::CrashWrangler_Example.xml[]
+----
+==================
+
+endif::peachug[]

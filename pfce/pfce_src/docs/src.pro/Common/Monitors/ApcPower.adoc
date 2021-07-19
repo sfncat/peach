@@ -1,0 +1,116 @@
+<<<
+[[Monitors_ApcPower]]
+== APC Power Monitor
+
+*Monitor Categories*: *Automation*
+
+The _APC Power_ monitor switches outlets on an APC power distribution unit (PDU) on and off via SNMPv1.
+This monitor is useful for automatically power cycling devices during a fuzzing session.
+APC's Switched Rack Power Distribution Unit (AC7900) is known to work with this monitor.
+
+Each _APC Power_ monitor switches one or more of a PDU's outlets, according to the configuration.
+All affected outlets are given the same commands, so turning some outlets on and others off would require another monitor.
+The monitor can reset the power outlets at the following points in time:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+TIP: The xref:Monitors_IpPower9258[IpPower9258 Monitor] provides
+ similar features, specific to the IP Power 9258 devices. The
+ xref:Monitors_SnmpPower[SnmpPower Monitor] is designed to work with
+ non-APC PDUs that can be controlled via SNMPv1. For controlling power
+ to a device by wiring through a relay, Peach provides a monitor for
+ the xref:Monitors_CanaKitRelay[CanaKit 4-Port USB Relay Controller].
+
+=== Parameters
+
+_Required:_
+
+Host::
+IP address of the switched power distribution unit.
+
+OutletGrouping::
+Whether outlets on the PDU are identified individually (`Outlet`) or in groups (`OutletGroup`). Default is `Outlet`.
+
+Outlets::
+Comma-separated list of numeric identifiers for outlets or outlet groups to control.
+
+
+_Optional:_
+
+Port::
+SNMP port on the switched power distribution unit. Default is `161`.
+
+ReadCommunity::
+SNMP community string to use when reading the state of the outlets. Default is `public`.
+
+WriteCommunity::
+SNMP community string to use when modifying the state of the outlets. Default is `private`.
+
+RequestTimeout::
+Maximum duration in millseconds to block when sending an SNMP request to the PDU. Default is `1000`.
+
+SanityCheckOnStart::
+On startup, ensure switch state changes persist. Default is `true`.
+
+SanityCheckWaitTimeout::
+Maximum duration to wait for state change to take effect during startup sanity check. Default is `3000`.
+
+ResetOnCall::
+Reset power when the specified call is received from the state model.
+This value is used only when the 'When' parameter is set to `OnCall`.
+
+PowerOffOnEnd::
+Power off when the fuzzing session completes, default is `false`.
+
+PowerOnOffPause::
+Pause in milliseconds between power off/power on, default is `500`.
+
+When::
+When to reset power on the specified outlets or outlet groups. Default is `OnFault`.
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"When" Setting              |Description
+|DetectFault                 |
+Reset power when checking for a fault.
+This occurs after OnIterationEnd.
+|OnStart                     |
+Reset power when the fuzzing session starts.
+This occurs once per session.
+|OnEnd                       |
+Reset power when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Reset power at the start of each iteration.
+|OnIterationEnd              |
+Reset power at the end of each iteration.
+|OnFault                     |
+Reset power when any monitor detects a fault.
+This is the default setting.
+|OnIterationStartAfterFault  |
+Reset power at the start of an iteration that immediately follows a fault detection.
+|OnCall                      |
+Reset power when the call specified by the 'ResetOnCall' parameter is received from the state model.
+|==========================================================
++
+.When Choices for Performing an Action
+image::{images}/Common/Monitors/Timings_SSH.png[scalewidth="75%"]
+
+
+
+=== Examples
+ifndef::peachug[]
+
+.Reset power on ports 1 and 2 of an APC PDU
+========================
+[source,xml]
+----
+include::ApcPower_Example.xml[]
+----
+========================
+
+endif::peachug[]

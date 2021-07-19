@@ -1,0 +1,159 @@
+<<<
+[[Monitors_SshCommand]]
+== SshCommand Monitor
+
+*Monitor Categories*: *Automation*, *Data collection*, *Fault detection*
+
+The _SshCommand_ monitor connects to a remote host over SSH (Secure Shell),
+runs a command,
+and waits for the command to complete.
+The output from the process is logged when a fault is detected.
+This monitor can operate as a fault detector,
+data collector,
+and automation module depending on configuration.
+
+_SshCommand_ supports password, keyboard, and private key authentication methods.
+
+To increase the speed of operation,
+the monitor holds open the SSH connection to the remote machine across test iterations.
+This removes the cost of authenticating every time the command is executed.
+If multiple _SshCommand_ monitors are configured against the same remote host,
+multiple SSH connections are created and held open.
+
+*Fault Detection*
+
+This monitor can perform fault detection depending on the configuration of the 'FaultOnMatch' and 'CheckValue' parameters.
+The following table describes the behavior of these parameters:
+[options="header",halign="center"]
+|==========================================================
+|FaultOnMatch      | CheckValue match  | Behavior
+|`true`            | yes               | Fault detection
+|`true`            | no                | Data collection
+|`false`           | yes               | Data collection
+|`false`           | no                | Fault detection
+|==========================================================
+
+This monitor will also automatically detect link:https://github.com/google/sanitizers/wiki/AddressSanitizer[AddressSanitizer] crash information and generate a fault if found.
+
+*Data Collection*
+
+The monitor always collects the output from the executed command and reports it for logging when a fault is detected.
+
+*Automation*
+
+The _SshCommand_ monitor can run the specified command at various points in time during a fuzzing session:
+
+* At the start or end of a fuzzing run
+* At the start or end of each test iteration
+* While detecting a fault
+* After detecting a fault
+* At the start of an iteration that immediately follows a fault
+* When a specified call is received from the state model
+
+=== Parameters
+
+_Required:_
+
+Host::
+Remote hostname or IP address for the SSH connection.
+
+Username::
+Username for authentication with the remote host.
+
+Command::
+The command to execute on the remote host.
+
+_Optional:_
+
+Password::
+Password for authentication with the remote host.
+Defaults to `""`.
+Either the 'Password' or the 'KeyPath' parameter must be set.
+
+KeyPath::
+A local path to the private part of an SSH key-pair to be used for authentication with the remote host.
+Defaults to `""`.
+Either the 'Password' or the 'KeyPath' parameter must be set.
+
+CheckValue::
+A regular expression to match the command output.
+Defaults to `""`.
+
+FaultOnMatch::
+Trigger a fault if 'FaultOnMatch' is `true` and the 'CheckValue' regular expression matches,
+or 'FaultOnMatch' is `false` and the 'CheckValue' regular expression does not match.
+Defaults to `false`.
+
+StartOnCall::
+Run the specified command after the monitor receives the specified call from the state machine.
+This value is used only when the 'When' parameter is set to `OnCall`.
+
+When::
++
+Specify one of the following values to determine when to run the specified command:
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|'When' Value                 |Description
+|+DetectFault+                |
+Run the command to perform fault detection.
+Requires a regular expression to be specified in the 'CheckValue' parameter.
+This is the default setting.
+|+OnStart+                    |
+Run the command when fuzzing session starts.
+This occurs once per session.
+|+OnEnd+                      |
+Run the command when fuzzing session stops.
+This occurs once per session.
+|+OnIterationStart+           |
+Run the command at the start of each iteration.
+|+OnIterationEnd+             |
+Run the command at the end of each iteration.
+|+OnFault+                    |
+Run the command when any monitor detects a fault.
+|+OnIterationStartAfterFault+ |
+Run the command at the start of an iteration that immediately follows a fault detection.
+|+OnCall+                     |
+Run the command upon receipt of the call specified by the 'WaitOnCall' parameter from the state model.
+|==========================================================
++
+.When Choices
+image::{images}/Common/Monitors/Timings_SSH.png[scalewidth="75%"]
+
+=== Examples
+
+ifdef::peachug[]
+
+.Fault Detection example
+====================
+This example connects to the target machine using SSH during the fault detection phase of a test iteration.
+A fault occurs if any core files exist.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter     |Value
+|Host          |`my.target.com`
+|Username      |`tester`
+|Password      |`Password!`
+|Command       |`ls /var/cores/*.core`
+|CheckValue    |`target.*?.core`
+|FaultOnMatch  |`true`
+|==========================================================
+====================
+
+endif::peachug[]
+
+ifndef::peachug[]
+
+.Checking for core dump files
+==========
+This example connects to the target machine using SSH during the fault detection phase of a test iteration.
+A fault occurs if any core files exist.
+
+[source,xml]
+----
+include::Ssh_Example.xml[]
+----
+==========
+
+endif::peachug[]

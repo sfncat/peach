@@ -1,0 +1,150 @@
+:toc!:
+link:DevelopmentEnvironment.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:CreateStateModel.html[Next >>]
+
+''''
+
+== Creating Data Models ==
+
+*TODO: Complete this page!*
+
+Now we are going to dive right in.  Lets start by making a copy of +template.xml+ (found in your Peach folder) to +mysql.xml+.  This will hold all of the information about our MySQL fuzzer.  You will also want a sample network capture , grab link:../attachment:mysql-capture.zip.html[this one].
+
+Go ahead and load up +wav.xml+ into your XML editor.
+
+Now, you will want to check out the following specification to get an idea for the format of MySQL protocol:
+
+ . http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol[MySQL Client/Server Protocol]
+
+== Common Packet Header ==
+
+[source,xml]
+----
+<DataModel name="PacketHeader">
+	<Number name="Length" size="24" signed="false" endian="big">
+		<Relation type="size" of="Data"/>
+	</Number>
+	<Number name="Number" size="8" signed="false" endian="big" />
+	<Blob name="Data" />
+</DataModel>
+----
+
+
+== Handshake Packet (Server to Client) ==
+
+[source,xml]
+----
+<!-- Server -> Client -->
+<DataModel name="HandshakePacket" ref="PacketHeader">
+	<Block name="Data">
+		<Number name="ProtocolVersion" size="8" signed="false" endian="big"/>
+		<String name="ServerVersion" nullTerminated="true" />
+		<Number name="ThreadId" size="32" signed="false" endian="big" />
+		<Blob name="ScrambleBuff" length="8" />
+		<Blob length="1" value="0" isStatic="true" />
+		<Number name="Capabilities" size="16" signed="false" endian="big" />
+		<Number name="Language" size="8" signed="false" endian="big" />
+		<Number name="Status" size="16" signed="false" endian="big" />
+		<Blob length="13" />
+		<Blob name="ScrambleBuff2" length="13" />
+	</Block>
+</DataModel>
+----
+
+
+== Client Authentication Packet (Client to Server) ==
+
+[source,xml]
+----
+<!-- Client -> Server -->
+<DataModel name="ClientAuthPacket" ref="PacketHeader">
+	<Block name="Data">
+		<Number name="ClientFlags" size="32" signed="false" endian="big" />
+		<Number name="MaxPacketSize" size="32" signed="false" endian="big" />
+		<Number name="CharSet" size="8" signed="false" endian="big" />
+		<Blob length="23" value="0" />
+		<String name="User" nullTerminated="true" />
+		<Number name="PasswordLength" size="8" signed="false" endian="big" >
+			<Relation type="size" of="Password"/>
+		</Number>
+		<Blob name="Password" />
+		<String name="Database" nullTerminated="true" />
+	</Block>
+</DataModel>
+----
+
+
+
+=== Custom MySQL Password Scramble Fixup ===
+
+[source,python]
+----
+import hashlib
+from Peach.fixup import Fixup
+from Peach.Engine.common import *
+
+class MySqlScramble(Fixup):
+	'''
+	The newer MySql scramble implementation.  Taken from
+	MySQL v5 sql/password.c
+	'''
+	
+	def __init__(self, message, password):
+		Fixup.__init__(self)
+		self.message = message
+		self.password = password
+	
+	def fixup(self):
+		message = self._findDataElementByName(self.message).getValue()
+		password = self.password
+		
+		if message == None:
+			raise Exception("Error: MySqlScramble was unable to locate [%s]" % self.message)
+		if password == None:
+			raise Exception("Error: MySqlScramble was unable to locate [%s]" % self.password)
+		
+		sha1 = hashlib.sha1()
+		sha1.update(password)
+		hashStage1 = sha1.digest()
+		
+		sha1 = hashlib.sha1()
+		sha1.update(hash_stage1)
+		hash_stage2 = sha1.digest()
+		
+		sha1 = hashlib.sha1()
+		sha1.update(message)
+		sha1.update(hash_stage2)
+		to = sha1.digest()
+		
+		# my_crypt(to, to, hash_stage1, SCRAMBLE_LENGTH)
+		out = ""
+		for i in range(len(to)):
+			out += to[i] ^ hash_stage1[i]
+		
+		return out
+
+# end
+----
+
+
+
+== Command Packet (Client to Server) ==
+
+[source,xml]
+----
+<!-- Client -> Server -->
+<DataModel name="CommandPacket" ref="PacketHeader">
+	<Block name="Data">
+		<Number name="Command" size="8" signed="false" endian="big" />
+		<String name="SQL" nullTerminated="true" />
+	</Block>
+</DataModel>
+----
+
+
+== Next Steps ==
+
+ todo
+
+''''
+
+link:DevelopmentEnvironment.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:CreateStateModel.html[Next >>]

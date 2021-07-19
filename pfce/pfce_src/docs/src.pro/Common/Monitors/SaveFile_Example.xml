@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <Number size="32" signed="false" value="31337" />
+  </DataModel>
+
+  <StateModel name="State" initialState="Initial" >
+    <State name="Initial">
+      <Action type="output">
+        <DataModel ref="TheDataModel"/>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Agent name="Local">
+    <Monitor class="Process">
+      <Param name="Executable" value="/usr/sbin/nginx" />
+      <Param name="FaultOnEarlyExit" value="true" />
+    </Monitor>
+    <Monitor name="Save access.log" class="SaveFile">
+      <Param name="Filename" value="/var/log/nginx/access.log" />
+    </Monitor>
+    <Monitor name="Save error.log" class="SaveFile">
+      <Param name="Filename" value="/var/log/nginx/error.log" />
+    </Monitor>
+  </Agent>
+
+  <Test name="Default">
+    <StateModel ref="State"/>
+    <Agent ref="Local" />
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>

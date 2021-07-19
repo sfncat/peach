@@ -1,0 +1,75 @@
+:toc!:
+== Fuzzer Development Methodology ==
+Here is the super quick development methodology I use for creating fuzzers.  In the case of network protocols Wireshark is substituted for 010 Hex Editor typically.
+
+== The Tools ==
+*XML Editor*
+
+ * Visual Studio (Express editions are free)
+ * oXygen XML Editor ($$)
+
+*010 Hex Editor*
+
+Best hex editor around.  Chosen for the ease of creating templates.
+
+== The Process ==
+=== Locate specification or parser code ===
+The first step is to locate a complete specification of the target format or protocol.  Additionally it is suggested that the parser logic be reviewed to see if there are any deviations from the specifications.  For example, some FTP implementations have custom FTP commands that are not in the RFC.  Additionally, you might find hints on additional mutations that could be done to better test the protocol.
+
+=== 010 Editor/Wireshark ===
+This next step is optional, but I've found it extremely useful when creating pit files for semi complex formats.  Creating an 010 Template or a Wireshark parser will allow you to explore sample formats or the protocol to help build and debug the pit file.
+
+There is a repository of 010 Templates located at http://www.sweetscape.com/010editor/templates/, check here first for common formats.
+
+=== Write and Debug the Peach Pit ===
+Create the Pit file based on the specifications, parsing logic, and the 010 Editor/Wireshark parsing of the samples. Your goal at this point is to configure your Pit so the first iteration of fuzzing (when no mutators are applied) will interact with your target as if it was talking to a valid application.  In the case of a network fuzzer this would mean sending valid messages and completing a valid protocol handshakes.  In the case of a file format fuzzer this would mean producing a new file that is identical to the sample file used as input. 
+
+Our tutorials offer a great introduction into building Pits from scratch. They can be located link:v3/PeachQuickStart.html[here.]   
+
+One of the most difficult and important tasks of building the pit file is debugging it to verify it works as intended.  Peach has various tools/methods that will assist in debugging and validating the pit files.
+
+==== Parse Testing ====
+The first tool at your disposal will verify if the Peach Pit file parses correctly.  Getting the pit file to parse properly is the first and possibly easier step of debugging and validating your fuzzer.
+
+To test the pit file simply run the command line tool with the +-t+ argument as shown below the output will indicate success or failure and provide information on how to resolve any issues.
+
+----
+peach.exe -t mypit.xml
+----
+
+==== Peach Validator ====
+The next tool is the graphical Peach Validator, this program will allow you to load a pit file, select a DataModel and load sample data into the DataModel.  It will allow you to explore the resulting DataModel, the default values its elements contain, and the locations that it read from.
+
+You can run the tool as follows:
+
+----
+PeachValidator.exe
+----
+
+==== Peach Debug Output ====
+If unable to debug your pit file using the prior tools the last option is to review the debug output from Peach as it parses the pit file and data.  This information is verbose and sometimes cryptic in nature as it was origionally intended for the author to debug the Peach internals.
+
+*TODO: Provide examples an explanation on reading output*
+
+----
+peach.exe --debug mypit.xml
+----
+
+==== Peach Single Iteration ====
+If everything up to this point has seemed valid, run Peach with a -1 command line option to run a single iteration without any fuzzing of the data. 
+
+----
+peach.exe -1 mypit.xml
+----
+
+In the case of a file fuzzer a new file should be produced that is identical to the sample file.  Verify this with 010 editor using its compare feature.
+
+If your pit communicates over a network observe the traffic with wireshark and confirm that the communication between the fuzzer and your target matches your previous captures.
+
+=== Configure agents and monitors for target ===
+A fundamental piece of fuzzing is the ability to detect when your fuzzer has caused something interesting to occur.  At this point the fuzzer should gather as much relevant information about the iteration as it can and reset the target to a healthy state for more fuzzing.
+
+Once you are confident that your fuzzer is producing valid data include link:v3/AgentsMonitors.html[Agents and Monitors] that will assist in the automation of your fuzzing and fault detection. 
+
+=== Commence fuzzing! ===
+Finally you are all set to run the fuzzer and collect bugs!

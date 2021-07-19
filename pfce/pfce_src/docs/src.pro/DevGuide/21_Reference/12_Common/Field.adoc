@@ -1,0 +1,43 @@
+[[Field]]
+== Field
+
+The Field element specifies the data that replaces the default value in a DataModel element.
+
+=== Attributes
+
+_Required:_
+
+xref:name[name]:: Name of the DataModel element.
+
+_Optional:_
+
+xref:value[value]:: The value to set.
+xref:valueType[valueType]:: The format in which the default value is expressed (i.e. hex, string, or literal).
+
+=== Examples
+
+.Basic Example
+======
+Data used to overwrite _Good Afternoon World!_ with _Hello World!_.
+
+[source,xml]
+----
+<DataModel name="TheDataModel">
+  <Block name="Block1">
+    <String name="Key" value="Output: " />
+    <String name="Value" value="Good Afternoon World!"/>
+  </Block>
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="output">
+      <DataModel ref="TheDataModel" />
+      <Data name="SampleData">
+        <Field name="Block1.Value" value="Hello World!" />
+      </Data>
+    </Action>
+  </State>
+</StateModel>
+----
+======

@@ -1,0 +1,12 @@
+:toc!:
+== FiniteRandomNumbersMutator ==
+
+This mutator produces "random" numbers using a static seed so it will always produce the same random numbers.  By default 5,000 numbers are produced for each Number element that is found.  Each Number element is targeted in sequence.
+
+_Target Elements_
+
+ * link:Number.html[Number]
+
+_Hints_
+
+ * FiniteRandomNumbersMutator-N -- Set number of random numbers produced for this element.

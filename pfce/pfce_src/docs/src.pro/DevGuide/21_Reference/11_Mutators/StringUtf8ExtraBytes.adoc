@@ -1,0 +1,17 @@
+<<<
+[[Mutators_StringUtf8ExtraBytes]]
+== StringUtf8ExtraBytes
+
+This mutator produces test cases for UTF-8 String elements by generating new strings and then populating the strings with randomly-selected values. The interesting aspect of this mutator is that the storage allocated for each character ranges from 1 to 6 bytes, rather than using a single byte. The codes for these characters are included in the Unicode space and are unremarkable.
+
+The lengths of the generated strings form a distribution that centers on the current string length and ranges from 1 to 65K Unicode characters.
+
+=== Supported Elements
+
+ * xref:String[String]
+
+=== Hints
+
+This mutator does not support hints.
+
+// end

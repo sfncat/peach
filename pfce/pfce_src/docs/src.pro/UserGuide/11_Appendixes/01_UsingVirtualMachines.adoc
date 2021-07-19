@@ -1,0 +1,52 @@
+[[VM_Setup]]
+=== Using Virtual Machines
+
+When a configuration requires two or more machines, one machine runs Peach to generate
+the fuzzing test cases and to manage the fuzzing contributions of the other, remote machines. Within each remote machine, an agent process runs that handles monitoring of the test target and communications with Peach.
+
+A remote machine can be either a physical machine or a virtual machine (VM). Peach
+includes monitors for automating VMs that use VMware products. Further, many of the
+recipes assume a VM is used and that it has a saved state called a snapshot. Peach can
+use the snapshot for initially loading the VM in a fuzzing job and for resetting the VM after detecting a fault.
+
+Since a Peach agent always runs in the remote machines, it helps the automation effort
+to create the snapshot with the Peach agent running. The resulting benefit is that
+whenever Peach reverts to the snapshot, the VM starts with the Peach agent loaded
+and running.
+
+The steps to create a VM snapshot for Peach follows:
+
+1.	Start the VM to house the test target (such as a network service).
+
+2.	Start a Peach Agent in the VM.
+..	For Windows VMs,
+...	Open a command Processor with administrative privileges.
+...	Navigate to the folder containing Peach, such as: `cd C:\peach`
+...	Launch the Peach agent: `peach –a tcp`
+
+..	For Linux and OS X VMs,
+...	Open a terminal.
+...	Navigate to the folder containing peach, such as: `cd ~/peach`
+...	Start the script for running the Peach agent: `./peach –a tcp`
+
+3.	Using the VMware menu on the host OS, select VM -> Snapshot -> Take Snapshot.
+The following dialog appears. The title bar identifies image used in the snapshot.
++
+image::{images}/UserGuide/VM_Snapshot_Ubuntu.png[scale="50"]
+
+4.	Fill in the following information in the dialog:
+..	Name: The name must be unique.
+..	Description: This is an optional field.
+
+5.	Click <Take Snapshot> to record the VM state.
+
+[IMPORTANT]
+=======
+*IMPORTANT*: Save the following pieces of information. They are needed for automating the VM.
+
+* Full path of the VM image used in the snapshot. +
+The VM image is stored on the file system. The VM image file extension is `.vmx`.
+* Snapshot name.
+=======
+
+// end

@@ -1,0 +1,108 @@
+:2H: ##
+
+ifdef::hosted[]
+:targetip: 127.0.0.1
+endif::[]
+
+ifndef::hosted[]
+:targetip: the IP of your Target VM
+endif::[]
+
+[[SampleConfigurations]]
+== Sample Configurations
+
+The following are sample configurations for several different protocols as well as file types that {product} can fuzz.
+ifdef::hosted[]
+Each sample will already be present and configured on your trial instance.
+In addition, a test run for each sample is already present on the trial instance so that you can easily view the test results and see the types of faults that {product} can find.
+endif::[]
+You can run the sample configurations with the supplied seed values in this guide.
+Each section below has instructions for how to set up the sample configuration, including a brief
+explanation of why {product} has been configured this way for this particular application.
+It is strongly recommended that you use the supplied values in each section for the *Seed* and *Stop Test Case* (and *Start Test Case* if indicated).
+These values have been selected to guarantee that you can create a test run that will find faults in the target applications within a few minutes.
+
+ifndef::hosted[]
+NOTE: For the purposes of this document we will assume the target VM has an IP address of +192.168.17.145+ and this IP address will be used wherever the host's IP address is required.
+If you see this value used for an IP address in a configuration, replace it with the actual IP address of your VM.
+endif::[]
+
+[[ViewResults]]
+=== Viewing the Sample Job Results
+
+ifdef::hosted[]
+Your trial instance already has test runs for each available sample configuration.
+These can be viewed from the Jobs page.
+endif::[]
+Any additional test runs you perform will be available on the Jobs page.
+To view the results:
+
+. From the Home page, click the Jobs tab.
++
+image::{images}/click-jobs.png[]
+. Click the job you wish to view from the list of available jobs.
++
+image::{images}/select-job.png[]
+. The results of the selected job will now be displayed.
+You can see the overall results which will indicate the parameters with which the job was run and the faults that were found.
+You can examine the <<ExamineFaults, faults>> individually or <<DownloadReport, download a report>> that summarizes all of the findings in this job run.
+
+
+[[RunningSamples]]
+=== Running the Samples
+
+ifdef::hosted[]
+To run the pre-configured examples:
+
+. Click *Library* 
++
+image::{images}/click-library.png[]
+. Under *Configurations*, click the name of the sample configuration that you wish to run
++
+image::{images}/sample-configs.png[]
+NOTE: Your trial instance may not have every Configuration pictured here.  
+endif::[]
+ifndef::hosted[]
+You will need to configure the pits to run with the target VM instance you have created.
+Select a PIT listed below for detailed instructions on how to configure the pit for a test run.
+endif::[]
+The exact Configurations available will depend on what Pits are included with your trial license.
+. Enter the appropriate values for *Seed* and *Stop Test Case*.
+. Enter the appropriate value for *Start Test Case* if specified.  Otherwise, leave the default of *1*.
+
+ifdef::DICOM,all[]
+include::./DICOM.adoc[]
+endif::[]
+
+ifdef::HL7,all[]
+include::./HL7.adoc[]
+endif::[]
+
+ifdef::DNP3,all[]
+include::./DNP3-Master.adoc[]
+
+include::./DNP3-Slave.adoc[]
+
+endif::[]
+
+ifdef::HTTP,all[]
+include::./HTTP.adoc[]
+endif::[]
+
+ifdef::SNMP,all[]
+include::./SNMP.adoc[]
+endif::[]
+
+ifdef::MODBUS,all[]
+include::./MODBUS.adoc[]
+endif::[]
+
+ifdef::PNG,all[]
+include::./PNG.adoc[]
+endif::[]
+
+ifdef::JPG,all[]
+include::./JPG.adoc[]
+endif::[]
+
+// end

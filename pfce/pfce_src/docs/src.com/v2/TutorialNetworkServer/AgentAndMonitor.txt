@@ -1,0 +1,122 @@
+:toc!:
+link:ConfigurePublisher.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:OptimizeTesting.html[Next >>]
+
+''''
+
+== Agent and Monitor ==
+
+Now we are ready to configure our agent and monitors.  Agents are special Peach processes that can be run locally or remote.  These processes host one or more monitors that can perform such actions as attaching debuggers, watching memory consumption, etc.  For this tutorial we are going to configure the WindowsDebugEngine to monitor +mysqld-nt.exe+ for exceptions and access violations.  Additionally we will enable HEAP debugging for the target process.  If the MySQL instance was on a remote machine we could also configure a network capture monitor, however on Windows it is not possible by default to capture traffic to the loopback address (127.0.0.1).
+
+_Note_: Running an agent on an untrusted network has link:Agent#security.html[security implications].
+
+== Configure the Agent and Monitor ==
+
+First lets locate the commented out +<Agent>+ element in the template file, it will look something like this:
+
+[source,xml]
+----
+<!-- TODO: Configure agent/monitors
+	<Agent name="LocalAgent" location="http://127.0.0.1:9000">
+	<Monitor class="test.TestStopOnFirst" />
+	</Agent>
+-->
+----
+
+
+We are going to uncomment this section and configure two monitors the WindowsDebugEngine and PageHeap.
+
+[source,xml]
+----
+<Agent name="LocalAgent" location="http://127.0.0.1:9000">
+    <Monitor class="process.PageHeap">
+        <Param name="CommandLine" value="mysqld-nt.exe" />
+    </Monitor>
+    <Monitor class="debugger.WindowsDebugEngine">
+        <Param name="Application" value="C:\Program Files\MySQL\MySQL Server 5.0\bin\mysqld-nt.exe" />
+    </Monitor>
+</Agent>
+----
+
+
+Notice that we are not specifying a path for the PageHeap memory debugging.
+
+Additionally, we are using the default agent configuration were the agent will be run locally (127.0.0.1 is our loopback address).
+
+== Configure Test ==
+
+Okay, now we just need to enable the agent for our test.  Head down to the +<Test>+ element, specifically we are looking to uncomment this line:
+
+[source,xml]
+----
+<!-- <Agent ref="LocalAgent"/> -->
+----
+
+
+Leaving us with this:
+
+[source,xml]
+----
+<Test name="TheTest">
+    <Agent ref="LocalAgent"/>
+    <StateModel ref="TheState"/>
+    
+    <Publisher class="tcp.Tcp">
+        <Param name="host" value="127.0.0.1"/>
+        <Param name="port" value="3306"/>
+    </Publisher>
+</Test>
+----
+
+
+== Configure Logging ==
+
+Now that we are using monitors that can detect faults we will want to configure a logging mechanism to capture the results of our fuzzer run.
+
+Todo this add the following to the +<Run>+ element at the bottom of our XML file:
+
+[source,xml]
+----
+<Logger class="logger.Filesystem">
+    <Param name="path" value="logs" />
+</Logger>
+----
+
+
+So it looks like this:
+
+[source,xml]
+----
+<Run name="DefaultRun">
+    
+    <Test ref="TheTest" />
+
+    <Logger class="logger.Filesystem">
+        <Param name="path" value="logs" />
+    </Logger>
+    
+</Run>
+----
+
+
+== Running Fuzzer ==
+
+Now that we have an agent configured, when we run our fuzzer we will first start a Peach agent instance.  This can be done using the following command lines:
+
+_Start Agent_
+
+----
+peach.py -a
+----
+
+
+_Run Fuzzer_
+
+----
+peach.py wav.xml
+----
+
+
+
+''''
+
+link:ConfigurePublisher.html[<< Previouse] | link:../TutorialNetworkServer.html[Up] | link:OptimizeTesting.html[Next >>]

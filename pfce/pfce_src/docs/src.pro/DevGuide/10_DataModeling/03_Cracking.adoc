@@ -1,0 +1,652 @@
+[[Cracking]]
+=== Cracking Data into the Data Model
+
+In Peach, cracking is the process of parsing data into a data model where data elements have initial values set.
+The two most common examples of cracking are:
+loading a sample file from disk using the xref:Data[Data] element,
+and data received through a state model's xref:Action_input[input action].
+
+Cracking sample data into a model is a good way to verify that the model works correctly.
+Peach provides several features to support cracking.
+When building a Pit, 
+Peach also provides methods to debug the cracking process.
+
+==== Features Specific to Cracking
+
+xref:token[token] attribute::
++
+--
+A token is a string of one or more characters that are significant as a group.
+In Peach,
+one function of tokens is to identify delimiters that separate strings in an input stream.
+When cracking data into a model,
+the input stream must include elements marked as tokens.
+Strings that have unknown lengths,
+but are separated by tokens,
+can be cracked at the appropriate locations.
+--
+
+xref:constraint[constraint] attribute::
++
+--
+Constraints are scripting expressions that are evaluated and return true or false. The constraint is executed when cracking data into a data element. Constraints provide similar functionality to tokens, but are more flexible. For example, a token attribute used on a xref:String[String] element would be case sensitive. A constraint can be used with a scripting comparison that is not case sensitive.
+--
+
+xref:Placement[Placement] element::
++
+--
+Placement is used in conjunction with the xref:Relations_Offset[offset] relation to move an element inside of the model. See xref:DataModeling_Placement[the story of placement] for more information.
+--
+
+xref:Analyzers[Analyzers] element::
++
+--
+Analyzers provide code that generate or modify a data model. When compared to generating a _DataModel_ manually, analyzers usually reduce the time and effort needed to create a data model (especially in self-describing formats such as ASN.1 and XML).
+--
+
++--debug+ argument::
++
+--
+The Peach +--debug+ command line argument is the main method of debugging the cracking process. The debug argument causes Peach to provide detailed output for every step of the cracking process. See <<debug-cracking,Debugging the Cracking Process>> for information on how to use this output.
+--
+
+[[debug-cracking]]
+==== Debugging the Cracking Process
+When writing data models, it is useful to understand, in detail, how cracking occurs for both debugging and data validation. Peach provides two tools for debugging and validating that data is cracking correctly,
+the +--debug+ argument to Peach and the xref:Program_PeachValidator[Peach Validator] tool.
+
+* The +--debug+ argument enables verbose debugging messages from Peach, including the cracking process.
+
+* The Peach Validator tool provides a graphical view of the data model before and after data is cracked into the model.
+
+The combination of these tools provides enough information to debug and to validate your pit.
+
+===== Understanding the +--debug+ Output
+
+The following example explains the output of +--debug+, and the debugging process.
+
+The focus of this example is the first part of a PNG Pit, and writing the debug
+output to the console. PNG is a common image file format. A full fuzzing definition
+of this format is available from Peach as a stand-alone Pit or as part of the
+Image Pit Pack.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="PngModel">
+		<Blob />
+	</DataModel>
+
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<Action type="output">
+				<DataModel ref="PngModel" />
+				<Data fileName="##Peach.Pwd##\samples_png\snail.png" />
+			</Action>
+
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+
+		<Publisher class="File">
+			<Param name="FileName" value="fuzzed.png" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+When run with the +--debug+ argument, it produces the following output:
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 28899.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Cracker.DataCracker ------------------------------------ <1>
+Peach.Core.Cracker.DataCracker DataModel 'PngModel' Bytes: 0/33546, Bits: 0/268368 <2>
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'PngModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'PngModel'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.DataElement_0' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'PngModel' Size: <null>, Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Cracker.DataCracker ------------------------------------ <3>
+Peach.Core.Cracker.DataCracker Blob 'PngModel.DataElement_0' Bytes: 0/33546, Bits: 0/268368 <4>
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'PngModel.DataElement_0'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.DataElement_0' -> Offset: 0, Unsized element
+Peach.Core.Cracker.DataCracker lookahead: Blob 'PngModel.DataElement_0'
+Peach.Core.Cracker.DataCracker getSize: <----- Last Unsized: 268368
+Peach.Core.Cracker.DataCracker Crack: Blob 'PngModel.DataElement_0' Size: 268368, Bytes: 0/33546, Bits: 0/268368 <5>
+Peach.Core.Dom.DataElement Blob 'PngModel.DataElement_0' value is: 89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49 48 44 52 00 00 01 00 00 00 01 00 08 02 00 00 00 d3 10 3f.. (Len: 33546 bytes) <6>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher output(33546 bytes) <7>
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Debug messages are prefixed with the full class name they originate from. For cracking messages, you see a combination of DataCracker and DataElements. +
+The long dashed line indicates the start of a new data element
+<2> The element type and element name are provided. This is the current data offset in bytes and in bits.
+<3> The long dashed line indicates the start of a new data element
+<4> Again, the element type and element name are provided. This is the current data offset in bytes and in bits. Since we have not yet read any bytes, we are still at offset zero.
+<5> The amount of data, in bits, to load into our element; and the current position, in bytes and in bits.
+<6> After cracking data into an element, the value is displayed. If the value is long, the display of the value might be truncated. Also, the total size in bytes is provided.
+<7> The total size sent as output to the Publisher. This should match the size of our input file.
+
+As part of data validation, verify that the amount of data being sent and cracked matches the size of the file.
+
+----
+> dir samples_png\snail.png
+
+ Volume in drive C has no label.
+ Volume Serial Number is
+
+ Directory of samples_png
+
+03/12/2014  07:00 PM            33,546 snail.png
+               1 File(s)         33,546 bytes
+----
+
+In this case, the sizes match.
+
+We can also use the Peach Validator to get a visual representation of what is happening. Launch Peach Validator and load _example.xml_ via the toolbar. Notice the tree view on the bottom half of the window. This is the data model and data elements. Because no data has been loaded, the values are all empty. Notice the _DataElement_0_ element; this is the unnamed xref:Blob[Blob] element. Peach assigned it a default name.
+
+image::{images}/DevGuide/DataModeling/Cracking_Validator1.png[]
+
+Next, load the sample file _snail.png_ and see the result of the crack.
+
+image::{images}/DevGuide/DataModeling/Cracking_Validator2.png[]
+
+The data model now contains data. Click on the _DataElement_0_ item to highlight the corresponding data in the hex view.
+
+image::{images}/DevGuide/DataModeling/Cracking_Validator3.png[]
+
+This definition is considered a dumb fuzzing model for PNG. The next step expands the model based on the PNG specification.
+
+*Adding Some Smarts*
+
+PNG files consist of a piece of file magic and then multiple T-L-V (type, length, value) blocks that the PNG specification calls _chunks_. TLV's are common structures in data formats. The file magic is a unique marker identifying PNG files. The next revision of the PNG model includes the file magic and a TLV structure set up as an array.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<DataModel name="PngModel">
+		<Blob name="Magic" length="8" />
+
+		<!-- TLV -->
+		<Block name="Chunk" maxOccurs="100">
+			<Number name="Length" size="32">
+				<Relation type="size" of="Data" />
+			</Number>
+			<Block name="DataToCrc">
+				<!-- Types: IHDR, IDAT, etc.-->
+				<String name="Type" length="4" />
+				<Blob name="Data" />
+			</Block>
+			<Number name="Checksum" size="32">
+				<Fixup class="Crc">
+					<Param name="ref" value="DataToCrc" />
+				</Fixup>
+			</Number>
+		</Block>
+	</DataModel>
+
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<Action type="output">
+				<DataModel ref="PngModel" />
+				<Data fileName="##Peach.Pwd##\samples_png\snail.png" />
+			</Action>
+
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+
+		<Publisher class="File">
+			<Param name="FileName" value="fuzzed.png" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+The preceding Pit definition produces the following in Peach Validator before cracking any data.
+
+image::{images}/DevGuide/DataModeling/Cracking_Validator4.png[]
+
+When we try and crack the sample, an error message states that cracking failed. An error message also displays that might help in locating and resolving the issue.
+
+image::{images}/DevGuide/DataModeling/Cracking_Validator5.png[]
+
+The next step is to review the +--debug+ output and see if we can spot the issue.
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 44055.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'PngModel' Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'PngModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'PngModel'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Magic' -> Pos: 64, Length: 64
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'PngModel' Size: <null>, Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Magic' Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'PngModel.Magic'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Magic' -> Pos: 64, Length: 64
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 64
+Peach.Core.Cracker.DataCracker Crack: Blob 'PngModel.Magic' Size: 64, Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Dom.DataElement Blob 'PngModel.Magic' value is: 89 50 4e 47 0d 0a 1a 0a <1>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Array 'PngModel.Chunk' Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Array 'PngModel.Chunk'
+Peach.Core.Cracker.DataCracker scanArray: Array 'PngModel.Chunk'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker scanArray: Array 'PngModel.Chunk' -> FirstSized
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Array 'PngModel.Chunk' Size: <null>, Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Dom.Array Crack: ====================== <2>
+Peach.Core.Dom.Array Crack: Block 'PngModel.Chunk.Chunk' Trying #1 <3>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk' Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk' Size: <null>, Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk.Length' Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk.Length'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk.Length' Size: 32, Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk.Length' value is: 218103808 <4>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk.DataToCrc' Bytes: 12/33546, Bits: 96/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk.DataToCrc' Size: <null>, Bytes: 12/33546, Bits: 96/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'PngModel.Chunk.Chunk.DataToCrc.Type' Bytes: 12/33546, Bits: 96/268368
+Peach.Core.Cracker.DataCracker getSize: -----> String 'PngModel.Chunk.Chunk.DataToCrc.Type'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: String 'PngModel.Chunk.Chunk.DataToCrc.Type' Size: 32, Bytes: 12/33546, Bits: 96/268368
+Peach.Core.Dom.DataElement String 'PngModel.Chunk.Chunk.DataToCrc.Type' value is: IHDR <5>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' Bytes: 16/33546, Bits: 128/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'PngModel.Chunk.Chunk.DataToCrc.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' -> Pos: 1744830464, Size relation: 1744830464
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 1744830464
+Peach.Core.Cracker.DataCracker Crack: Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' Size: 1744830464, Bytes: 16/33546, Bits: 128/268368
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' failed to crack. <6>
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' has length of 1744830464 bits but buffer only has 268240 bits left.
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk.DataToCrc' failed to crack.
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk' failed to crack.
+Peach.Core.Dom.Array Crack: Array 'PngModel.Chunk' Failed on #1
+Peach.Core.Cracker.DataCracker Array 'PngModel.Chunk' failed to crack.
+Peach.Core.Cracker.DataCracker DataModel 'PngModel' failed to crack.
+
+[*] Test 'Default' finished.
+Peach.Core.PeachException: Error, failed to crack "c:\peach\win_x64_release\bin\samples_png\snail.png" into "PngModel":Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' has length of 1744830464 bits but buffer only has 268240 bits left. ---> Peach.Core.Cracker.CrackingFailure: Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' has length of 1744830464 bits but buffer only has 268240 bits left.
+----
+<1> _Magic_ element cracked correctly.
+<2> The double line separator indicates an array is being expanded to fit the incoming data.
+<3> The array position (starting with 1) is indicated along with the name of the element that makes up the array.
+<4> Notice the very large value cracked into the _Length_ field. This is much larger than the file size.
+<5> The _Type_ field correctly cracked with a value of +IHDR+.
+<6> The _Data_ field failed to crack with a huge size (shown in bits) provided by the _Length_ field.
+
+The debug output shows that the elements are cracking at the correct byte offsets and only _Length_ and _Data_ appear to be incorrect. In fact, the _Length_ field is the real issue here. A closer look at the PNG specification shows all numbers should be big endian byte order. By default Peach uses little endian. This can be adjusted using the _endian_ attribute, or a xref:Defaults[Defaults] element to change to default endian-ness.
+
+The following XML has corrected the issue:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+	<Defaults>
+		<Number endian="big" />
+	</Defaults>
+
+	<DataModel name="PngModel">
+		<Blob name="Magic" length="8" />
+
+		<!-- TLV -->
+		<Block name="Chunk" maxOccurs="100">
+			<Number name="Length" size="32">
+				<Relation type="size" of="Data" />
+			</Number>
+			<Block name="DataToCrc">
+				<!-- Types: IHDR, IDAT, etc.-->
+				<String name="Type" length="4" />
+				<Blob name="Data" />
+			</Block>
+			<Number name="Checksum" size="32">
+				<Fixup class="Crc">
+					<Param name="ref" value="DataToCrc" />
+				</Fixup>
+			</Number>
+		</Block>
+	</DataModel>
+
+	<StateModel name="State" initialState="Initial">
+		<State name="Initial">
+
+			<Action type="output">
+				<DataModel ref="PngModel" />
+				<Data fileName="##Peach.Pwd##\samples_png\snail.png" />
+			</Action>
+
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="State"/>
+
+		<Publisher class="File">
+			<Param name="FileName" value="fuzzed.png" />
+		</Publisher>
+	</Test>
+</Peach>
+----
+
+With this change, let's review the +--debug+ output again.
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 59855.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'PngModel' Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'PngModel'
+Peach.Core.Cracker.DataCracker scan: DataModel 'PngModel'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Magic' -> Pos: 64, Length: 64
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'PngModel' Size: <null>, Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Magic' Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'PngModel.Magic'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Magic' -> Pos: 64, Length: 64
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 64
+Peach.Core.Cracker.DataCracker Crack: Blob 'PngModel.Magic' Size: 64, Bytes: 0/33546, Bits: 0/268368
+Peach.Core.Dom.DataElement Blob 'PngModel.Magic' value is: 89 50 4e 47 0d 0a 1a 0a
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Array 'PngModel.Chunk' Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Array 'PngModel.Chunk'
+Peach.Core.Cracker.DataCracker scanArray: Array 'PngModel.Chunk'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker scanArray: Array 'PngModel.Chunk' -> FirstSized
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Array 'PngModel.Chunk' Size: <null>, Bytes: 8/33546, Bits: 64/268368
+----
+
+Next is the first element of the array that caused issues in the prior run.
+
+----
+Peach.Core.Dom.Array Crack: ======================
+Peach.Core.Dom.Array Crack: Block 'PngModel.Chunk.Chunk' Trying #1
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk' Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk' Size: <null>, Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk.Length' Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk.Length'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk.Length' Size: 32, Bytes: 8/33546, Bits: 64/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk.Length' value is: 13 <1>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk.DataToCrc' Bytes: 12/33546, Bits: 96/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk.DataToCrc' Size: <null>, Bytes: 12/33546, Bits: 96/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'PngModel.Chunk.Chunk.DataToCrc.Type' Bytes: 12/33546, Bits: 96/268368
+Peach.Core.Cracker.DataCracker getSize: -----> String 'PngModel.Chunk.Chunk.DataToCrc.Type'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: String 'PngModel.Chunk.Chunk.DataToCrc.Type' Size: 32, Bytes: 12/33546, Bits: 96/268368
+Peach.Core.Dom.DataElement String 'PngModel.Chunk.Chunk.DataToCrc.Type' value is: IHDR
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' Bytes: 16/33546, Bits: 128/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'PngModel.Chunk.Chunk.DataToCrc.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' -> Pos: 104, Size relation: 104
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 104
+Peach.Core.Cracker.DataCracker Crack: Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' Size: 104, Bytes: 16/33546, Bits: 128/268368
+Peach.Core.Dom.DataElement Blob 'PngModel.Chunk.Chunk.DataToCrc.Data' value is: 00 00 01 00 00 00 01 00 08 02 00 00 00 <2>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk.Checksum' Bytes: 29/33546, Bits: 232/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk.Checksum'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk.Checksum' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk.Checksum' Size: 32, Bytes: 29/33546, Bits: 232/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk.Checksum' value is: 3541057329
+----
+<1> The _Length_ field looks correct with a value of 13.
+<2> The _Data_ field cracked successfully this time.
+
+Now that the first chunk cracks correctly, it's time to expand the array to pick up the other chunks in the file as well.
+
+----
+Peach.Core.Dom.Array Crack: ======================
+Peach.Core.Dom.Array Crack: Block 'PngModel.Chunk.Chunk' Trying #2
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk_1' Bytes: 33/33546, Bits: 264/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk_1'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk_1'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_1.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk_1' Size: <null>, Bytes: 33/33546, Bits: 264/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk_1.Length' Bytes: 33/33546, Bits: 264/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk_1.Length'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_1.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk_1.Length' Size: 32, Bytes: 33/33546, Bits: 264/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk_1.Length' value is: 32768 <1>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk_1.DataToCrc' Bytes: 37/33546, Bits: 296/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk_1.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk_1.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk_1.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk_1.DataToCrc' Size: <null>, Bytes: 37/33546, Bits: 296/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'PngModel.Chunk.Chunk_1.DataToCrc.Type' Bytes: 37/33546, Bits: 296/268368
+Peach.Core.Cracker.DataCracker getSize: -----> String 'PngModel.Chunk.Chunk_1.DataToCrc.Type'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk_1.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: String 'PngModel.Chunk.Chunk_1.DataToCrc.Type' Size: 32, Bytes: 37/33546, Bits: 296/268368
+Peach.Core.Dom.DataElement String 'PngModel.Chunk.Chunk_1.DataToCrc.Type' value is: IDAT <2>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Chunk.Chunk_1.DataToCrc.Data' Bytes: 41/33546, Bits: 328/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'PngModel.Chunk.Chunk_1.DataToCrc.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Chunk.Chunk_1.DataToCrc.Data' -> Pos: 262144, Size relation: 262144
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 262144
+Peach.Core.Cracker.DataCracker Crack: Blob 'PngModel.Chunk.Chunk_1.DataToCrc.Data' Size: 262144, Bytes: 41/33546, Bits: 328/268368
+Peach.Core.Dom.DataElement Blob 'PngModel.Chunk.Chunk_1.DataToCrc.Data' value is: 78 da ec 9d 65 7c 1e 47 96 af 9f ea ee 97 c5 cc 96 64 90 99 ed 98 13 b3 1d 07 1c 87 39 0e 33 33.. (Len: 32768 bytes) <3>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk_1.Checksum' Bytes: 32809/33546, Bits: 262472/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk_1.Checksum'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_1.Checksum' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk_1.Checksum' Size: 32, Bytes: 32809/33546, Bits: 262472/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk_1.Checksum' value is: 4205918359
+----
+<1> The _Length_ value is somewhat large, but is still smaller than the total file size. The type of the next chunk is +IDAT+. This chunk contains the main image data, so the model looks good.
+<2> The _Type_ field correctly cracks as +IDAT+.
+<3> The _Data_ field correctly cracks correctly.
+
+Now examine the third chunk.
+
+----
+Peach.Core.Dom.Array Crack: ======================
+Peach.Core.Dom.Array Crack: Block 'PngModel.Chunk.Chunk' Trying #3
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk_2' Bytes: 32813/33546, Bits: 262504/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk_2'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk_2'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_2.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk_2' Size: <null>, Bytes: 32813/33546, Bits: 262504/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk_2.Length' Bytes: 32813/33546, Bits: 262504/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk_2.Length'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_2.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk_2.Length' Size: 32, Bytes: 32813/33546, Bits: 262504/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk_2.Length' value is: 709 <1>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk_2.DataToCrc' Bytes: 32817/33546, Bits: 262536/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk_2.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk_2.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk_2.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk_2.DataToCrc' Size: <null>, Bytes: 32817/33546, Bits: 262536/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'PngModel.Chunk.Chunk_2.DataToCrc.Type' Bytes: 32817/33546, Bits: 262536/268368
+Peach.Core.Cracker.DataCracker getSize: -----> String 'PngModel.Chunk.Chunk_2.DataToCrc.Type'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk_2.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: String 'PngModel.Chunk.Chunk_2.DataToCrc.Type' Size: 32, Bytes: 32817/33546, Bits: 262536/268368
+Peach.Core.Dom.DataElement String 'PngModel.Chunk.Chunk_2.DataToCrc.Type' value is: IDAT <2>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Chunk.Chunk_2.DataToCrc.Data' Bytes: 32821/33546, Bits: 262568/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'PngModel.Chunk.Chunk_2.DataToCrc.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Chunk.Chunk_2.DataToCrc.Data' -> Pos: 5672, Size relation: 5672
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 5672
+Peach.Core.Cracker.DataCracker Crack: Blob 'PngModel.Chunk.Chunk_2.DataToCrc.Data' Size: 5672, Bytes: 32821/33546, Bits: 262568/268368
+Peach.Core.Dom.DataElement Blob 'PngModel.Chunk.Chunk_2.DataToCrc.Data' value is: ad 2a 41 22 6d a6 b7 29 a7 ac 60 37 cb 5e d3 b4 c7 97 93 bd b3 7c 53 0d ec 6b a0 12 08 99 d9 9d.. (Len: 709 bytes) <3>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk_2.Checksum' Bytes: 33530/33546, Bits: 268240/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk_2.Checksum'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_2.Checksum' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk_2.Checksum' Size: 32, Bytes: 33530/33546, Bits: 268240/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk_2.Checksum' value is: 2357285555
+----
+<1> The length again looks good.
+<2> The type is another _IDAT_ field
+<3> The data also looks correct.
+
+Now for the final chunk. The type should be +IEND+ according to the specification.
+
+----
+Peach.Core.Dom.Array Crack: ======================
+Peach.Core.Dom.Array Crack: Block 'PngModel.Chunk.Chunk' Trying #4
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk_3' Bytes: 33534/33546, Bits: 268272/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk_3'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk_3'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_3.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk_3' Size: <null>, Bytes: 33534/33546, Bits: 268272/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk_3.Length' Bytes: 33534/33546, Bits: 268272/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk_3.Length'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_3.Length' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk_3.Length' Size: 32, Bytes: 33534/33546, Bits: 268272/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk_3.Length' value is: 0 <1>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Block 'PngModel.Chunk.Chunk_3.DataToCrc' Bytes: 33538/33546, Bits: 268304/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Block 'PngModel.Chunk.Chunk_3.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: Block 'PngModel.Chunk.Chunk_3.DataToCrc'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk_3.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: Block 'PngModel.Chunk.Chunk_3.DataToCrc' Size: <null>, Bytes: 33538/33546, Bits: 268304/268368
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'PngModel.Chunk.Chunk_3.DataToCrc.Type' Bytes: 33538/33546, Bits: 268304/268368
+Peach.Core.Cracker.DataCracker getSize: -----> String 'PngModel.Chunk.Chunk_3.DataToCrc.Type'
+Peach.Core.Cracker.DataCracker scan: String 'PngModel.Chunk.Chunk_3.DataToCrc.Type' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: String 'PngModel.Chunk.Chunk_3.DataToCrc.Type' Size: 32, Bytes: 33538/33546, Bits: 268304/268368
+Peach.Core.Dom.DataElement String 'PngModel.Chunk.Chunk_3.DataToCrc.Type' value is: IEND <2>
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Blob 'PngModel.Chunk.Chunk_3.DataToCrc.Data' Bytes: 33542/33546, Bits: 268336/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Blob 'PngModel.Chunk.Chunk_3.DataToCrc.Data'
+Peach.Core.Cracker.DataCracker scan: Blob 'PngModel.Chunk.Chunk_3.DataToCrc.Data' -> Pos: 0, Size relation: 0
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 0
+Peach.Core.Cracker.DataCracker Crack: Blob 'PngModel.Chunk.Chunk_3.DataToCrc.Data' Size: 0, Bytes: 33542/33546, Bits: 268336/268368
+Peach.Core.Dom.DataElement Blob 'PngModel.Chunk.Chunk_3.DataToCrc.Data' value is:
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker Number 'PngModel.Chunk.Chunk_3.Checksum' Bytes: 33542/33546, Bits: 268336/268368
+Peach.Core.Cracker.DataCracker getSize: -----> Number 'PngModel.Chunk.Chunk_3.Checksum'
+Peach.Core.Cracker.DataCracker scan: Number 'PngModel.Chunk.Chunk_3.Checksum' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: Number 'PngModel.Chunk.Chunk_3.Checksum' Size: 32, Bytes: 33542/33546, Bits: 268336/268368
+Peach.Core.Dom.DataElement Number 'PngModel.Chunk.Chunk_3.Checksum' value is: 2923585666
+Peach.Core.Dom.Array Crack: ======================
+Peach.Core.Dom.Array Crack: Block 'PngModel.Chunk.Chunk' Trying #5
+Peach.Core.Dom.Array Crack: Consumed all bytes. Bytes: 33546/33546, Bits: 268368/268368
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.FilePublisher start()
+Peach.Core.Publishers.FilePublisher open()
+Peach.Core.Publishers.FilePublisher output(33546 bytes) <3>
+Peach.Core.Publishers.FilePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.FilePublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> _Length_ is zero. This is correct for the +IEND+ chunk.
+<2> _Type_ is +IEND+.
+<3> Output length is the same size as the input file!
+
+The output looks good and the model output the correct number of bytes. Time to review things inside the Peach Validator.
+
+image::{images}/DevGuide/DataModeling/Cracking_Validator6.png[]
+
+Reviewing the cracked model, it looks like everything is good.
+
+*Next Steps*
+
+To complete this fuzzing definition, the following would need to be done:
+
+. Finish flushing out the data models. For each chunk type, create a custom _Data_ model.
+. Configure logging. For simplicity, this pit does not have logging configured.
+. Configure monitoring. Once a target is selected, monitoring is needed to detect faulting conditions.
+. Sample sets. Peach needs a large, non-redundant set of PNG images to use. Once the set or collection exists, run xref:Program_PeachMinset[minset] on the collection to pare it down to the optimal set of images to use for fuzzing.
+
+// end

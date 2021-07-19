@@ -1,0 +1,83 @@
+[[token]]
+== Token Attribute ==
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// * Discuss
+// * Point out we still mutate
+// * point out only used on cracking
+// * Point out custom mutators can "see" that an element is a token (if they wish)
+// * Common usage: Choice blocks, unsized elements
+// * Talk about token vs. constraint
+//  * Speed difference
+//  * constraint doesn't allow length/size
+// * Point out token will assign length
+// expand description
+// * Do we scan by bit or bytes?
+//  * Will Number size="3" work?
+//  * Will Number size="3" String token=true work?
+
+A token is a data element that Peach seeks when parsing incoming data.  Tokens do not affect how elements are mutated.  If a token attribute is specified the element must have a default value specified in the XML.
+
+// TODO
+
+/////////
+RAB - 01/29/2016
+New description - pending Seth's OK.
+    
+A token is a data element that Peach seeks when parsing incoming data. A token acts as a marker when cracking incoming data. Typical usage is to mark the end of an unsized data element or to specify a "choice" in branch processing. 
+
+The token attribute designates a data element as a token. The data element with the token attribute is still a data element that receives all applicable mutations over the course of a test session. Being a token does not change the mutations performed on the data element. Tokens are visible to custom mutators, to use or ignore as appropriate. 
+
+A data element that receives the token attribute must have a default value specified in the XML. It must always have a value.
+
+A token represents a specific value that Peach searches for in the input stream, and can be summed up by the question, “Is the data value as equal or not equal to the token?” A constraint represents a similar, but broader expression that evaluates as `true` or `false`. A constraint is syntactically a python expression that can perform `true` / `false` comparison, such as a case-insensitive comparison of input data with a defined character string. 
+
+A token will assign length to the associated data element; a constraint does not permit the data element to specify a size or a length.
+
+
+
+/////////
+
+=== Examples
+
+// Expand on examples with some working examples parsing text.
+// Talk about token vs. constraint
+// Common usages
+//  * Choice statement
+//  * Unsized elements
+// Comma separated list
+// HTTP
+
+If you are trying to parse "length:42" and you want the header and value to be considered separate elements, label the colon delimiter ":" as a token.
+
+.Example Data to Crack
+----
+  length:42 
+----
+
+The following model looks for a ":" and puts the value of "length" into the header string and a 42 into the val string.
+
+If a ":" is not found in the data stream, an exception will be raised and cracking will fail.
+
+[source,xml]
+----
+ <String name="header" />
+ <String name="delimiter" value=":" token="true"/> 
+ <String name="val" /> 
+----
+
+.Example Data
+----
+Host: www.peachfuzzer.com\r\n
+----
+
+.Example xml to parse
+[source,xml]
+----
+ <String name="header" />
+ <String name="delimiter" value=": " token="true"/>
+ <String name="val" />
+ <String name="CRLF" value="\r\n" token="true" />
+----

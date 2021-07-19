@@ -1,0 +1,29 @@
+:toc!:
+== IpPower9258 Monitor
+
+The _IpPower9258_ monitor controls a networked power switch.  This allows devices to be powered on/off during fuzzing.  The model is "IP Power 9258" and available for purchase on ebay and Amazon.
+
+=== Parameters
+
+ * _Host_ -- Host or IP address (can include http interface port e.g. :8080)
+ * _User_ -- Username
+ * _Password_ -- Password
+ * _Port_ -- Port to reset
+ * _ResetEveryIteration_ -- Reset power on every iteration (optional, default false)
+ * _PowerOnOffPause_ -- Pause in milliseconds between power off/power on (optional, default is 1/2 second)
+
+=== Examples
+
+.Reset power on port 1
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="IpPower9258">
+		<Param name="Host" value="192.168.1.1:8080" />
+		<Param name="User" value="peach" />
+		<Param name="Password" value="power" />
+		<Param name="Port" value="1" />
+		<Param name="ResetEveryIteration" value="true" />
+	</Monitor>
+</Agent>
+----

@@ -1,0 +1,28 @@
+[[mutable]]
+
+// 03/28/2014 Lynn
+//  Edits and Admonition changes
+
+== Mutable Attribute ==
+
+Mutable declares whether to fuzz this element, block, or data type. The default value is true, meaning that Peach fuzzes the element, block,  or data type.
+
+IMPORTANT: Marking an element as non-mutable disables the mutators that normally operate on that element. Even when an element is marked as non-mutable, it may still be modified as the fuzzer fuzzes the other elements.  
+
+WARNING: Marking elements as non-mutable usually leads to missing faults.  With that in mind, withhold use of this attribute unless: +
+1) You know that the marked elements have already undergone fuzzing, and +
+2) You are very familiar with the effects of this attribute (that is, you know what you are doing).
+ 
+
+=== Examples ===
+
+[source,xml]
+----
+<DataModel name="Header">
+  <Number name="ReservedForFutureuse" size="8" mutable="false" />
+  <Number size="8" />
+  <Number size="8" />
+  <Number size="8" />
+<DataModel>
+----
+

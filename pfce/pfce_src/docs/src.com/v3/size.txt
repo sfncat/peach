@@ -1,0 +1,16 @@
+:toc!:
+== Size Attribute ==
+
+The size attribute is always specified in BITS and typically deals with link:Number.html[Number]or bit link:Flags.html[Flags].
+
+
+=== Examples ===
+
+This will create an 8 bit number with a default value of 42. 
+
+[source,xml]
+----
+<Number name="TheAnswer" size="8" value="42" />
+
+----
+

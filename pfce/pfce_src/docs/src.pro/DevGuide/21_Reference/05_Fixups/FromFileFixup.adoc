@@ -1,0 +1,99 @@
+<<<
+[[Fixups_FromFileFixup]]
+== FromFile
+
+// Reviewed:
+//  - 12/30/2015: Seth & Rich: Outlined
+// Show example of output
+
+The _FromFile_ is used to fill a BLOB data element with the contents of the specified file. The entire file is transferred, replacing the content of the BLOB.
+The fixup supports reading of raw or PEM-encoded data files.
+
+The main use case is to access cryptographic keys stored in files instead of exposing the key values in Pits or configuration files. In this use case, Peach pulls keys from .pem files in fuzzing cryptographic protocols.
+
+//Pulling keys from PEM files for fuzzing cryptographic protocols.
+//Have user spec file name that contains key.
+
+=== Parent Elements
+
+xref:Blob[Blob]
+
+=== Parameters
+
+Filename:: Filename that contains the data to load into the BLOB.
+Encoding:: Encoding scheme used on the data in the file. Values are
++
+* Raw - This is the default value.
+* Pem - Base-64 X.509 encoding.
+Required:: Does the file have to exist? Defaults to true. When false, the blob will be empty with length of zero.
+
+=== Examples
+
+
+// NOTE: The example needs to be changed! It's for the FillValue fixup.
+
+/////////////
+
+.Basic Usage Example
+=====================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Data">
+    <String name="Start" value="Start"/>
+    <Blob name="Data" length="17">
+      <Fixup class="FillValue">
+        <Param name="ref" value="Data"/>
+        <Param name="start" value="0"/>
+        <Param name="stop" value="10"/>
+      </Fixup>
+    </Blob>
+    <String name="Stop" value="Stop"/>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Data" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 57241.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(26 bytes)
+00000000   53 74 61 72 74 00 01 02  03 04 05 06 07 08 09 0A   Start??????????? <1>
+00000010   00 01 02 03 04 05 53 74  6F 70                     ??????Stop
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+<1> The FillValue fixup adds sequential numbers from 0 to 10 then repeats until the size of the element is filled.
+
+=====================
+
+/////////////

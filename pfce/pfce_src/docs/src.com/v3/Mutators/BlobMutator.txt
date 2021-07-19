@@ -1,0 +1,22 @@
+:toc!:
+== BlobMutator ==
+
+This mutator has the ability to manipulate the blob in many ways. It will grow, shrink, or change bytes in the blob. The mutator will randomly select between the following actions:
+
+ * ExpandBuffer -- Chooses one of four ways to insert bytes into the blob.
+ * ReduceBuffer -- Removes a random number of bytes from the blob.
+ * ChangeRange -- Changes a sequence of bytes in the blob to random values.
+ * ChangeRangeSpecial -- Changes a sequence of bytes in the blob to some special characters.
+ * ChangeNullRange -- Changes a random range of bytes in the blob to null.
+ * ChangeUnNullRange -- Changes all null bytes in a random range to something else.
+
+If the mutator is expanding the buffer, it will do so in one of the following ways:
+
+ * SingleRandom -- Expand the Blob with the same random number.
+ * Incrementing -- Expand the Blob with bytes that increment from a random start.
+ * Zero -- Expand the Blob with zeroes.
+ * AllRandom -- Expand the Blob with bytes that are all random numbers.
+
+_Target Elements_
+
+ * link:../Blob.html[Blob]

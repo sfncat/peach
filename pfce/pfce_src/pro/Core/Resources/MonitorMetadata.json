@@ -1,0 +1,962 @@
+{
+  "Groups": [
+    {
+      "Name": "Fault Detection",
+      "Items": [
+        "CanErrorFrame",
+        "CanTiming",
+        "CanThreshold",
+        "CrashReporter",
+        "CrashWrangler",
+        "Gdb",
+        "GdbServer",
+        "LinuxCoreFile",
+        "Memory",
+        "PageHeap",
+        "Ping",
+        "PopupWatcher",
+        "Process",
+        "RunCommand",
+        "SerialPort",
+        "Socket",
+        "SshCommand",
+        "SshProcess",
+        "Syslog",
+        "TcpPort",
+        "WindowsDebugger",
+        "WindowsKernelDebugger",
+        "Vmware"
+      ]
+    },
+    {
+      "Name": "Data Collection",
+      "Items": [
+        "CanCapture",
+        "Memory",
+        "NetworkCapture",
+        "RunCommand",
+        "SaveFile",
+        "SerialPort",
+        "Socket",
+        "SshCommand",
+        "SshDownloader",
+        "Syslog",
+        "TcpPort"
+      ]
+    },
+    {
+      "Name": "Automation",
+      "Items": [
+        "ApcPower",
+        "ButtonClicker",
+        "CanaKitRelay",
+        "CanSendFrame",
+        "CleanupFolder",
+        "CleanupRegistry",
+        "IpPower9258",
+        "PopupWatcher",
+        "ProcessKiller",
+        "RunCommand",
+        "SerialPort",
+        "SnmpPower",
+        "SshCommand",
+        "Syslog",
+        "TcpPort",
+        "WindowsService"
+      ]
+    },
+    {
+      "Name": "Android",
+      "Items": [
+        "Android",
+        "AndroidEmulator"
+      ]
+    }
+  ],
+  "Parameters": {
+    "AndroidEmulator": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Avd",
+          "",
+          "EmulatorPath"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "RestartEveryIteration",
+          "RestartAfterFault",
+          "",
+          "StartOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "StartTimeout",
+          "StopTimeout",
+          "",
+          "Headless"
+        ]
+      }
+    ],
+    "Android": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "ApplicationName",
+          "ActivityName",
+          "",
+          "DeviceSerial",
+          "DeviceMonitor",
+          "",
+          "AdbPath"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "RestartEveryIteration",
+          "",
+          "StartOnCall",
+          "WaitForReadyOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "ClearAppData",
+          "ClearAppDataOnFault",
+          "RebootEveryN",
+          "RebootOnFault",
+          "",
+          "ConnectTimeout",
+          "ReadyTimeout",
+          "CommandTimeout",
+          "FaultWaitTime",
+          "",
+          "FaultRegex",
+          "IgnoreRegex",
+          "MustStopRegex"
+        ]
+      }
+    ],
+    "ApcPower": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "OutletGrouping",
+          "Outlets",
+          "",
+          "Host",
+          "Port",
+          "ReadCommunity",
+          "WriteCommunity",
+          "RequestTimeout"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "When",
+          "ResetOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "PowerOffOnEnd",
+          "PowerOnOffPause",
+          "",
+          "SanityCheckOnStart",
+          "SanityCheckWaitTimeout"
+        ]
+      }
+    ],
+    "ButtonClicker": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "ButtonName",
+          "WindowText"
+        ]
+      }
+    ],
+    "CanaKitRelay": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "SerialPort",
+          "RelayNumber",
+          "Action",
+          "ToggleDelay"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "When",
+          "StartOnCall"
+        ]
+      }
+    ],
+    "CanCapture": [
+      {
+        "Name": "Interface Parameters",
+        "Items": [
+          "CanDriver",
+          "CanChannel",
+          "CanBitrate"
+        ]
+      }
+    ],
+    "CanErrorFrame": [
+      {
+        "Name": "Interface Parameters",
+        "Items": [
+          "CanDriver",
+          "CanChannel",
+          "CanBitrate"
+        ]
+      }
+    ],
+    "CanSendFrame": [
+      {
+        "Name": "Interface Parameters",
+        "Items": [
+          "CanDriver",
+          "CanChannel",
+          "CanBitrate"
+        ]
+      },
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Id",
+          "Data",
+          "SendEvery"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "When",
+          "StartOnCall"
+        ]
+      }
+    ],
+    "CanThreshold": [
+      {
+        "Name": "Interface Parameters",
+        "Items": [
+          "CanDriver",
+          "CanChannel",
+          "CanBitrate"
+        ]
+      },
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Id",
+          "SignalOffset",
+          "SignalSize",
+          "SignalType",
+          "SignalEndian",
+          "Expression"
+        ]
+      }
+    ],
+    "CanTiming": [
+      {
+        "Name": "Interface Parameters",
+        "Items": [
+          "CanDriver",
+          "CanChannel",
+          "CanBitrate"
+        ]
+      },
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Id",
+          "Window"
+        ]
+      }
+    ],
+    "CleanupFolder": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Folder"
+        ]
+      }
+    ],
+    "CleanupRegistry": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Key",
+          "ChildrenOnly"
+        ]
+      }
+    ],
+    "CrashReporter": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "ProcessName"
+        ]
+      }
+    ],
+    "CrashWrangler": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Executable",
+          "Arguments",
+          "",
+          "ExecHandler"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "RestartOnEachTest",
+          "RestartAfterFault",
+          "",
+          "StartOnCall",
+          "WaitForExitOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "NoCpuKill",
+          "FaultOnEarlyExit",
+          "",
+          "WaitForExitTimeout",
+          "",
+          "UseDebugMalloc",
+          "ExploitableReads",
+          "",
+          "CwLogFile",
+          "CwLockFile",
+          "CwPidFile"
+        ]
+      }
+    ],
+    "GdbServer": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Target",
+          "LocalExecutable",
+          "RemoteExecutable",
+          "",
+          "GdbPath"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "RestartOnEachTest",
+          "RestartAfterFault",
+          "",
+          "StartOnCall",
+          "WaitForExitOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "NoCpuKill",
+          "FaultOnEarlyExit",
+          "",
+          "WaitForExitTimeout",
+          "",
+          "HandleSignals",
+          "Script"
+        ]
+      }
+    ],
+    "Gdb": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Executable",
+          "Arguments",
+          "",
+          "GdbPath"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "RestartOnEachTest",
+          "RestartAfterFault",
+          "",
+          "StartOnCall",
+          "WaitForExitOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "NoCpuKill",
+          "FaultOnEarlyExit",
+          "",
+          "WaitForExitTimeout",
+          "",
+          "HandleSignals",
+          "Script"
+        ]
+      }
+    ],
+    "IpPower9258": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Port",
+          "",
+          "Host",
+          "User",
+          "Password"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "When",
+          "StartOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "PowerOffOnEnd",
+          "PowerOnOffPause"
+        ]
+      }
+    ],
+    "LinuxCoreFile": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Executable"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "LogFolder"
+        ]
+      }
+    ],
+    "Memory": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "ProcessName",
+          "Pid",
+          "",
+          "MemoryLimit"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "StopOnFault"
+        ]
+      }
+    ],
+    "PageHeap": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Executable",
+          "",
+          "WinDbgPath"
+        ]
+      }
+    ],
+    "Ping": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Host",
+          "",
+          "FaultOnSuccess"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "RetryCount",
+          "Timeout",
+          "",
+          "Data"
+        ]
+      }
+    ],
+    "PopupWatcher": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "WindowNames",
+          "",
+          "Fault"
+        ]
+      }
+    ],
+    "ProcessKiller": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "ProcessNames"
+        ]
+      }
+    ],
+    "NetworkCapture": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Device",
+          "",
+          "Filter"
+        ]
+      }
+    ],
+    "Process": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Executable",
+          "Arguments"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "RestartOnEachTest",
+          "RestartAfterFault",
+          "",
+          "StartOnCall",
+          "WaitForExitOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "NoCpuKill",
+          "FaultOnEarlyExit",
+          "",
+          "WaitForExitTimeout"
+        ]
+      }
+    ],
+    "RunCommand": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Command",
+          "Arguments",
+          "",
+          "WorkingDirectory"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "When",
+          "StartOnCall"
+        ]
+      },
+      {
+        "Name": "Fault Detection",
+        "Collapsed": true,
+        "Items": [
+          "FaultOnRegex",
+          "FaultOnExitCode",
+          "FaultOnNonZeroExit",
+          "FaultExitCode",
+          "Timeout"
+         ]
+      }
+    ],
+    "SaveFile": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Filename"
+        ]
+      }
+    ],
+    "SerialPort": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Port",
+          "BaudRate",
+          "",
+          "FaultRegex"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "WaitWhen",
+          "WaitOnCall",
+          "WaitRegex"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "DataBits",
+          "DtrEnable",
+          "Handshake",
+          "Parity",
+          "RtsEnable",
+          "StopBits",
+          "",
+          "MaxBufferSize"
+         ]
+      }
+    ],
+    "SnmpPower": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "OIDs",
+          "OnCode",
+          "OffCode",
+          "",
+          "Host",
+          "Port",
+          "ReadCommunity",
+          "WriteCommunity",
+          "RequestTimeout"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "When",
+          "ResetOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "PowerOffOnEnd",
+          "PowerOnOffPause",
+          "",
+          "SanityCheckOnStart",
+          "SanityCheckWaitTimeout"
+        ]
+      }
+    ],
+    "Socket": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Host",
+          "Port",
+          "",
+          "Interface",
+          "",
+          "Protocol"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "FaultOnSuccess",
+          "",
+          "Timeout"
+         ]
+      }
+    ],
+    "SshCommand": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Command"
+        ]
+      },
+      {
+        "Name": "Connection Parameters",
+        "Items": [
+          "Host",
+          "Username",
+          "Password",
+          "KeyPath"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "When",
+          "StartOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "CheckValue",
+          "FaultOnMatch"
+         ]
+      }
+    ],
+    "SshProcess": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Executable",
+          "Arguments"
+        ]
+      },
+      {
+        "Name": "Connection Parameters",
+        "Items": [
+          "Host",
+          "Username",
+          "Password",
+          "KeyPath"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "RestartOnEachTest",
+          "RestartAfterFault",
+          "",
+          "StartOnCall",
+          "WaitForExitOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "FaultOnEarlyExit",
+          "",
+          "StartTimeout",
+          "WaitForExitTimeout"
+        ]
+      }
+    ],
+    "SshDownloader": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "File",
+          "Folder"
+        ]
+      },
+      {
+        "Name": "Connection Parameters",
+        "Items": [
+          "Host",
+          "Username",
+          "Password",
+          "KeyPath"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "Remove"
+         ]
+      }
+    ],
+    "Syslog": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Interface",
+          "Port",
+          "",
+          "FaultRegex"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "WaitWhen",
+          "WaitOnCall",
+          "WaitRegex"
+        ]
+      }
+    ],
+    "TcpPort": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Host",
+          "Port",
+          "",
+          "State",
+          "",
+          "Action"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "When",
+          "WaitOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "Timeout"
+         ]
+      }
+    ],
+    "WindowsDebugger": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Executable",
+          "Arguments",
+          "",
+          "ProcessName",
+          "Service",
+          "",
+          "WinDbgPath"
+        ]
+      },
+      {
+        "Name": "When To Trigger",
+        "Items": [
+          "RestartOnEachTest",
+          "RestartAfterFault",
+          "",
+          "StartOnCall",
+          "WaitForExitOnCall"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "NoCpuKill",
+          "FaultOnEarlyExit",
+          "",
+          "WaitForExitTimeout",
+          "",
+          "SymbolsPath",
+          "IgnoreFirstChanceReadAv",
+          "IgnoreFirstChanceGuardPage",
+          "IgnoreSecondChanceGuardPage",
+          "ServiceStartTimeout",
+          "CpuPollInterval",
+          "DebuggerMode"
+        ]
+      }
+    ],
+    "WindowsKernelDebugger": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "KernelConnectionString",
+          "",
+          "WinDbgPath"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "RestartAfterFault",
+          "",
+          "ConnectTimeout",
+          "",
+          "SymbolsPath"
+        ]
+      }
+    ],
+    "WindowsService": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Service",
+          "MachineName",
+          "",
+          "Restart"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "FaultOnEarlyExit",
+          "",
+          "StartTimeout"
+        ]
+      }
+    ],
+    "Vmware": [
+      {
+        "Name": "Core Parameters",
+        "Items": [
+          "Vmx",
+          "",
+          "SnapshotName"
+        ]
+      },
+      {
+        "Name": "Start Options",
+        "Items": [
+          "WaitForToolsInGuest",
+          "WaitTimeout"
+        ]
+      },
+      {
+        "Name": "Reset Options",
+        "Items": [
+          "ResetEveryIteration",
+          "ResetOnFaultBeforeCollection",
+          "",
+          "StopOnFaultBeforeCollection"
+        ]
+      },
+      {
+        "Name": "Advanced",
+        "Collapsed": true,
+        "Items": [
+          "Headless",
+          "",
+          "HostType",
+          "Host",
+          "HostPort",
+          "Login",
+          "Password",
+          "",
+          "SnapshotIndex"
+        ]
+      }
+    ]
+  }
+}

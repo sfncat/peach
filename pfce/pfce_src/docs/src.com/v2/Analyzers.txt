@@ -1,0 +1,18 @@
+:toc!:
+== Data Analyzers ==
+
+Data analyzers are code that can deconstruct some form of data and build a Peach Data Model or partial data model.  Examples of data that can be easily deconstructed is XML, and ASN.1.  By creating an XmlAnalyzer is becomes very easy/quick to fuzz XML documents.
+
+Analyzers support several modes of operation:
+
+ * _Command Line_ -- Run from the command line, the analyzer will output a Peach Pit file.
+ * _Data Element_ -- Attached to a data element (Blob or String).  The analyzer will consume the data held by the data element and replace said element with a DOM structure.
+ * More coming in next rev.
+
+Currently the following analyzers ship with Peach:
+
+ * link:Asn1Analyzer.html[asn1.Asn1Analyzer] -- Converts ASN.1 structured data to DOM
+ * link:Binary.html[binary.Binary] -- Analyzes unknown binary blobs for strings, etc
+ * link:WireSharkAnalyzer.html[shark.WireSharkAnalyzer] -- Converts WireShark captures to Peach Pits
+ * link:StringTokenAnalyzer.html[stringtoken.StringTokenAnalyzer] -- Builds tokenized tree from String input
+ * link:XmlAnalyzer.html[xml.XmlAnalyzer] -- Generates Peach Pit or data model from XML documents

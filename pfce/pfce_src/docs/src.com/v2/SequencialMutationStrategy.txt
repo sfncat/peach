@@ -1,0 +1,5 @@
+:toc!:
+== Sequential Mutation Strategy ==
+
+The sequential strategy fuzzes from the first element straight through to the last element.  This has been the default method that Peach has used since it was first written.  Starting with v2.3.5 Peach has moved to using the RandomDeterministicMutationStrategy as the default.
+ 

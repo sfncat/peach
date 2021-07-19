@@ -1,0 +1,305 @@
+= Asciidoctor PDF: A native PDF converter for AsciiDoc
+Dan Allen <https://github.com/mojavelinux[@mojavelinux]>; Sarah White <https://github.com/graphitefriction[@graphitefriction]>
+// Settings:
+:compat-mode!:
+:experimental:
+:idprefix:
+:idseparator: -
+:icons: font
+:pagenums:
+//ifdef::env-github[:relfileprefix: /blob/master/]
+ifdef::env-browser[:toc: preamble]
+//:pdf-page-size: [8.25in, 11.69in]
+//:pdf-page-size: A4
+// Aliases:
+:project-name: Asciidoctor PDF
+:project-handle: asciidoctor-pdf
+// URIs:
+:uri-project: https://github.com/asciidoctor/asciidoctor-pdf
+:uri-project-repo: {uri-project}
+:uri-project-issues: {uri-project-repo}/issues
+:uri-project-list: http://discuss.asciidoctor.org
+:uri-prawn: http://prawn.majesticseacreature.com
+:uri-rvm: http://rvm.io
+:uri-asciidoctor: http://asciidoctor.org
+
+// FIXME See last line; Asciidoctor should only be using outfilesuffix defined in header
+:original-outfilesuffix: {outfilesuffix}
+:outfilesuffix: .adoc
+
+_Lo and behold_, a native PDF converter for AsciiDoc built with {uri-asciidoctor}[Asciidoctor] and {uri-prawn}[Prawn]! +
+_No more middleman._ +
+_No more DocBook toolchain._ +
+It's AsciiDoc straight to PDF!
+
+[caption=Status]
+CAUTION: {project-name} is currently _alpha_ software.
+While the converter handles most AsciiDoc content, there's still work needed to fill in gaps where conversion is incomplete, incorrect or not implemented.
+See the milestone v1.5.0 in the {uri-project-issues}[issue tracker] for details.
+
+== Prawn, the majestic PDF generator
+
+{uri-project}[{project-name}] is made possible by an amazing Ruby gem named Prawn.
+And what a gem it is!
+
+{uri-prawn}[Prawn] is a nimble PDF writer for Ruby.
+More important, it's a hackable platform that offers both high level APIs for the most common needs and low level APIs for bending the document model to accomodate special circumstances.
+
+With Prawn, you can write text, draw lines and shapes and place images _anywhere_ on the page and add as much color as you like.
+In addition, it brings a fluent API and aggressive code re-use to the printable document space.
+
+Here's an example that demonstrates how to use Prawn to create a basic PDF document.
+
+.Create a basic PDF document using Prawn
+[source,ruby]
+----
+require 'prawn'
+
+Prawn::Document.generate 'output.pdf' do
+  text 'Hello, PDF creation!'
+end
+----
+
+It's that easy.
+And that's just the beginning.
+Skip ahead to <<getting-started,Getting started>> to start putting it use.
+
+Prawn is the _killer library_ for PDF generation we've needed to close this critical gap in Asciidoctor.
+It absolutely takes the pain out of creating printable documents.
+Picking up from there, {project-name} takes the pain out of creating PDF documents _from AsciiDoc_.
+
+== Features
+
+=== Notable features
+
+* Direct AsciiDoc to PDF conversion
+* <<docs/theming-guide.adoc#,Configuration-driven style and layout>>
+* PDF document outline (i.e., bookmarks)
+* Table of contents page(s)
+* Document metadata (title, authors, subject, keywords, etc)
+* Internal cross reference links
+* Syntax highlighting with CodeRay or Pygments
+* Page numbering
+* Customizable running content (header and footer)
+* “Keep together” blocks (i.e., page breaks avoided in certain block content)
+* Orphan section titles avoided
+* Table border settings honored
+* Font-based icons (currently admonition blocks only)
+* Custom fonts
+
+=== Missing features
+
+See <<WORKLOG.adoc#,WORKLOG>>.
+
+== Prerequisites
+
+All that's needed is Ruby (1.9.3 or above; 2.2.x recommended) and a few Ruby gems, which we explain how to install in the next section.
+
+[WARNING]
+====
+Prawn 2.0.0 and above requires Ruby >= 2.0.0 at installation (though it still works with Ruby 1.9.3 once you get beyond installation).
+If you need to use Asciidoctor PDF with Ruby 1.9.3, you must first install Prawn 1.3.0 using:
+
+  $ gem install prawn --version 1.3.0
+
+You can then proceed with installation of Asciidoctor PDF.
+====
+
+To check you have Ruby available, use the `ruby` command to query the version installed:
+
+ $ ruby --version
+
+== Getting started
+
+You can get {project-name} by <<install-the-published-gem,installing the published gem>> or <<development,running the code from source>>.
+
+=== Install the published gem
+
+{project-name} is published in pre-release on RubyGems.org.
+You can install the published gem using the following command:
+
+ $ gem install --pre asciidoctor-pdf
+ 
+If you want to syntax highlight source listings, you'll also want to install CodeRay, Rouge or Pygments.
+Choose one (or more) of the following:
+
+.CodeRay
+ $ gem install coderay
+
+.Rouge
+ $ gem install rouge
+
+.Pygments
+ $ gem install pygments.rb
+
+Assuming all the required gems install properly, verify you can run the `asciidoctor-pdf` script:
+
+ $ asciidoctor-pdf -v
+
+If you see the version of {project-name} printed, you're ready to use {project-name}.
+
+Let's grab an AsciiDoc document to distill and start putting {project-name} to use!
+
+=== An example AsciiDoc document
+
+If you don't already have an AsciiDoc document, you can use the [file]_basic-example.adoc_ file found in the examples directory of this project.
+
+ifeval::[{safe-mode-level} >= 20]
+See <<examples/basic-example.adoc#,basic-example.adoc>>.
+endif::[]
+ifeval::[{safe-mode-level} < 20]
+.basic-example.adoc
+[source,asciidoc]
+....
+include::examples/basic-example.adoc[]
+....
+endif::[]
+
+It's time to convert the AsciiDoc document directly to PDF.
+
+=== Convert AsciiDoc to PDF
+
+IMPORTANT: You'll need to the `coderay` gem installed to run this example since it uses the `source-highlighter` attribute with the value of `coderay`.
+
+Converting to PDF is a simple as running the `asciidoctor-pdf` script using Ruby and passing our AsciiDoc document as the first argument.
+
+ $ asciidoctor-pdf basic-example.adoc
+
+This command is just a shorthand way of running:
+
+ $ asciidoctor -r asciidoctor-pdf -b pdf basic-example.adoc
+
+When the script completes, you should see the file [file]_basic-example.pdf_ in the same directory.
+Open the [file]_basic-example.pdf_ file with a PDF viewer to see the result.
+
+.Example PDF document rendered in a PDF viewer
+image::examples/example-pdf-screenshot.png[Screenshot of PDF document,width=800,scaledwidth=100%]
+
+You're also encouraged to try converting this <<README#,README>> as well as the documents in the examples directory to see more of what {project-name} can do.
+
+The pain of the DocBook toolchain should be melting away about now.
+
+== Themes
+
+The layout and styling of the PDF is driven by a YAML configuration file.
+To learn how the theming system works and how to create and apply custom themes, refer to the <<docs/theming-guide.adoc#,Asciidoctor PDF Theme Guide>>.
+You can use the built-in theme files, which you can find in the [file]_data/themes_ directory, as examples.
+
+== Optional scripts
+
+{project-name} also provides a shell script that invokes GhostScript (`gs`) to optimize and compress the generated PDF with minimal impact on quality.
+You must have Ghostscript installed to use it.
+
+Here's an example usage:
+
+ $ ./bin/optimize-pdf basic-example.pdf
+
+The command will generate the file [file]_example-optimized.pdf_ in the current directory.
+
+WARNING: The `optimize-pdf` script currently requires a Bash shell (Linux, OSX, etc).
+We plan to rewrite the script in Ruby so it works across platforms (see https://github.com/asciidoctor/asciidoctor-pdf/issues/1[issue #1])
+
+IMPORTANT: The `optimize-pdf` script relies on Ghostscript >= 9.10.
+Otherwise, it may actually make the PDF larger.
+Also, you should only consider using it if the file size of the original PDF is > 5MB.
+
+If a file is found with the extension `.pdfmarks` and the same rootname as the input file, it is used to add metadata to the generated PDF document.
+This file is necessary to preserve the document metadata since Ghostscript will otherwise drop it.
+That's why {project-name} always creates this file in addition to the PDF.
+
+== Contributing
+
+In the spirit of free software, _everyone_ is encouraged to help improve this project.
+
+To contribute code, simply fork the project on GitHub, hack away and send a pull request with your proposed changes.
+
+Feel free to use the {uri-project-issues}[issue tracker] or {uri-project-list}[Asciidoctor mailing list] to provide feedback or suggestions in other ways.
+
+== Development
+
+To help develop {project-name}, or to simply use the development version, you need to get the source from GitHub.
+Follow the instructions below to learn how to clone the source and run it from your local copy.
+
+=== Retrieve the source code
+
+You can retrieve the source of {project-name} in one of two ways:
+
+. Clone the git repository
+. Download a zip archive of the repository
+
+==== Option 1: Fetch using git clone
+
+If you want to clone the git repository, simply copy the {uri-project-repo}[GitHub repository URL] and pass it to `git clone` command:
+
+ $ git clone https://github.com/asciidoctor/asciidoctor-pdf
+
+Next, change to the project directory:
+
+ $ cd asciidoctor-pdf
+
+==== Option 2: Download the archive
+
+If you want to download a zip archive, click the btn:[Download Zip] button on the right-hand side of the repository page on GitHub.
+Once the download finishes, extract the archive, open a console and change to that directory.
+
+TIP: Instead of working out of the {project-handle} directory, you can simply add the absolute path of the [path]_bin_ directory to your `PATH` environment variable.
+
+We'll leverage the project configuration to install the necessary dependencies.
+
+=== Install dependencies
+
+If you're using {uri-rvm}[RVM], we recommend creating a new gemset to work with {project-name}:
+
+ $ rvm use 2.2@asciidoctor-pdf --create
+
+We like RVM because it keeps the dependencies required by various projects isolated.
+
+The dependencies needed to use {project-name} are defined in the [file]_Gemfile_ at the root of the project.
+We can use Bundler to install the dependencies for us.
+
+To check you have Bundler available, use the `bundle` command to query the version installed:
+
+ $ bundle --version
+
+If it's not installed, use the `gem` command to install it.
+
+ $ gem install bundler
+
+Then use the `bundle` command to install the project dependencies:
+
+ $ bundle
+
+NOTE: You need to call `bundle` from the project directory so that it can find the [file]_Gemfile_.
+
+Assuming all the required gems install properly, verify you can run the `asciidoctor-pdf` script using Ruby:
+
+ $ ruby ./bin/asciidoctor-pdf -v
+
+or
+
+ $ bundle exec ./bin/asciidoctor-pdf -v
+
+If you see the version of {project-name} printed, you're ready to use {project-name}!
+
+CAUTION: If you get an error message--and you're not using a Ruby manager like RVM--you may need to invoke the script through `bundle exec`:
+For best results, be sure to always use `bundle exec` whenever invoking the `./bin/asciidoctor-pdf` script in development mode.
+
+[[resources,Links]]
+== Resources
+
+* https://groups.google.com/forum/#!msg/prawn-ruby/MbMsCx862iY/6ImCsvLGfVcJ[Discussion about image quality in PDFs]
+
+== Authors
+
+{project-name} was written by https://github.com/mojavelinux[Dan Allen] and https://github.com/graphitefriction[Sarah White] of OpenDevise Inc. on behalf of the Asciidoctor Project.
+
+== Copyright
+
+Copyright (C) 2014 OpenDevise Inc. and the Asciidoctor Project.
+Free use of this software is granted under the terms of the MIT License.
+
+For the full text of the license, see the <<LICENSE.adoc#,LICENSE>> file.
+Refer to the <<NOTICE.adoc#,NOTICE>> file for information about third-party Open Source software in use.
+
+// FIXME Asciidoctor should be using outfilesuffix defined in header
+:outfilesuffix: {original-outfilesuffix}

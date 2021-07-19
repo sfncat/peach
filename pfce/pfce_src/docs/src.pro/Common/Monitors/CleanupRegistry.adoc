@@ -1,0 +1,144 @@
+<<<
+[[Monitors_CleanupRegistry]]
+== CleanupRegistry Monitor (Windows)
+
+*Monitor Category*: *Automation*
+
+The _CleanupRegistry_ monitor provides automated cleanup of Windows registry
+entries created during a fuzzing session. Cleanup occurs before every iteration.
+
+This monitor uses a specified registry key (a parent key) as a reference point
+and deletes all child keys or descendants of the parent key. All child keys at
+all levels beneath the parent key are removed. Values attached to child keys are
+removed as well.
+
+Optionally, _CleanupRegistry_ can include or exclude the parent key and values
+attached to the parent key in its purge.
+
+[NOTE]
+====
+The Windows Registry is a hierarchical database that stores information about
+the computer system, configuration, applications, current user settings, and
+performance data. The contents and use of the registry has evolved since its
+inception. Originally, the registry stored installation and initialization
+settings for applications. On current versions of Windows, the registry contains
+information for the current user, and much more, such as a list of external
+serial ports that the machine has allocated.
+
+One common use of the registry is to store a list of the most recently used
+files used in an application. This list is typically displayed to a user to
+improve the experience of selecting a file for the application to open.
+
+The Windows registry consists of five hierarchies called hives, as shown in
+the following illustration. Each hive consists of keys and values.
+
+image::{images}/Common/Monitors/CleanupRegistry_Hives.png[scalewidth="75%"]
+
+* A key is a container that can contain other keys and values. A key has a name,
+a type, and optionally, a data value. The following illustration shows a selected
+key. The complete name for this key is reported in the lower left corner.
+* A value is an item associated with a key that has a type, a data value, and
+optionally, a name. In the following illustration, the named values defined for the
+selected key are listed in the right side of the window.
+
+image::{images}/Common/Monitors/CleanupRegistry_Values.png[scalewidth="75%"]
+
+Each hive has one root key that is the entry point to the hive. These root keys
+are the prefixes described for the _CleanupRegistry_ `Key` parameter. The hives
+used most often are `HKCU` and `HKLM`, but keys from other hives are accessible as well.
+
+Locating a key in the registry is similar to locating a folder on disk. Start with
+the root key and specify the sequence of keys you need to reach the desired key.
+Separate keys with the back slash character "\", just like the folders in a path.
+
+A root key, such as `HKCU,` has child keys; that is, the keys that it contains.
+A non-root key, such as `HKCU\Software`, has a parent key (`HKCU`) and, optionally,
+child keys. Note that `HKCU` is the parent key of `Software`. The key
+`HKCU\Software\Mozilla\FireFox` also has two child keys or children (`Crash Reporter` and `TaskBarIDs`).
+
+For more information, see
+http://en.wikipedia.org/wiki/Windows_Registry[Windows Registry]. Note the rich
+bibliography, which can serve as a foundation for additional reading. Also, the
+Microsoft Developer Network (MSDN) has several articles on the registry.
+====
+
+[TIP]
+====
+In _CleanupRegistry_, you do not have control over individual values. You simply
+identify the parent key, and specify whether you need to zap the parent key;
+then let the monitor clean up around that registry key after each iteration.
+
+Sometimes, applications keep lists of recently used files in the registry, typically
+in the HKCU or HKLM hives. If you receive an error about not being able to create
+a key in the registry, you might need to clear the children of a specified key.
+
+====
+=== Parameters
+
+_Required:_
+
+Key::
+	Registry key to remove. The following *key prefixes* are used:  +
+    *HKCU* - Current user  +
+	*HKCC* - Current configuration  +
+	*HKLM* - Local machine  +
+	*HKPD* - Performance data  +
+	*HKU* - Users
+
+_Optional:_
+
+ChildrenOnly:: If true, omits the parent key from the purge, thereby deleting
+all descendants (sub-keys) of the specified key. +
+If false, the parent key and all descendants are deleted. Defaults to false.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Cleanup for Office +
+This parameter example is from a setup that uses the CleanupRegistry monitor to remove a specified key from the Windows Registry.
+
+==================================================
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Key          |`HKLM\SOFTWARE\Office13\Recovery`
+|==========================================================
+
+The following image shows the portion of the registry that contains the key to delete.
+
+image::{images}/Common/Monitors/CleanupRegistry_Delete.png[]
+
+This monitor deleted the key. The following image shows the same area of the registry after fuzzing and using the CleanupRegistry monitor.
+
+image::{images}/Common/Monitors/CleanupRegistry_AfterDelete.png[]
+
+==================================================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+
+.Cleanup for office +
+This uses the CleanupRegistry monitor to remove a specified key from the Windows Registry at the beginning of a fuzzing session as part of the control iteration.
+
+========================
+[source,xml]
+----
+include::CleanupRegistry_Example.xml[]
+----
+
+Output for this example.
+
+----
+include::CleanupRegistry_Example.log[]
+----
+
+<1> Deleting the registry key
+
+========================
+
+endif::peachug[]

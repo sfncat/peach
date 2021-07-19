@@ -1,0 +1,15 @@
+:toc!:
+== Base64EncodeTransformer
+
+The _Base64EncodeTransformer_ will base64 encode the value in the parent data model.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1"> 
+	<Blob name="TransformMe" value="6A C7 F1 76 C9 64 8D" valueType="hex" >
+		<Transformer class="Base64Encode" />
+	</Blob>
+<DataModel/> 
+----

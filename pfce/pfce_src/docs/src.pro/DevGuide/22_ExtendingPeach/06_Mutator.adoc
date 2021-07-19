@@ -1,0 +1,108 @@
+[[Extend_Mutator]]
+=== Mutator
+
+Peach includes mutators for common data types and patterns.  Occasionally it is necessary
+to extend the mutation capabilities with a custom mutator.  Custom mutators follow a similar pattern
+to all other Peach plug-ins, implement a class that derives from the base class,  Peach.Core.Mutator class, and
+decorate the class with a MutatorAttribute.
+
+In order for Peach to select a mutator when fuzzing, every mutator must implement a static supportedDataElement function.
+This function gets called with every data element in the DOM and returns true
+if the mutator can mutate the data element.
+
+An example of the supportedDataElement function for a string mutator.
+
+[source,java]
+----
+public new static bool supportedDataElement(DataElement obj)
+{
+	if (obj is Dom.String && obj.isMutable)
+		return true;
+
+	return false;
+}
+----
+
+When the Peach engine determines that a mutator is capable of mutating a data element, an instance of the mutator class is created for each supported data element.
+Once Peach creates all of the mutator instances, each mutator needs to provide the number of mutations that can be performed.
+The supported mutation count is provided with the 'count' property.
+
+Each mutator implements two functions for performing the actual mutation: sequentialMutation and randomMutation.
+These functions correspond to the type of mutation strategy defined in the Peach pit.
+When the Peach configuration uses the Random strategy, the randomMutation function performs mutations.
+When the Peach configuration uses the Sequential strategy, the mutator's 'mutation' attribute will be set to the desired value (between 0 and count) and the sequentialMutation function performs mutations.
+
+When picking random numbers inside the mutator, it is important to use the random number generator provided by the mutation strategy.
+Mutators access the random number generator with the 'this.context.Random' variable.
+The mutation strategy guarantees that the random number generator is different across different fuzzing iterations.
+Additionally, the mutation strategy guarantees the random number generator is identical for the same iterations.
+This allows Peach to produce identical mutations when replaying the same fuzz iteration to reproduce faults or when re-running a test of the same seed at a future date.
+
+An example of a string mutator that mutates string elements with the values "Hello", "World" or "Hello World".
+
+[source,java]
+----
+[Mutator("StringMutator")]
+[Description("Replace strings with hello world")]
+public class HelloWorldMutator : Peach.Core.Mutator
+{
+	uint pos = 0;
+	static string[] values = new string[] { "Hello", "World", "Hello World" };
+
+	public StringMutator(DataElement obj)
+	{
+		pos = 0;
+		name = "HelloWorldMutator";
+	}
+
+	public new static bool supportedDataElement(DataElement obj)
+	{
+		if (obj is Dom.String && obj.isMutable)
+			return true;
+
+		return false;
+	}
+
+	public override int count
+	{
+		get { return values.Length; }
+	}
+
+	public override uint mutation
+	{
+		get { return pos; }
+		set { pos = value; }
+	}
+
+	public override void sequentialMutation(DataElement obj)
+	{
+		obj.mutationFlags = MutateOverride.Default;
+		obj.MutatedValue = new Variant(values[pos]);
+	}
+
+	public override void randomMutation(DataElement obj)
+	{
+		obj.mutationFlags = MutateOverride.Default;
+		obj.MutatedValue = new Variant(this.context.Random.Choice<string>(values));
+	}
+}
+----
+
+In order for Peach to select a mutator when fuzzing, every mutator must implement a static supportedDataElement function.
+This function is called with every data element in the DOM and returns true
+if the mutator can mutate the data element.
+
+An example of the supportedDataElement function for a string mutator.
+
+[source,java]
+----
+public new static bool supportedDataElement(DataElement obj)
+{
+	if (obj is Dom.String && obj.isMutable)
+		return true;
+
+	return false;
+}
+----
+
+// end

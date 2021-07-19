@@ -1,0 +1,38 @@
+:toc!:
+== CrashWrangler Monitor (OS X)
+
+The _CrashWrangler_ monitor will launch a process and monitor it for interesting crashes.  This monitor uses the Crash Wrangler tool from Apple which can be downloaded from the developer website.  The tool must be compiled on each machine it is used on in order to work correctly.
+
+This is the prefered method of catching faults on OS X.
+
+=== Parameters
+
+ * _Command_ -- Command to execute
+ * _Arguments_ -- Command line arguments (optional, default none)
+ * _StartOnCall_ -- Start command on state model call (optional, default none)
+ * _UseDebugMalloc_ -- Use OS X Debug Malloc (slower) (optional, default false)
+ * _ExecHandler_ -- Crash Wrangler execution handler program (optional, default exc_handler)
+ * _ExploitableReads_ -- Are read a/v's considered exploitable? (optional, defaults to false)
+ * _NoCpuKill_ -- Disable process killing by CPU usage (optional, default false)
+ * _CwLogFile_ -- CrashWrangler Log file (optional, defaults to cw.log)
+ * _CwLockFile_ -- CrashWrangler Lock file (optional, defaults to cw.lock)
+ * _CwPidFile_ -- CrashWrangler PID file (optional, defaults to cw.pid)
+
+=== Examples
+
+.Fuzzing Safari
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="CrashWrangler">
+		<Param name="Command" value="/Applications/Safari.app/Contents/MacOS/Safari" />
+			<Param name="Arguments" value="fuzzed.bin" />
+			
+			<Param name="UseDebugMalloc" value="false" />
+			<Param name="ExploitableReads" value="true" />
+			<Param name="ExecHandler" value="./exc_handler" />
+			
+			<Param name="StartOnCall" value="ScoobySnacks" />
+	</Monitor>
+</Agent>
+----

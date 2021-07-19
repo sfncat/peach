@@ -1,0 +1,61 @@
+:toc!:
+= tcp.Tcp =
+
+A TCP client publisher that allows connecting to a remote TCP port.
+
+[source,xml]
+----
+<Publisher class="tcp.Tcp">
+  <Param name="host" value="google.com" />
+  <Param name="port" value="80" />
+
+  <!-- Optional timeout in seconds -->
+  <Param name="timout" value="0.25" />
+
+  <!-- Optional time between connections in seconds -->
+  <Param name="throttle" value="0.25" />
+
+</Publisher>
+----
+
+
+_Parameters:_
+
+ * host -- Remote hostname or IP address [required]
+ * port -- Remote port # [required]
+ * timeout -- Timeout in seconds, defaults to 0.25 [optional]
+ * throttle -- Time to wait between connections, defaults to 0 [optional]
+
+_Supported Actions:_
+
+ * link:connect.html[connect]
+ * link:input.html[input]
+ * link:output.html[output]
+ * link:close.html[close]
+
+_Example:_
+
+[source,xml]
+----
+<DataModel name="HttpRequest">
+    <String value="GET / HTTP/1.0\r\n\r\n" />
+</DataModel>
+
+<StateModel name="TheStateModel" initialState="State">
+  <State name="State">
+    <Action type="output">
+      <DataModel ref="HttpRequest" />
+    </Action>
+  </State>
+</StateModel>
+
+<Test name="HttpRequestTest">
+    <StateModel ref="TheStateModel" />
+
+    <Publisher class="tcp.Tcp">
+        <Param name="host" value="192.168.1.195" />
+        <Param name="port" value="4242" />
+    </Publisher>
+</Test>
+----
+

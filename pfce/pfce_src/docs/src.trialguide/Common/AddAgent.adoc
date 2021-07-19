@@ -1,0 +1,30 @@
+===== Configuring Agents
+An Agent runs either in-process of {product} or can be installed and run on a remote machine.
+ifdef::hosted[]
+For this configuration, only a single local agent is required.
+endif::[]
+ifndef::hosted[]
+For this configuration, only a single remote agent running on the Target VM is required.
+endif::[]
+
+. Click *Monitoring*.
+. Click *Add Agent*.
+. Enter a name.
+ifdef::hosted[]
+Leave the *Location* setting to the default *local://*.
+endif::[]
+ifndef::hosted[]
+Set the *Location* setting to include the IP address of your target VM e.g. *tcp://192.168.17.145*
+endif::[]
+. Click *Save*.
+
+ifdef::hosted[]
+image::{images}/local-agent.png[]
+endif::[]
+ifndef::hosted[]
+image::{images}/remote-agent.png[]
+endif::[]
+
+For more detailed instructions, see <<AddLocalAgent,Adding an agent>>.
+
+// end

@@ -1,0 +1,6 @@
+:toc!:
+== Mutation Fuzzing ==
+
+There are typically two methods for producing fuzz data that is sent to a target, Generation or Mutation.   Generational fuzzers are capable of building the data being sent based on a data model provided by the fuzzer creator.  Sometimes this is simple and dumb as sending random bytes, or much smarter by knowing good values and combining them in interesting ways.
+
+Mutation on the other hand starts out with a known good "template" which is then modified.  However, nothing that is not present in the "template" or "seed" will be produced.  For example, if a file format specified 18 types of chunks or optional data segments and the "template"/"seed" only used four (4) of them, a mutational based fuzzer would never generate the other chunks not present only modify the chunks it is presented with.

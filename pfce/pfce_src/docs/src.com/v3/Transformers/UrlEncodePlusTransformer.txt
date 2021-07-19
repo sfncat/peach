@@ -1,0 +1,16 @@
+:toc!:
+== UrlEncodePlusTransformer
+
+The _UrlEncodePlusTransformer_ will produce a fully encoded  url with spaces replaced as pluses.  
+
+=== Examples
+
+[source,xml]
+----
+<DataModel name="Ex1">
+	<String name="TransformMe" value="http://www.peachfuzzer.com/?a= hello" >
+		<Transformer class="UrlEncodePlus" />
+	</String>
+</DataModel>
+----
+

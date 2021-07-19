@@ -1,0 +1,48 @@
+:toc!:
+link:CreateDataModel.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:ConfigurePublisher.html[Next >>]
+
+''''
+
+== Create State Model ==
+
+Now that you have created the data models we can create the state model.
+For file fuzzing the state model is very simple.
+All we want to do is write out the file and launch the target process.
+We will do this using three actions:
+
+ * output -- Write the file
+ * close -- Close the file
+ * call -- Launch the application
+
+Go ahead and locate the state model in the +wav.xml+ file called _TheState_.
+We will expand on this state model to include our three actions as follows:
+
+[source,xml]
+----
+<!-- This is our simple wave state model -->
+<StateModel name="TheState" initialState="Initial">
+    <State name="Initial">
+        
+        <!-- Write out our wave file -->
+        <Action type="output">
+            <DataModel ref="Wav"/>
+            <!-- This is our sample file to read in -->
+            <Data fileName="sample.wav"/>
+        </Action>
+        
+        <Action type="close"/>
+        
+        <!-- Launch the target process -->
+        <Action type="call" method="StartMPlayer" publisher="Peach.Agent" />
+    </State>
+</StateModel>
+----
+
+
+Read more about: link:../StateModel.html[StateModel], link:../State.html[State], link:../Action.html[Action], link:../DataModel.html[DataModel], link:../Data.html[Data], link:../Field.html[Field]
+
+Now on to configuring our Publisher!
+
+''''
+
+link:CreateDataModel.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:ConfigurePublisher.html[Next >>]

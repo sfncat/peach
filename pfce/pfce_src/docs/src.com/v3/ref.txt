@@ -1,0 +1,27 @@
+:toc!:
+== Ref Attribute ==
+
+The ref attribute specifies a reference to another element by either a name or class structure.  References can be relative or fully qualified. 
+
+=== Examples ===
+
+_Relative by Name:_
+
+[source,xml]
+----
+<Block ref="ElementName"/>
+----
+
+_Fully qualified with namespace prefix:_
+
+[source,xml]
+----
+<Block ref="namespace:parent.parent.child"/>
+----
+
+_Fully qualified:_
+
+[source,xml]
+----
+<Block ref="parent.parent.child"/>
+----

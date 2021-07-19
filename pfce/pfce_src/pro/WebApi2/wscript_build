@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+deps = [
+	'Peach.Core.dll',
+	'Peach.Pro.dll',
+
+	'System.dll',
+	'System.Core.dll',
+	'System.Net.Http.dll',
+	'System.Web.dll',
+]
+
+pkgs = [
+	'Autofac.WebApi2.Owin',
+	'DotNetZip',
+	'Microsoft.AspNet.WebApi.Client',
+	'Microsoft.Owin.Host.HttpListener',
+	'Microsoft.Owin.Hosting',
+	'Microsoft.Owin.StaticFiles',
+	'NLog',
+	'Swashbuckle.Core.Net45',
+]
+
+bld(
+	name = 'Peach.Pro.WebApi2.dll',
+	features = 'cs paket',
+	use = deps,
+	use_packages = pkgs,
+	paket_settings = dict(
+		frameworks = ['net45', 'net40', 'net20'],
+	),
+	source = bld.path.ant_glob('**/*.cs'),
+	resource = bld.path.ant_glob('Resources/**/* Views/**/*'),
+	csflags = [
+		# The following are remapped in Peach's app.config:
+		# System.Web.Http v5.2.2 -> v5.2.3
+		# System.Net.Http.Formatting v5.2.2 -> v5.2.3
+		# Microsoft.Owin v2.0.2 -> v3.0.1
+		'/nowarn:1701', # The two assembly references have differing build and/or revision numbers
+		'/nowarn:1702', # The two assembly references have differing build and/or revision numbers
+	],)

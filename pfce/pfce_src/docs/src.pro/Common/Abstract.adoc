@@ -1,0 +1,18 @@
+[abstract]
+Copyright © 2016 Peach Fuzzer, LLC. All rights reserved.
+
+This document may not be distributed or used for commercial purposes without
+the explicit consent of the copyright holders.
+
+Peach Fuzzer® is a registered trademark of Peach Fuzzer, LLC.
+
+Peach Fuzzer contains Patent Pending technologies.
+
+While every precaution has been taken in the preparation of this book, the
+publisher and authors assume no responsibility for errors or omissions, or for
+damages resulting from the use of the information contained herein.
+
+Peach Fuzzer, LLC +
+1122 E Pike St +
+Suite 1064 +
+Seattle, WA 98122

@@ -1,0 +1,15 @@
+
+[[length]]
+== Length Attribute
+
+The _length_ attribute defines the Blob or String size in bytes. 
+
+=== Examples
+
+[source,xml]
+----
+<Blob name="MagicNumber" length="8" value="01 02 03 04 05 06 07 08" valueType="hex" />
+
+<String name="Token" value="MAGIC" length="5"/>
+----
+

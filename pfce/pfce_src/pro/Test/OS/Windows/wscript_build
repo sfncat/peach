@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+deps = [
+	'Peach.Core.dll',
+	'Peach.Core.Test.dll',
+	'Peach.Pro.dll',
+	'Microsoft.CSharp.dll',
+	'System.dll',
+	'System.Core.dll',
+	'System.Drawing.dll',
+	'System.ServiceProcess.dll',
+	'System.Windows.Forms.dll',
+	'System.Xml.dll',
+]
+
+pkgs = [
+	'NLog',
+	'NUnit',
+]
+
+# Even though this should build via mono, this assembly causes mcs to segfault
+# so noly build on windows fore the time being...
+
+bld(
+	name = 'Peach.Pro.Test.OS.Windows.dll',
+	features = 'cs test paket',
+	use = deps,
+	use_packages = pkgs,
+	paket_settings = dict(
+		frameworks = ['net45'],
+	),
+	source = bld.path.ant_glob('**/*.cs'),
+	ide_path = '../',
+)

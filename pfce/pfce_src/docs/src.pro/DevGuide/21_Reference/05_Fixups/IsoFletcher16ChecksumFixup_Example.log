@@ -1,0 +1,18 @@
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 32810.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "initial".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Pro.Core.Publishers.ConsolePublisher start()
+Peach.Pro.Core.Publishers.ConsolePublisher open()
+Peach.Pro.Core.Publishers.ConsolePublisher output(10 bytes)
+00000000   00 00 00 00 49 37 BA C8  F2 09                     ....I7....
+Peach.Pro.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Pro.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.

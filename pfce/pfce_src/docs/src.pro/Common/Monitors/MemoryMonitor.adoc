@@ -1,0 +1,110 @@
+<<<
+[[Monitors_MemoryMonitor]]
+== Memory Monitor
+
+*Monitor Category*:  *Data collection*, *Fault detection*
+
+The _Memory_ monitor provides two modes of operation:
+
+. Data collection
++
+When the 'MemoryLimit' is `0`,
+the monitor will collect memory metrics at the end of each iteration.
+If a fault is triggered by another monitor,
+the collected memory metrics will be stored as `Usage.txt` in the fault's data bundle.
+. Fault detection
++
+When the 'MemoryLimit' is > `0`,
+the monitor will initiate a fault when the memory usage for the process being monitored exceeds the specified limit.
+
+The reported metrics for this monitor include the following items:
+
+* *Private memory size* -
+Number of bytes allocated for the process.
+An approximate number of bytes a process is using.
+
+* *Working set memory* -
+Total physical memory used by the process, consisting of in-memory private bytes plus memory-mapped files,
+such as DLLs.
+
+* *Peak working set* -
+Largest working set used by the process.
+
+* *Virtual memory size* -
+Total address space occupied by the entire process,
+including the working set plus paged private bytes and the standby list.
+
+NOTE: This monitor requires that you set a memory limit and identify a process to monitor,
+specifying the process by name or by process id.
+
+=== Parameters
+
+_Required:_
+
+Either one of 'Pid' or 'ProcessName' is required.
+It is an error to specify both.
+
+Pid::
+Process ID to monitor.
+
+ProcessName::
+Name of the process to monitor.
+
+
+_Optional:_
+
+MemoryLimit::
+A value specified in bytes.
++
+When `0` is specified,
+enable data collection mode,
+which causes memory metrics to be collected
+at the end of every iteration.
++
+When a value greater than `0` is specified,
+enable fault detection mode,
+which causes a fault to occur if the memory usage of the monitored process exceeds the specified limit.
++
+Defaults to `0`.
+
+StopOnFault::
+Stop fuzzing if a fault is triggered, defaults to `false`.
+
+=== Examples
+
+ifdef::peachug[]
+
+.Monitor memory usage of Notepad
+====================
+
+This parameter example is from a setup that monitors memory usage of Notepad.
+It is configured to generate a fault if memory usage exceeds 10MB.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|MemoryLimit  |`10000000`
+|ProcessName  |`Notepad`
+|==========================================================
+====================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Monitor memory via PID
+========================
+[source,xml]
+----
+include::MemoryMonitor_Example.xml[]
+----
+
+Output from example.
+
+----
+include::MemoryMonitor_Example.log[]
+----
+========================
+
+endif::peachug[]

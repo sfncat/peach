@@ -1,0 +1,117 @@
+:toc!:
+== Http Publisher
+
+The _Http_ publisher sends data over HTTP via a method of your choice.  This publisher supports the following features:
+
+ * Authentication via Basic, Digest, or Windows integrated
+ * Definable method type
+ * Fuzzing and dynamic setting of headers (both key and value)
+ * Fuzzing and dynamic setting of query strings
+ * Optional cookie support
+ * SSL
+
+=== Parameters
+
+ * _Method_ -- HTTP Method type (GET, POST, etc)
+ * _Url_ -- URL of target
+ * _BaseUrl_ -- Base URL is used by some authentication types (optional)
+ * _Username_ -- Username for authentication (optional)
+ * _Domain_ -- Domain for authentication (optional)
+ * _Cookies_ -- Enable cookie support (optional, defaults to true)
+ * _CookiesAcrossIterations_ -- Track cookes across iterations (optional, defaults to false)
+ * _Timeout_ -- How long to wait in milliseconds for data/connection (optional, default 3,000)
+ * _IgnoreCertErrors_ -- Allow https regardless of cert status (defaults to false)
+ 
+=== Actions
+
+ * link:../Action.html#\_call[_call_] -- To fuzz the querystring or headers special method names are supported
+ ** _Query_ -- Specify as the method name for a call action, the first parameter is the query string
+ ** _Header_ -- Specify as the method name for a call action, the first parameter is the header name, the second is the value
+ * link:../Action.html#\_output[_output_]  -- Data sent via output is provided as the HTTP body
+ 
+=== Examples
+
+.Post data to a URL
+[source,xml]
+----
+<DataModel name="PostBody">
+   <!-- ... -->
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="output">
+      <DataModel ref="PostBody" />
+    </Action>
+  </State>
+</StateModel>
+
+<Test name="Default">
+  <!-- ... -->
+  <Publisher class="Http">
+    <Param name="Method" value="POST" />
+    <Param name="Url" value="http://foo.com/user/create" />
+  </Publisher>
+</Test>
+----
+
+.Fuzz querystring
+[source,xml]
+----
+<DataModel name="QueryModel">
+   <String value="key"/>
+   <String value="=" token="true" />
+   <String value="value"/>
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="call" method="Query">
+      <Param>
+        <DataModel ref="QueryModel" />
+      </Param>
+    </Action>
+  </State>
+</StateModel>
+
+<Test name="Default">
+  <!-- ... -->
+  <Publisher class="Http">
+    <Param name="Method" value="GET" />
+    <Param name="Url" value="http://foo.com/user/create" />
+  </Publisher>
+</Test>
+----
+
+.Fuzz header
+[source,xml]
+----
+<DataModel name="HeaderKey">
+   <String value="Content-Type" />
+</DataModel>
+<DataModel name="HeaderValue">
+   <String value="html" />
+</DataModel>
+
+<StateModel name="TheState">
+  <State name="initial">
+    <Action type="call" method="Header">
+      <Param>
+        <DataModel ref="HeaderKey" />
+      </Param>
+      <Param>
+        <DataModel ref="HeaderValue" />
+      </Param>
+    </Action>
+  </State>
+</StateModel>
+
+<Test name="Default">
+  <!-- ... -->
+  <Publisher class="Http">
+    <Param name="Method" value="GET" />
+    <Param name="Url" value="http://foo.com/user/create" />
+  </Publisher>
+</Test>
+----
+

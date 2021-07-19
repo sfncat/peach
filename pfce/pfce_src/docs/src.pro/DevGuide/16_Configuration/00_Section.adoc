@@ -1,0 +1,86 @@
+[[PitDefines]]
+== Configuration Files
+
+Most Peach pits contain configurable information. For example, a network Pit might store source and destination IP addresses for the network. Some configuration settings apply to a specific operating system.
+
+Peach uses configuration files that allow different settings based on operating system. The information stored in a configuration file is typically used many times in a single definition and rarely stays the same. The presence of a configuration file eases the burden of supplying configurable settings by hand, an awkward and error-prone task.
+
+You can create configuration files with default values and reuse them as needed. Peach configuration files use placeholders that are replaced at runtime either through a configuration file or via the command line. Peach automatically tries to load a configuration file along with the Pit file at the start of a fuzzing session. The naming convention of a Pit configuration file is +PIT.xml.config+, where +PIT.xml+ is the name of your fuzzing definition.
+
+[source,xml]
+----
+<PitDefines>
+  <All>     <1>
+    <Define key="TargetIPv4" value="127.0.0.2"/>
+    <Define key="TargetPort" value=“22"/>
+  </All>
+  <Linux>   <2>
+    <Define key="Interface" value="eth0"/>
+  </Linux>
+  <OSX>     <3>
+    <Define key="Interface" value="em0"/>
+  </OSX>
+</PitDefines>
+----
+<1> This section is common to all operating systems.
+<2> This section is only for Linux.
+<3> This section is only for OS X.
+
+Using a defined key consists of encasing the key with the two-character sequence `\\##`. So, the key _Interface_ becomes `##Interface##`, as shown in the following example.
+
+[source,xml]
+----
+<Monitor class="NetworkCapture">
+  <Param name="Device" value="##Interface##"/>
+</Monitor>
+
+<Publisher class="Tcp" name="TcpHandler">
+  <Param name="Host" value="##TargetIPv4##"/>
+  <Param name="Port" value="##TargetPort##"/>
+</Publisher>
+----
+
+Overriding one configuration file with a second (or another) configuration file requires using the +--config+ command-line argument. The values in the file specified on the command line override the values listed in the default .config file.
+
+----
+Peach.exe --config=CommonConfig.xml MyPit.xml
+----
+
+You can specify individual configuration items (keys) on the command line by using the +-D+ argument. Values provided via the command line override those provided by file.
+
+----
+Peach.exe -DTargetIp=10.1.1.1 MyPit.xml
+----
+
+=== Internally-defined Keys
+
+Peach includes several predefined configuration keys that can be used in your Pits.
+
+Peach.Cwd:: Peach current working directory. While this directory is usually the
+directory containing Peach, the directory can be another location on your system.
+The Peach Working Directory is set by launching Peach from the shell command line.
+The value is the current working directory of the command shell when you start Peach.
+
+PitLibraryPath:: The Pit library path is the full path of the folder in the
+Peach installation directory that contains your licensed Peach Pits and Pit Packs.
+The folder name is "pits", and contains subdirectories that hold your licensed
+Pits, Pit configurations, and Peach-supplied sample files.
+
+Peach.LogRoot:: Full path of the directory where Peach stores logging information
+from each fuzzing session. The default log root location is a subdirectory of
+the Peach Installation Directory. The default name of this directory is "Logs".
+
+Peach.OS:: Operating system that hosts the Peach Fuzzer platform. The value is
+selected when downloading the Peach distribution image.
+
+Peach.Pwd:: Peach installation directory. This directory contains the Peach executable, and usually is named "peach".
+
+// TODO - Configuration files
+//  * Basic usage
+//  * More complex usage
+//   * Config including config
+//   * Overriding config value via command line
+//  * When does replacement occur
+//   * Tricks this allows (changing the XML, not just values)
+
+// end

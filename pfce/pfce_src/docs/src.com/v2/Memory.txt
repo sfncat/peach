@@ -1,0 +1,25 @@
+:toc!:
+= memory.Memory =
+
+The memory monitor will trigger a fault when a process consumes more then a specified amount of memory.
+
+[source,xml]
+----
+<Monitor class="memory.Memory">
+  <Param name="StopOnFault" value="false" />
+  <Param name="MemoryLimit" value="100000" />
+  <Param name="ProcessName" value="notepad.exe" />
+</Monitor>
+----
+
+
+_Parameters:_
+
+ * MemoryLimit -- Memory limit in bytes [required]
+ * Pid -- Process ID to monitor [required]
+ * ProcessName -- Name of process to monitor [required]
+ * StopOnFault -- Should we halt on fault? [optional]
+
+_Valid Child-Elements:_
+
+ * link:Param.html[Param]

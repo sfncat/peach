@@ -1,0 +1,20 @@
+:toc!:
+== Peach Loggers ==
+
+Peach has an extensible logging system that allows users to store logs just about however they want (if you are willing to write a python class :) )  By default Peach ships with a single file system logger.
+
+== logger.Filesystem ==
+
+The file system logger will log to a specified path.  A folder is created containing the run name and time stamp.  Inside of this folder are the actual logs.  Until a fault is detected very little information is logged to conserve disk space.
+
+[source,xml]
+----
+<Logger class="logger.Filesystem">
+    <Param name="path" value="c:\peach\logtest" />
+</Logger>
+----
+
+
+_Parameters:_
+
+ * path -- The path to create log files

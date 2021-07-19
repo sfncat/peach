@@ -1,0 +1,65 @@
+[[name]]
+== Name Attribute
+
+// Reviewed:
+//  - 01/30/2014: Seth & Mike: Outlined
+
+// - 03/28/2014: Lynn: Miscellaneous edits and admonition changes.
+
+// * Full vs. relative
+// * No periods
+// * Case sensitive
+// * Should avoid spaces
+// * Can't duplicate at same level
+// * Best practice: match spec or code (Self documenting)
+// * Optional, only needed when referenced or for data model
+// * examples
+// * 
+
+Virtually all the Peach Pit file elements support the _name_ attribute.  Names are used for readability and xref:ref[referencing] other elements in a Pit file.
+
+IMPORTANT: Names should not contain punctuation. Punctuation marks like period (.), slash (\\), and colon (:) have special xref:ref[references] meanings.
+
+Names are case sensitive and must be unique at the current scope level.
+
+=== Examples ===
+
+_Correct:_
+
+The following example has unique names for each element.
+
+[source,xml]
+----
+<Block name="Header">
+  <Number name="Value1" size="8"/>
+  <Number name="Value2" size="8"/>
+  <Number name="Value3" size="8"/>
+  <Number name="Value4" size="8"/>
+</Block>
+----
+
+The following example does not provide names for all values. This practice is okay, as long as you don't want to access the unnamed element.
+
+[source,xml]
+----
+<Block name="Header">
+  <Number size="8"/>
+  <Number size="8"/>
+  <Number size="8"/>
+  <Number size="8"/>
+</Block>
+----
+
+_Incorrect:_
+
+The following has duplicate names at the same document level.  This causes an error.
+
+[source,xml]
+----
+<Block name="Header">
+  <Number name="Value" size="8"/>
+  <Number name="Value" size="8"/>
+  <Number name="Value" size="8"/>
+  <Number name="Value" size="8"/>
+</Block>
+----

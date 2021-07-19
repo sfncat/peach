@@ -1,0 +1,328 @@
+[[Extend_Agent]]
+=== Agent
+
+Custom agents are useful when the target system does not support a .NET runtime (like Mono) or the device is too slow (speed is a common problem for embedded devices that require running a native agent in C/C++).
+
+Agents in Peach communicate over protocols called channels.  While you can develop custom channel protocols, an existing channel usually creates a custom Peach agent. Agents can be written in any language; To make it easy to author your own, Peach comes with some example implementations designed for languages like as Python and C++. The REST based protocol (which transmits data in JSON messages) is the easiest channel protocol to use with custom agents.
+
+When you write a custom publisher, we recommend you start with one of the examples in the SDK and extend it to meet your requirements. The examples in the SDK already implement the agent channel protocol with stub methods ready to be implemented. If this is not an option, the following example channel sessions can be used as documentation for the protocol. The second example includes the use of a remote publisher.
+
+.Sample session
+=========================
+
+This example shows a complete agent session using the REST JSON agent channel (protocol prefix _http_) with matching pit.
+
+[source,xml]
+----
+<Agent name="TheAgent" location="http://127.0.0.1:9980">
+	<Monitor class="WindowsDebugger">
+		<Param name="Executable" value="mspaint.exe" />
+		<Param name="Arguments" value="fuzzed.png" />
+		<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />
+		<Param name="StartOnCall" value="ScoobySnacks"/>
+	</Monitor>
+	<Monitor class="PageHeap">
+		<Param name="Executable" value="mspaint.exe"/>
+		<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />
+	</Monitor>
+</Agent>
+
+<Test name="Default">
+	<Agent ref="TheAgent"/>
+	<StateModel ref="TheState"/>
+
+	<Publisher class="File">
+		<Param name="FileName" value="fuzzed.png"/>
+	</Publisher>
+
+</Test>
+----
+
+[source,java]
+----
+GET /Agent/AgentConnect
+<< { "Status":"true" }
+
+POST /Agent/StartMonitor?name=Monitor_0&cls=WindowsDebugger
+>> {"args":{"Executable":"mspaint.exe,"Arguments":"fuzzed.png","WinDbgPath":"C:\\Program Files (x86)\\Debugging Tools for Windows (x86)","StartOnCall":"ScoobySnacks"}}
+<< { "Status":"true" }
+
+POST /Agent/StartMonitor?name=Monitor_1&cls=PageHeap
+>> {"args":{"Executable":"mspaint.exe","WinDbgPath":"C:\\Program Files (x86)\\Debugging Tools for Windows (x86)"}}
+<< { "Status":"true" }
+
+GET /Agent/SessionStarting
+<< { "Status":"true" }
+
+GET /Agent/IterationStarting?iterationCount=1&isReproduction=False
+<< { "Status":"true" }
+
+GET /Agent/IterationFinished
+<< { "Status":"true" }
+
+GET /Agent/DetectedFault
+<< { "Status":"true" }
+// Status of true indicates a fault was detected. False for no fault.
+
+GET /Agent/GetMonitorData
+<< {
+	"Results":[
+		{
+			"iteration":0,
+			"controlIteration":false,
+			"controlRecordingIteration":false,
+			"type":0,  (0 unknown, 1 Fault, 2 Data)
+			"detectionSource":null,
+			"title":null,
+			"description":null,
+			"majorHash":null,
+			"minorHash":null,
+			"exploitability":null,
+			"folderName":null,
+			"collectedData":[
+				{"Key":"data1","Value":"AA=="}
+			]
+		}
+	]
+}
+
+GET /Agent/IterationStarting?iterationCount=1&isReproduction=True
+<< { "Status":"true" }
+
+GET /Agent/IterationFinished
+<< { "Status":"true" }
+
+GET /Agent/DetectedFault
+<< { "Status":"true" }
+// Status of true indicates a fault was detected. False for no fault.
+
+GET /Agent/GetMonitorData
+<< {
+	"Results":[
+		{
+			"iteration":0,
+			"controlIteration":false,
+			"controlRecordingIteration":false,
+			"type":0,  (0 unknown, 1 Fault, 2 Data)
+			"detectionSource":null,
+			"title":null,
+			"description":null,
+			"majorHash":null,
+			"minorHash":null,
+			"exploitability":null,
+			"folderName":null,
+			"collectedData":[
+				{"Key":"data1","Value":"AA=="}
+			]
+		}
+	]
+}
+
+GET /Agent/Publisher/stop
+<< { "Status":"true" }
+
+GET /Agent/SessionFinished
+<< { "Status":"true" }
+
+GET /Agent/StopAllMonitors
+<< { "Status":"true" }
+
+GET /Agent/AgentDisconnect
+<< { "Status":"true" }
+
+----
+=========================
+
+.Sample session with remote publisher
+=========================
+This example shows the channel messages when a remote publisher is in use.
+
+[source,xml]
+----
+<Agent name="TheAgent" location="http://127.0.0.1:9980">
+	<Monitor class="WindowsDebugger">
+		<Param name="Executable" value="mspaint.exe" />
+		<Param name="Arguments" value="fuzzed.png" />
+		<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />
+		<Param name="StartOnCall" value="ScoobySnacks"/>
+	</Monitor>
+	<Monitor class="PageHeap">
+		<Param name="Executable" value="mspaint.exe"/>
+		<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />
+	</Monitor>
+</Agent>
+
+<Test name="Default">
+	<Agent ref="TheAgent"/>
+	<StateModel ref="TheState"/>
+
+	<Publisher class="Remote">
+		<Param name="Agent" value="TheAgent"/>
+		<Param name="Class" value="File"/>
+		<Param name="FileName" value="fuzzed.png"/>
+	</Publisher>
+
+</Test>
+----
+
+[source,java]
+----
+GET /Agent/AgentConnect
+<< { "Status":"true" }
+
+POST /Agent/StartMonitor?name=Monitor_0&cls=WindowsDebugger
+>> {"args":{"Executable":"mspaint.exe","Arguments":"fuzzed.png","WinDbgPath":"C:\\Program Files (x86)\\Debugging Tools for Windows (x86)","StartOnCall":"ScoobySnacks"}}
+<< { "Status":"true" }
+
+POST /Agent/StartMonitor?name=Monitor_1&cls=PageHeap
+>> {"args":{"Executable":"mspaint.exe","WinDbgPath":"C:\\Program Files (x86)\\Debugging Tools for Windows (x86)"}}
+<< { "Status":"true" }
+
+GET /Agent/SessionStarting
+<< { "Status":"true" }
+
+GET /Agent/IterationStarting?iterationCount=1&isReproduction=False
+<< { "Status":"true" }
+
+POST /Agent/Publisher/Set_Iteration
+>> {"iteration":1}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_IsControlIteration
+>> {"isControlIteration":true}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_IsControlIteration
+>> {"isControlIteration":true}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_Iteration
+>> {"iteration":1}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/start
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/open
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/output
+>> {"data":"SGVsbG8gV29ybGQ="}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/close
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/call
+>> {"method":"ScoobySnacks","args":[{"name":"p1","data":"SGVsbG8gV29ybGQ=","type":0}]}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/IterationFinished
+<< { "Status":"true" }
+
+GET /Agent/DetectedFault
+<< { "Status":"true" }
+// Status of true indicates a fault was detected. False for no fault.
+
+GET /Agent/GetMonitorData
+<< {
+	"Results":[
+		{
+			"iteration":0,
+			"controlIteration":false,
+			"controlRecordingIteration":false,
+			"type":0,  (0 unknown, 1 Fault, 2 Data)
+			"detectionSource":null,
+			"title":null,
+			"description":null,
+			"majorHash":null,
+			"minorHash":null,
+			"exploitability":null,
+			"folderName":null,
+			"collectedData":[
+				{"Key":"data1","Value":"AA=="}
+			]
+		}
+	]
+}
+
+GET /Agent/IterationStarting?iterationCount=1&isReproduction=True
+<< { "Status":"true" }
+
+POST /Agent/Publisher/Set_Iteration
+>> {"iteration":1}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_IsControlIteration
+>> {"isControlIteration":true}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_IsControlIteration
+>> {"isControlIteration":true}
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/Set_Iteration
+>> {"iteration":1}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/start
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/open
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/output
+>> {"data":"SGVsbG8gV29ybGQ="}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/Publisher/close
+<< { "error":"false", "errorString":null }
+
+POST /Agent/Publisher/call
+>> {"method":"ScoobySnacks","args":[{"name":"p1","data":"SGVsbG8gV29ybGQ=","type":0}]}
+<< { "error":"false", "errorString":null }
+
+GET /Agent/IterationFinished
+<< { "Status":"true" }
+
+GET /Agent/DetectedFault
+<< { "Status":"true" }
+// Status of true indicates a fault was detected. False for no fault.
+
+GET /Agent/GetMonitorData
+<< {
+	"Results":[
+		{
+			"iteration":0,
+			"controlIteration":false,
+			"controlRecordingIteration":false,
+			"type":0,  (0 unknown, 1 Fault, 2 Data)
+			"detectionSource":null,
+			"title":null,
+			"description":null,
+			"majorHash":null,
+			"minorHash":null,
+			"exploitability":null,
+			"folderName":null,
+			"collectedData":[
+				{"Key":"data1","Value":"AA=="}
+			]
+		}
+	]
+}
+
+GET /Agent/Publisher/stop
+<< { "Status":"true" }
+
+GET /Agent/SessionFinished
+<< { "Status":"true" }
+
+GET /Agent/StopAllMonitors
+<< { "Status":"true" }
+
+GET /Agent/AgentDisconnect
+<< { "Status":"true" }
+----
+=========================
+
+// end

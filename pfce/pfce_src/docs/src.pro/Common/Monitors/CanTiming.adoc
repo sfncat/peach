@@ -1,0 +1,111 @@
+<<<
+[[Monitors_CanTiming]]
+== CAN Timing Monitor
+
+*Monitor Category*: *Fault detection*
+
+The _CAN Timing_ monitor is will trigger a fault when a frame is not received within a specified time window.
+Many CAN targets are designed to send one or more CAN frames every N milliseconds.
+When transmition of these frames stops or is out of spec, this can indicate a failure in the target device.
+
+The CAN frames being sent can share the same driver and channel as the fuzzing, or use a different driver/channel.
+
+=== Parameters
+
+_Required:_
+
+CanDriver:: Driver to use. Defaults to 'Vector XL'.
+CanChannel:: Channel number
+CanBitrate:: Set the bitrate for CAN packet reception (default 500,000)
+Id:: CAN Frame ID field in hex to expect
+Window::
+Reception window (how often frame should be received) in milliseconds.
+If frame with `Id` is not received in this window of time, a fault will be raised.
+
+_Optional:_
+
+///////////////////////////////
+When::
+Specify one of the following values to determine when a CAN frame should be sent (defaults to `OnStart`):
++
+[cols="1,2" options="header",halign="center"]
+|==========================================================
+|"When" Setting              |Description
+|DetectFault                 |
+Start receiving when checking for a fault.
+This occurs after OnIterationEnd.
+|OnStart                     |
+Start receiving when the fuzzing session starts.
+This occurs once per session.
+|OnEnd                       |
+Start receiving when the fuzzing session stops.
+This occurs once per session.
+|OnIterationStart            |
+Start receiving at the start of each iteration.
+|OnIterationEnd              |
+Start receiving at the end of each iteration.
+|OnFault                     |
+Start receiving when any monitor detects a fault.
+This is the default setting.
+|OnIterationStartAfterFault  |
+Start receiving at the start of an iteration that immediately follows a fault detection.
+|OnCall                      |
+Start receiving when the call specified by the 'StartOnCall' parameter is received from the state model.
+|==========================================================
++
+.When Choices for Performing an Action
+image::{images}/Common/Monitors/Timings_SSH.png[scalewidth="75%"]
+
+StartOnCall::
+Start receiving when the specified event is received from the state model.
+This value is used only when the 'When' parameter is set to `OnCall`.
+///////////////////////////////
+
+=== Examples
+
+ifdef::peachug[]
+
+.Expect frame every half second +
+
+==============================
+This parameter example is from a setup that uses the CAN Timing Monitor
+to fault if a specific CAN frame is not received every half second.
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+| CanDriver   | `Vector XL`
+| CanChannel  | `1`
+| CanBitrate  | (default)
+| Id          | `0x07DC`
+| Window      | `500`
+// | When        | (default)
+// | StartOnCall | (default)
+|==========================================================
+
+==============================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+.Expect frame every half second +
+
+==============================
+This parameter example is from a setup that uses the CAN Timing Monitor
+to fault if a specific CAN frame is not received every half second.
+
+[source,xml]
+----
+include::CanTiming_Example.xml[]
+----
+
+Output from this example.
+
+----
+include::CanTiming_Example.log[]
+----
+==============================
+
+endif::peachug[]

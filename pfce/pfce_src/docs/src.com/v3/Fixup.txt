@@ -1,0 +1,32 @@
+:toc!:
+== Fixups
+
+Fixups are code functions that typically operate on another elements data to produce a value.  An example of this would be checksum algorithms.
+
+=== Fixups
+
+The following fixups come with Peach by default.
+
+_Utility Fixups_
+
+ * link:Fixups/CopyValueFixup.html[CopyValueFixup]
+ * link:Fixups/SequenceIncrementFixup.html[SequenceIncrementFixup]
+ * link:Fixups/SequenceRandomFixup.html[SequenceRandomFixup]
+
+_Checksum Fixups_
+
+ * link:Fixups/Crc32DualFixup.html[Crc32DualFixup]
+ * link:Fixups/Crc32Fixup.html[Crc32Fixup]
+ * link:Fixups/EthernetChecksumFixup.html[EthernetChecksumFixup]
+ * link:Fixups/ExpressionFixup.html[ExpressionFixup]
+ * link:Fixups/IcmpChecksumFixup.html[IcmpChecksumFixup]
+ * link:Fixups/LRCFixup.html[LRCFixup]
+
+_Hashing Fixups_
+
+ * link:Fixups/MD5Fixup.html[MD5Fixup]
+ * link:Fixups/SHA1Fixup.html[SHA1Fixup]
+ * link:Fixups/SHA224Fixup.html[SHA224Fixup]
+ * link:Fixups/SHA256Fixup.html[SHA256Fixup]
+ * link:Fixups/SHA384Fixup.html[SHA384Fixup]
+ * link:Fixups/SHA512Fixup.html[SHA512Fixup]

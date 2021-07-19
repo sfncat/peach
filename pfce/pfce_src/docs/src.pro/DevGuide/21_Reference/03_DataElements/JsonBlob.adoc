@@ -1,0 +1,146 @@
+[[JsonBlob]]
+== JsonBlob
+
+A JsonBlob footnote:[Blob stands for "binary large object" a term used by databases to represent a column of binary data.] is used to represent binary JSON data (array of bytes).
+JsonBlobs are base64 encoded.
+
+By definition, the internal contents of a JsonBlob is unknown.
+Consequently, Blobs are dumb fuzzed, as the list of applicable mutators below indicates.
+
+=== Syntax
+
+[source,xml]
+----
+<JsonObject>
+    <JsonBlob propertyName="image" valueType="hex" value="01 06 22 03" />
+</JsonObject>
+
+<JsonBlob valueType="hex" value="01 06 22 03" />
+----
+
+=== Attributes
+
+_Required:_
+
+There are no required attributes.
+
+_Optional:_
+
+xref:name[name]:: Element name
+isNull::
+    Is this elements value null. JSON output will be +null+ instead of value.
+type:: Type controls the output encoding allowing both traditional json and also binary json (bson). Supported values: 'json' or 'bson'. Defaults to 'json'.
+
+xref:value[value]:: Default value.
+xref:valueType[valueType]:: Format of value attribute.
+xref:mutable[mutable]::
+	Is the blob changeable (should it be fuzzed). Defaults to true.
+xref:token[token]::
+	This element should be treated as a token when parsing. Defaults to false.
+
+=== Child Elements
+
+xref:Analyzers[Analyzer]:: Analyzes current element post cracking, can dynamically change model.
+xref:Fixup[Fixup]:: Performs dynamic transformations such as checksums and CRCs.
+xref:Hint[Hint]:: Provides information to mutators.
+xref:Placement[Placement]:: Relocates an element after it has been cracked.
+xref:Transformer[Transformer]:: Performs static transformations such as compression or encoding.
+
+=== Mutators
+
+The following mutators operate on this element type.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator combines data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator causes the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator causes the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator changes both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator changes both sides of the relation (data and value) to match numerical variances of the current size.
+
+_Specific to this element type_
+
+xref:Mutators_BlobChangeFromNull[BlobChangeFromNull]:: This mutator produces test cases in which null bytes in a xref:Blob[Blob] element are changed to a non-null value.
+xref:Mutators_BlobChangeRandom[BlobChangeRandom]:: This mutator produces test cases by changing random selections of bytes to random value.
+xref:Mutators_BlobChangeSpecial[BlobChangeSpecial]:: This mutator produces test cases by changing random selections of bytes to one of 0x00, 0x01, 0xFE, 0xFF.
+xref:Mutators_BlobChangeToNull[BlobChangeToNull]:: This mutator produces test cases by changing a random number of bytes to 0x00.
+xref:Mutators_BlobExpandSingleIncrementing[BlobExpandSingleIncrementing]:: This mutator produces test cases by expanding the size of the blob using incrementing values.
+xref:Mutators_BlobExpandAllRandom[BlobExpandAllRandom]:: This mutator produces test cases by expanding the size of the blob using random values.
+xref:Mutators_BlobExpandSingleRandom[BlobExpandSingleRandom]:: This mutator produces test cases by expanding the size of the blob using a single random byte (repeated as needed).
+xref:Mutators_BlobExpandZero[BlobExpandZero]:: This mutator produces test cases by expanding the blob using null values.
+xref:Mutators_BlobReduce[BlobReduce]:: This mutator produces test cases by reducing the size of the blob by a random amount.
+xref:Mutators_ExtraValues[ExtraValues]:: This mutator allows providing extra test case values on a per-data element basis.
+
+
+[[JsonBlob_Examples]]
+=== Examples
+
+.Defining a JsonBlob with a default value
+==========================
+A JsonBlob with a default value. Providing a default value does not set a fixed length unless the token="true" attribute is used.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="Ex1">
+    <JsonObject>
+        <JsonBlob propertyName="rawData" valueType="hex" value="AA BB CC DD" />
+    </JsonObject>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output">
+        <DataModel ref="Ex1" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+
+[*] Web site running at: http://10.0.1.57:8888/
+
+[*] Test 'Default' starting with random seed 4555.
+Peach.Pro.Core.Loggers.JobLogger Writing debug.log to: c:\peach\Logs\example.xml_20160223173145\debug.log
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.StateModel Run(): Changing to state "initial".
+Peach.Core.Dom.Action Run(Action): Output
+Peach.Pro.Core.Publishers.ConsolePublisher start()
+Peach.Pro.Core.Publishers.ConsolePublisher open()
+Peach.Pro.Core.Publishers.ConsolePublisher output(22 bytes)
+00000000   7B 22 72 61 77 44 61 74  61 22 3A 22 71 72 76 4D   {"rawData":"qrvM
+00000010   33 51 3D 3D 22 7D                                  3Q=="}
+Peach.Pro.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Pro.Core.Publishers.ConsolePublisher stop()
+Peach.Core.Engine EndTest: Stopping all agents and monitors
+
+[*] Test 'Default' finished.
+----
+
+==========================
+
+// end

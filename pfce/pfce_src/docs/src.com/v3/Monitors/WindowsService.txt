@@ -1,0 +1,24 @@
+:toc!:
+== WindowsService Monitor (Windows)
+
+The _WindowsService_ monitor controls a windows service
+
+=== Parameters
+
+ * _Service_ -- The name that identifies the service to the system. This can also be the display name for the service.
+ * _MachineName_ -- The computer on which the service resides. (optional, defaults to local machine)
+ * _FaultOnEarlyExit_ -- Fault if service exists early. (optional, defaults to false)
+ * _Restart_ -- Name of Windows Service to attach to.  Service will be started if stopped or crashes.
+ * _StartTimeout_ -- Name of Windows Service to attach to.  Service will be started if stopped or crashes.
+
+=== Examples
+
+.Start IIS
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="WindowsService">
+		<Param name="Service" value="World Wide Web Publishing Service" />
+	</Monitor>
+</Agent>
+----

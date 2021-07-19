@@ -1,0 +1,88 @@
+<<<
+[[Publishers_TcpListener]]
+== TcpListener Publisher
+
+// Reviewed:
+//  - 02/13/2014: Seth & Adam: Outlined
+// Params are good
+// give full pit to run for example
+
+The _TcpListener_ publisher is able to listen for incoming connections on a TCP port.
+
+Since it is easy to confuse _Tcp_ Client and _TcpListener_, here's the difference:
+
+* The _Tcp_ Client Publisher connects out(ward)
+* The _TcpListener_ Publisher listens to (inward) connections
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="TcpListener">
+    <Param name="Interface" value="127.0.0.1" />
+    <Param name="Port" value="8080" />
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Interface:: IP of interface to bind to
+Port:: Destination port number
+
+_Optional:_
+
+Timeout:: How long to wait in milliseconds for data once a connection has been established. Defaults to 3,000.
+AcceptTimeout:: How long to wait in milliseconds for a new connection. Defaults to 3,000.
+
+=== Actions
+
+xref:Action_accept[accept]:: Wait for incoming connection
+xref:Action_output[output]:: Send data to remote host
+xref:Action_input[input]:: Receive data from remote host
+
+=== Examples
+
+.Sending and receiving data
+===========================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <String name="value" length="4" />
+  </DataModel>
+
+  <StateModel name="TheState" initialState="Initial">
+    <State name="Initial">
+      <Action type="accept" />
+      <Action type="output">
+        <DataModel ref="TheDataModel"/>
+        <Data>
+          <Field name="value" value="mike" />
+        </Data>
+      </Action>
+
+      <!-- receive 4 bytes -->
+      <Action type="input">
+        <DataModel ref="TheDataModel"/>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Agent name="TheAgent"/>
+
+  <Test name="Default">
+    <Agent ref="TheAgent"/>
+    <StateModel ref="TheState"/>
+    <Publisher class="TcpListener">
+      <Param name="Interface" value="127.0.0.1" />
+      <Param name="Port" value="8080" />
+    </Publisher>
+  </Test>
+</Peach>
+----
+===========================

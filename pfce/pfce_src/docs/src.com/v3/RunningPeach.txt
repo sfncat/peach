@@ -1,0 +1,32 @@
+:toc!:
+== Running Peach ==
+
+Peach 3 is a fuzzer comprised of a command line runtime and a number of tools and GUIs.
+
+=== Command Line ===
+
+.Command Line Syntax Help
+----
+peach.exe
+----
+
+.Command Line Syntax Help, Non-Windows
+----
+./peach
+----
+
+.Starting Agent Process (TcpRemoting)
+----
+peach.exe -a tcp
+----
+
+=== Graphical Programs ===
+
+==== Peach Fuzz Bang ====
+
+Peach Fuzz Bang is a GUI file fuzzing tool.  This tool is cross-platform and allows for quickly fuzzing data consumers.
+
+==== Peach Validator ====
+
+Peach Validator is a GUI program used to visual validate the loading of data into a data model.
+

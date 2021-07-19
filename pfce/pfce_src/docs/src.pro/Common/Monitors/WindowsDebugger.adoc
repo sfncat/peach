@@ -1,0 +1,277 @@
+<<<
+[[Monitors_WindowsDebugger]]
+== WindowsDebugger Monitor (Windows)
+
+*Monitor Categories*: *Automation*, *Data collection*, *Fault detection*
+
+The _WindowsDebugger_ monitor controls a windows debugger instance.
+
+This monitor launches an executable file, a process, or a service with the debugger
+attached; or, this monitor can attach the debugger to a running executable,
+process, or service.
+
+The _WindowsDebugger_ performs automation, fault detection, and data collection.
+
+* Automation manages when the fuzzing target (process, service, etc) starts and restarts. This can occur
+at the start of a fuzzing session, at the start of each iteration, after detecting a fault,
+or upon receiving a call from the state model.
+* Fault detection watches and reports crashes and faults--when the target exits prematurely,
+and when the target fails to exit.
+* Data collection retrieves stack traces, logs, and other information provided by the debugger.
+Note that this monitor provides bucket information--major and minor hash values--as part of
+data collected on faults. For more information on bucketing provided by this monitor, see http://msecdbg.codeplex.com/[!exploitable].
+
+=== Parameters
+
+_Exactly one of the three required parameters is needed for each instance of this monitor.
+The other two required parameters are not used._
+
+Executable:: Executable to launch via the debugger. If the executable has command-line arguments,  specify these in the "Arguments" parameter.
+ProcessName:: Name of the process that the debugger attaches.
+Service:: Name of the Windows process or service to  attach to the debugger. If the service
+crashes or is stopped, this monitor will restart the service.
+
+_Optional:_
+
+Arguments:: Command-line arguments for the executable file specified with the "Executable" parameter.
+
+SymbolsPath:: Path to the debugging symbol files. The default value is Microsoft public
+symbols server,SRV*http://msdl.microsoft.com/download/symbols.
+
+WinDbgPath:: Path to the Windows Debugger installation. If undeclared, Peach attempts to locate a local installation of the debugger.
+
+StartOnCall:: Defers launching the target until the state model issues a call to the monitor
+to begin. Upon receiving the call, the debugger attaches to the process, or starts the process
+or executable.
+
+IgnoreFirstChanceGuardPage:: Ignores faults from the first chance guard page. These faults
+are sometimes false positives or anti-debugging faults, defaults to false.
+
+IgnoreSecondChanceGuardPage:: Ignores faults from the second chance guard page. These faults
+are sometimes false positives or anti-debugging faults, defaults to false.
+
+IgnoreFirstChanceReadAv:: Ignores faults from the first chance read access violations. These faults
+are sometimes false positives, defaults to false.  Whem monitoring a Java process,
+it is recommended to set this parameter to true.
+
+NoCpuKill:: Allows or disallows the CPU to idle. If true, the CPU can idle without terminating
+the target. If false, Peach polls and then terminates the target if it is caught idling. The
+default value is false.
+
+CpuPollInterval:: Specifies the time interval, expressed in milliseconds (ms), that the monitor
+waits between successive polls of the target. This argument is used when NoCpuKill is false.
+The default value is 200 ms.
+
+FaultOnEarlyExit:: Triggers a fault if the target exits prematurely, defaults to false.
+
+RestartAfterFault:: If "true", restarts the target when any monitor detects a fault.
+If "false", restarts the target only if the process exits or crashes. +
+This argument defaults to true.
+
+RestartOnEachTest:: Restarts the process for each iteration, defaults to false.
+
+ServiceStartTimeout:: When debugging a windows service, this specifies how long the
+monitor should wait for the service to start. The default value is 60 seconds.
+
+WaitForExitOnCall:: Exits the target upon receiving a call from the state model. If the
+call fails to occur within an acceptable  waiting period, issue a fault and then exit. The
+WaitForExitTimeout parameter specifies the waiting period.
+
+WaitForExitTimeout:: Specifies the WaitForExitOnCall timeout value, expressed in milliseconds,
+defaults to 10000 ms (10 sec). The value -1 specifies an infinite waiting period.
+
+
+=== Examples
+
+ifdef::peachug[]
+
+.Command Line Configuration +
+
+This parameter example is from a setup that launches an application with command-line arguments from the Windows Debugger. The setup also supplies the path where the Windows Debugger resides.
+
+==========================
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Executable   |`CrashableServer.exe`
+|Arguments    |`127.0.0.1 4244`
+|WinDbgPath   |`C:\Program Files (x86)\Debugging Tools for Windows (x86)`
+
+|==========================================================
+
+==========================
+
+.Service Configuration +
+
+This parameter example attaches the debugger to a service.
+
+==========================
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter  |Value
+|Service    |`WinDefend`
+|==========================================================
+
+==========================
+
+.Process Configuration +
+
+This parameter example attaches the debugger to a process name.
+
+==========================
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|ProcessName  |`CrashableServer.exe`
+|==========================================================
+
+==========================
+
+.StartOnCall Configuration  +
+
+This parameter example uses the debugger to launch an application with command-line arguments. Further, the launch starts after the monitor receives a call request from the state model to initiate the launch.
+
+==========================
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter    |Value
+|Executable   |`CrashableServer.exe`
+|Arguments    |`127.0.0.1 4244`
+|StartOnCall  |`launchProgram`
+|==========================================================
+
+==========================
+
+.Exit Configurations  +
+
+This parameter example uses the debugger to launch an application with command-line arguments. Further, the monitor polls the application for idleness, and terminates the application if it finds an idle CPU. At the end of each iteration, Peach waits a maximum of 250ms for the application to close of its own accord before terminating the application.
+
+==========================
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter           |Value
+|Executable          |`CrashableServer.exe`
+|Arguments           |`127.0.0.1 4244`
+|NoCpuKill           |`true`
+|FaultOnEarlyExit    |`false`
+|WaitForExitTimeout  |`250`
+|==========================================================
+
+==========================
+
+.WaitForExitOnCall Configuration  +
+
+This parameter example uses the debugger to launch an application with command-line arguments. Further, the monitor defers closing the application until receiving the notice from the state model.
+
+==========================
+
+[cols="2,4" options="header",halign="center"]
+|==========================================================
+|Parameter          |Value
+|Executable         |`CrashableServer.exe`
+|Arguments          |`127.0.0.1 4244`
+|WaitForExitOnCall  |`exitProgram`
+|==========================================================
+
+==========================
+
+endif::peachug[]
+
+
+ifndef::peachug[]
+
+
+.Command Line Configuration
+==========================
+[source,xml]
+----
+<Agent name="Local">
+	<Monitor class="WindowsDebugger">
+		<Param name="Executable" value="CrashableServer.exe" />
+		<Param name="Arguments" value="127.0.0.1 4244" />
+		<!--<Param name="WinDbgPath" value="C:\Program Files (x86)\Debugging Tools for Windows (x86)" />-->
+	</Monitor>
+</Agent>
+----
+==========================
+
+.Service Configuration
+==========================
+[source,xml]
+----
+<Param name="Service" value="WinDefend" />
+----
+==========================
+
+.Process Configuration
+==========================
+[source,xml]
+----
+<Param name="ProcessName" value="CrashableServer.exe" />
+----
+==========================
+
+.StartOnCall Configuration
+==========================
+[source,xml]
+----
+<StateModel name="TheState" initialState="initial">
+    <State name="initial">
+        <Action type="call" method="launchProgram" publisher="Peach.Agent"/>
+    </State>
+</StateModel>
+
+
+<Agent name="Local">
+    <Monitor class="WindowsDebugger">
+        <Param name="Executable" value="CrashableServer.exe"/>
+        <Param name="Arguments" value="127.0.0.1 4244"/>
+        <Param name="StartOnCall" value="launchProgram"/>
+    </Monitor>
+</Agent>
+----
+==========================
+
+.Exit Configurations
+==========================
+[source,xml]
+----
+<Agent name="Local">
+    <Monitor class="WindowsDebugger">
+        <Param name="Executable" value="CrashableServer.exe"/>
+        <Param name="Arguments" value="127.0.0.1 4244"/>
+        <Param name="NoCpuKill" value="true"/>
+        <Param name="FaultOnEarlyExit" value="false"/>
+        <Param name="WaitForExitTimeout" value="250"/>
+    </Monitor>
+</Agent>
+----
+==========================
+
+.WaitForExitOnCall Configuration
+==========================
+[source,xml]
+----
+<StateModel name="TheState" initialState="initial">
+    <State name="initial">
+        <Action type="call" method="exitProgram" publisher="Peach.Agent"/>
+    </State>
+</StateModel>
+
+
+<Agent name="Local">
+    <Monitor class="WindowsDebugger">
+        <Param name="Executable" value="CrashableServer.exe"/>
+        <Param name="Arguments" value="127.0.0.1 4244"/>
+        <Param name="WaitForExitOnCall" value="exitProgram"/>
+    </Monitor>
+</Agent>
+----
+==========================
+
+endif::peachug[]

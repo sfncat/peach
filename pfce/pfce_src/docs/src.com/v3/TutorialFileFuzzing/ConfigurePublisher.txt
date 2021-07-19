@@ -1,0 +1,43 @@
+:toc!:
+link:CreateStateModel.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:AgentAndMonitor.html[Next >>]
+
+''''
+
+== Configure Publisher ==
+
+The last thing we need todo before we can try out our nifty fuzzer is to configure a link:../Publisher.html[Publisher].
+link:../Publisher.html[Publisher]s are I/O connectors that implement the plumbing between actions like _output_, _input_, and _call_.
+For our file fuzzer we will use the link:../Publisher.html[Publisher] called link:../File.html[File].
+This publisher will allow us to write out a file and then launch a process using the _call_ action like we setup in last section.
+
+Configuring our publisher is easy, just locate the following XML near the bottom of the +wav.xml+ file,
+it will be a child of link:../Test.html[Test].
+
+[source,xml]
+----
+<!-- TODO: Complete publisher -->
+<Publisher />
+----
+
+
+Now, this publisher takes a single parameter called _FileName_ that will contain the file name of the fuzzed file.
+This should be the same as the file name we specified in the _call_ action (+fuzzed.wav+).
+
+[source,xml]
+----
+<Publisher class="File">
+    <Param name="FileName" value="fuzzed.wav"/>
+</Publisher>
+----
+
+
+
+== Whats Next? ==
+
+Now we need a way to detect when our target crashes and also run our target.
+We will also want to collect some information like a stack trace to look at later on.
+Head to the next section to learn how to configure an agent and monitor.
+
+''''
+
+link:CreateStateModel.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:AgentAndMonitor.html[Next >>]

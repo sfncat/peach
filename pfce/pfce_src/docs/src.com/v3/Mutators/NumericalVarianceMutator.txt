@@ -1,0 +1,15 @@
+:toc!:
+== NumericalVarianceMutator ==
+
+This mutator will produce values of default - N through default + N where N defaults to 50 but is controllable via a hint.  For example, if the default value of a Number field is 200, by default this mutator will produce all the values between 150 and 250.
+
+_Target Elements_
+
+ * link:../Number.html[Number]
+ * link:../Flag.html[Flag]
+ * link:../String.html[String]
+
+_Hints_
+
+ * NumericalVarianceMutator-N -- Change the default +/- of 50 to a specified amount.
+ * NumericalString -- Allows strings to be picked up and mutated by this mutator. 

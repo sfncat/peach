@@ -1,0 +1,109 @@
+:toc!:
+== Choice ==
+
+The Choice element is a child element of link:DataModel.html[DataModel] or link:Block.html[Block].  Choice elements are used to indicate any of the sub-elements are valid, but only one should be selected.  Much like a switch statement in programming languages.
+
+[source,xml]
+----
+<Choice name="ChoiceBlock">
+  <Block name="Type1">
+    <!-- ... -->
+  </Block>
+  <Block name="Type2">
+    <!-- ... -->
+  </Block>
+  <Block name="Type3">
+    <!-- ... -->
+  </Block>
+</Choice>
+----
+
+
+=== Attributes: ===
+
+All attributes are optional unless noted.
+
+ * link:name.html[name]           -- Name of the choice section.
+ * link:minOccurs.html[minOccurs] -- The minimum number of times this choice must occur. 
+ * link:maxOccurs.html[maxOccurs] -- The maximum number of times this choice can occur. 
+ * link:occurs.html[occurs]       -- The number of times this choice can occur.
+
+=== Valid Child-Elements: ===
+
+ * link:Block.html[Block]
+ * link:Choice.html[Choice]
+ * link:String.html[String]
+ * link:Number.html[Number]
+ * link:Blob.html[Blob]
+ * link:Flags.html[Flags]
+ * link:Fixup.html[Fixup]
+ * link:Transformer.html[Transformer]
+ * link:XmlAttribute.html[XmlAttribute]
+ * link:XmlElement.html[XmlElement]
+
+
+=== Examples: ===
+
+A basic Choice block. This choice example will crack or consume data of type 1,2,3. Much like a regular switch statement a decision needs to be made on a token. 
+
+If the first 8 bits are 1 then the remaining data is treated as a 32 bit number. 
+If the first 8 bits are 2 then the remaining data is treated as a 255 bytes of binary data. 
+If the first 8 bits are 3 then the remaining data is treated as a 8 byte string. 
+
+When fuzzing Peach will chose one of the three types and fuzz its output as an 8bit number followed by the corresponding type. Peach will attempt to fill all three types.  
+
+[source,xml]
+----
+<DataModel name="ChoiceExample1">
+ <Choice name="Choice1">
+
+  <Block name="Type1">
+    <Number name="Str1" size="8" value="1" token="true" />
+    <Number size="32"/>
+  </Block>
+
+  <Block name="Type2">
+    <Number name="Str2" size="8" value="2" token="true" />
+    <Blob length="255" /> 
+  </Block>
+
+  <Block name="Type3">
+    <Number name="Str3" size="8" value="3" token="true" />
+    <String length="8" />
+  </Block>
+ </Choice>
+</DataModel>
+----
+
+
+
+==== An Array of Choices ====
+
+The first example is good for making a single choice but what if there are many Type1, Type2, and Type3 blocks all following each other? Set minOccurs, maxOccurs, or occurs to specify the choice should be repeated. 
+
+
+This example attempts to crack at least 3 different choices and no more than 6. 
+
+[source,xml]
+----
+<DataModel name="ChoiceExample1">
+ <Choice name="Choice1" minOccurs="3" maxOccurs="6">
+
+  <Block name="Type1">
+    <Number name="Str1" size="8" value="1" token="true" />
+    <Number size="32"/>
+  </Block>
+
+  <Block name="Type2">
+    <Number name="Str2" size="8" value="2" token="true" />
+    <Blob length="255" /> 
+  </Block>
+
+  <Block name="Type3">
+    <Number name="Str3" size="8" value="3" token="true" />
+    <String length="8" />
+  </Block>
+ </Choice>
+</DataModel>
+----
+

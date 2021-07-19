@@ -1,0 +1,445 @@
+<<<
+[[Block]]
+== Block
+
+// Reviewed:
+//  - 03/06/2014: Lynn
+//   Added and edited child elements
+
+// Reviewed: 
+// 04/09/2014: Lynn
+// Added String as a Child element
+
+_Blocks_ are container elements that group data elements in a logical structure. For example, a _string_ element, a _number_ element, and a _blob_ element can exist in the same _block_. _Blocks_ can contain other blocks, or nest, as deeply as needed.
+
+_Blocks_ and xref:DataModel[DataModels] are very similar; both can be used as the template for other Blocks or xref:DataModel[DataModels]. The only difference is the positioning of these elements.
+
+* A _DataModel_ is a top level element 
+* A _Block_ is a child element of xref:DataModel[DataModel] 
+
+=== Syntax
+
+[source,xml]
+----
+<Block name="HelloWorld">
+  <String value="Hello world!" />
+</Block>
+----
+
+=== Attributes
+
+_Required:_
+
+None.
+
+_Optional:_
+
+xref:name[name]:: Name of the block.
+xref:ref[ref]:: Reference to a xref:DataModel[DataModel] to use as a template.
+xref:length[length]:: Data element length.
+xref:lengthType[lengthType]:: The unit of measure attribute for the Length attribute. Default is bytes.
+xref:constraint[constraint]:: Scripting expression that evaluates to true or false. Default is null.
+xref:minOccurs[minOccurs]:: The minimum number of times this element must occur. Defaults to 1.  +
+	* Used to define arrays with variable size. Arrays defined by min/maxOccurs generally have a relation
+	defined.
+	* Adding this attribute, even with a value of 1, converts the element to an array.
+xref:maxOccurs[maxOccurs]:: The maximum number of times this element can occur. Defaults to 1.  +
+	* Used to define arrays with static size.
+	* Adding this attribute, even with a value of 1, converts the element to an array.
+xref:occurs[occurs]:: Actual occurrences of element. Defaults to 1.  +
+	* Used to define arrays with static size.
+	* Adding this attribute, even with a value of 1, converts the element to an array.
+xref:mutable[mutable]:: Is data element changeable (should it be mutated), defaults to false.
+
+=== Child Elements
+
+xref:Analyzers[Analyzer]:: Analyzes current element post cracking, can dynamically change model.
+xref:Blob[Blob]:: Represents binary data (array of bytes) to create simple dumb fuzzers in Peach.
+xref:Block[Block]:: Groups one or more data elements in a logical structure.
+xref:Choice[Choice]:: Indicates that all of the sub-elements are valid; but, only one sub-element should be selected.
+xref:Fixup[Fixup]:: Are dynamic transformations such as checksums and CRCs.
+xref:Flags[Flags]:: Defines a set of bit-sized flags.
+xref:Hint[Hint]:: Provides information to mutators.
+xref:Number[Number]:: Defines a binary number of arbitrary bit size.
+xref:Padding[Padding]:: Pads variably sized blocks or data models provide size uniformity or consistency.
+xref:Placement[Placement]:: Relocates an element after it has been cracked.
+xref:Stream[Stream]::  Groups one or more data elements in a logical structure.
+xref:String[String]:: Character sequence consisting of ASCII or Unicode characters.
+xref:Transformer[Transformer]:: Performs static transformations such as compression or encoding.
+xref:XmlElement[XmlElement]:: Defines an XML element, the basic building block of XML documents.
+
+=== Mutators
+
+The following mutators operate on this element type:
+
+
+_Enabled when element is marked as an array_
+
+xref:Mutators_ArrayNumericalEdgeCasesMutator[ArrayNumericalEdgeCasesMutator]:: This mutator grows and shrinks an array to counts based on numerical edge cases.
+xref:Mutators_ArrayRandomizeOrderMutator[ArrayRandomizeOrderMutator]:: This mutator randomizes the order of items in an array.
+xref:Mutators_ArrayReverseOrderMutator[ArrayReverseOrderMutator]:: This mutator reverses the order of items in an array.
+xref:Mutators_ArrayVarianceMutator[ArrayVarianceMutator]:: This mutator grows and shrinks an array to a variance of counts based on the current size.
+
+_Used for all data elements_
+
+xref:Mutators_DataElementBitFlipper[DataElementBitFlipper]:: This mutator produces test cases by flipping bits in the output value.
+xref:Mutators_DataElementDuplicate[DataElementDuplicate]:: This mutator duplicates data elements.
+xref:Mutators_DataElementRemove[DataElementRemove]:: This mutator removes data elements.
+xref:Mutators_DataElementSwapNear[DataElementSwapNear]:: This mutator swaps data elements.
+xref:Mutators_SampleNinjaMutator[SampleNinjaMutator]:: This mutator combines data elements from different data sets.
+
+_Enabled when element is part of a size relation_
+
+xref:Mutators_SizedDataEdgeCase[SizedDataEdgeCase]:: This mutator causes the data portion of a relation to be sized as numerical edge cases.
+xref:Mutators_SizedDataVariance[SizedDataVariance]:: This mutator causes the data portion of a relation to be sized as numerical variances.
+xref:Mutators_SizedEdgeCase[SizedEdgeCase]:: This mutator changes both sides of the relation (data and value) to match numerical edge cases.
+xref:Mutators_SizedVariance[SizedVariance]:: This mutator changes both sides of the relation (data and value) to match numerical variances of the current size.
+
+
+=== Examples
+
+.Empty Block
+==========================
+The simplest block is an empty block. This definition produces no output.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="BlockExample1">
+    <Block>
+    </Block>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output" publisher="ConsolePub">
+        <DataModel ref="BlockExample1" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" name="ConsolePub"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 59388.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(0 bytes)
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+
+----
+==========================
+
+.Nested Blocks
+==========================
+Blocks can be nested as deep as required. Blocks help create logical structure and do not change the data contained within.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="BlockExample2">
+    <Block>
+      <Block>
+        <Block>
+          <String value="1" />
+        </Block>
+
+        <Block>
+          <String value="2" />
+        </Block>
+
+        <String value="3" />
+      </Block>
+      <String value="4" />
+    </Block>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output" publisher="ConsolePub">
+        <DataModel ref="BlockExample2" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" name="ConsolePub"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 30169.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(4 bytes)
+00000000   31 32 33 34                                        1234
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================
+
+.Naming A Block
+==========================
+Assign blocks a friendly name to make them easier to understand and debug.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="BlockExample2">
+   <Block name="HeaderDef">
+    <String name="Header" />
+    <String name="Colon" value=":"/>
+    <String name="Val"/>
+   </Block>
+
+   <Block name="DataDef">
+     <Number name="Type"  size="8" value="4"/>
+     <Number name="Data" size="8" value="32"/>
+   </Block>
+ </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output" publisher="ConsolePub">
+        <DataModel ref="BlockExample2" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" name="ConsolePub"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 58326.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(3 bytes)
+00000000   3A 04 20                                           :?
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+==========================
+
+.Referencing A Block
+==========================
+A Block can use a reference definition from another container element to form its base definition. In this example, the Block _MyName_ gets its base definition from the DataModel named _OtherDataModel_. All child elements declared in _MyName_ become part of the block.
+
+NOTE: If a declared child element and a child element from the referenced contain have the same name, the definition of the declared child element is used. In other words, if a naming collision occurs, the declared child element definition overrides the definition from the referenced container element.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="OtherDataModel">
+   <String value="Hello World"/>
+  </DataModel>
+
+  <DataModel name="ThisDataModel">
+    <Block name="MyName" ref="OtherDataModel"/> <1>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output" publisher="ConsolePub">
+        <DataModel ref="ThisDataModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" name="ConsolePub"/>
+  </Test>
+</Peach>
+----
+
+The Block "MyName" is defined using the referenced block "OtherDataModel". When parsed, the resulting data structure will look like this. <1>
+
+[source,xml]
+----
+ <DataModel name="ThisDataModel">
+   <Block name="MyName">
+    <String value="Hello World"/>
+   </Block>
+ </DataModel>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 61348.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(11 bytes)
+00000000   48 65 6C 6C 6F 20 57 6F  72 6C 64                  Hello World
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Referencing allows for powerful templates to be built. This is a template for a Key: Value\r\n.
+
+[source,xml]
+----
+<DataModel name="Template">
+  <String name="Key" />
+  <String value=": " token="true" />
+  <String name="Value" />
+  <String value="\r\n" token="true" />
+</DataModel>
+----
+
+To use this template as a reference.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <DataModel name="Template">
+    <String name="Key" />
+    <String value=": " token="true" />
+    <String name="Value" />
+    <String value="\r\n" token="true" />
+  </DataModel>
+
+  <DataModel name="OtherModel">
+    <String value="Before Block\r\n" />
+
+    <Block name="Customized" ref="Template"> <1>
+      <String name="Key" value="Content-Length" />
+      <String name="Value" value="55"/>
+    </Block>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output" publisher="ConsolePub">
+        <DataModel ref="OtherModel" />
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" name="ConsolePub"/>
+  </Test>
+</Peach>
+----
+
+Output from this example.
+
+----
+>peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 64782.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.ConsolePublisher start()
+Peach.Core.Publishers.ConsolePublisher open()
+Peach.Core.Publishers.ConsolePublisher output(34 bytes)
+00000000   42 65 66 6F 72 65 20 42  6C 6F 63 6B 0D 0A 43 6F   Before Block??Co
+00000010   6E 74 65 6E 74 2D 4C 65  6E 67 74 68 3A 20 35 35   ntent-Length: 55
+00000020   0D 0A                                              ??
+Peach.Core.Publishers.ConsolePublisher close()
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.ConsolePublisher stop()
+
+[*] Test 'Default' finished.
+----
+
+Two key things happened here. When parsed, the Customized Block replaced its structure with the DataModel of Template, adding the string values of ":" and "\r\n".
+
+At the same time, the "Customized" block overwrote the values of the String elements for Key and Value, replacing them with "Content-Length" and 55. The final DataModel would be parsed as so. <1>
+
+[source,xml]
+----
+<DataModel name="OtherModel">
+  <String value="BeforeBlock" />
+
+  <Block name="Customized" ref="Template">
+    <String name="Key" value="Content-Length" />
+    <String value=": " token="true" />
+    <String name="Value" value="55" />
+    <String value="\r\n" token="true" />
+  </Block>
+</DataModel>
+----
+==========================

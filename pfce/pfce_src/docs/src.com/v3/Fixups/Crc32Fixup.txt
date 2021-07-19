@@ -1,0 +1,25 @@
+:toc!:
+== Crc32Fixup
+
+The _Crc32Fixup_ will produce a CRC-32 using data from a single element.
+
+=== Parameters
+
+ * _link:../ref.html[ref]_ -- Reference to element
+
+=== Examples
+
+[source,xml]
+----
+<Block name="Header">
+  <!-- .... -->
+
+  <Number size="32">
+    <Fixup class="Crc32Fixup">
+	  <Param name="ref" value="Data" />
+	</Fixup>
+  </Number>
+</Block>
+
+<Blob name="Data" />
+----

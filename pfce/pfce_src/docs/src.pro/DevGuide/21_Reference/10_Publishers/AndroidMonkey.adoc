@@ -1,0 +1,111 @@
+<<<
+[[Publishers_AndroidMonkey]]
+== AndroidMonkey Publisher
+
+// - 02/18/2014: Jordyn
+// Added full example
+// Added actions
+// Added parameters
+// Added Description
+
+The _AndroidMonkey_ publisher is used to communicate with both Android emulators and physicals devices. 
+
+_AndroidMonkey_ allows you to fuzz text inputs, screen touches and key presses. By using additional Android monitors, you can target specific Android applications for fuzzing and monitoring.
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="AndroidMonkey">
+    <Param name="DeviceMonitor" value="App"/>
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+One of the following parameters is required.
+
+DeviceSerial:: The serial of the device to fuzz.
+DeviceMonitor:: Android monitor to get device serial from.
+
+_Optional:_
+
+AdbPath:: Directory containing adb.
+ConnectTimeout:: Max seconds to wait for adb connection. Defaults to 5.
+CommandTimeout:: Max seconds to wait for adb command to complete. Defaults to 10.
+
+=== Actions
+
+xref:Action_start[start]:: Implicit Action to start the Publisher.
+xref:Action_stop[stop]:: Implicit Action to stop the Publisher.
+xref:Action_call[call]::
+	This publisher supports several methods that result in different user interactions occurring.  +
+	tap ;; Specify on an X,Y coordinate on the screen. Requires two parameters providing a numerical value for X and Y.
+	keyevent;; Send a key press to the target device. Requires a single string parameter. The parameter corresponds to the keyevent byte code used to for android key mapping. The entire list of android keyevent codes can be found http://developer.android.com/reference/android/view/KeyEvent.html[here].
+	text;; Enter in text into a text field. Requires a single parameter with the text to enter.
+
+=== Examples
+
+.Basic Usage Example
+=====================
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="TheDataModel">
+    <Number size='32' signed="false" value="31337" />
+  </DataModel>
+
+  <DataModel name="X">
+    <Number size='32' signed="false" value="230" />
+  </DataModel>
+
+  <DataModel name="Y">
+    <Number size='32' signed="false" value="150" />
+  </DataModel>
+
+  <StateModel name="State" initialState="Initial" >
+    <State name="Initial"  >
+      <Action type="call" method="OpenApplication" publisher="Peach.Agent"/>
+
+      <Action type="call" method="tap">
+        <Param>
+          <DataModel ref="X"/>
+        </Param>
+        <Param>
+          <DataModel ref="Y"/>
+        </Param>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Agent name="TheAgent">
+    <Monitor name="Emu" class="AndroidEmulator">
+      <Param name="Avd" value="unused" />
+      <Param name="EmulatorPath" value="C:\adt-bundle-windows-x86_64-20131030\sdk\tools"/>
+    </Monitor>
+
+    <Monitor name="App" class="Android">
+      <Param name="ApplicationName" value="com.android.development" />
+      <Param name="ActivityName" value=".BadBehaviorActivity" />
+      <Param name="AdbPath" value="C:\adt-bundle-windows-x86_64-20131030\sdk\platform-tools"/>
+      <Param name="StartOnCall" value="OpenApplication"/>
+      <Param name="DeviceMonitor" value="Emu" />
+    </Monitor>
+  </Agent>
+
+  <Test name="Default">
+    <StateModel ref="State"/>
+    <Agent ref="TheAgent" />
+
+    <Publisher class="AndroidMonkey">
+      <Param name="DeviceMonitor" value="App"/>
+    </Publisher>
+  </Test>
+</Peach>
+----
+=====================

@@ -1,0 +1,307 @@
+[[Recipe_WindowsNetServer]]
+=== Recipe: Monitoring a Windows Network Service
+
+This recipe describes the base setup needed to fuzz a Windows network service. The recipe is a model that you can follow exactly as is. Or, you can use the model as
+a starting point and augment the model for your specific situation. This recipe
+consists of the following parts:
+
+1. The workflow for the fuzzing session
+2. The Peach monitoring and agent components to use in configuring the fuzzing setup
+3. Configuration settings used to fuzz a sample service running this workflow
+
+IMPORTANT: Assumptions/Givens in this recipe are that a Pit is ready to use; Peach is ready to run; and any software module needed to perform the fuzzing job is installed.
+
+In this scenario, Peach runs on a host computer; the network server runs in a
+Virtual Machine (VM) on the host. With Peach running on the host, it controls the
+environment. If the network server crashes, the worst thing that happens is that
+the virtual machine has to restart. Peach recovers the data if the network
+server crashes.
+
+==== Workflow for the Fuzzing Session
+
+The workflow lists the task sequence that occurs when running the fuzzing session.
+The setup needed to implement the workflow follows in the next section. Start with
+defining the workflow, especially if you plan to embellish the recipe.
+
+Here is the workflow that Peach performs in fuzzing a Windows network service:
+
+1. Revert to a virtual machine snapshot.
+2. Wait for the machine to boot up.
+3. Launch the network service.
+4. Perform fuzzing. Create and run test cases.
+
+* Peach initiates contact with the server and sends packets of fuzzed data to the server.
+* Check for faults, such as crashes and access violations.
+
+5. When a fault occurs, do the following:
+
+.. Collect data surrounding the test case.
+.. Revert to the VM snapshot.
+.. Launch the network service.
+
+6. Loop to step 4 (resume fuzzing).
+
+==== Peach Components Needed in the Fuzzing Configuration
+
+Defining the Peach components divides in two parts: identifying the monitors to use in the configuration and identifying where to locate the specified monitors.
+
+===== Identifying Monitors
+
+This part of the recipe revisits each step of the workflow to identify the monitors needed to implement the configuration:
+
+1. Revert to a snapshot of a virtual machine.
++
+Peach needs to automate the test environment and remove human interaction during the fuzzing job. We place the service in a virtual machine (VM) because Peach can use a VM monitor to automatically start and reset the test environment when needed.
++
+The VM snapshot is taken while the guest OS and the Peach agent are running. Using such a snapshot avoids the wait time associated with booting up the virtual machine. Also, the same snapshot is used when Peach refreshes the test environment after a fault occurs.
++
+The monitor for the VM environment, xref:Monitors_Vmware[VMware] monitor, resides on the host machine.
+
+2. Wait for the machine to boot up.
++
+Peach waits for the VM snapshot to resume.
+
+3. Launch the network service.
++
+In Windows, Peach needs to explicitly launch the network service when PageHeap and the Windows debugger are used. The xref:Monitors_WindowsService[WindowsService] monitor manages the service on the remote machine with the test target.
+
+4. Perform fuzzing, checking for faults.
++
+Perform fault detection in the VM. The xref:Monitors_WindowsDebugger[WindowsDebugger] monitor watches the internals of the services and detects faults such as access violations and exceptions.
++
+The xref:Monitors_PageHeap[PageHeap] monitor complements the Windows debugger by enabling heap analysis in the debugger.
++
+Both monitors run on the remote machine with the test target.
+
+5. Collect data surrounding each fault as it happens.
++
+Peach sends and receives network packets to the service. When a fault occurs, the packets involved with the fault are interesting. Peach captures the packets using the xref:Monitors_NetworkCapture[NetworkCapture] monitor. This monitor resides on the local machine with Peach Fuzzer.
+
+6. Resume fuzzing.
++
+This step uses the VM monitor and VM snapshot from step 1 to refresh the test environment, and the WindowsService monitor from step 3 to start the network service in the refreshed environment. No additional monitors are needed for this step.
+
+===== Identifying Agents
+
+Peach offers two types of agents to manage monitors and I/O publishers: local and remote.
+
+* Local agents reside inside Peach. +
+The local agent in this recipe addresses automation involving the VM and data collection
+that captures network packets. The local agent houses the xref:Monitors_Vmware[VMware]
+ and the xref:Monitors_NetworkCapture[NetworkCapture] monitors.
++
+The VMware monitor starts a snapshot VM environment at the beginning of the fuzzing job,
+as well as restarting the same VM snapshot after a fault occurs.
+
+* Remote agents reside in separate processes on remote machines with the test targets. +
+In this case, the remote agent and the Windows service reside on the same machine.
++
+The remote agent houses the xref:Monitors_WindowsService[WindowsService], the xref:Monitors_PageHeap[PageHeap], and the xref:Monitors_WindowsDebugger[WindowsDebugger] monitors.
+
+** The xref:Monitors_WindowsService[WindowsService] monitor starts the network service at the beginning of the fuzzing job and restarts the service in the refreshed environment after a fault.
+** The xref:Monitors_PageHeap[PageHeap] monitor manages registry settings at the beginning and the end of a fuzzing session, that in turn enables heap memory analysis by the debugger.
+** The xref:Monitors_WindowsDebugger[WindowsDebugger] monitor detects faults that occur in the service.
+
+The result is that we end up with the following configuration:
+
+image::{images}/UserGuide/Recipes/VM_Remote_Agent.png[scale="50"]
+
+Peach is located on one machine with a local agent that houses the VM monitor and the Network capture monitor. A second agent resides on the remote machine with the service. The remote agent houses the PageHeap, the WindowsDebugger, and the WindowsService monitors.
+
+The local agent is simple to implement. All that's needed is to define the agent, then specify the appropriate monitors and monitor settings used with the local agent.
+
+The remote monitor is a little more involved. Like the local agent, the remote agent needs to be defined, then specify the appropriate monitors and monitor settings used with the remote agent. Second, the remote agent needs to run on the same OS as the test target. This step can be done separately from specifying the configuration details. In this recipe, a VM snapshot is used. See the appendix, Using Virtual Machines, for information on setting up the VM snapshot.
+
+==== Sample Windows Service Configuration
+
+This section shows the recipe implemented for a Windows network service and consists of the following items:
+
+* Setup on the Target VM Image
+* Settings for the service on the Windows VM
+* Pit variables
+* Peach agents
+* Peach monitors
+* Configuration Test
+
+===== Setup on the Target VM Image
+
+Perform the following items on the VM before taking a snapshot of the VM.
+
+1.	Run the Peach agent from a command processor with administrative access. +
+Within the command processor, navigate to the peach folder and execute the following command: +
+`peach -a tcp` +
+When Peach starts the VM, the Peach agent is running in a root shell. +
+
+===== Windows Service Setup
+
+The sample configuration uses a Windows network service as the fuzzing target. Some services are included with Windows; but, might be turned off. Other services are either custom or available on the Web.
+
+Use the following steps to ensure a service is ready for use:
+
+1. From the Windows Start button, right-click “Computer”, then select “Manage” from the shortcut menu.
+2. Expand the “Services and Applications” entry in the Computer Management pane.
+3. Double-click “Services”.
+4. Search for the Service you are targeting.
+5. If the status is not “Stopped”, right-click the service name and choose “Stop”.
+
+Some properties of the service need to be configured to use the service. Right click on the Service entry to display its properties and adjust the necessary settings in the dialog.
+
+The following action is performed on the local system.
+
+* Allow access to run the service through the firewall on the local system.
+
+===== Pit Variables
+
+The following UI display identifies data values typically needed by a network
+protocol Pit. The variables and values are independent of the monitors used in
+the configuration. Pit variables are unique to the Pit and might differ with those
+in the example illustration.
+
+image::{images}/UserGuide/Recipes/WindowsNetService_PitVars.png[scale="50"]
+
+The Pit User Guides describe the Pit-specific variables.
+
+Community String (Authentication):: Community string used for authentication by the network server. Check the network service documentation for consistency of this value. If needed, change the value here to coincide with the value expected by the test target.
+
+Source Port:: Port number of the local machine that sends packets to the server. Several services use well-known ports that usually can be left unedited.
+
+Target IPv4 Address:: IPv4 address of the target machine (server). For information on obtaining the IPv4 address, see Retrieving Machine Information in the Pit documentation.
+
+Target Port:: Port number of the server that receives packets. Several services use well-known ports that usually can be left unedited.
+
+Timeout:: Duration, in milliseconds, to wait for incoming data. During fuzzing, a timeout failure causes the fuzzer to skip to the next test case.
+
+===== Agents
+
+The following UI diagram acts as an overview, showing the Peach agents and the monitors within each agent. Peach uses the ordering within the agent to determine the order in which to load and run monitors.
+
+image::{images}/UserGuide/Recipes/WindowsNetService_Agents.png[scale="50"]
+
+The local agent is defined first and lists the default information for both name and location. This definition for a local agent is typical and, otherwise, unremarkable. The monitor list includes the NetworkCapture and the Vmware monitors that are independent of each other.
+
+The remote agent, named "Remote", has quite a different location specification. The location consists of concatenated pieces of information:
+
+* Channel. The channel for a remote agent is `tcp`. A colon and two forward slashes separate the channel from the IPv4 address of the hardware interface.
+* IPv4 address. The IPv4 address of the agent is the second component of the location. Use `ipconfig -all` to  find this address of the remote machine.
+
+The monitor list within each agent is significant, as the monitors launch in sequence from top to bottom within an agent.
+
+NOTE: For first-time users, we recommend that you build incrementally to the final configuration by testing each monitor along the way. You can run the VM manually until you're ready to automate the environment.
+
+1.	Start with the local agent and the network capture monitor to capture network packets.
+2.	Add the remote agent and the WindowsService monitor.
+3.	Add the WindowsDebugger monitor to the remote agent.
+4.	Add the PageHeap monitor to the remote agent and reposition it atop the remote agent monitor list.
+5.	Add automation to the local agent using the Vmware monitor.
+
+===== Monitors
+
+This recipe uses five monitors, two on the machine with Peach and three on the remote machine. The recipe shows each monitor and describes its roles: fault detection, data collection, and automation.
+
+TIP: When specifying a backslash (\) in the Peach Web user interface, double them, as the parser treats the first \ as a meta character.
+
+====== NetworkCapture Monitor
+
+The xref:Monitors_NetworkCapture[Netowrk Capture Monitor (InterestingPackets)] monitor captures network packets when a fault occurs and stores them in the log for the test case that generates the fault.
+
+image::{images}/UserGuide/Recipes/WindowsNetService_NetworkCapture.png[scale="50"]
+
+The most signification parameters for the network capture monitor follow:
+
+Device:: Name of the interface on the local machine (the machine with Peach) used
+to communicate with the test target. Use `ipconfig –all` to identify the interface(s)
+available for use.
+
+[NOTE]
+=======
+You can find the appropriate host interface that communicates with the VM using the following steps:
+
+1. Collect a list of interfaces (and their IPv4 addresses) by running `ipconfig`.
+2. Test each interface in the list. Manually run a capture session with Wireshark using an interface from the list.
+3. On the host machine, Ping the target IPv4 (of the VM).
+4. If the correct interface of the host is used, you'll see the Ping request and reply packet exchanges through Wireshark,
+5. Loop to step 2 and repeat, using another interface.
+=======
+
+Filter:: The packet filter helps capture only those packets associated with the
+fuzzing session. The filter adheres to the syntax and requirements of the Pcap
+filter specification.
+
+TIP: WireShark refers to the Libpcap filters as capture filters. Use the capture filters in Peach. Wireshark also defines its own display filters that it uses to filter entries in its
+session files. The display filters are not compatible with Libpcap.
+
+====== Vmware (Windows virtual machine Automation)
+
+The xref:Monitors_Vmware[Vmware] monitor controls setting up and starting the virtual machine and uses the settings in the following illustration:
+
+image::{images}/UserGuide/Recipes/WindowsNetService_Vmware.png[scale="50"]
+
+The most significant parameters for the VMware monitor follow:
+
+Vmx:: Identifies the full path of the virtual machine image. Peach loads the
+snapshot of the VM image at the start of the fuzzing job and after a fault occurs.
+
+Headless:: Specifies whether the VM connects to a viewing window in the VMware
+window. When developing a configuration, set this parameter to false. When
+performing a fuzzing job, the setting doesn't matter.
+
+Host Type:: Specifies the VMWare product used in the configuration.
+
+Snapshot Name:: Identifies the snapshot to use for the specific image.
+
+===== PageHeap (Memory Heap Analyzer)
+
+The xref:Monitors_PageHeap[PageHeap] monitor enables the Windows Debugger to analyze heap memory allocations throughout the fuzzing session. This monitor manages the registry entries that govern heap monitoring. The monitor sets the entries at the beginning of the fuzzing session and clears them at the end of the session.
+
+NOTE: PageHeap requires administrative privileges to run correctly.
+
+The PageHeap monitor uses the settings in the following illustration:
+
+image::{images}/UserGuide/Recipes/WindowsNetService_PageHeap.png[scale="50"]
+
+The most significant parameters for the PageHeap monitor follow:
+
+Executable:: Name of the test target executable file. Provide the file name and
+extension. The path is not needed.
+
+Win Dbg Path:: Folder on the test target containing the Windows debugging tools.
+Use absolute path from the file system root to the folder.
+
+IMPORTANT: When using PageHeap with Windows services, run the PageHeap monitor when the service is stopped.
+
+===== WindowsService
+
+The xref:Monitors_WindowsService[WindowsService] monitor manages a Windows service. This monitor starts the network service at the start of the fuzzing job, and restarts the service when the VM is refreshed (after a fault). The monitor is housed by the remote agent.
+
+The WindowsService monitor uses the settings in the following illustration:
+
+image::{images}/UserGuide/Recipes/WindowsNetService_WinService.png[scale="50"]
+
+The most significant parameter for the WindowsService monitor is “Service” that
+specifies the name of the Windows service to monitor.
+
+===== WindowsDebugger
+
+The xref:Monitors_WindowsDebugger[WindowsDebugger] debugger monitor performs two major functions in this recipe:
+
+* Detects faults internal to the service.
+* Create log files when a faulting condition occurs.
+
+The WindowsDebugger monitor uses the settings in the following illustration:
+
+image::{images}/UserGuide/Recipes/WindowsNetService_WinDebugger.png[scale="50"]
+
+The most significant parameters for the WindowsDebugger monitor follow:
+
+Service:: Name of the test target service on the remote machine. Provide
+the service name given in the service properties.
+
+Win Dbg Path:: Folder on the test target containing the Windows debugging tools.
+Use absolute path from the file system root to the folder.
+
+===== Configuration Test
+
+Once the monitors and associated parameters are part of the configuration, you can test the configuration. From the Configuration menu along the left edge of the window, click on `Test` to run a single iteration (test case) on the configuration. Note that the test checks the connections and communications. It does NOT do any fuzzing.
+
+For more information on testing a configuration, see xref:Test_PitConfiguration[Test Pit Configuration].
+

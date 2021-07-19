@@ -1,0 +1,24 @@
+:toc!:
+== Publishers
+
+Publishers are the I/O connectors in Peach.  They connect actions in your state model with your target.  For example some common publishers are TCP, UDP, COM, etc.
+
+*Shipping Publishers*
+
+ * link:Com.html[Com]
+ * FileReader
+ * FileWriter
+ * FilePerIteration
+ * FileWriterLauncher
+ * FileWriterLauncherGui
+ * HttpBasicAuth
+ * HttpDigestAuth
+ * link:Command.html[Command]
+ * link:Raw.html[Raw]
+ * RemotePublisher
+ * link:Odbc.html[Odbc]
+ * link:Icmp.html[Icmp]
+ * link:Tcp.html[Tcp]
+ * link:Udp.html[Udp]
+ * link:Stdout.html[Stdout]
+ * link:Null.html[Null]

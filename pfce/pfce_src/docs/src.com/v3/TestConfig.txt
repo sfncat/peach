@@ -1,0 +1,11 @@
+:toc!:
+== Test Configuration ==
+
+ * link:Test.html[Test] - Configure a StateModel along with a combination of Publishers, Loggers, Agents, etc.
+ ** link:Publisher.html[Publishers] - I/O interface for interacting with the fuzzing target.
+ ** link:Logger.html[Loggers] - Method of collecting fuzzing information used to analyze Faults.
+
+''''
+
+ * link:MutationStrategies.html[MutationStrategies] - Strategy selected defining how to perform data mutations across fuzzing iterations
+ ** link:Mutators.html[Mutators] - Data mutation modules selected by Peach to malform data elements defined within the DataModel

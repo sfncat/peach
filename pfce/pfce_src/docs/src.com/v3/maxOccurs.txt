@@ -1,0 +1,22 @@
+:toc!:
+== Minimum Occurrence Attribute
+
+The occurrence attributes are used to define how often an element can occur.  The _maxOccurs_ attribute specifies the maximum number of times an element can occur.  The occurrence attributes _maxOccurs_ and link:minOccurs.html[minOccurs] can be combined to provide the occurrence range of an element.  Occurrence attributes are used when cracking and producing/mutating data. Internally Peach will treat this element as an array.
+
+Related attributes: link:minOccurs.html[minOccurs], link:occurs.html[occurs].
+
+=== Examples
+
+[source,xml]
+----
+<!-- Can occur a maximum of two times -->
+<Block name="OtherThings" maxOccurs="2">
+  <String name="A" value="A" />
+  <String name="B" value="B" />
+  <String name="C" value="C" />
+</Block>
+
+<!-- Can occur a maximum of 1000 times -->
+<String name="OptionalValue" maxOccurs="1000" />
+----
+

@@ -1,0 +1,231 @@
+== Scripting in Peach
+
+Peach provides a number of areas that expose scripting hooks. Python is the primary language used when scripting. Ruby is a second scripting language for Peach; however, support for Ruby is limited.
+
+The following sections describe how scripting works in Peach and common script uses.
+
+=== Python Scripting
+
+Peach supports Python scripts with  IronPython, the .NET framework implementation of Python 2.7. IronPython enables Peach to be flexible when creating fuzzers by allowing a small amount of code to be added to a pit when needed. The scripting engine within Peach has access to all DataModels, StateModels, and Tests.
+
+=== In-line Expressions vs. Importing External Files
+
+Scripting in Peach can be done either by using in-line expressions or importing a Python file into the Peach name space.
+
+Python functions can be imported into a pit and used for in-line expressions in the StateModel.
+
+.Importing the Python module random
+[source,xml]
+----
+  <Import import="random"/>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output" when="random.randrange(10) % 2 is 0">
+        <DataModel ref="DataModel" />
+      </Action>
+    </State>
+  </StateModel>
+----
+
+External Python files can be included into a pit so that predefined functions may be called.
+
+.Importing a Local Python File
+[source,xml]
+----
+  <PythonPath path="Path/To/PyFile"/>
+  <Import import="myPyFile" />
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output" onStart="myPyFile.myAwesomeFunc(self)">
+        <DataModel ref="DataModel" />
+      </Action>
+    </State>
+  </StateModel>
+----
+
+=== Importing External Files
+
+When importing Python files into the Peach name space, define both the xref:PythonPath[PythonPath] and the xref:Import[Import] elements. The _PythonPath_ element defines where to find the Python files. The _Import_ element specifies the file to import; the .py filename extension is not used in the declaration, as it is implied. Multiple files can be imported.
+
+[source,xml]
+----
+  <PythonPath path="Path/To/PyFile"/>
+  <Import import="myPyFile" /> <1>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <Action type="output" onStart="myPyFile.myAwesomeFunc(self)"> <2>
+        <DataModel ref="DataModel" />
+      </Action>
+    </State>
+  </StateModel>
+----
+<1> Notice that the .py extension is missing from the import attribute even though the file is saved on disk as myPyFile.py
+<2> Calling a function from the myPyFile name space.
+
+=== Scriptable Areas in Peach
+
+When fuzzing, Peach can run a script for a state or for an action. Further, the script can run at the beginning or at the end of the action or state. The xref:State_onStart[onStart] and  xref:State_onComplete[onComplete] attributes specify when the script runs. Include the attribute in the _Action_ or _State_ definition to associate the script with the _action_ or _state_. The most common script usages alter data or set a program into an expected state before or after fuzzing.
+
+You can control when an action executes with the evaluation expression 'xref:Action_when[when]'. The _when_ attribute allows the action to execute when the given expression evaluates to true. This attribute is very useful when state changes depend on received data.
+
+Other places  evaluation expressions occur in relations:
+
+* expressionSet/expressionGet attributes
+* xref:constraint[constraint] attribute used for cracking
+* xref:Fixups_ExpressionFixup[ExpressionFixup]
+* xref:valueType[valueType] literals
+* xref:Godel[Godel] state modeling
+
+.Example using onStart and onComplete
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach ../peach.xsd">
+
+  <Import import="time"/>
+
+  <DataModel name="Ex1">
+    <String name="TransformMe" value="supersupersecret" >
+      <Transformer class="Aes128">
+        <Param name="Key" value="ae1234567890aeaffeda214354647586"/>
+
+        <Param name="IV" value="aeaeaeaeaeaeaeaeaeaeaeaeaeaeaeae"/>
+      </Transformer>
+    </String>
+  </DataModel>
+
+  <StateModel name="TheState" initialState="initial">
+    <State name="initial">
+      <!-- Encrypted Output -->
+      <Action type="output" publisher="ConsolePub" onStart="time.sleep(2)"> <1>
+        <DataModel ref="Ex1" />
+      </Action>
+
+      <!-- Write Encrypted Output to File -->
+      <Action type="output" publisher="FilePubWrite" onComplete="time.sleep(2)"> <2>
+        <DataModel ref="Ex1" />
+      </Action>
+
+      <Action type="close" publisher="FilePubWrite" />
+
+      <!-- Read and decrypt encrypted file and slurp output to console -->
+      <Action type="input" publisher="FilePubRead" >
+        <DataModel name="InputModel" ref="Ex1" />
+      </Action>
+
+      <Action type="slurp" valueXpath="//InputModel//TransformMe" setXpath="//OutputModel//StringValue"/>
+
+      <Action type="output" publisher="ConsolePub">
+        <DataModel name="OutputModel">
+          <String name="StringValue" />
+        </DataModel>
+      </Action>
+    </State>
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheState"/>
+
+    <Publisher class="ConsoleHex" name="ConsolePub"/>
+
+    <Publisher class="File" name="FilePubWrite">
+      <Param name="FileName" value="encrypted.bin" />
+    </Publisher>
+
+    <Publisher class="File" name="FilePubRead">
+      <Param name="FileName" value="encrypted.bin" />
+      <Param name="Overwrite" value="false" />
+    </Publisher>  </Test>
+</Peach>
+----
+<1> The expression is executed before the output action starts.
+<2> The expression is executed after the output action completes.
+
+=== Accessing Data
+
+Scripts running in Peach have access to all DataModels, StateModels and Tests. Data is accessed by traversing the DOM to locate the target element.
+
+.SNMP Python File for Copying Incoming Data
+[source,python]
+----
+#!/usr/bin/env python
+
+import clr
+clr.AddReferenceByPartialName('Peach.Core')
+
+import Peach.Core <1>
+
+# Sets the type and value for all empty Value fields (The value for the Object Name pair):
+def set_variables(ctx): <2>
+  vars_block = ctx.parent.actions[0].dataModel.find('VariableBindings') <3>
+  output = ctx.dataModel.find('VariableBindings').parent
+  if vars_block:
+    #Targets the Value field(s) inside of the VariableBindings Value
+    #x[0] == Type, x[1] == Size, x[2] == Value
+    variable_bindings = vars_block[0][2][0][0][2]
+    for x in variable_bindings:
+      if x[2].DefaultValue.ToString() == "":
+        x[0].DefaultValue = Peach.Core.Variant(0x06) <4>
+        x[2].DefaultValue = Peach.Core.Variant((0x2b,0x06, 0x01, 0x04, 0x01, 0x8f, 0x51, 0x01, 0x01, 0x01, 0x82, 0x29, 0x5d, 0x01, 0x1b, 0x02, 0x02, 0x01))
+    output['VariableBindings'] = vars_block.Clone()
+----
+<1> The Peach name space is inserted into the file.
+<2> The ctx variable starts at the action from where it was called.
+<3> Traversing the DOM to find the target Block element.
+<4> Setting the DefaultValue of an element to the Peach Variant type.
+
+Data elements expose ways of accessing data associated with a data element.
+
+DefaultValue:: This property provides access to the default, unmutated value. The default value is produced when this element is not being fuzzed.
+
+InternalValue:: This property contains the value (fuzzed or default) to use when generating the final value. The field type is a variant of the internal typing, such as "int" or "string". The InternalValue property is used during scripting.
+
+Value:: This is the final, generated binary value. The Value property is the InternalValue packed into binary form. For a _Number_ element of size 32, this is 4 contiguous bytes of data with correct endian-ness.
+
+The data and state models in Peach are tree-object graphs with a parent-child relationship. Parents are accessible using the -_parent property.
+
+=== Returning Peach Types
+
+When a script overwrites the DefaultValue for any element, the value type must be a Peach Variant. A Peach Variant accepts integers, strings, and arrays.
+
+[source,python]
+----
+import clr
+clr.AddReferenceByPartialName('Peach.Core')
+import Peach.Core
+import code
+
+def some_func(ctx):
+  code.InteractiveConsole(locals=locals()).interact()
+  elementOne = ctx.parent.actions[0].dataModel.Find('TargetOne')
+  elementOne.DefaultValue = Peach.Core.Variant("Hello")
+
+  element = ctx.parent.actions[0].dataModel.Find('TargetTwo')
+  element.DefaultValue = Peach.Core.Variant(31337)
+----
+
+=== Debugging
+
+You can debug Python code loaded from a file by using the InteractiveConsole from the code module. When the function executes and reaches the +code.InteractiveConsole+ line, control over the function transfers to the user until the function ends. This approach allows each line in the function to be manually entered to ensure the expected behavior is happening.
+
+[source,python]
+----
+import clr
+clr.AddReferenceByPartialName('Peach.Core')
+import Peach.Core
+import code
+
+def some_func(ctx):
+  code.InteractiveConsole(locals=locals()).interact()
+  datamodel = ctx.parent.actions[0].dataModel
+----
+
+=== API Reference
+
+The Peach distribution includes HTML API documentation. The elements in the XML map directly to the +Peach.Core.Dom+ namespace. All public properties and methods are available to be called.
+
+// end

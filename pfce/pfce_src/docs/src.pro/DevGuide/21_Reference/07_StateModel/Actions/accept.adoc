@@ -1,0 +1,220 @@
+<<<
+[[Action_accept]]
+== accept
+
+// 01/30/2014: Seth & Mike: Outlined
+//   Only blocking action type (wellll... input)
+//   Only works with publisher that implement it (e.g. tcp listener)
+//   does normal wait or time out work with it? (most have different accept time out vs. input)
+//   Examples
+
+// 02/12/2014: Mick
+//   Added description of what Accept does and how it is for client fuzzing
+//   Explained it blocks and mentioned tcplistener
+//   Added attribute descriptions
+//   Added an example
+
+// 02/27/2013: Mike: Ready for tech review
+//   Updated content
+//   Flushed out examples
+//   Fixed formatting
+
+// 03/05/2014: Lynn: 
+//  Edited text
+
+The _accept_ Action blocks execution until an incoming connection is available, made, and accepted; or a timeout occurs. This action is most common in situations where a target application initiates the communication and Peach acts as a server. 
+
+Not all xref:Publisher[Publishers] support the _accept_ action type. xref:Publishers_TcpListener[TcpListener] is an example of a Publisher that supports _accept_.
+
+Peach is single-threaded so it can't execute any other task (including scripts) while waiting for a target connection.
+
+.Accept Timeout
+****
+Some Publishers use an _AcceptTimeout_ parameter to limit the wait for a connection. If the timeout occurs prior to accepting an incoming connection, Peach behaves as follows:
+
+xref:Iteration_record[Timeout occurs during a record iteration]::
+  Peach throws an exception and stops. The results of a record iteration are used as a standard for comparing with results of control iterations. 
+  When things do not work correctly during a record iteration, the environment is not working correctly or the pit is not correct. 
+  In either case, the fuzzing session cannot continue.
+  
+xref:Iteration_control[Timeout occurs during a control iteration]::
+  Peach triggers a fault. Control iterations are used as checkpoints to verify that the target is operating correctly. 
+  The pit must enable Control iterations to reach this state.
+  During control iterations, Peach assumes any error results from the target entering an unwanted state.
+  Such transitions are considered faults and logged accordingly.
+  
+xref:Iteration_fuzzing[Timeout occurs during a fuzzing iteration]::
+  Peach continues to the next iteration.
+  During normal fuzzing iterations, Peach ignores odd behavior from the target unless it occurs during a control iteration.
+****
+
+.Default Order of Actions
+****
+When fuzzing occurs, actions are performed in the following (default) order:
+
+. _start_ - Implicit, once per session
+. _open_ - Implicit, once per iteration
+. Explicit actions (like _accept_, _input_, and _output_)
+. _close_ - Implicit, once per iteration
+. _stop_ - Implicit, once per session
+****
+
+=== Syntax
+
+[source,xml]
+----
+<StateModel name="TheStateModel" initialState="InitialState">
+  <State name="InitialState"> 
+
+  <Action type="accept" />
+
+  <Action type="output">
+    <DataModel ref="PacketModel"/>
+  </Action>
+
+  </State>
+</StateModel>
+----
+
+=== Attributes
+
+_Required:_
+
+type:: Action type, must be set to "accept"
+
+_Optional:_
+
+name:: Name used to identify the action
+publisher:: Name of the publisher to perform this action
+xref:Action_when[when]:: Perform this action if the provided expression evaluates to true
+xref:Action_onStart[onStart]:: Evaluate the expression at the start of an action
+xref:Action_onComplete[onComplete]:: Evaluate the expression upon completion of an action
+
+=== Child Elements
+
+None.
+
+=== Examples
+
+.Ping-Pong Accept Example
+==========================
+This is a simple example of using the _accept_ action. Netcat (nc) is used in this example as the client.
+
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://peachfuzzer.com/2012/Peach peach.xsd">
+
+  <DataModel name="Ping">
+    <String value="PING" token="true"/>
+  </DataModel>
+
+  <DataModel name="Pong">
+    <String value="PONG" />
+  </DataModel>
+
+  <StateModel name="TheStateModel" initialState="InitialState">
+    <State name="InitialState">
+      <Action type="accept" />
+
+      <Action type="input">
+        <DataModel ref="Ping"/> 
+      </Action> 
+
+      <Action type="output">
+        <DataModel ref="Pong"/>
+      </Action> 
+    </State> 
+  </StateModel>
+
+  <Test name="Default">
+    <StateModel ref="TheStateModel"/>
+    
+    <Publisher class="TcpListener">
+      <Param name="Interface" value="0.0.0.0" />
+      <Param name="Port" value="31337" />
+      <Param name="AcceptTimeout" value="10000" />
+      <Param name="Timeout" value="10000" />
+    </Publisher>
+
+    <Logger class="File" >
+      <Param name="Path" value="logs"/>
+    </Logger>
+  </Test>
+</Peach>
+----
+
+Output from this example that the server produces. 
+
+Once Peach starts, type the following command line and press RETURN to recreate the output. Again, _nc_ is netcat.
+
+nc -vv 127.0.0.1 31337
+
+----
+> peach -1 --debug example.xml
+
+[*] Test 'Default' starting with random seed 32331.
+
+[R1,-,-] Performing iteration
+Peach.Core.Engine runTest: Performing recording iteration.
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Accept
+Peach.Core.Publishers.TcpListenerPublisher start()
+Peach.Core.Publishers.TcpListenerPublisher open()
+Peach.Core.Publishers.TcpListenerPublisher accept()                          <1>
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Input
+Peach.Core.Publishers.TcpListenerPublisher input()
+Peach.Core.Publishers.TcpListenerPublisher Read 5 bytes from 127.0.0.1:62407
+Peach.Core.Publishers.TcpListenerPublisher
+
+00000000   50 49 4E 47 0A                                     PING·
+
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker DataModel 'Ping' Bytes: 0/5, Bits: 0/40
+Peach.Core.Cracker.DataCracker getSize: -----> DataModel 'Ping'
+Peach.Core.Cracker.DataCracker scan: DataModel 'Ping'
+Peach.Core.Cracker.DataCracker scan: String 'Ping.DataElement_0' -> Pos: 0, Saving Token
+Peach.Core.Cracker.DataCracker scan: String 'Ping.DataElement_0' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Deterministic: ???
+Peach.Core.Cracker.DataCracker Crack: DataModel 'Ping' Size: <null>, Bytes: 0/5, Bits: 0/40
+Peach.Core.Cracker.DataCracker ------------------------------------
+Peach.Core.Cracker.DataCracker String 'Ping.DataElement_0' Bytes: 0/5, Bits: 0/40
+Peach.Core.Cracker.DataCracker getSize: -----> String 'Ping.DataElement_0'
+Peach.Core.Cracker.DataCracker scan: String 'Ping.DataElement_0' -> Pos: 0, Saving Token
+Peach.Core.Cracker.DataCracker scan: String 'Ping.DataElement_0' -> Pos: 32, Length: 32
+Peach.Core.Cracker.DataCracker getSize: <----- Size: 32
+Peach.Core.Cracker.DataCracker Crack: String 'Ping.DataElement_0' Size: 32, Bytes: 0/5, Bits: 0/40
+Peach.Core.Dom.DataElement String 'Ping.DataElement_0' value is: PING
+Peach.Core.Dom.Action Run: Adding action to controlRecordingActionsExecuted
+Peach.Core.Dom.Action ActionType.Output
+Peach.Core.Publishers.TcpListenerPublisher output(4 bytes)
+Peach.Core.Publishers.TcpListenerPublisher
+
+00000000   50 4F 4E 47                                        PONG
+
+Peach.Core.Publishers.TcpListenerPublisher close()
+Peach.Core.Publishers.TcpListenerPublisher Shutting down connection to 127.0.0.1:62407
+Peach.Core.Publishers.TcpListenerPublisher Read 0 bytes from 127.0.0.1:62407, closing client connection.
+Peach.Core.Publishers.TcpListenerPublisher Closing connection to 127.0.0.1:62407
+
+Peach.Core.Engine runTest: context.config.singleIteration == true
+Peach.Core.Publishers.TcpListenerPublisher stop()
+
+[*] Test 'Default' finished.
+----
+<1> Peach waits here for the incoming connection.
+
+Interaction from the client, including the Netcat command line. 
+
+Once Netcat is running, type "PING" in upper case and press RETURN. "PONG" will be sent back by Peach.
+
+----
+> nc -vv 127.0.0.1 31337
+Connection to 127.0.0.1 31337 port [tcp/*] succeeded!
+PING
+PONG
+----
+==========================

@@ -1,0 +1,90 @@
+<<<
+[[Publishers_I2C]]
+== I2C Publisher
+
+// Updates:
+// 2/17/2014: Mick
+// added example
+// verified params and actions
+
+Use the _I2C_ Publisher to read and write bytes directly to and from an I2C bus.
+
+_I2C_ is designed to interface with the Total Phase Aardvark I2C/SPI (USB) Host Adapter. 
+
+=== Syntax
+
+[source,xml]
+----
+<Publisher class="I2C">
+	<Param name="Address" value="18"/>
+	<Param name="SleepTime" value="5"/>
+	<Param name="Bitrate" value="400"/>
+</Publisher>
+----
+
+=== Parameters
+
+_Required:_
+
+Address:: Address to write/read on target device.
+
+_Optional:_
+
+Bitrate:: Bitrate supported by target device. Defaults to 100.
+Port:: USB port connected to Aardvark device. Defaults to 0.
+SleepTime:: Time to sleep between actions. Defaults to 100.
+
+=== Actions
+
+xref:Action_start[start]:: Implicit Action to start the Publisher.
+xref:Action_stop[stop]:: Implicit Action to stop the Publisher.
+xref:Action_open[open]:: Open and initialize the aardvark handle.
+xref:Action_close[close]:: Close and clean up the aardvark handle.
+xref:Action_output[output]:: Data sent via output is written to the I2C bus.
+xref:Action_input[input]:: Data received via input is read from the I2C bus.
+
+=== Examples
+
+.Basic Usage
+==============
+[source,xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<Peach xmlns="http://peachfuzzer.com/2012/Peach" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://peachfuzzer.com/2012/Peach /peach/peach.xsd">
+   
+	<DataModel name="I2CModel">
+		<Blob name="CtlCode" length="1" />
+		<Number name="Length" size="8">
+			<Relation type="size" of="Data" />
+		</Number>
+		<Blob name="Data" />
+	</DataModel>
+
+	<StateModel name="TheState" initialState="Initial">    
+		<State name="Initial">
+			<Action type="open" />
+			<Action type="output">
+				<DataModel ref="I2C_Data_Reset"/>
+				<Data>
+					<Field name="CtlCode" value="1" />
+					<Field name="Data" value="0x30313233"/>
+				</Data>
+			</Action>
+		</State>
+	</StateModel>
+
+	<Test name="Default">
+		<StateModel ref="TheState"/>
+
+		<Publisher class="I2C">
+			<Param name="Address" value="18"/>
+			<Param name="SleepTime" value="5"/>
+			<Param name="Bitrate" value="400"/>
+		</Publisher>
+
+		<Strategy class="Random" />
+	</Test>
+</Peach>
+----
+==============

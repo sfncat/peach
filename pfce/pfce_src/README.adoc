@@ -1,0 +1,224 @@
+:toc:
+
+= GitLab Protocol Fuzzer Community Edition
+
+This project is based on Peach Fuzzer Professional v4 which was https://about.gitlab.com/press/releases/2020-06-11-gitlab-acquires-peach-tech-and-fuzzit-to-expand-devsecops-offering.html[aquired by GitLab] in 2020. Some features of Peach Fuzzer Profession were removed and will be made available as part of GitLab in the future. This project replaces the Peach Fuzzer Community projects hosted on GitLab and also Source Forge.
+
+As this code was originally developed by Peach Tech, there may be references throughout the repo to personnel, email addresses, 
+websites, or capabilities specific to Peach Tech. These will be updated over time to refer to GitLab. If you find one, feel free to 
+open an MR to ask for clarification and/or update it.
+
+Please follow the local build instructions until binaries are made available.
+
+
+== Repo Layout
+
+build::
+  Build scripts for compiling the repo.
+  This includes waf (the build system used by peach),
+  asciidoctor templates, and various scripts used by jenkins
+  for integration builds.
+core::
+  Common classes and interfaces between OSS and closed source Peach.
+docs::
+  All documentation for the user's guide, developer guide and trial guides.
+packer::
+  The template and scripts used by packer (https://packer.io) to generate
+  the hosted trial AMI and on-prem trial OVA.
+pro::
+  The source code for Peach Professional and the assiciated applications and tests.
+tools::
+  Scripts needed by the build (nunit launcher and `*.exe.config` generator).
+
+== Git Workflow
+
+The build scripts expect all commit messages to follow a set of rules.
+Messages MUST start with one of the following prefixes:
+`new:` `chg:` `fix:` `dev:`.
+No merge commits are allowed, and it is recommended that all PRs
+are squashed into a single commit.
+
+The first line of the commit message is used to automatically genertate the customer facing changelog.
+The subsequent lines of the commit message can contain anything and are ignored during changelog generation.
+If the commit message starts with `dev:` the commit will be omitted from the changelog.
+The other commits are catogorized as either new, changed or fixed.
+
+== Local Build Instructions
+
+Peach supports compilation on Windows, Linux and OSX computers.
+Peach uses waf (https://waf.io/) as its build system.
+Waf supports the idea of 'build variants' which is used for compiling
+Peach for various platforms and architectures.
+
+Peach uses 11 different build variants:
+
+Windows::
+  `win_x86_debug` `win_x86_release` `win_x64_debug` `win_x64_release`
+Linux::
+  `linux_x86_debug` `linux_x86_release` `linux_x86_64_debug` `linux_x86_64_release`
+OSX::
+  `osx_debug` `osx_release`
+Documentation::
+  `doc`
+
+Waf builds out of tree, meaning the intermediate files and output
+binaries are placed in a different directory than the source code.
+For the peach build, intermediate files are placed in the `slag/{variant}` directory
+and are installed in the `output/{variant}` directory.
+
+Waf looks for `wscript_build` files in all sub directories of the root
+and runs whatever is in them.  For most top-level `wscript_build` files,
+they typically just contain the next list of sub directories to recurse into.
+
+=== Windows Build Prerequisites:
+
+ * Python 2.7
+ * Ruby 2.3
+ * doxygen, java, xmllint, xsltprocx
+ * .NET Framework 4.6.1
+ * Visual Studio 2015 or 2017 with C++ compilers
+ * TypeScript Compiler (tsc) v2.8
+ * Download Intel Pin (see 3rdParty/pin/README.md)
+ 
+Add the following two registry entries via PowerShell:
+
+----
+new-itemproperty -path "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319" -name "SchUseStrongCrypto" -Value 1 -PropertyType "DWord";
+new-itemproperty -path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NETFramework\v4.0.30319" -name "SchUseStrongCrypto" -Value 1 -PropertyType "DWord"
+----
+
+
+=== Linux Build Prerequisites:
+
+ * Ubuntu 16.04 recommended
+ * gcc and g++
+ * g++-multilib (for x86 cross compiling)
+ * python 2.7
+ * ruby 2.3
+ * doxygen, java, xmllint, xsltproc
+ * mono-complete v4.8.1
+ * nodejs and tsc v2.8
+ * Download Intel Pin (see 3rdParty/pin/README.md)
+
+=== Build Commands
+
+The minimum commands needed to compile peach are shown below:
+
+----
+waf configure
+waf build
+waf install
+----
+
+waf configure::
+  This is the first step that must be run in order to compile peach.
+  This step is analogous to the autoconf phase of linux library compilation. +
+   +
+  Waf will try to locate all build dependencies and will save their paths.
+  If a build dependency can not be located for a specific variant,
+  the build variant will be marked as not supported.
+  This can be useful if you only want to build for linux_x86_64 but do not want to build docs. +
+   +
+  The configure phase will run the program packt (https://fsprojects.github.io/Paket/) and fetch
+  all the 3rd Party dependencies from nuget using the requirements listed in `paket/paket.depenencies`. +
+   +
+  NOTE: waf configure only needs to be run once.
+  For the normal developer workflow of modifying Peach sources, you will not
+  need to run this command.  However, if you make changes to the build scripts
+  (located in the `build` directory, or you changed the installed set of build tools,
+  you will need to re-run this command so updated tool path can be resolved. +
+   +
+  TIP: If an error occurs because a required tool can not be located, try
+  re-running with increased verbosity.  `waf configure -v` will display
+  every dependency that being located as well as the full path where it is detected. +
+   +
+  The configuration phase is also how the integration build sets the version number.
+  By running `waf configure --buildtag=4.3.100`, all built artifacts will be 
+  stamped with the specified buildtag.  If no option is specified, the buildtag
+  defaults to `0.0.0`.
+
+waf build::
+  This is the command that will compile all the bits in the repository.
+  Compilation includes generating version stamped files,
+  running any source code transpilation,
+  compiling the source and linking the results. +
+   +
+  This command is analogous to running `make` on linux. +
+   +
+  All artifacts from the build phase will end up in the `slag/{variant}` directory.
+
+waf install::
+  This command installs the program outputs, as well as all library depenedencies, into the `output/{variant}` directory. +
+   +
+  This command is analogous to running `make install` on linux. +
+   +
+  The usual developer workflow for linux is to run `waf install --variant=linux_x86_64_debug`
+  and then run `./output/linux_x86_64_debug/bin/peach`.
+
+=== Optional Build Commands
+
+waf pkg::
+  This generates the installer zips.
+  For peach, there are two zips, one for internal usage (running unit tests/integration tests)
+  and one for external usage (uploading to the download site).
+  The two zips land in the `output/{variant}/pkg` folder.
+  Lastly, this waf command will create the local license server zip.
+
+waf test::
+  Runs all the unit tests.  To run unit tests for a the windows x64 debug variant, you can run
+  `waf test --variant=win_x64_debug`.
+
+waf msvs2017::
+  Creates all the `.csproj` files and `Peach.sln` file for use with Visual Studio 2017.
+  
+waf zip::
+  Zips all the outputs from the install phase into a single artifact.
+
+=== Waf Notes
+
+Waf usage follows the syntax: `waf [command] [options]`
+For all commands, the verbosity can be increased by adding one or more `-v` arguments.
+For all commands except configure, the following options are supported:
+
+ * `--variant=xxx` will filter the command to variants that contain 'xxx' in their name.
+   This means `--variant=4_d` will match the variants `linux_x86_64_debug` and `win_x64_debug`.
+ * `-j1` will control the task parallelization of waf so only 1 task can run at a time.
+   By default, waf will run N tasks simultaneously where N corresponds to the number opf CPU cores on the host.
+   Only running a single task at a time can sometimes help with troubleshooting build errors.
+ * `waf --help` will display the full list of supported commands and options.
+
+== Submitting Merge Requests
+
+*Guide Lines*
+
+. Unit tests must be provided with pull request
+. Correct use of logging
+. All merge requests will go through a source code review
+
+Make sure the Peach Team and specifically @mikeeddington is aware of any deadlines for getting 
+merge requests accepted. It's not uncommon for merge requests to take several months to be 
+accepted otherwise.
+
+=== Logging
+
+Peach uses NLog for logging of debug/trace messages.
+
+Debug::
+ Debug messages should be used sparringly.
+ Customers make use of --debug to identify issues in their pits.
+ It's critical to keep this output sussinct, with only information needed by the end user displaying.
+
+Trace::
+ This is the log level that should be used for output mostly wanted by Peach developers or when diagnosing a possible problem,
+ but not something the customer would want to always see.
+
+=== Unit Tests
+
+All pull requests are required to have unit tests that provide reasonable coverage of all features.
+NUnit is our unit testing framework.
+Prior to submitting a pull request verify all Peach unit tests are passing. 
+
+=== Documentation
+
+All shipping code features require product documentation.
+This could be new documentation for a fixup or similar being added or an update to existing documentation.

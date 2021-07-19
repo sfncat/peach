@@ -1,0 +1,18 @@
+:toc!:
+= crypto.Hmac =
+
+HMAC as described in RFC 2104. You can read more about link:Transformers.html[transformers here].
+
+[source,xml]
+----
+
+<Block name="HelloWorld">
+  <Transformer class="crypto.Hmac"/>
+  <Blob name="Data" value="Hello"/>
+</Block>
+----
+
+
+_Attributes:_
+
+ * link:class.html[class] -- +crypto.Hmac+, +Hmac+

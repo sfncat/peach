@@ -1,0 +1,43 @@
+[[PitTool_Makexsd]]
+== Pit Tool - Make XSD
+
+Generate XML Schema file (peach.xsd). 
+This file is used for pit file validation and also intelliSense in XML editors. 
+The XSD only needs to be generated if custom extensions are added to Peach.
+
+The Peach schema file, _peach.xsd_, provides intelliSense in supported editors 
+(like Visual Studio and oXygen XML Editor). 
+When adding extensions to Peach, 
+generate a new schema file that includes these extensions.
+
+=== Syntax
+
+----
+Usage:
+  PitTool.exe makexsd
+
+Description:
+  Generate a peach.xsd file.
+
+General Options:
+  -h, --help                 Display this help and exit
+  -V, --version              Display version information and exit
+  -v, --verbose              Increase verbosity, can use multiple times
+      --plugins=VALUE        Specify the plugins path
+      --pits=VALUE           Specify the PitLibraryPath.
+----
+
+=== Parameters
+
+None
+
+=== Example
+
+----
+> pittool makexsd
+Successfully generated peach.xsd
+----
+
+The output of this command is a new _peach.xsd_ file that contains any custom extensions.
+
+// end

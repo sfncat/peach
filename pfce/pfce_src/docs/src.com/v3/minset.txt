@@ -1,0 +1,106 @@
+:toc!:
+== Minimum Set ==
+
+This tool will run each sample file through a target program and determine code coverage.  It will then find the least number of files needed to cover the most code.  This will be the minimum set of files that should be used when fuzzing.
+
+.Syntax Help
+----
+> PeachMinset.exe
+
+] Peach 3 -- Minset
+] Copyright (c) Deja vu Security
+
+Peach Minset is used to locate the minimum set of sample data with
+the best code coverage metrics to use while fuzzing.  This process
+can be distributed out across multiple machines to decrease the run
+time.
+
+There are two steps to the process:
+
+  1. Collect traces       [long process]
+  2. Compute minimum set  [short process]
+
+The first step, collecting traces, can be distributed and the results
+collected for analysis by step #2.
+
+Collect Traces
+ --------------
+
+Perform code coverage using all files in the 'samples' folder.  Collect
+the .trace files for later analysis.
+
+Syntax:
+  PeachMinset [-k] -s samples -t traces command.exe args %s
+
+Note:
+  %s will be replaced by sample filename.
+
+Compute Minimum Set
+ -------------------
+
+Analyzes all .trace files to determin the minimum set of samples to use
+during fuzzing.
+
+Syntax:
+  PeachMinset -s samples -t traces -m minset
+
+
+All-In-One
+ ----------
+
+Both tracing and computing can be performed in a single step.
+
+Syntax:
+  PeachMinset [-k] -s samples -m minset command.exe args %s
+
+Note:
+  %s will be replaced by sample filename.
+
+
+Distributing Minset
+ -------------------
+
+Minset can be distributed by splitting up the sample files and
+distributing the collecting of traces to multiple machines.  The
+final compute minimum set cannot be distributed.
+
+----
+
+
+.Example Run
+----
+>peachminset -s pinsamples -m minset -t traces bin\pngcheck.exe %%s
+
+] Peach 3 -- Minset
+] Copyright (c) Deja vu Security
+
+[*] Running both trace and coverage analysis
+[*] Running trace analysis on 15 samples...
+[1:15]   Converage trace of pinsamples\basn0g01.png...done.
+[2:15]   Converage trace of pinsamples\basn0g02.png...done.
+[3:15]   Converage trace of pinsamples\basn0g04.png...done.
+[4:15]   Converage trace of pinsamples\basn0g08.png...done.
+[5:15]   Converage trace of pinsamples\basn0g16.png...done.
+[6:15]   Converage trace of pinsamples\basn2c08.png...done.
+[7:15]   Converage trace of pinsamples\basn2c16.png...done.
+[8:15]   Converage trace of pinsamples\basn3p01.png...done.
+[9:15]   Converage trace of pinsamples\basn3p02.png...done.
+[10:15]   Converage trace of pinsamples\basn3p04.png...done.
+[11:15]   Converage trace of pinsamples\basn3p08.png...done.
+[12:15]   Converage trace of pinsamples\basn4a08.png...done.
+[13:15]   Converage trace of pinsamples\basn4a16.png...done.
+[14:15]   Converage trace of pinsamples\basn6a08.png...done.
+[15:15]   Converage trace of pinsamples\basn6a16.png...done.
+
+[*] Finished
+[*] Running coverage analysis...
+[-]   3 files were selected from a total of 15.
+[*] Copying over selected files...
+[-]   pinsamples\basn3p08.png -> minset\basn3p08.png
+[-]   pinsamples\basn3p04.png -> minset\basn3p04.png
+[-]   pinsamples\basn2c16.png -> minset\basn2c16.png
+
+[*] Finished
+
+----
+

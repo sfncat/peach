@@ -1,0 +1,14 @@
+:toc!:
+link:AgentAndMonitor.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:RunningInParallel.html[Next >>]
+
+''''
+
+== Optimize Testing ==
+
+While we could at this point just kick off our fuzzer and grab a beer, there are a few things we can optimize in our fuzzer to reduce the number of iterations it will perform.  For example, all of the actual PCM/WAV samples and music data is probably something that we don't need to fuzz much.  All changing this will do is create unhappy sounds.  So, lets dial down the mutators that will run against them.
+
+*TODO: Talk about hints*
+
+''''
+
+link:AgentAndMonitor.html[<< Previouse] | link:../TutorialFileFuzzing.html[Up] | link:RunningInParallel.html[Next >>]
