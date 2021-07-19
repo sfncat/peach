@@ -3,3 +3,5 @@
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/modules.xml
 .idea/vcs.xml
+install/packages.tar.bz2
+install/docker/Dockerfile.base
