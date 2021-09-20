@@ -511,7 +511,7 @@ VOID ThreadProc(VOID *v)
 	DBG(("CPU monitor thread exiting"));
 	PIN_ExitThread(0);
 }
-
+#define STATIC_ASSERT(expr) typedef char __static_assert[expr ? 1 : -1] __attribute__((__unused__));
 int main(int argc, char* argv[])
 {
 	// Expect size_t and ADDRINT to be the same
