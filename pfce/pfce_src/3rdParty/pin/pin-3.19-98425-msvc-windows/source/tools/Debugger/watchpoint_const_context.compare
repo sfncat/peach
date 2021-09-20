@@ -1,0 +1,13 @@
+Watching address .*
+Watchpoint triggered at .*
+.*at\s*watchpoint-app.c:41
+.*= 0
+Watchpoint triggered at .*
+.*at\s*watchpoint-app.c:41
+.*= 1
+Watchpoint triggered at .*
+.*at\s*watchpoint-app.c:41
+.*= 3
+Watchpoint triggered at .*
+.*at\s*watchpoint-app.c:41
+.*= 6
