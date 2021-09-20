@@ -60,9 +60,13 @@ def prepare(conf):
 				j(pin, 'ia32', 'runtime', 'pincrt'),
 				j(pin, 'extras', 'xed-ia32', 'lib'),
 			],
-			'STLIB'     : [
-				'pin', 'xed', 'pinvm', 'pincrt', 'm-static',
-				'c-static', 'os-apis', 'ntdll-32'
+			# 'STLIB'     : [
+			# 	'pin', 'xed', 'pinvm', 'pincrt', 'm-static',
+			# 	'c-static', 'os-apis', 'ntdll-32'
+			# ],
+			'STLIB': [
+				'pin', 'xed',  'pincrt',
+
 			],
 			'DEFINES'   : [
 				'TARGET_WINDOWS', 'BIGARRAY_MULTIPLIER=1',
@@ -112,9 +116,13 @@ def prepare(conf):
 				j(pin, 'intel64', 'runtime', 'pincrt'),
 				j(pin, 'extras', 'xed-intel64', 'lib'),
 			],
-			'STLIB'     : [
-				'pin', 'xed', 'pinvm', 'pincrt', 'm-static',
-				'c-static', 'os-apis', 'ntdll-64'
+			# 'STLIB'     : [
+			# 	'pin', 'xed', 'pinvm', 'pincrt', 'm-static',
+			# 	'c-static', 'os-apis', 'ntdll-64'
+			# ],
+			'STLIB': [
+				'pin', 'xed',  'pincrt',
+
 			],
 			'DEFINES'   : [
 				'TARGET_WINDOWS', 'BIGARRAY_MULTIPLIER=1',
