@@ -1,6 +1,8 @@
 # 编译PeachPro 4.0(protocol-fuzzer-ce) for windows
 
 ## 主要参考
+更新：2021.9.20 更新pin 3.19.98425
+
 主要参考这位大佬的编译过程，其实主要是安装依赖的过程实在是过于复杂。
 https://medium.com/csg-govtech/lifes-a-peach-fuzzer-how-to-build-and-use-gitlab-s-open-source-protocol-fuzzer-fd78c9caf05e
 
@@ -50,6 +52,22 @@ https://my.visualstudio.com/Downloads?q=visual%20studio%202017&wt.mc_id=o~msft~v
 
 ### 7.Intel Pin
 
+更新3.19.98425
+
+windows:
+
+https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.19-98425-gd666b2bee-msvc-windows.zip
+
+linux:
+
+https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.19-98425-gd666b2bee-gcc-linux.tar.gz
+
+解压到3rdParty/pin目录下，目录改名为pin-3.19-98425-msvc-windows
+
+
+
+****作废2021.9.20****
+
 直接下载，界面上找不到下载链接
 
 windows:
@@ -64,7 +82,7 @@ http://software.intel.com/sites/landingpage/pintool/downloads/pin-3.2-81205-gcc-
 
 ![image-20210704124543906](README.assets/image-20210704124543906.png)
 
-
+****作废2021.9.20****
 
 ### 8.Visual C++ Redistributable for Visual Studio 2012 Update 4
 
@@ -90,7 +108,24 @@ https://go.microsoft.com/fwlink/p/?linkid=2120735
 git clone https://gitlab.com/gitlab-org/security-products/protocol-fuzzer-ce.git
 ```
 
+## 修改代码
 
+当前commit（Merge branch 'pin3.19support' into 'main'）下修改代码不完整，无法编译，需要修改代码。
+
+build\config\win.py
+
+STLIB中的'pinvm','m-static','c-static', 'os-apis', 'ntdll-64' 删除
+
+			'STLIB': [
+				'pin', 'xed',  'pincrt',
+	
+			],
+
+core\BasicBlocks\bblocks.cpp增加STATIC_ASSERT定义
+
+```
+#define STATIC_ASSERT(expr) typedef char __static_assert[expr ? 1 : -1] __attribute__((__unused__));
+```
 
 ## 编译
 
