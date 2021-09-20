@@ -66,7 +66,7 @@ def prepare(conf):
 	if '10.6' in env['SYSROOT']:
 		return
 
-	env['PIN_VER'] = 'pin-3.2-81205-clang-mac'
+	env['PIN_VER'] = 'pin-3.19-98425-clang-mac'
 
 	pin = j(conf.get_third_party(), 'pin', env['PIN_VER'])
 

@@ -46,7 +46,7 @@ def prepare(conf):
 
 	env['ARCH_ST'] = '-m%s'
 
-	env['PIN_VER'] = 'pin-3.2-81205-gcc-linux'
+	env['PIN_VER'] = 'pin-3.19-98425-gcc-linux'
 
 	pin = j(conf.get_third_party(), 'pin', env['PIN_VER'])
 

@@ -31,7 +31,7 @@ def prepare(conf):
 	env['MSVC_VERSIONS'] = ['msvc 16.8', 'msvc 15.0', 'msvc 14.0', 'msvc 12.0', 'msvc 11.0', 'msvc 10.0', 'wsdk 7.1' ]
 	env['MSVC_TARGETS']  = 'x64' in env.SUBARCH and [ 'x64', 'x86_amd64' ] or [ 'x86' ]
 
-	env['PIN_VER'] = 'pin-3.2-81205-msvc-windows'
+	env['PIN_VER'] = 'pin-3.19-98425-msvc-windows'
 
 	pin = j(conf.get_third_party(), 'pin', env['PIN_VER'])
 
@@ -61,7 +61,7 @@ def prepare(conf):
 				j(pin, 'extras', 'xed-ia32', 'lib'),
 			],
 			'STLIB'     : [
-				'pin', 'xed', 'pinvm', 'stlport-static', 'm-static',
+				'pin', 'xed', 'pinvm', 'pincrt', 'm-static',
 				'c-static', 'os-apis', 'ntdll-32'
 			],
 			'DEFINES'   : [
@@ -113,7 +113,7 @@ def prepare(conf):
 				j(pin, 'extras', 'xed-intel64', 'lib'),
 			],
 			'STLIB'     : [
-				'pin', 'xed', 'pinvm', 'stlport-static', 'm-static',
+				'pin', 'xed', 'pinvm', 'pincrt', 'm-static',
 				'c-static', 'os-apis', 'ntdll-64'
 			],
 			'DEFINES'   : [
@@ -256,7 +256,6 @@ def configure(conf):
 		'/NOLOGO',
 		'/DEBUG',
 		'/INCREMENTAL:NO',
-		'/WX',
 		'/MACHINE:%s' % env.SUBARCH,
 	])
 

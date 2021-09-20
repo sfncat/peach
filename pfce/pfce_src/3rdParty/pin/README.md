@@ -4,9 +4,9 @@ To build the coverage tools used by MinSet a [copy of Intel Pin](https://softwar
 
 When extracted we expect the following folders:
 
-- pin-3.2-81205-clang-mac
-- pin-3.2-81205-msvc-windows
-- pin-3.2-81205-gcc-linux
+- pin-3.19-98425-clang-mac
+- pin-3.19-98425-msvc-windows
+- pin-3.19-98425-gcc-linux
 
 Newer versions may also work. YMMV.
 

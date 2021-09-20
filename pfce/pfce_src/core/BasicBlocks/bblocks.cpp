@@ -39,14 +39,6 @@
 
 #define DBG(x) do { if (KnobDebug) fileDbg.Dbg x; } while (0)
 
-template <bool b>
-struct StaticAssert {};
-
-template <>
-struct StaticAssert<true>
-{
-	static void assert() {}
-};
 
 class NonCopyable
 {
@@ -523,7 +515,7 @@ VOID ThreadProc(VOID *v)
 int main(int argc, char* argv[])
 {
 	// Expect size_t and ADDRINT to be the same
-	StaticAssert<sizeof(size_t) == sizeof(ADDRINT)>::assert();
+	STATIC_ASSERT(sizeof(size_t) == sizeof(ADDRINT));
 
 	// Ensure library initializes correctly
 	if (PIN_Init(argc, argv))
