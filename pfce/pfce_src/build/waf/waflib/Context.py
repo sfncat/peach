@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # encoding: utf-8
 # Thomas Nagy, 2010-2016 (ita)
 
@@ -500,6 +501,19 @@ class Context(ctx):
 		if not msg:
 			return
 		if self.logger:
+			# try:
+			# 	msg =  str(msg)
+			# except UnicodeEncodeError:
+			# msg =  msg.encode('ascii', 'ignore').decode('ascii')
+			# try:
+			# 	msg = str(msg).encode("utf-8")
+			# except Exception as e:
+			# 	print(e)
+			# 	msg = str(msg).encode("gb2312")
+			if isinstance(msg,list):
+				msg = ''.join(msg).decode('ascii','ignore')
+			else:
+				msg = msg.decode('ascii', 'ignore')
 			self.logger.info(msg)
 		else:
 			sys.stderr.write(str(msg))
